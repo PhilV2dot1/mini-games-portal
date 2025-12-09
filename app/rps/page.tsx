@@ -38,7 +38,7 @@ export default function RockPaperScissorsPage() {
 
   return (
     <main
-      className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-blue-100 p-4 sm:p-8"
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8"
       style={{
         paddingTop: "max(1rem, env(safe-area-inset-top))",
         paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
@@ -50,7 +50,7 @@ export default function RockPaperScissorsPage() {
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors font-semibold"
+          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
         >
           ← Back to Portal
         </Link>
@@ -107,7 +107,7 @@ export default function RockPaperScissorsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-xs sm:text-sm text-gray-500 pt-2 space-y-1"
+          className="text-center text-xs sm:text-sm text-gray-600 pt-2 space-y-1"
         >
           <p>Contract: 0xc4f5f0201bf609535ec7a6d88a05b05013ae0c49</p>
           <p>
@@ -115,7 +115,7 @@ export default function RockPaperScissorsPage() {
               href="https://celoscan.io/address/0xc4f5f0201bf609535ec7a6d88a05b05013ae0c49"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-blue-600 transition-colors"
+              className="text-gray-900 hover:text-celo font-semibold transition-colors underline decoration-celo"
             >
               View on Celoscan →
             </a>

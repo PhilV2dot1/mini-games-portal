@@ -22,7 +22,7 @@ export function FarcasterShare({ gameName, outcome, stats }: FarcasterShareProps
     <motion.button
       whileTap={{ scale: 0.95 }}
       onClick={handleShare}
-      className="w-full py-3 px-6 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg transition-all"
+      className="w-full py-3 px-6 bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white rounded-xl font-semibold shadow-lg transition-all"
     >
       Share on Farcaster 🎯
     </motion.button>

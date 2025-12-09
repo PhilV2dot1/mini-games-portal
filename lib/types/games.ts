@@ -30,7 +30,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "✊",
     route: "/rps",
     contractAddress: "0xc4f5f0201bf609535ec7a6d88a05b05013ae0c49",
-    color: "from-blue-500 to-purple-600",
+    color: "from-gray-400 to-gray-600",
     hasFee: false,
   },
   tictactoe: {
@@ -70,7 +70,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "🎯",
     route: "/mastermind",
     contractAddress: "0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9",
-    color: "from-indigo-500 to-violet-600",
+    color: "from-gray-500 to-gray-700",
     hasFee: true, // 0.01 CELO per game
   },
 };

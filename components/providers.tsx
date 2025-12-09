@@ -70,7 +70,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   if (!isSDKLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800">
         <div className="text-center">
           <div className="text-yellow-400 text-xl font-semibold mb-2">Loading...</div>
           <div className="text-sm text-gray-300">Initializing Celo Games Portal</div>

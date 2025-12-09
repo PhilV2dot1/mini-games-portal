@@ -46,22 +46,25 @@ export default function BlackjackPage() {
   }, [gamePhase, outcome, mode, recordGame]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold mb-4"
           >
             ← Back to Portal
           </Link>
-          <h1 className="text-4xl sm:text-6xl font-bold text-center text-white mb-2">
-            Blackjack on Celo
-          </h1>
-          <p className="text-center text-gray-300 text-sm sm:text-base">
-            Beat the dealer to 21! 🃏
-          </p>
+          <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center mb-4" style={{ border: '4px solid #FCFF52' }}>
+            <div className="text-6xl mb-2">🃏</div>
+            <h1 className="text-4xl sm:text-6xl font-black text-gray-900 mb-2">
+              Blackjack
+            </h1>
+            <p className="text-gray-700 text-sm sm:text-base font-medium">
+              Beat the dealer to 21!
+            </p>
+          </div>
         </header>
 
         {/* Mode Toggle */}
@@ -114,14 +117,14 @@ export default function BlackjackPage() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-12 text-center text-gray-400 text-sm">
+        <footer className="mt-12 text-center text-gray-600 text-sm">
           <p>Contract: 0x6cb9971850767026feBCb4801c0b8a946F28C9Ec</p>
           <p className="mt-1">
             <a
               href="https://celoscan.io/address/0x6cb9971850767026feBCb4801c0b8a946F28C9Ec"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-yellow-400 transition-colors"
+              className="text-gray-900 hover:text-celo font-semibold transition-colors underline decoration-celo"
             >
               View on Celoscan →
             </a>

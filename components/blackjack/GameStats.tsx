@@ -74,7 +74,7 @@ export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsPro
             </div>
             <div className="text-center">
               <div className="text-xs text-gray-600">Best</div>
-              <div className="text-lg font-bold text-purple-600">{stats.bestStreak}</div>
+              <div className="text-lg font-bold text-gray-700">{stats.bestStreak}</div>
             </div>
           </div>
         </div>

@@ -34,12 +34,12 @@ export default function JackpotPage() {
   const canSpin = state === "idle" || state === "result";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-yellow-900 to-gray-900 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
       <div className="max-w-md mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors font-semibold"
+          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
         >
           ← Back to Portal
         </Link>
@@ -48,11 +48,13 @@ export default function JackpotPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 shadow-xl text-center"
+          transition={{ duration: 0.3 }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
+          style={{ border: '4px solid #FCFF52' }}
         >
           <div className="text-6xl mb-2">🎰</div>
           <h1 className="text-4xl font-black text-gray-900">Solo Jackpot</h1>
-          <p className="text-sm text-gray-800 mt-2">Spin the crypto wheel!</p>
+          <p className="text-sm text-gray-700 mt-2 font-medium">Spin the crypto wheel!</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -67,14 +69,16 @@ export default function JackpotPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-white/10 backdrop-blur-lg rounded-xl p-4 text-center"
+          transition={{ duration: 0.3 }}
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg"
+          style={{ border: '4px solid #FCFF52' }}
         >
-          <div className="text-sm text-yellow-200 mb-1">Total Score</div>
-          <div className="text-4xl font-black text-yellow-400">{totalScore}</div>
+          <div className="text-sm text-gray-600 mb-1 font-medium">Total Score</div>
+          <div className="text-4xl font-black text-gray-900">{totalScore}</div>
         </motion.div>
 
         {/* Wheel Area / Result Display */}
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 min-h-[300px] flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-8 min-h-[300px] flex items-center justify-center shadow-xl" style={{ border: '4px solid #FCFF52' }}>
           <AnimatePresence mode="wait">
             {state === "idle" && (
               <motion.div
@@ -82,10 +86,10 @@ export default function JackpotPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center text-yellow-200"
+                className="text-center text-gray-700"
               >
                 <div className="text-6xl mb-4">🎲</div>
-                <p className="text-lg">Ready to spin!</p>
+                <p className="text-lg font-semibold">Ready to spin!</p>
               </motion.div>
             )}
 
@@ -124,15 +128,15 @@ export default function JackpotPage() {
                   {lastResult.score > 0 ? "✨" : "😞"}
                 </div>
                 <div className={`text-5xl font-black mb-2 ${
-                  lastResult.score > 0 ? "text-yellow-400" : "text-gray-400"
+                  lastResult.score > 0 ? "text-celo" : "text-gray-500"
                 }`}>
                   {lastResult.score}
                 </div>
-                <div className="text-yellow-200">
+                <div className="text-gray-700 font-semibold">
                   {lastResult.score > 0 ? "Points!" : "Try again!"}
                 </div>
                 {lastResult.badge && (
-                  <div className="mt-2 text-sm text-yellow-300">
+                  <div className="mt-2 text-sm text-gray-900 font-bold">
                     {lastResult.badge} Badge
                   </div>
                 )}
@@ -147,9 +151,10 @@ export default function JackpotPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15 }}
               onClick={spin}
               disabled={isSpinning || (mode === "onchain" && !isConnected)}
-              className="px-10 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-gray-900 rounded-xl font-black text-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-10 py-4 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 rounded-xl font-black text-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSpinning ? "SPINNING..." : "SPIN"}
             </motion.button>
@@ -160,8 +165,8 @@ export default function JackpotPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center text-xs text-gray-400 pt-2 space-y-1"
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="text-center text-xs text-gray-600 pt-2 space-y-1"
         >
           <p>Contract: 0x07Bc49E8A2BaF7c68519F9a61FCD733490061644</p>
           <p>
@@ -169,7 +174,7 @@ export default function JackpotPage() {
               href="https://celoscan.io/address/0x07Bc49E8A2BaF7c68519F9a61FCD733490061644"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-yellow-400 transition-colors"
+              className="text-gray-900 hover:text-celo font-semibold transition-colors underline decoration-celo"
             >
               View on Celoscan →
             </a>

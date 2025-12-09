@@ -78,11 +78,11 @@ export const PlayerStats = memo(function PlayerStats({ stats, onReset }: PlayerS
             </div>
           )}
           {stats.bestStreak !== undefined && (
-            <div className="text-center bg-purple-50 border border-purple-200 rounded-lg p-2">
-              <div className="text-sm font-bold text-purple-600">
+            <div className="text-center bg-gray-50 border border-gray-300 rounded-lg p-2">
+              <div className="text-sm font-bold text-gray-700">
                 🏆 {stats.bestStreak}
               </div>
-              <div className="text-xs text-purple-700">Best</div>
+              <div className="text-xs text-gray-600">Best</div>
             </div>
           )}
         </div>

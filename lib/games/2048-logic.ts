@@ -199,7 +199,7 @@ export function hasValidMoves(grid: Grid): boolean {
 
 // Get tile color configuration
 export const TILE_COLORS: Record<TileValue, { bgColor: string; textColor: string; gradient?: string; shadow?: string }> = {
-  0: { bgColor: 'rgba(205, 193, 180, 0.8)', textColor: 'transparent' },
+  0: { bgColor: '#cdc1b4', textColor: 'transparent' },
   2: { bgColor: '#eee4da', textColor: '#776e65' },
   4: { bgColor: '#ede0c8', textColor: '#776e65' },
   8: { bgColor: '#f2b179', textColor: '#ffffff' },

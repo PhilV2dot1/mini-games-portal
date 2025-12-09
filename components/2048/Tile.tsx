@@ -14,6 +14,8 @@ export function Tile({ value }: TileProps) {
         className="rounded-lg"
         style={{
           backgroundColor: colors.bgColor,
+          boxShadow: 'inset 0 0 0 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1)',
+          minHeight: '60px',
         }}
       />
     );
@@ -27,8 +29,9 @@ export function Tile({ value }: TileProps) {
       style={{
         background: colors.gradient || colors.bgColor,
         color: colors.textColor,
-        boxShadow: colors.shadow,
+        boxShadow: colors.shadow || '0 2px 4px rgba(0, 0, 0, 0.2)',
         fontSize: value >= 1024 ? '1.75rem' : value >= 128 ? '2rem' : '2.5rem',
+        minHeight: '60px',
       }}
     >
       {value}

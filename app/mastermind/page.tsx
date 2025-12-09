@@ -48,12 +48,12 @@ export default function MastermindPage() {
   const firstEmptyPosition = currentGuess.findIndex(color => color === null);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-yellow-400 hover:text-yellow-300 transition-colors font-semibold"
+          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
         >
           ← Back to Portal
         </Link>
@@ -62,11 +62,13 @@ export default function MastermindPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800 border border-yellow-500/30 rounded-2xl p-6 shadow-xl text-center"
+          transition={{ duration: 0.3 }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
+          style={{ border: '4px solid #FCFF52' }}
         >
           <div className="text-6xl mb-2">🎯</div>
-          <h1 className="text-4xl font-black text-yellow-400">Mastermind</h1>
-          <p className="text-sm text-gray-400 mt-2">Crack the color code!</p>
+          <h1 className="text-4xl font-black text-gray-900">Mastermind</h1>
+          <p className="text-sm text-gray-700 mt-2 font-medium">Crack the color code!</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -82,10 +84,12 @@ export default function MastermindPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-yellow-500/20 border border-yellow-500 rounded-lg p-3 text-center"
+            transition={{ duration: 0.3 }}
+            className="rounded-lg p-3 text-center"
+            style={{ backgroundColor: 'rgba(252, 255, 82, 0.4)', border: '4px solid #FCFF52' }}
           >
-            <p className="text-yellow-200 text-sm">
-              ⚠️ On-chain games require <span className="font-bold">0.01 CELO</span> to start
+            <p className="text-gray-900 text-sm font-bold">
+              ⚠️ On-chain games require <span className="font-black">0.01 CELO</span> to start
             </p>
           </motion.div>
         )}
@@ -94,21 +98,23 @@ export default function MastermindPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="bg-gray-800/80 backdrop-blur-lg border border-gray-700 rounded-xl p-4 grid grid-cols-3 gap-4"
+          transition={{ duration: 0.3 }}
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 grid grid-cols-3 gap-4 shadow-lg"
+          style={{ border: '4px solid #FCFF52' }}
         >
           <div className="text-center">
-            <div className="text-sm text-gray-400">Attempts</div>
-            <div className="text-3xl font-black text-yellow-400">
+            <div className="text-sm text-gray-600 font-medium">Attempts</div>
+            <div className="text-3xl font-black text-gray-900">
               {attempts}/{MAX_ATTEMPTS}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-400">Wins</div>
-            <div className="text-2xl font-bold text-white">{stats.wins}</div>
+            <div className="text-sm text-gray-600 font-medium">Wins</div>
+            <div className="text-2xl font-bold text-gray-900">{stats.wins}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-400">Best Score</div>
-            <div className="text-2xl font-bold text-white">{stats.bestScore}</div>
+            <div className="text-sm text-gray-600 font-medium">Best Score</div>
+            <div className="text-2xl font-bold text-gray-900">{stats.bestScore}</div>
           </div>
         </motion.div>
 
@@ -159,7 +165,8 @@ export default function MastermindPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800/80 backdrop-blur-lg border border-gray-700 rounded-lg p-3 text-center text-white"
+            className="bg-white/90 backdrop-blur-lg rounded-lg p-3 text-center text-gray-900 font-semibold shadow-lg"
+            style={{ border: '3px solid #FCFF52' }}
           >
             {message}
           </motion.div>
@@ -172,9 +179,10 @@ export default function MastermindPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15 }}
               onClick={submitGuess}
               disabled={currentGuess.some(c => c === null) || isPending}
-              className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-8 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Submit Guess
             </motion.button>
@@ -185,8 +193,9 @@ export default function MastermindPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.15 }}
               onClick={newGame}
-              className="px-8 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-yellow-400 rounded-xl font-black shadow-lg transition-all"
+              className="px-8 py-3 bg-white border-[3px] border-celo hover:bg-gray-50 text-gray-900 rounded-xl font-black shadow-lg transition-all"
             >
               New Game
             </motion.button>
@@ -199,9 +208,10 @@ export default function MastermindPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
                   onClick={playOnChain}
                   disabled={isPending || !isConnected}
-                  className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-8 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isPending ? "Starting..." : "Start On-Chain Game"}
                 </motion.button>
@@ -211,9 +221,10 @@ export default function MastermindPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
                   onClick={submitScoreOnChain}
                   disabled={isPending}
-                  className="px-8 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-yellow-400 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-8 py-3 bg-white border-[3px] border-celo hover:bg-gray-50 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isPending ? "Submitting..." : "Submit Score"}
                 </motion.button>
@@ -223,9 +234,10 @@ export default function MastermindPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
                   onClick={abandonGame}
                   disabled={isPending}
-                  className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isPending ? "Abandoning..." : "Abandon Game"}
                 </motion.button>
@@ -238,8 +250,8 @@ export default function MastermindPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center text-xs text-gray-400 pt-2 space-y-1"
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="text-center text-xs text-gray-600 pt-2 space-y-1"
         >
           <p>Contract: 0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9</p>
           <p>
@@ -247,7 +259,7 @@ export default function MastermindPage() {
               href="https://celoscan.io/address/0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-yellow-400 transition-colors"
+              className="text-gray-900 hover:text-celo font-semibold transition-colors underline decoration-celo"
             >
               View on Celoscan →
             </a>
