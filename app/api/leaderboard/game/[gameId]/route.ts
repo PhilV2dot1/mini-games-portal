@@ -4,6 +4,16 @@ import type { GameId } from '@/lib/types';
 
 export const runtime = 'edge';
 
+interface LeaderboardEntry {
+  rank: number;
+  user_id: string;
+  username: string | null;
+  fid: number | null;
+  game_points: number;
+  games_played: number;
+  wins: number;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { gameId: GameId } }
@@ -28,7 +38,7 @@ export async function GET(
     }
 
     // Format response
-    const formattedLeaderboard = leaderboard.map((entry: any) => ({
+    const formattedLeaderboard = (leaderboard as LeaderboardEntry[]).map((entry) => ({
       rank: entry.rank,
       userId: entry.user_id,
       username: entry.username || `Player ${entry.fid || 'Unknown'}`,

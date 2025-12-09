@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
-import type { GameId, GameMode } from '@/lib/types';
+import type { GameMode } from '@/lib/types';
 
 export const runtime = 'edge';
 
@@ -20,13 +20,12 @@ interface MigrateRequest {
   walletAddress?: string;
   localStats: LocalStats;
   totalPoints: number;
-  gamesPlayed: number;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: MigrateRequest = await request.json();
-    const { fid, walletAddress, localStats, totalPoints, gamesPlayed } = body;
+    const { fid, walletAddress, localStats, totalPoints } = body;
 
     // Validate required fields
     if (!localStats || !totalPoints) {

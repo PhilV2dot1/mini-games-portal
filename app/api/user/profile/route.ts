@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       .limit(50);
 
     // Fetch earned badges
-    const { data: badges, error: badgesError } = await supabase
+    const { data: badges } = await supabase
       .from('user_badges')
       .select('*, badges(*)')
       .eq('user_id', user.id)
@@ -60,7 +60,12 @@ export async function GET(request: NextRequest) {
       .single();
 
     // Calculate per-game stats
-    const gameStats: Record<string, any> = {};
+    interface GameStat {
+      played: number;
+      wins: number;
+      points: number;
+    }
+    const gameStats: Record<string, GameStat> = {};
     if (sessions && !sessionsError) {
       sessions.forEach(session => {
         if (!gameStats[session.game_id]) {
