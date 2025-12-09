@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         .from('users')
         .select('id')
         .eq('fid', fid)
-        .maybeSingle();
+        .maybeSingle<{ id: string }>();
 
       if (existingUser) {
         userId = existingUser.id;
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         .from('users')
         .select('id')
         .eq('wallet_address', walletAddress)
-        .maybeSingle();
+        .maybeSingle<{ id: string }>();
 
       if (existingUser) {
         userId = existingUser.id;
