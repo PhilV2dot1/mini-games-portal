@@ -59,7 +59,7 @@ export function GameCard({ game, isNew = false }: GameCardProps) {
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-black text-gray-900 text-center mb-1 group-hover:scale-105 transition-transform leading-tight">
+          <h3 className="text-xl font-black text-gray-900 text-center mb-1 group-hover:scale-105 transition-transform leading-tight">
             {game.name}
           </h3>
 

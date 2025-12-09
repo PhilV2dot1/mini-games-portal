@@ -25,11 +25,6 @@ export default function Home() {
               <p className="text-xs">Connect wallet to save on Celo.</p>
             </div>
           </div>
-          <div className="mt-3 p-2 rounded-lg" style={{ backgroundColor: 'rgba(252, 255, 82, 0.4)', border: '2px solid #FCFF52' }}>
-            <p className="text-xs text-gray-900 font-bold">
-              <strong>Note:</strong> 2048 and Mastermind require 0.01 CELO per on-chain game.
-            </p>
-          </div>
         </div>
 
         {/* Game Grid */}
