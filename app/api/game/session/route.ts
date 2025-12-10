@@ -71,10 +71,11 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Try to find user by wallet address
+      // walletAddress is guaranteed to exist here due to validation at top
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
-        .eq('wallet_address', walletAddress)
+        .eq('wallet_address', walletAddress!)
         .maybeSingle<{ id: string }>();
 
       if (existingUser) {
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
         const { data: newUser, error: createError } = await supabase
           .from('users')
           .insert({
-            wallet_address: walletAddress,
+            wallet_address: walletAddress!,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)
           .select('id')
