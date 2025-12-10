@@ -73,11 +73,11 @@ export async function POST(request: NextRequest) {
     // Create user
     const { data: newUser, error: createError } = await supabase
       .from('users')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         fid,
         wallet_address: walletAddress,
         total_points: totalPoints,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
       .select('id')
       .single();
