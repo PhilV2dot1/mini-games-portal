@@ -2,7 +2,7 @@
 const nextConfig = {
   webpack: (config, { isServer }) => {
     // Ignore optional pino dependencies that cause build errors
-    config.externals.push('pino-pretty', 'lokijs', 'encoding', '@react-native-async-storage/async-storage');
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
 
     // Fix for WalletConnect and other crypto libraries
     if (!isServer) {
@@ -11,6 +11,12 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+      };
+
+      // Ignore React Native dependencies
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@react-native-async-storage/async-storage': false,
       };
     }
 
