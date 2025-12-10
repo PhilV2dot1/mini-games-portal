@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
     // Create user
     const { data: newUser, error: createError } = await supabase
       .from('users')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         fid,
         wallet_address: walletAddress,
@@ -120,6 +121,7 @@ export async function POST(request: NextRequest) {
     if (sessions.length > 0) {
       const { error: sessionsError } = await supabase
         .from('game_sessions')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .insert(sessions as any);
 
       if (sessionsError) {
