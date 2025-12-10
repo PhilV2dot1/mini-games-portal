@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)
           .select('id')
-          .single();
+          .single<{ id: string }>();
 
         if (createError || !newUser) {
           return NextResponse.json(
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any)
           .select('id')
-          .single();
+          .single<{ id: string }>();
 
         if (createError || !newUser) {
           return NextResponse.json(
@@ -117,7 +117,8 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
       .select('*')
-      .single();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .single<any>();
 
     if (sessionError || !session) {
       return NextResponse.json(
