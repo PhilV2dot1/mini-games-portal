@@ -38,6 +38,12 @@ export function Header() {
         >
           🏆 Leaderboard
         </Link>
+        <Link
+          href="/profile"
+          className="px-4 py-2 bg-white/80 rounded-lg font-bold text-sm text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
+        >
+          👤 Profile
+        </Link>
       </div>
 
       {profile.gamesPlayed > 0 && (
