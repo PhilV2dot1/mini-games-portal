@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { GameId, GameMode, GameResult, UserProfile, GameStats } from "@/lib/types";
+import { useAccount } from "wagmi";
 
 const STORAGE_KEY = "celo_games_portal_stats";
 
@@ -55,6 +56,7 @@ function getStreakBonus(currentStreak: number): number {
 export function useLocalStats() {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { address } = useAccount();
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -79,15 +81,18 @@ export function useLocalStats() {
     }
   }, [profile, isLoaded]);
 
-  const recordGame = useCallback((
+  const recordGame = useCallback(async (
     gameId: GameId,
     mode: GameMode,
-    result: GameResult
+    result: GameResult,
+    txHash?: string
   ) => {
+    // Calculate points
+    let points = 0;
     setProfile((prev) => {
       const gameStats = prev.games[gameId];
       const streakBonus = getStreakBonus(gameStats.wins);
-      const points = calculatePoints(mode, result, streakBonus);
+      points = calculatePoints(mode, result, streakBonus);
 
       const newGameStats: GameStats = {
         played: gameStats.played + 1,
@@ -106,7 +111,33 @@ export function useLocalStats() {
         },
       };
     });
-  }, []);
+
+    // Also record to Supabase if user has wallet connected
+    if (address) {
+      try {
+        const response = await fetch('/api/game/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            walletAddress: address,
+            gameId,
+            mode,
+            result,
+            txHash,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to record game session to database');
+        } else {
+          const data = await response.json();
+          console.log('Game session recorded to database:', data);
+        }
+      } catch (error) {
+        console.error('Error recording game session:', error);
+      }
+    }
+  }, [address]);
 
   const getStats = useCallback((gameId?: GameId): GameStats | UserProfile => {
     if (gameId) {
