@@ -7,8 +7,12 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const fid = searchParams.get('fid');
-    const walletAddress = searchParams.get('wallet');
     const userId = searchParams.get('id');
+
+    // Normalize wallet address to lowercase for consistent querying
+    const walletAddress = searchParams.get('wallet')?.toLowerCase();
+
+    console.log('[Profile API] Query params:', { fid, walletAddress, userId });
 
     if (!fid && !walletAddress && !userId) {
       return NextResponse.json(
@@ -25,6 +29,7 @@ export async function GET(request: NextRequest) {
     } else if (fid) {
       query = query.eq('fid', parseInt(fid));
     } else if (walletAddress) {
+      console.log('[Profile API] Searching by wallet:', walletAddress);
       query = query.eq('wallet_address', walletAddress);
     }
 
@@ -32,11 +37,14 @@ export async function GET(request: NextRequest) {
     const { data: user, error: userError } = await query.maybeSingle<any>();
 
     if (userError || !user) {
+      console.log('[Profile API] User not found:', { userError, hasUser: !!user });
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
       );
     }
+
+    console.log('[Profile API] User found:', user.id);
 
     // Fetch recent game sessions (last 50)
     const { data: sessions, error: sessionsError } = await supabase
@@ -86,19 +94,31 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Calculate overall stats
+    const gamesPlayed = sessions?.length || 0;
+    const wins = sessions?.filter(s => s.result === 'win').length || 0;
+    const losses = sessions?.filter(s => s.result === 'lose').length || 0;
+    const winRate = gamesPlayed > 0 ? Math.round((wins / gamesPlayed) * 100) : 0;
+
     return NextResponse.json({
       user: {
         id: user.id,
         fid: user.fid,
-        username: user.username,
-        walletAddress: user.wallet_address,
-        totalPoints: user.total_points,
-        rank: leaderboardEntry?.rank || null,
-        createdAt: user.created_at,
+        username: user.username || `Player ${user.id.slice(0, 8)}`,
+        wallet_address: user.wallet_address,
+        total_points: user.total_points,
+        created_at: user.created_at,
       },
-      sessions: sessions || [],
+      stats: {
+        gamesPlayed,
+        wins,
+        losses,
+        winRate,
+      },
+      recentSessions: sessions || [],
       badges: badges || [],
       gameStats,
+      rank: leaderboardEntry?.rank || null,
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);

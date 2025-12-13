@@ -17,7 +17,12 @@ interface SessionRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: SessionRequest = await request.json();
-    const { fid, walletAddress, gameId, mode, result, txHash } = body;
+    const { fid, gameId, mode, result, txHash } = body;
+
+    // Normalize wallet address to lowercase for consistent storage/querying
+    const walletAddress = body.walletAddress?.toLowerCase();
+
+    console.log('[Session API] Received request:', { fid, walletAddress, gameId, mode, result });
 
     // Validate required fields
     if (!gameId || !mode || !result) {
@@ -72,6 +77,8 @@ export async function POST(request: NextRequest) {
     } else {
       // Try to find user by wallet address
       // walletAddress is guaranteed to exist here due to validation at top
+      console.log('[Session API] Looking up user by wallet:', walletAddress);
+
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
@@ -79,9 +86,12 @@ export async function POST(request: NextRequest) {
         .maybeSingle<{ id: string }>();
 
       if (existingUser) {
+        console.log('[Session API] Found existing user:', existingUser.id);
         userId = existingUser.id;
       } else {
         // Create new user with wallet
+        console.log('[Session API] Creating new user with wallet:', walletAddress);
+
         const { data: newUser, error: createError } = await supabase
           .from('users')
           .insert({
@@ -92,12 +102,14 @@ export async function POST(request: NextRequest) {
           .single<{ id: string }>();
 
         if (createError || !newUser) {
+          console.error('[Session API] Failed to create user:', createError);
           return NextResponse.json(
             { error: 'Failed to create user', details: createError },
             { status: 500 }
           );
         }
 
+        console.log('[Session API] Created new user:', newUser.id);
         userId = newUser.id;
       }
     }
@@ -151,6 +163,8 @@ export async function POST(request: NextRequest) {
           .eq('id', userId);
       }
     }
+
+    console.log('[Session API] Session created successfully:', { sessionId: session.id, userId, pointsEarned });
 
     return NextResponse.json({
       success: true,

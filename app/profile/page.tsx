@@ -69,7 +69,16 @@ export default function ProfilePage() {
     setError(null);
 
     try {
-      const param = identifierType === "fid" ? `fid=${identifier}` : `walletAddress=${identifier}`;
+      // Normalize wallet address to lowercase for consistent querying
+      const normalizedIdentifier = identifierType === "wallet"
+        ? identifier.toLowerCase()
+        : identifier;
+
+      const param = identifierType === "fid"
+        ? `fid=${normalizedIdentifier}`
+        : `wallet=${normalizedIdentifier}`;
+
+      console.log('[Profile Page] Fetching profile with:', param);
       const response = await fetch(`/api/user/profile?${param}`);
 
       if (!response.ok) {
