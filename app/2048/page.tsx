@@ -35,7 +35,7 @@ export default function Game2048Page() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
-      <div className="max-w-2xl mx-auto space-y-4">
+      <div className="max-w-xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
@@ -48,13 +48,12 @@ export default function Game2048Page() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
-          style={{ border: '4px solid #FCFF52' }}
+          className="bg-white/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border-2 border-gray-700 text-center space-y-1"
+          style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
         >
-          <div className="text-6xl mb-2">🔢</div>
+          <div className="text-5xl mb-2">🔢</div>
           <h1 className="text-4xl font-black text-gray-900">2048</h1>
-          <p className="text-sm text-gray-700 mt-2 font-medium">Merge tiles to reach 2048!</p>
+          <p className="text-sm text-gray-600">Merge tiles to reach 2048!</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -85,8 +84,8 @@ export default function Game2048Page() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-lg"
-          style={{ border: '4px solid #FCFF52' }}
+          className="bg-white/95 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-xl border-2 border-gray-700"
+          style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
         >
           <div>
             <div className="text-sm text-gray-600 font-medium">Score</div>
@@ -103,14 +102,9 @@ export default function Game2048Page() {
         </motion.div>
 
         {/* Game Grid */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          className="flex justify-center"
-        >
+        <div className="flex justify-center">
           <GameGrid grid={grid} />
-        </motion.div>
+        </div>
 
         {/* Controls */}
         <div className="text-center space-y-3">

@@ -1,5 +1,6 @@
 import { Grid } from "@/lib/games/2048-logic";
 import { Tile } from "./Tile";
+import { motion } from "framer-motion";
 
 interface GameGridProps {
   grid: Grid;
@@ -7,24 +8,16 @@ interface GameGridProps {
 
 export function GameGrid({ grid }: GameGridProps) {
   return (
-    <div
-      className="bg-gradient-to-br from-gray-100 via-gray-50 to-yellow-50/20 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-2xl relative overflow-hidden"
-      style={{
-        boxShadow: "0 0 0 3px #FCFF52, 0 10px 15px -3px rgba(0, 0, 0, 0.2)"
-      }}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+      className="w-full mx-auto"
     >
-      {/* Glassmorphic overlay with dot pattern */}
       <div
-        className="absolute inset-0 bg-white/40 backdrop-blur-sm"
-        style={{
-          backgroundImage: `radial-gradient(circle at 25px 25px, rgba(252, 255, 82, 0.08) 2%, transparent 0%),
-                           radial-gradient(circle at 75px 75px, rgba(252, 255, 82, 0.08) 2%, transparent 0%)`,
-          backgroundSize: "100px 100px"
-        }}
-      />
-
-      {/* 4x4 Grid */}
-      <div className="relative z-10 grid grid-cols-4 gap-2 sm:gap-3 aspect-square max-w-md mx-auto">
+        className="grid grid-cols-4 gap-3 p-4 bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl border-2 border-gray-700"
+        style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+      >
         {grid.map((row, rowIndex) =>
           row.map((value, colIndex) => (
             <Tile
@@ -36,6 +29,6 @@ export function GameGrid({ grid }: GameGridProps) {
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

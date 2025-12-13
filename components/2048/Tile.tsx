@@ -19,19 +19,28 @@ export function Tile({ value, row, col }: TileProps) {
     return 'text-xl sm:text-2xl';
   };
 
+  // Empty tile styling (similar to TicTacToe)
+  if (value === 0) {
+    return (
+      <div
+        className="aspect-square flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-md border-2 border-gray-200 transition-all duration-200"
+      />
+    );
+  }
+
   // Extract color values from Tailwind classes
   const bgColor = colors.bgColor || '#cdc1b4';
   const textColor = colors.textColor || '#776e65';
 
   return (
     <motion.div
-      key={`${row}-${col}`}
+      key={`${row}-${col}-${value}`}
       animate={{
         scale: 1,
         opacity: 1,
         backgroundColor: bgColor,
       }}
-      initial={false}
+      initial={{ scale: 0.8, opacity: 0 }}
       transition={{
         type: "spring",
         stiffness: 300,
@@ -39,11 +48,12 @@ export function Tile({ value, row, col }: TileProps) {
         duration: 0.15,
       }}
       className={`
-        rounded-xl sm:rounded-2xl
+        rounded-xl
         flex items-center justify-center
-        font-bold ${getFontSize()}
+        font-black ${getFontSize()}
         aspect-square
-        ${value >= 8 ? 'shadow-lg' : 'shadow-md'}
+        shadow-lg
+        border-2 border-gray-800
         transition-all duration-100
       `}
       style={{
@@ -53,7 +63,7 @@ export function Tile({ value, row, col }: TileProps) {
         boxShadow: colors.shadow,
       }}
     >
-      {value > 0 ? value : ''}
+      {value}
     </motion.div>
   );
 }
