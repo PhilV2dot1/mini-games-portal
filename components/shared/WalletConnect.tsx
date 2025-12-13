@@ -3,6 +3,7 @@
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { motion } from "framer-motion";
 import { useFarcaster } from "../providers";
+import { useSwitchToCelo } from "@/hooks/useSwitchToCelo";
 
 const CONNECTOR_ICONS: Record<string, string> = {
   "Farcaster Wallet": "🔵",
@@ -24,6 +25,9 @@ export function WalletConnect() {
   const { disconnect } = useDisconnect();
   const { isInFarcaster, isSDKReady } = useFarcaster();
 
+  // Automatically switch to Celo network when connected
+  const { isOnCelo, isSwitching } = useSwitchToCelo();
+
   // Filter connectors based on context
   const availableConnectors = connectors.filter((connector) => {
     // If not in Farcaster, hide Farcaster connector
@@ -35,32 +39,49 @@ export function WalletConnect() {
 
   if (isConnected && address) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-yellow-400/30 to-gray-100 border-2 border-yellow-400 rounded-xl p-4 flex items-center justify-between"
-      >
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <div className="flex flex-col">
-            <span className="font-mono text-sm font-semibold text-gray-800">
-              {address.slice(0, 6)}...{address.slice(-4)}
+      <div className="space-y-2">
+        {/* Switching Network Warning */}
+        {isSwitching && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 flex items-center gap-3"
+          >
+            <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-semibold text-yellow-800">
+              Switching to Celo network...
             </span>
-            {activeConnector && (
-              <span className="text-xs text-gray-600">
-                via {activeConnector.name}
-              </span>
-            )}
-          </div>
-        </div>
-        <button
-          onClick={() => disconnect()}
-          className="px-4 py-2 min-h-[44px] bg-gray-700 hover:bg-gray-800 active:bg-gray-900 text-white rounded-lg transition-colors text-sm font-semibold touch-manipulation"
-          aria-label="Disconnect wallet"
+          </motion.div>
+        )}
+
+        {/* Connected Wallet Display */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-yellow-400/30 to-gray-100 border-2 border-yellow-400 rounded-xl p-4 flex items-center justify-between"
         >
-          Disconnect
-        </button>
-      </motion.div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full animate-pulse ${isOnCelo ? 'bg-green-500' : 'bg-orange-500'}`} />
+            <div className="flex flex-col">
+              <span className="font-mono text-sm font-semibold text-gray-800">
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </span>
+              {activeConnector && (
+                <span className="text-xs text-gray-600">
+                  via {activeConnector.name}
+                </span>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={() => disconnect()}
+            className="px-4 py-2 min-h-[44px] bg-gray-700 hover:bg-gray-800 active:bg-gray-900 text-white rounded-lg transition-colors text-sm font-semibold touch-manipulation"
+            aria-label="Disconnect wallet"
+          >
+            Disconnect
+          </button>
+        </motion.div>
+      </div>
     );
   }
 
