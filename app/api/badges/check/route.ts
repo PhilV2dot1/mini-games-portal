@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     // Get all badge definitions
     const { data: allBadges, error: badgesError } = await supabase
       .from('badges')
-      .select('*');
+      .select('*') as { data: any[] | null; error: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     if (badgesError) {
       console.error('[Badge Check] Error fetching badges:', badgesError);
