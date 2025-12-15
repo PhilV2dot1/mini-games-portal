@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       .from('game_sessions')
       .select('*')
       .eq('user_id', userId)
-      .order('played_at', { ascending: false });
+      .order('played_at', { ascending: false }) as { data: any[] | null }; // eslint-disable-line @typescript-eslint/no-explicit-any
 
     // Get user's leaderboard rank
     const { data: leaderboardEntry } = await supabase
