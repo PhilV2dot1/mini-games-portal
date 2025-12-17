@@ -5,6 +5,7 @@ import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { config } from "@/lib/wagmi";
 import { initializeFarcaster } from "@/lib/farcaster";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,12 +84,14 @@ export function Providers({ children }: { children: ReactNode }) {
     <FarcasterContext.Provider value={{ isInFarcaster, isSDKReady: !initError }}>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          {initError && isInFarcaster && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-xs text-yellow-700">
-              ⚠️ Farcaster SDK: {initError}
-            </div>
-          )}
-          {children}
+          <AuthProvider>
+            {initError && isInFarcaster && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-xs text-yellow-700">
+                ⚠️ Farcaster SDK: {initError}
+              </div>
+            )}
+            {children}
+          </AuthProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </FarcasterContext.Provider>

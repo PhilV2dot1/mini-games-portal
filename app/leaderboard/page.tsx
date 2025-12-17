@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Header } from "@/components/layout/Header";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { GAMES } from "@/lib/types";
 import Link from "next/link";
+import Image from "next/image";
 
 interface LeaderboardEntry {
   rank: number;
@@ -14,6 +16,8 @@ interface LeaderboardEntry {
   gamePoints?: number;
   gamesPlayed: number;
   wins: number;
+  avatar_type?: 'default' | 'predefined' | 'custom';
+  avatar_url?: string;
 }
 
 type GameId = 'all' | string;
@@ -139,7 +143,18 @@ export default function LeaderboardPage() {
                 <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl p-6 shadow-lg border-2 border-gray-400 transform md:translate-y-4">
                   <div className="text-center">
                     <div className="text-6xl mb-2">🥈</div>
-                    <div className="text-2xl font-black text-gray-900 mb-1">#{leaderboard[1].rank}</div>
+                    <div className="text-2xl font-black text-gray-900 mb-3">#{leaderboard[1].rank}</div>
+                    {/* Avatar */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-gray-400 shadow-md">
+                        <Image
+                          src={leaderboard[1].avatar_url || '/avatars/predefined/default-player.svg'}
+                          alt={leaderboard[1].username}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
                     <div className="text-lg font-bold text-gray-800 mb-2">{leaderboard[1].username}</div>
                     <div className="text-3xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[1].totalPoints : leaderboard[1].gamePoints)?.toLocaleString() || 0}
@@ -162,7 +177,18 @@ export default function LeaderboardPage() {
                 <div className="bg-gradient-to-br from-yellow-200 to-yellow-300 rounded-xl p-6 shadow-2xl border-4 border-yellow-500 transform scale-105">
                   <div className="text-center">
                     <div className="text-7xl mb-2">🥇</div>
-                    <div className="text-3xl font-black text-gray-900 mb-1">#{leaderboard[0].rank}</div>
+                    <div className="text-3xl font-black text-gray-900 mb-3">#{leaderboard[0].rank}</div>
+                    {/* Avatar */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-500 shadow-lg">
+                        <Image
+                          src={leaderboard[0].avatar_url || '/avatars/predefined/default-player.svg'}
+                          alt={leaderboard[0].username}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
                     <div className="text-xl font-black text-gray-900 mb-3">{leaderboard[0].username}</div>
                     <div className="text-4xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[0].totalPoints : leaderboard[0].gamePoints)?.toLocaleString() || 0}
@@ -185,7 +211,18 @@ export default function LeaderboardPage() {
                 <div className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl p-6 shadow-lg border-2 border-orange-400 transform md:translate-y-8">
                   <div className="text-center">
                     <div className="text-5xl mb-2">🥉</div>
-                    <div className="text-xl font-black text-gray-900 mb-1">#{leaderboard[2].rank}</div>
+                    <div className="text-xl font-black text-gray-900 mb-3">#{leaderboard[2].rank}</div>
+                    {/* Avatar */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-orange-400 shadow-md">
+                        <Image
+                          src={leaderboard[2].avatar_url || '/avatars/predefined/default-player.svg'}
+                          alt={leaderboard[2].username}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
                     <div className="text-base font-bold text-gray-800 mb-2">{leaderboard[2].username}</div>
                     <div className="text-2xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[2].totalPoints : leaderboard[2].gamePoints)?.toLocaleString() || 0}
@@ -258,14 +295,30 @@ export default function LeaderboardPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-bold text-gray-900">
-                            {entry.username}
-                          </div>
-                          {entry.fid && (
-                            <div className="text-xs text-gray-500">
-                              FID: {entry.fid}
+                          <div className="flex items-center gap-3">
+                            {/* Avatar */}
+                            <div className="relative w-10 h-10 flex-shrink-0">
+                              <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-yellow-400 shadow-sm">
+                                <Image
+                                  src={entry.avatar_url || '/avatars/predefined/default-player.svg'}
+                                  alt={entry.username}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
                             </div>
-                          )}
+                            {/* Username */}
+                            <div>
+                              <div className="text-sm font-bold text-gray-900">
+                                {entry.username}
+                              </div>
+                              {entry.fid && (
+                                <div className="text-xs text-gray-500">
+                                  FID: {entry.fid}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <span className="text-lg font-black text-gray-900">
