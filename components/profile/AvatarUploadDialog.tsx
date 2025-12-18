@@ -10,6 +10,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface AvatarUploadDialogProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export function AvatarUploadDialog({
   userId,
   onSuccess,
 }: AvatarUploadDialogProps) {
+  const { t } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -43,13 +45,13 @@ export function AvatarUploadDialog({
 
     // Validate file type
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Type de fichier non supporté. Utilisez JPEG, PNG, WebP ou GIF.');
+      setError(t('errors.invalidFileType'));
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setError('Fichier trop volumineux. Taille maximale: 2MB.');
+      setError(t('errors.fileTooLarge'));
       return;
     }
 
@@ -65,7 +67,7 @@ export function AvatarUploadDialog({
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setError('Veuillez sélectionner un fichier');
+      setError(t('avatar.pleaseSelectFile'));
       return;
     }
 
@@ -84,7 +86,7 @@ export function AvatarUploadDialog({
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Échec de l\'upload');
+        throw new Error(data.error || t('errors.savingFailed'));
       }
 
       const data = await response.json();
@@ -97,7 +99,7 @@ export function AvatarUploadDialog({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Upload error:', err);
-      setError(err.message || 'Une erreur est survenue');
+      setError(err.message || t('errors.generic'));
     } finally {
       setUploading(false);
     }
@@ -137,10 +139,10 @@ export function AvatarUploadDialog({
               {/* Header */}
               <div className="text-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  📤 Upload Avatar Personnalisé
+                  📤 {t('avatar.uploadCustomAvatar')}
                 </h2>
                 <p className="text-gray-600 text-sm">
-                  JPEG, PNG, WebP ou GIF - Max 2MB
+                  {t('avatar.fileTypes')}
                 </p>
               </div>
 
@@ -152,7 +154,7 @@ export function AvatarUploadDialog({
                   className="bg-green-100 border-2 border-green-400 rounded-xl p-4 mb-4"
                 >
                   <p className="text-green-800 font-semibold text-center">
-                    ✅ Avatar uploadé avec succès !
+                    ✅ {t('avatar.uploadSuccess')}
                   </p>
                 </motion.div>
               )}
@@ -198,7 +200,7 @@ export function AvatarUploadDialog({
                     disabled={uploading}
                     className="w-full bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-900 font-semibold py-3 rounded-xl transition-all disabled:cursor-not-allowed"
                   >
-                    {selectedFile ? '📎 Changer de fichier' : '📁 Sélectionner un fichier'}
+                    {selectedFile ? `📎 ${t('avatar.changeFile')}` : `📁 ${t('avatar.selectFile')}`}
                   </button>
                 </div>
 
@@ -219,24 +221,24 @@ export function AvatarUploadDialog({
                     disabled={!selectedFile || uploading}
                     className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                   >
-                    {uploading ? 'Upload en cours...' : '📤 Upload'}
+                    {uploading ? t('avatar.uploading') : `📤 ${t('avatar.upload')}`}
                   </button>
                   <button
                     onClick={handleClose}
                     disabled={uploading}
                     className="px-6 py-3 bg-gradient-to-br from-gray-200 to-gray-300 hover:from-gray-300 hover:to-gray-400 disabled:bg-gray-100 text-gray-900 font-semibold rounded-xl transition-all disabled:cursor-not-allowed"
                   >
-                    Annuler
+                    {t('cancel')}
                   </button>
                 </div>
 
                 {/* Info */}
                 <div className="bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-300 rounded-xl p-3 text-xs text-gray-700">
-                  <p className="font-semibold mb-1 text-gray-900">💡 Conseils :</p>
+                  <p className="font-semibold mb-1 text-gray-900">💡 {t('avatar.tips')}</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>Utilisez une image carrée pour un meilleur rendu</li>
-                    <li>Évitez les images trop complexes (lisibilité)</li>
-                    <li>Format recommandé : PNG avec fond transparent</li>
+                    <li>{t('avatar.tipSquare')}</li>
+                    <li>{t('avatar.tipSimple')}</li>
+                    <li>{t('avatar.tipFormat')}</li>
                   </ul>
                 </div>
               </div>

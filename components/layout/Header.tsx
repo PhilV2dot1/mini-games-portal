@@ -73,7 +73,7 @@ export function Header() {
           <div className="w-px h-8 bg-gray-300" />
           <div className="text-center">
             <div className="text-xl font-bold text-gray-900">{profile.gamesPlayed}</div>
-            <div className="text-[10px] text-gray-600 font-medium">Games</div>
+            <div className="text-[10px] text-gray-600 font-medium">{t('home.gamesPlayed')}</div>
           </div>
         </motion.div>
       )}

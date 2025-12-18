@@ -100,29 +100,31 @@ export default function Home() {
                 ✏️ {t('home.edit')}
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600">{userProfile.total_points || 0}</div>
-                <div className="text-sm text-blue-800 font-semibold">{t('home.points')}</div>
+            {/* First 3 tiles grouped with Celo style */}
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
+                <div className="text-4xl font-black text-gray-900">{userProfile.total_points || 0}</div>
+                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.points')}</div>
               </div>
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-green-600">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
+                <div className="text-4xl font-black text-gray-900">
                   {userProfile.username ? '✓' : '-'}
                 </div>
-                <div className="text-sm text-green-800 font-semibold">{t('home.profile')}</div>
+                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.profile')}</div>
               </div>
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
+                <div className="text-4xl font-black text-gray-900">
                   {userProfile.avatar_unlocked ? '🔓' : '🔒'}
                 </div>
-                <div className="text-sm text-purple-800 font-semibold">{t('home.customAvatar')}</div>
+                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.customAvatar')}</div>
               </div>
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 text-center">
-                <Link href="/leaderboard" className="block hover:scale-105 transition-transform">
-                  <div className="text-3xl font-bold text-yellow-600">📊</div>
-                  <div className="text-sm text-yellow-800 font-semibold">{t('home.leaderboard')}</div>
-                </Link>
-              </div>
+            </div>
+            {/* Leaderboard link with Celo yellow */}
+            <div className="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl p-4 text-center shadow-lg border-2 border-yellow-600 hover:scale-105 transition-transform">
+              <Link href="/leaderboard" className="block">
+                <div className="text-3xl font-bold text-gray-900 mb-1">📊</div>
+                <div className="text-sm text-gray-900 font-bold">{t('home.leaderboard')}</div>
+              </Link>
             </div>
           </motion.div>
         ) : (
@@ -155,11 +157,21 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Instructions */}
+        {/* Game Grid - Moved up for better visibility */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+        >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">🎯 {t('home.availableGames')}</h2>
+          <GameGrid games={games} />
+        </motion.div>
+
+        {/* Instructions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
           className="bg-white/90 backdrop-blur-lg rounded-xl p-4 mb-6 shadow-lg"
           style={{ border: '3px solid #FCFF52' }}
         >
@@ -188,7 +200,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.4 }}
           className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <div className="flex items-center justify-between mb-4">
@@ -205,16 +217,6 @@ export default function Home() {
             compact={true}
             maxDisplay={12}
           />
-        </motion.div>
-
-        {/* Game Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">🎯 {t('home.availableGames')}</h2>
-          <GameGrid games={games} />
         </motion.div>
 
         {/* Footer */}

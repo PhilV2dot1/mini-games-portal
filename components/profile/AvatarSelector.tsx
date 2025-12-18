@@ -10,6 +10,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface AvatarSelectorProps {
   currentAvatar?: string;
@@ -58,6 +59,7 @@ export function AvatarSelector({
   canUploadCustom = false,
   onUploadCustomClick,
 }: AvatarSelectorProps) {
+  const { t } = useLanguage();
   const [selected, setSelected] = useState(currentAvatar);
 
   useEffect(() => {
@@ -75,14 +77,14 @@ export function AvatarSelector({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">
-          Choisir un avatar
+          {t('avatar.chooseAvatar')}
         </h3>
         {canUploadCustom && (
           <button
             onClick={onUploadCustomClick}
             className="px-4 py-2 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 text-sm font-bold rounded-xl transition-all shadow-md"
           >
-            📤 Upload personnalisé
+            📤 {t('avatar.uploadCustom')}
           </button>
         )}
       </div>
@@ -91,9 +93,9 @@ export function AvatarSelector({
       {!canUploadCustom && (
         <div className="bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-300 rounded-xl p-3 text-sm">
           <p className="text-gray-700">
-            🔒 <span className="font-semibold text-gray-900">Upload personnalisé</span> débloqué après{' '}
-            <span className="font-bold text-gray-900">100 parties</span> ou badge{' '}
-            <span className="font-bold text-yellow-600">Vétéran</span>
+            🔒 <span className="font-semibold text-gray-900">{t('avatar.uploadLocked')}</span> {t('avatar.afterGames')}{' '}
+            <span className="font-bold text-gray-900">100 {t('avatar.games')}</span> {t('avatar.orBadge')}{' '}
+            <span className="font-bold text-yellow-600">{t('avatar.veteran')}</span>
           </p>
         </div>
       )}
@@ -156,7 +158,7 @@ export function AvatarSelector({
       {/* Selected avatar name */}
       <div className="text-center bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl py-2 px-4 border-2 border-yellow-400">
         <p className="text-sm text-gray-700">
-          Sélectionné:{' '}
+          {t('avatar.selected')}{' '}
           <span className="font-bold text-gray-900">
             {selected
               .split('/')
