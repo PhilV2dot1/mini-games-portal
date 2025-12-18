@@ -63,20 +63,20 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl p-6 mb-6 shadow-xl border-2 border-yellow-600"
+          className="bg-gradient-to-br from-gray-800 via-gray-600 to-gray-300 rounded-xl p-6 mb-6 shadow-xl border-4 border-yellow-400"
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-white mb-2">
                 🎮 {t('home.welcome')}
               </h1>
-              <p className="text-gray-800">
+              <p className="text-gray-100">
                 {t('home.subtitle')}
               </p>
             </div>
             <Link
               href="/about"
-              className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
+              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
             >
               📖 {t('home.howToPlay')}
             </Link>
@@ -132,23 +132,25 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-xl p-6 mb-6 shadow-xl border-2 border-yellow-600"
+            className="bg-gradient-to-br from-gray-800 via-gray-600 to-gray-300 rounded-xl p-6 mb-6 shadow-xl border-4 border-yellow-400"
           >
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">👤 {t('home.createProfile')}</h2>
-              <p className="text-gray-800 mb-4">
-                {t('home.saveProgress')}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-1">👤 {t('home.createProfile')}</h2>
+                <p className="text-gray-100">
+                  {t('home.saveProgress')}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={() => setShowProfileSetup(true)}
-                  className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
                 >
                   🎮 {t('home.setupNow')}
                 </button>
                 <Link
                   href="/about"
-                  className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-lg"
+                  className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
                 >
                   📖 {t('home.learnMore')}
                 </Link>

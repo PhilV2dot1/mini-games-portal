@@ -19,10 +19,10 @@ export function Header() {
     >
       <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
-          <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-2">
-            Celo Games Portal
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-2">
+            Celo Mini Games Portal
           </h1>
-          <div className="h-1.5 w-48 mx-auto rounded-full" style={{ backgroundColor: '#FCFF52' }}></div>
+          <div className="h-1.5 w-64 mx-auto rounded-full" style={{ backgroundColor: '#FCFF52' }}></div>
         </div>
         <LanguageSwitcher />
       </div>
@@ -31,28 +31,28 @@ export function Header() {
       </p>
 
       {/* Navigation Links */}
-      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-3">
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-3">
         <Link
           href="/"
-          className="px-3 sm:px-4 py-2 bg-white/80 rounded-lg font-bold text-xs sm:text-sm text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
+          className="px-5 sm:px-6 py-3 bg-white/80 rounded-lg font-bold text-sm sm:text-base text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
         >
           🎮 {t('nav.home')}
         </Link>
         <Link
           href="/leaderboard"
-          className="px-3 sm:px-4 py-2 bg-white/80 rounded-lg font-bold text-xs sm:text-sm text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
+          className="px-5 sm:px-6 py-3 bg-white/80 rounded-lg font-bold text-sm sm:text-base text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
         >
           🏆 {t('nav.leaderboard')}
         </Link>
         <Link
           href="/profile"
-          className="px-3 sm:px-4 py-2 bg-white/80 rounded-lg font-bold text-xs sm:text-sm text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
+          className="px-5 sm:px-6 py-3 bg-white/80 rounded-lg font-bold text-sm sm:text-base text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
         >
           👤 {t('nav.profile')}
         </Link>
         <Link
           href="/about"
-          className="px-3 sm:px-4 py-2 bg-yellow-400/90 rounded-lg font-bold text-xs sm:text-sm text-gray-900 hover:bg-yellow-500 transition-colors shadow-sm"
+          className="px-5 sm:px-6 py-3 bg-yellow-400/90 rounded-lg font-bold text-sm sm:text-base text-gray-900 hover:bg-yellow-500 transition-colors shadow-sm"
         >
           📖 {t('nav.guide')}
         </Link>
