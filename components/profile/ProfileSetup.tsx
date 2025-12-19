@@ -60,7 +60,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
         // Get existing localStorage stats
         const STORAGE_KEY = 'celo_games_portal_stats';
         const stored = localStorage.getItem(STORAGE_KEY);
-        let profile = stored ? JSON.parse(stored) : {
+        const profile = stored ? JSON.parse(stored) : {
           totalPoints: 0,
           gamesPlayed: 0,
           games: {},
