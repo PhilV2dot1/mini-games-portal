@@ -11,6 +11,9 @@ export interface GameStats {
 export interface UserProfile {
   totalPoints: number;
   gamesPlayed: number;
+  username?: string;
+  avatar_type?: 'default' | 'predefined' | 'custom';
+  avatar_url?: string;
   games: Record<GameId, GameStats>;
 }
 

@@ -19,6 +19,9 @@ const DEFAULT_GAME_STATS: GameStats = {
 const DEFAULT_PROFILE: UserProfile = {
   totalPoints: 0,
   gamesPlayed: 0,
+  username: undefined,
+  avatar_type: undefined,
+  avatar_url: undefined,
   games: {
     blackjack: { ...DEFAULT_GAME_STATS },
     rps: { ...DEFAULT_GAME_STATS },

@@ -55,11 +55,39 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
     setError('');
 
     try {
+      // If user is anonymous (not authenticated), save to localStorage
+      if (!user) {
+        // Get existing localStorage stats
+        const STORAGE_KEY = 'celo_games_portal_stats';
+        const stored = localStorage.getItem(STORAGE_KEY);
+        let profile = stored ? JSON.parse(stored) : {
+          totalPoints: 0,
+          gamesPlayed: 0,
+          games: {},
+        };
+
+        // Add username and avatar to profile
+        profile.username = username;
+        profile.avatar_type = 'predefined';
+        profile.avatar_url = selectedAvatar;
+
+        // Save back to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+
+        setStep('done');
+        setTimeout(() => {
+          onComplete?.();
+          onClose();
+        }, 2000);
+        return;
+      }
+
+      // If user is authenticated, save to database via API
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user?.id,
+          userId: user.id,
           username,
           avatar_type: 'predefined',
           avatar_url: selectedAvatar,
