@@ -45,7 +45,7 @@ export function Header() {
           🏆 {t('nav.leaderboard')}
         </Link>
         <Link
-          href="/profile"
+          href="/profile/me"
           className="px-5 sm:px-6 py-3 bg-white/80 rounded-lg font-bold text-sm sm:text-base text-gray-700 hover:bg-white hover:text-gray-900 transition-colors shadow-sm"
         >
           👤 {t('nav.profile')}
