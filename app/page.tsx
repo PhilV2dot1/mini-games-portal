@@ -207,7 +207,7 @@ export default function Home() {
           <BadgeGallery
             userId={userProfile?.id}
             localStats={!isAuthenticated ? profile : undefined}
-            compact={true}
+            compact={false}
             maxDisplay={12}
           />
         </motion.div>

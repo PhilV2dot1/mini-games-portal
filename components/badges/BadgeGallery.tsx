@@ -324,11 +324,6 @@ export function BadgeGallery({
                     +{badge.points} pts
                   </span>
                 </div>
-
-                {/* Category */}
-                <div className="mt-2 text-center">
-                  <span className="text-xs text-gray-500">{badge.category}</span>
-                </div>
               </>
             )}
 
