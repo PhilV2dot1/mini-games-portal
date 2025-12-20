@@ -1,14 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { LoginModal } from "@/components/auth/LoginModal";
+import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import Link from "next/link";
 
 export function Header() {
   const { profile } = useLocalStats();
   const { t } = useLanguage();
+  const { user, isAuthenticated, signOut } = useAuth();
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignupModal, setShowSignupModal] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
     <motion.header
@@ -56,6 +65,62 @@ export function Header() {
         >
           📖 {t('nav.guide')}
         </Link>
+
+        {/* Authentication Buttons */}
+        {!isAuthenticated ? (
+          <>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="px-5 sm:px-6 py-3 bg-blue-500/90 rounded-lg font-bold text-sm sm:text-base text-white hover:bg-blue-600 transition-colors shadow-sm"
+            >
+              🔐 Connexion
+            </button>
+            <button
+              onClick={() => setShowSignupModal(true)}
+              className="px-5 sm:px-6 py-3 bg-green-500/90 rounded-lg font-bold text-sm sm:text-base text-white hover:bg-green-600 transition-colors shadow-sm"
+            >
+              ✨ Créer un compte
+            </button>
+          </>
+        ) : (
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="px-5 sm:px-6 py-3 bg-purple-500/90 rounded-lg font-bold text-sm sm:text-base text-white hover:bg-purple-600 transition-colors shadow-sm"
+            >
+              👤 {user?.email?.split('@')[0] || 'Mon compte'} ▾
+            </button>
+
+            {/* User Dropdown Menu */}
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border-2 border-gray-200 z-50">
+                <Link
+                  href="/profile/me"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-t-lg"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  👤 Mon profil
+                </Link>
+                <Link
+                  href="/profile/edit"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  ⚙️ Paramètres
+                </Link>
+                <button
+                  onClick={() => {
+                    signOut();
+                    setShowUserMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-b-lg"
+                >
+                  🚪 Déconnexion
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {profile.gamesPlayed > 0 && (
@@ -77,6 +142,22 @@ export function Header() {
           </div>
         </motion.div>
       )}
+
+      {/* Authentication Modals */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToSignup={() => {
+          setShowLoginModal(false);
+          setShowSignupModal(true);
+        }}
+      />
+
+      <CreateAccountModal
+        isOpen={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        currentStats={profile}
+      />
     </motion.header>
   );
 }

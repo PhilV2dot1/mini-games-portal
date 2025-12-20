@@ -1,97 +1,68 @@
--- Migration 003: User Profiles and Authentication System
--- This migration adds support for:
--- - User profile editing (username, bio, social links)
--- - Avatar system (default, predefined, custom with unlock)
--- - Supabase Auth integration (email, social login)
--- - Anonymous to authenticated user migration
+-- ============================================================================
+-- Migration 003: User Profiles and Authentication
+-- ============================================================================
+-- Adds authentication fields, profile customization, and avatar system
+-- Supports both anonymous free play and authenticated accounts
 
 -- ============================================================================
--- 1. Add new columns to users table
+-- 1. Add Authentication Columns
 -- ============================================================================
 
--- Authentication columns
+-- Email and auth provider
 ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider TEXT; -- 'email', 'google', 'twitter', 'anonymous'
+ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_user_id TEXT UNIQUE; -- Supabase Auth UUID
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_anonymous BOOLEAN DEFAULT TRUE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMP WITH TIME ZONE;
 
--- Profile columns
+-- ============================================================================
+-- 2. Add Profile Customization Columns
+-- ============================================================================
+
+-- Avatar system
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_type TEXT DEFAULT 'default'; -- 'default', 'predefined', 'custom'
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_unlocked BOOLEAN DEFAULT FALSE;
+
+-- Profile fields
 ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS social_links JSONB DEFAULT '{}';
 
 -- ============================================================================
--- 2. Create indexes for performance
+-- 3. Create Indexes for Performance
 -- ============================================================================
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_auth_provider ON users(auth_provider);
+CREATE INDEX IF NOT EXISTS idx_users_auth_user_id ON users(auth_user_id);
 CREATE INDEX IF NOT EXISTS idx_users_is_anonymous ON users(is_anonymous);
 
 -- ============================================================================
--- 3. Update existing users with default values
+-- 4. Functions for Avatar Unlock System
 -- ============================================================================
 
-UPDATE users
-SET
-  avatar_type = 'default',
-  is_anonymous = TRUE,
-  auth_provider = CASE
-    WHEN wallet_address IS NOT NULL THEN 'wallet'
-    WHEN fid IS NOT NULL THEN 'farcaster'
-    ELSE 'anonymous'
-  END
-WHERE avatar_type IS NULL OR is_anonymous IS NULL OR auth_provider IS NULL;
-
--- ============================================================================
--- 4. Add unique constraint on username
--- ============================================================================
-
--- First, ensure all users have a username
-UPDATE users SET username = 'Player_' || id WHERE username IS NULL;
-
--- Then add unique constraint
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint
-    WHERE conname = 'users_username_key'
-  ) THEN
-    ALTER TABLE users ADD CONSTRAINT users_username_key UNIQUE (username);
-  END IF;
-END $$;
-
--- ============================================================================
--- 5. Function: Check if user can unlock custom avatar
--- ============================================================================
-
+-- Check if user is eligible for custom avatar upload (100+ games played)
 CREATE OR REPLACE FUNCTION can_unlock_custom_avatar(p_user_id UUID)
 RETURNS BOOLEAN AS $$
 DECLARE
   has_veteran_badge BOOLEAN;
   games_played_count INTEGER;
 BEGIN
-  -- Check if user has "Veteran" badge (100 games played)
+  -- Check for Veteran badge (100 games played)
   SELECT EXISTS (
     SELECT 1 FROM user_badges
     WHERE user_id = p_user_id AND badge_id = 'veteran'
   ) INTO has_veteran_badge;
 
-  -- Alternative: check if user has played 100+ games
+  -- Fallback: Count total games played
   SELECT COUNT(*) INTO games_played_count
-  FROM game_sessions
-  WHERE user_id = p_user_id;
+  FROM game_sessions WHERE user_id = p_user_id;
 
   RETURN has_veteran_badge OR games_played_count >= 100;
 END;
 $$ LANGUAGE plpgsql;
 
--- ============================================================================
--- 6. Function: Auto-unlock avatar when eligible
--- ============================================================================
-
+-- Trigger function to auto-unlock custom avatar when eligible
 CREATE OR REPLACE FUNCTION auto_unlock_avatar()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -101,42 +72,42 @@ BEGIN
     SET avatar_unlocked = TRUE
     WHERE id = NEW.user_id AND avatar_unlocked = FALSE;
   END IF;
-
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================================
--- 7. Triggers: Auto-unlock avatar on game session or badge earned
+-- 5. Create Triggers
 -- ============================================================================
 
--- Drop triggers if they exist (for idempotency)
+-- Auto-unlock avatar when user earns 100th game session
 DROP TRIGGER IF EXISTS trigger_auto_unlock_avatar_on_session ON game_sessions;
-DROP TRIGGER IF EXISTS trigger_auto_unlock_avatar_on_badge ON user_badges;
-
--- Create triggers
 CREATE TRIGGER trigger_auto_unlock_avatar_on_session
 AFTER INSERT ON game_sessions
 FOR EACH ROW
 EXECUTE FUNCTION auto_unlock_avatar();
 
+-- Auto-unlock avatar when user earns veteran badge
+DROP TRIGGER IF EXISTS trigger_auto_unlock_avatar_on_badge ON user_badges;
 CREATE TRIGGER trigger_auto_unlock_avatar_on_badge
 AFTER INSERT ON user_badges
 FOR EACH ROW
 EXECUTE FUNCTION auto_unlock_avatar();
 
 -- ============================================================================
--- 8. Update leaderboard materialized view to include avatars
+-- 6. Update Leaderboard Materialized View
 -- ============================================================================
 
+-- Drop and recreate leaderboard with avatar fields
 DROP MATERIALIZED VIEW IF EXISTS leaderboard;
+
 CREATE MATERIALIZED VIEW leaderboard AS
 SELECT
   u.id as user_id,
   u.username,
   u.fid,
-  u.avatar_type,      -- NEW
-  u.avatar_url,       -- NEW
+  u.avatar_type,
+  u.avatar_url,
   u.total_points,
   COUNT(gs.id) as games_played,
   COUNT(CASE WHEN gs.result = 'win' THEN 1 END) as wins,
@@ -146,50 +117,58 @@ LEFT JOIN game_sessions gs ON u.id = gs.user_id
 GROUP BY u.id, u.username, u.fid, u.avatar_type, u.avatar_url, u.total_points, u.created_at
 ORDER BY u.total_points DESC;
 
+-- Create indexes on materialized view
 CREATE UNIQUE INDEX idx_leaderboard_user ON leaderboard(user_id);
 CREATE INDEX idx_leaderboard_rank ON leaderboard(rank);
 
 -- ============================================================================
--- 9. Update RLS policies for profile updates
+-- 7. Row Level Security (RLS) Policies
 -- ============================================================================
 
--- Drop existing policy if it exists
-DROP POLICY IF EXISTS "Users can update their own profile" ON users;
+-- Enable RLS on users table if not already enabled
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- Create new policy that allows:
--- 1. Users to update their own profile via Supabase Auth
--- 2. Service role to update any profile (for API endpoints)
-CREATE POLICY "Users can update their own profile" ON users
-FOR UPDATE
-USING (
-  auth.uid()::text = id::text -- Supabase Auth user can update own profile
-  OR
-  auth.jwt() ->> 'role' = 'service_role' -- Service role for API operations
-);
-
--- Also ensure users can read all profiles (for leaderboard, profile pages, etc.)
-DROP POLICY IF EXISTS "Users are viewable by everyone" ON users;
-CREATE POLICY "Users are viewable by everyone" ON users
+-- Allow users to view all profiles (for leaderboard)
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON users;
+CREATE POLICY "Public profiles are viewable by everyone" ON users
 FOR SELECT
 USING (true);
 
+-- Allow users to update their own profile
+DROP POLICY IF EXISTS "Users can update their own profile" ON users;
+CREATE POLICY "Users can update their own profile" ON users
+FOR UPDATE
+USING (
+  auth.uid()::text = auth_user_id::text -- Supabase Auth match
+  OR
+  auth.jwt() ->> 'role' = 'service_role' -- Service role for API
+);
+
+-- Allow authenticated users to insert their own profile
+DROP POLICY IF EXISTS "Users can insert their own profile" ON users;
+CREATE POLICY "Users can insert their own profile" ON users
+FOR INSERT
+WITH CHECK (
+  auth.uid()::text = auth_user_id::text
+  OR
+  auth.jwt() ->> 'role' = 'service_role'
+);
+
 -- ============================================================================
--- 10. Refresh the leaderboard view with new data
+-- 8. Comments for Documentation
 -- ============================================================================
 
-REFRESH MATERIALIZED VIEW leaderboard;
+COMMENT ON COLUMN users.email IS 'User email address for authentication';
+COMMENT ON COLUMN users.auth_provider IS 'Authentication provider: email, google, twitter, or anonymous';
+COMMENT ON COLUMN users.auth_user_id IS 'Supabase Auth user ID (UUID)';
+COMMENT ON COLUMN users.is_anonymous IS 'Whether user is playing anonymously (localStorage only)';
+COMMENT ON COLUMN users.claimed_at IS 'Timestamp when anonymous profile was claimed';
+COMMENT ON COLUMN users.avatar_type IS 'Avatar type: default, predefined, or custom';
+COMMENT ON COLUMN users.avatar_url IS 'URL or path to user avatar image';
+COMMENT ON COLUMN users.avatar_unlocked IS 'Whether user has unlocked custom avatar upload (100+ games)';
+COMMENT ON COLUMN users.bio IS 'User bio/description (max 200 chars)';
+COMMENT ON COLUMN users.social_links IS 'JSON object with social media links (twitter, farcaster, discord)';
 
 -- ============================================================================
 -- Migration Complete
 -- ============================================================================
-
--- Verify migration by checking new columns exist
-DO $$
-BEGIN
-  RAISE NOTICE 'Migration 003 completed successfully!';
-  RAISE NOTICE 'New columns added: email, auth_provider, is_anonymous, claimed_at, avatar_type, avatar_url, avatar_unlocked, bio, social_links';
-  RAISE NOTICE 'New functions created: can_unlock_custom_avatar(), auto_unlock_avatar()';
-  RAISE NOTICE 'New triggers created: trigger_auto_unlock_avatar_on_session, trigger_auto_unlock_avatar_on_badge';
-  RAISE NOTICE 'Leaderboard view updated with avatar fields';
-  RAISE NOTICE 'RLS policies updated for profile editing';
-END $$;
