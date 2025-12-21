@@ -171,6 +171,13 @@ export const translations = {
       engagement: 'Engagement',
       points: 'Points',
       ranking: 'Ranking',
+
+      // Badge categories (with cat_ prefix for BadgeGallery)
+      cat_progression: 'Progression',
+      cat_performance: 'Performance',
+      cat_elite: 'Elite',
+      cat_collection: 'Collection',
+      cat_engagement: 'Engagement',
     },
 
     // About Page
@@ -438,6 +445,13 @@ export const translations = {
       engagement: 'Engagement',
       points: 'Points',
       ranking: 'Classement',
+
+      // Badge categories (with cat_ prefix for BadgeGallery)
+      cat_progression: 'Progression',
+      cat_performance: 'Performance',
+      cat_elite: 'Elite',
+      cat_collection: 'Collection',
+      cat_engagement: 'Engagement',
     },
 
     // About Page
