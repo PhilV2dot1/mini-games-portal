@@ -139,8 +139,8 @@ export default function MyProfilePage() {
   const totalPoints = isAuthenticated && dbProfile ? dbProfile.user.total_points : localProfile?.totalPoints || 0;
   const games = isAuthenticated && dbProfile ? dbProfile.gameStats : localProfile?.games || {};
   const username = profile?.username || `Player_${user?.id?.substring(0, 8) || 'Guest'}`;
-  const avatarUrl = profile?.avatar_url || '/avatars/predefined/default-player.svg';
-  const bio = profile?.bio || '';
+  const avatarUrl = isAuthenticated && dbProfile ? dbProfile.user.avatar_url : '/avatars/predefined/default-player.svg';
+  const bio = isAuthenticated && dbProfile ? dbProfile.user.bio : '';
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
