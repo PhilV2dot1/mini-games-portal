@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import { createServerClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import {
   validateUsername,
@@ -11,6 +11,7 @@ export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createServerClient();
     const searchParams = request.nextUrl.searchParams;
     const fid = searchParams.get('fid');
     const userId = searchParams.get('id');
