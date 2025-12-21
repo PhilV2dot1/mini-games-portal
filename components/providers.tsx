@@ -3,7 +3,7 @@
 import { useState, useEffect, ReactNode, createContext, useContext } from "react";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
 import { config } from "@/lib/wagmi";
 import { initializeFarcaster } from "@/lib/farcaster";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -91,11 +91,11 @@ export function Providers({ children }: { children: ReactNode }) {
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider
               modalSize="compact"
-              theme={{
-                accentColor: '#FBCC5C', // Celo yellow
+              theme={lightTheme({
+                accentColor: '#FBCC5C',
                 accentColorForeground: 'black',
                 borderRadius: 'large',
-              }}
+              })}
             >
               <AuthProvider>
                 {initError && isInFarcaster && (
