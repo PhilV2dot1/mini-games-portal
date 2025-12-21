@@ -41,14 +41,15 @@ export const translations = {
       gameModes: 'Game Modes',
       freeMode: 'Free Mode',
       freeModeDesc: 'Play without a wallet. Stats saved locally.',
+      freePlay: 'Free Play',
       onChainMode: 'On-Chain Mode',
       onChainModeDesc: 'Connect your wallet to save on Celo.',
       learnMore: 'Learn more about points and badges →',
       availableBadges: 'Available Badges',
       viewAllBadges: 'View all badges →',
       availableGames: 'Available Games',
-      builtOn: 'Built on Celo blockchain • Powered by Farcaster',
-      learnMoreCelo: 'Learn more about Celo',
+      builtOn: 'Built with ❤️ on Celo Blockchain',
+      learnMoreCelo: 'Learn more about Celo →',
       createProfile: 'Create Profile',
       saveProgress: 'Save your progress and compete on the leaderboard',
       setupNow: 'Setup Now',
@@ -56,9 +57,28 @@ export const translations = {
       profile: 'Profile',
       leaderboard: 'Leaderboard',
       gamesPlayed: 'Games',
-      footerBuilt: 'Built on Celo blockchain • Powered by Farcaster',
-      footerLearnCelo: 'Learn more about Celo',
+      stats: 'Statistics',
+      footerBuilt: 'Built with ❤️ on Celo Blockchain',
+      footerLearnCelo: 'Learn more about Celo →',
+      footerCreatedBy: 'Created by',
       learnMoreBadges: 'Learn more about badges',
+    },
+
+    // Stats
+    stats: {
+      wins: 'Wins',
+      losses: 'Losses',
+      played: 'Played',
+      winRate: 'Win Rate',
+      perGame: 'Per-Game Statistics',
+      noGames: 'No games played yet',
+    },
+
+    // Profile
+    profile: {
+      saveYourProgress: 'Save Your Progress!',
+      createAccountMessage: 'Create an account to save your stats and compete on the global leaderboard!',
+      createAccount: 'Create Account',
     },
 
     // Profile Setup
@@ -283,19 +303,20 @@ export const translations = {
       yourProfile: 'Votre Profil',
       points: 'Points',
       profileStatus: 'Profil',
-      customAvatar: 'Avatar Custom',
+      customAvatar: 'Avatar Personnalisé',
       ranking: 'Classement',
       gameModes: 'Modes de Jeu',
       freeMode: 'Mode Gratuit',
       freeModeDesc: 'Jouez sans wallet. Stats sauvegardées localement.',
+      freePlay: 'Mode Gratuit',
       onChainMode: 'Mode On-Chain',
       onChainModeDesc: 'Connectez votre wallet pour sauvegarder sur Celo.',
       learnMore: 'En savoir plus sur les points et badges →',
       availableBadges: 'Badges Disponibles',
       viewAllBadges: 'Voir tous les badges →',
       availableGames: 'Jeux Disponibles',
-      builtOn: 'Built on Celo blockchain • Powered by Farcaster',
-      learnMoreCelo: 'Learn more about Celo',
+      builtOn: 'Construit avec ❤️ sur Celo Blockchain',
+      learnMoreCelo: 'En savoir plus sur Celo →',
       createProfile: 'Créer un Profil',
       saveProgress: 'Sauvegardez votre progression et participez au classement',
       setupNow: 'Configurer Maintenant',
@@ -303,9 +324,28 @@ export const translations = {
       profile: 'Profil',
       leaderboard: 'Classement',
       gamesPlayed: 'Parties',
-      footerBuilt: 'Construit sur Celo blockchain • Propulsé par Farcaster',
-      footerLearnCelo: 'En savoir plus sur Celo',
+      stats: 'Statistiques',
+      footerBuilt: 'Construit avec ❤️ sur Celo Blockchain',
+      footerLearnCelo: 'En savoir plus sur Celo →',
+      footerCreatedBy: 'Créé par',
       learnMoreBadges: 'En savoir plus sur les badges',
+    },
+
+    // Stats
+    stats: {
+      wins: 'Victoires',
+      losses: 'Défaites',
+      played: 'Jouées',
+      winRate: 'Taux de Victoire',
+      perGame: 'Statistiques par Jeu',
+      noGames: 'Aucune partie jouée pour le moment',
+    },
+
+    // Profile
+    profile: {
+      saveYourProgress: 'Sauvegardez votre Progression !',
+      createAccountMessage: 'Créez un compte pour sauvegarder vos statistiques et participer au classement mondial !',
+      createAccount: 'Créer un Compte',
     },
 
     // Profile Setup

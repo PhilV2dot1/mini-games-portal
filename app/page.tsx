@@ -66,37 +66,38 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-gray-500 via-gray-300 to-gray-100 rounded-xl p-6 mb-6 shadow-xl border-4 border-yellow-400"
+          transition={{ duration: 0.5 }}
+          className="bg-gradient-to-br from-gray-500 via-gray-300 to-gray-100 rounded-2xl p-8 mb-8 shadow-2xl border-4 border-yellow-400"
         >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
                 🎮 {t('home.welcome')}
               </h1>
-              <p className="text-gray-800 mb-3">
+              <p className="text-lg text-gray-800 mb-4 font-medium">
                 {t('home.subtitle')}
               </p>
               {/* Game Modes */}
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <span className="text-xl">🆓</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="flex items-start gap-3 bg-white/40 backdrop-blur-sm rounded-xl p-3 hover:bg-white/60 transition-all">
+                  <span className="text-2xl">🆓</span>
                   <div>
-                    <div className="font-bold text-gray-900">{t('home.freeMode')}</div>
-                    <p className="text-xs text-gray-700">{t('home.freeModeDesc')}</p>
+                    <div className="font-bold text-gray-900 mb-1">{t('home.freeMode')}</div>
+                    <p className="text-xs text-gray-700 leading-relaxed">{t('home.freeModeDesc')}</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-xl">⛓️</span>
+                <div className="flex items-start gap-3 bg-white/40 backdrop-blur-sm rounded-xl p-3 hover:bg-white/60 transition-all">
+                  <span className="text-2xl">⛓️</span>
                   <div>
-                    <div className="font-bold text-gray-900">{t('home.onChainMode')}</div>
-                    <p className="text-xs text-gray-700">{t('home.onChainModeDesc')}</p>
+                    <div className="font-bold text-gray-900 mb-1">{t('home.onChainMode')}</div>
+                    <p className="text-xs text-gray-700 leading-relaxed">{t('home.onChainModeDesc')}</p>
                   </div>
                 </div>
               </div>
             </div>
             <Link
               href="/about"
-              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
+              className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap transform"
             >
               📖 {t('home.howToPlay')}
             </Link>
@@ -108,42 +109,42 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300"
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="bg-white/95 backdrop-blur-lg rounded-2xl p-8 mb-8 shadow-xl border-2 border-gray-300 hover:border-gray-400 transition-all"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">{t('home.yourProfile')}</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 tracking-tight">{t('home.yourProfile')}</h2>
               <Link
                 href="/profile/edit"
-                className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline"
+                className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline hover:scale-105 transition-transform inline-block"
               >
                 ✏️ {t('home.edit')}
               </Link>
             </div>
-            {/* First 3 tiles grouped with Celo style */}
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
-                <div className="text-4xl font-black text-gray-900">{userProfile.total_points || 0}</div>
-                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.points')}</div>
+            {/* Stats tiles */}
+            <div className="grid grid-cols-3 gap-4 mb-5">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 text-center border-2 border-gray-300 hover:border-yellow-400 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                <div className="text-5xl font-black text-gray-900 mb-2">{userProfile.total_points || 0}</div>
+                <div className="text-sm text-gray-700 font-semibold">{t('home.points')}</div>
               </div>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
-                <div className="text-4xl font-black text-gray-900">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 text-center border-2 border-gray-300 hover:border-yellow-400 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                <div className="text-5xl font-black text-gray-900 mb-2">
                   {userProfile.username ? '✓' : '-'}
                 </div>
-                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.profile')}</div>
+                <div className="text-sm text-gray-700 font-semibold">{t('home.profile')}</div>
               </div>
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border-2 border-gray-300 hover:border-yellow-400 transition-all">
-                <div className="text-4xl font-black text-gray-900">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 text-center border-2 border-gray-300 hover:border-yellow-400 hover:shadow-lg transition-all transform hover:-translate-y-1">
+                <div className="text-5xl font-black text-gray-900 mb-2">
                   {userProfile.avatar_unlocked ? '🔓' : '🔒'}
                 </div>
-                <div className="text-xs text-gray-700 font-semibold mt-1">{t('home.customAvatar')}</div>
+                <div className="text-sm text-gray-700 font-semibold">{t('home.customAvatar')}</div>
               </div>
             </div>
-            {/* Leaderboard link with Celo yellow */}
-            <div className="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl p-4 text-center shadow-lg border-2 border-yellow-600 hover:scale-105 transition-transform">
+            {/* Leaderboard link */}
+            <div className="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl p-5 text-center shadow-lg border-2 border-yellow-600 hover:shadow-xl hover:scale-105 transition-all transform cursor-pointer">
               <Link href="/leaderboard" className="block">
-                <div className="text-3xl font-bold text-gray-900 mb-1">📊</div>
-                <div className="text-sm text-gray-900 font-bold">{t('home.leaderboard')}</div>
+                <div className="text-4xl font-bold text-gray-900 mb-2">📊</div>
+                <div className="text-base text-gray-900 font-bold">{t('home.leaderboard')}</div>
               </Link>
             </div>
           </motion.div>
@@ -151,26 +152,26 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gradient-to-br from-gray-500 via-gray-300 to-gray-100 rounded-xl p-6 mb-6 shadow-xl border-4 border-yellow-400"
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="bg-gradient-to-br from-gray-500 via-gray-300 to-gray-100 rounded-2xl p-8 mb-8 shadow-2xl border-4 border-yellow-400"
           >
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">👤 {t('home.createProfile')}</h2>
-                <p className="text-gray-800">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="text-center sm:text-left">
+                <h2 className="text-3xl font-extrabold text-gray-900 mb-2 tracking-tight">👤 {t('home.createProfile')}</h2>
+                <p className="text-lg text-gray-800 font-medium">
                   {t('home.saveProgress')}
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setShowProfileSetup(true)}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap transform"
                 >
                   🎮 {t('home.setupNow')}
                 </button>
                 <Link
                   href="/about"
-                  className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg whitespace-nowrap"
+                  className="bg-white hover:bg-gray-100 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-105 whitespace-nowrap transform text-center"
                 >
                   📖 {t('home.learnMore')}
                 </Link>
@@ -183,9 +184,10 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="mb-8"
         >
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">🎯 {t('home.availableGames')}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight">🎯 {t('home.availableGames')}</h2>
           <GameGrid games={games} />
         </motion.div>
 
@@ -193,14 +195,14 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300"
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="bg-white/95 backdrop-blur-lg rounded-2xl p-8 mb-8 shadow-xl border-2 border-gray-300 hover:border-gray-400 transition-all"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">🏅 {t('home.availableBadges')}</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">🏅 {t('home.availableBadges')}</h2>
             <Link
               href="/about"
-              className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline"
+              className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline hover:scale-105 transition-transform inline-block"
             >
               {t('home.viewAllBadges')} →
             </Link>
