@@ -10,7 +10,7 @@
  * - Social links (Twitter, Farcaster, Discord)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -59,20 +59,8 @@ export default function ProfileEditPage() {
     discord: '',
   });
 
-  // Load user profile
-  useEffect(() => {
-    if (authLoading) return;
-
-    // Allow access if either authenticated OR wallet connected
-    if (!isAuthenticated && !walletConnected) {
-      router.push('/');
-      return;
-    }
-
-    loadProfile();
-  }, [isAuthenticated, walletConnected, authLoading, router]);
-
-  const loadProfile = async () => {
+  // Load user profile function (memoized to avoid re-creation)
+  const loadProfile = useCallback(async () => {
     const hasUserId = user?.id;
     const hasWallet = walletConnected && walletAddress;
 
@@ -109,7 +97,20 @@ export default function ProfileEditPage() {
       setError('Impossible de charger le profil');
       setLoading(false);
     }
-  };
+  }, [user?.id, walletConnected, walletAddress]);
+
+  // Load user profile on mount
+  useEffect(() => {
+    if (authLoading) return;
+
+    // Allow access if either authenticated OR wallet connected
+    if (!isAuthenticated && !walletConnected) {
+      router.push('/');
+      return;
+    }
+
+    loadProfile();
+  }, [isAuthenticated, walletConnected, authLoading, router, loadProfile]);
 
   // Check unlock status
   useEffect(() => {

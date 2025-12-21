@@ -233,7 +233,7 @@ export function BadgeGallery({
     }
 
     loadBadges();
-  }, [userId, localStats, showOnlyEarned, maxDisplay]); // Added localStats to deps
+  }, [userId, localStats, showOnlyEarned, maxDisplay, t]); // Added t for translations
 
   if (loading) {
     return (
