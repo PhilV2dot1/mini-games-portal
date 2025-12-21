@@ -3,10 +3,13 @@
 import { useState, useEffect, ReactNode, createContext, useContext } from "react";
 import { WagmiProvider } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from "@/lib/wagmi";
 import { initializeFarcaster } from "@/lib/farcaster";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+
+import '@rainbow-me/rainbowkit/styles.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,14 +89,23 @@ export function Providers({ children }: { children: ReactNode }) {
       <FarcasterContext.Provider value={{ isInFarcaster, isSDKReady: !initError }}>
         <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              {initError && isInFarcaster && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-xs text-yellow-700">
-                  ⚠️ Farcaster SDK: {initError}
-                </div>
-              )}
-              {children}
-            </AuthProvider>
+            <RainbowKitProvider
+              modalSize="compact"
+              theme={{
+                accentColor: '#FBCC5C', // Celo yellow
+                accentColorForeground: 'black',
+                borderRadius: 'large',
+              }}
+            >
+              <AuthProvider>
+                {initError && isInFarcaster && (
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-xs text-yellow-700">
+                    ⚠️ Farcaster SDK: {initError}
+                  </div>
+                )}
+                {children}
+              </AuthProvider>
+            </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>
       </FarcasterContext.Provider>
