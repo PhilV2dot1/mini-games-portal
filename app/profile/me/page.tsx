@@ -8,7 +8,7 @@
  * - Authenticated users (from database)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { useLocalStats } from '@/hooks/useLocalStats';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -17,28 +17,57 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+
+interface DbProfile {
+  user: {
+    id: string;
+    fid: number | null;
+    username: string;
+    wallet_address: string | null;
+    total_points: number;
+    created_at: string;
+    avatar_type: string;
+    avatar_url: string;
+    avatar_unlocked: boolean;
+    bio: string;
+    social_links: Record<string, string>;
+    email: string;
+    is_anonymous: boolean;
+  };
+  stats: {
+    gamesPlayed: number;
+    wins: number;
+    losses: number;
+    winRate: number;
+  };
+  recentSessions: unknown[];
+  badges: unknown[];
+  gameStats: Record<string, {
+    played: number;
+    wins: number;
+    points: number;
+  }>;
+  rank: number | null;
+}
+
+interface GameStat {
+  played: number;
+  wins: number;
+  losses: number;
+  totalPoints?: number;
+  points?: number;
+}
 
 export default function MyProfilePage() {
-  const router = useRouter();
   const { profile: localProfile, isLoaded: localLoaded } = useLocalStats();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { t } = useLanguage();
 
-  const [dbProfile, setDbProfile] = useState<any>(null);
+  const [dbProfile, setDbProfile] = useState<DbProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch database profile for authenticated users
-  useEffect(() => {
-    if (authLoading) return;
-
-    if (isAuthenticated && user?.id) {
-      loadDatabaseProfile();
-    }
-  }, [isAuthenticated, user?.id, authLoading]);
-
-  const loadDatabaseProfile = async () => {
+  const loadDatabaseProfile = useCallback(async () => {
     if (!user?.id) return;
 
     console.log('[Profile/Me] Loading database profile for user:', user.id);
@@ -64,7 +93,16 @@ export default function MyProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  // Fetch database profile for authenticated users
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (isAuthenticated && user?.id) {
+      loadDatabaseProfile();
+    }
+  }, [isAuthenticated, user?.id, authLoading, loadDatabaseProfile]);
 
   // Show loading only while auth is loading or while fetching database profile
   if (authLoading || (isAuthenticated && loading)) {
@@ -94,8 +132,8 @@ export default function MyProfilePage() {
   // Get stats from appropriate source
   const stats = isAuthenticated && dbProfile ? dbProfile.stats : {
     gamesPlayed: localProfile?.gamesPlayed || 0,
-    wins: Object.values(localProfile?.games || {}).reduce((sum: number, game: any) => sum + game.wins, 0),
-    losses: Object.values(localProfile?.games || {}).reduce((sum: number, game: any) => sum + game.losses, 0),
+    wins: Object.values(localProfile?.games || {}).reduce((sum: number, game: GameStat) => sum + game.wins, 0),
+    losses: Object.values(localProfile?.games || {}).reduce((sum: number, game: GameStat) => sum + game.losses, 0),
   };
 
   const totalPoints = isAuthenticated && dbProfile ? dbProfile.user.total_points : localProfile?.totalPoints || 0;
@@ -242,10 +280,11 @@ export default function MyProfilePage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(games).map(([gameId, gameStats]) => {
                 // Handle both localStorage and database formats
-                const played = (gameStats as any).played || 0;
-                const wins = (gameStats as any).wins || 0;
-                const losses = (gameStats as any).losses || 0;
-                const points = (gameStats as any).points || (gameStats as any).totalPoints || 0;
+                const typedStats = gameStats as GameStat;
+                const played = typedStats.played || 0;
+                const wins = typedStats.wins || 0;
+                const losses = typedStats.losses || 0;
+                const points = typedStats.points || typedStats.totalPoints || 0;
                 const winRate = played > 0 ? Math.round((wins / played) * 100) : 0;
 
                 return (
