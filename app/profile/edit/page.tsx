@@ -416,7 +416,7 @@ export default function ProfileEditPage() {
           {/* Display Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom affiché
+              Nom affiché <span className="text-green-600 text-xs">(✓ Espaces et émojis OK)</span>
             </label>
             <input
               type="text"
@@ -432,14 +432,14 @@ export default function ProfileEditPage() {
             />
             {displayNameError && <p className="text-red-600 text-xs mt-1">{displayNameError}</p>}
             <p className="text-gray-500 text-xs mt-1">
-              Votre nom public (max {DISPLAY_NAME_MAX_LENGTH} caractères, espaces et émojis autorisés)
+              ✨ Ce nom s&apos;affiche partout (max {DISPLAY_NAME_MAX_LENGTH} caractères, espaces et émojis autorisés)
             </p>
           </div>
 
           {/* Username */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom d&apos;utilisateur <span className="text-gray-500 font-normal">(identifiant unique)</span>
+              Nom d&apos;utilisateur <span className="text-orange-600 text-xs">(✗ Pas d&apos;espaces)</span>
             </label>
             <input
               type="text"
@@ -454,7 +454,7 @@ export default function ProfileEditPage() {
             />
             {usernameError && <p className="text-red-600 text-xs mt-1">{usernameError}</p>}
             <p className="text-gray-500 text-xs mt-1">
-              3-20 caractères, lettres, chiffres et underscore uniquement
+              🔗 Identifiant unique: 3-20 caractères (lettres, chiffres, underscore _ seulement)
             </p>
           </div>
 
