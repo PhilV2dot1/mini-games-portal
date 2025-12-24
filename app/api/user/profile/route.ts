@@ -69,9 +69,23 @@ export async function GET(request: NextRequest) {
         console.log('[Profile API] Auth user found, creating profile:', authUser.email);
 
         // Create user profile from auth data
-        const username = authUser.email
+        let username = authUser.email
           ? authUser.email.split('@')[0]
           : `Player_${userId.slice(0, 8)}`;
+
+        // Check if username already exists and make it unique
+        const { data: existingUsername } = await supabaseAdmin
+          .from('users')
+          .select('username')
+          .eq('username', username)
+          .maybeSingle();
+
+        if (existingUsername) {
+          // Add random suffix to make it unique
+          const randomSuffix = Math.random().toString(36).substring(2, 6);
+          username = `${username}_${randomSuffix}`;
+          console.log('[Profile API] Username exists, using unique name:', username);
+        }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: newUser, error: createError } = (await supabaseAdmin
@@ -91,16 +105,51 @@ export async function GET(request: NextRequest) {
           .single()) as { data: any; error: any };
 
         if (createError) {
-          console.error('[Profile API] Error creating user profile:', createError);
-          return NextResponse.json(
-            { error: 'Échec de la création du profil' },
-            { status: 500 }
-          );
-        }
+          console.error('[Profile API] Error creating user profile:', {
+            code: createError.code,
+            message: createError.message,
+            details: createError.details,
+            hint: createError.hint,
+          });
 
-        user = newUser;
-        userError = null;
-        console.log('[Profile API] Profile created successfully:', user.id);
+          // Check if user already exists (unique constraint violation)
+          if (createError.code === '23505') {
+            console.log('[Profile API] User already exists, fetching existing profile');
+            // Try to fetch the existing user
+            const { data: existingUser } = await supabaseAdmin
+              .from('users')
+              .select('*')
+              .eq('auth_user_id', authUser.id)
+              .maybeSingle();
+
+            if (existingUser) {
+              user = existingUser;
+              userError = null;
+              console.log('[Profile API] Existing profile found:', user.id);
+            } else {
+              return NextResponse.json(
+                {
+                  error: 'Échec de la création du profil',
+                  details: createError.message
+                },
+                { status: 500 }
+              );
+            }
+          } else {
+            return NextResponse.json(
+              {
+                error: 'Échec de la création du profil',
+                details: createError.message,
+                code: createError.code
+              },
+              { status: 500 }
+            );
+          }
+        } else {
+          user = newUser;
+          userError = null;
+          console.log('[Profile API] Profile created successfully:', user.id);
+        }
       }
     }
 
