@@ -278,6 +278,13 @@ export default function ProfileEditPage() {
         requestBody.walletAddress = walletAddress.toLowerCase();
       }
 
+      console.log('[Profile Edit] Saving profile with data:', {
+        display_name: displayName,
+        username: username,
+        hasUserId: !!user?.id,
+        hasWallet: !!walletAddress,
+      });
+
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -286,8 +293,17 @@ export default function ProfileEditPage() {
 
       if (!response.ok) {
         const data = await response.json();
+        console.error('[Profile Edit] Save failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          details: data,
+        });
         throw new Error(data.error || 'Échec de la sauvegarde');
       }
+
+      const data = await response.json();
+      console.log('[Profile Edit] Save successful:', data);
 
       setSuccess(true);
       setHasUnsavedChanges(false);
@@ -297,7 +313,7 @@ export default function ProfileEditPage() {
       }, 1500);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error('Error saving profile:', err);
+      console.error('[Profile Edit] Error saving profile:', err);
       setError(err.message || 'Une erreur est survenue');
     } finally {
       setSaving(false);
