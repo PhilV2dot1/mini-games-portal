@@ -48,17 +48,26 @@ export async function POST(request: NextRequest) {
     // Normalize wallet address
     const normalizedWallet = walletAddress?.toLowerCase();
 
-    // Step 1: Find user's current record
+    // Step 1: Find user's current record by auth_user_id
     const { data: currentUser, error: currentUserError } = (await supabase
       .from('users')
       .select('*')
-      .eq('email', authUserId) // This might need adjustment based on how you store auth user ID
+      .eq('auth_user_id', authUserId)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .maybeSingle()) as { data: any; error: any };
 
     if (currentUserError) {
+      console.error('[Claim Profile] Error fetching user:', currentUserError);
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: 'Utilisateur non trouvé', details: currentUserError.message },
+        { status: 404 }
+      );
+    }
+
+    if (!currentUser) {
+      console.error('[Claim Profile] User not found with auth_user_id:', authUserId);
+      return NextResponse.json(
+        { error: 'Aucun profil trouvé pour cet utilisateur authentifié' },
         { status: 404 }
       );
     }
