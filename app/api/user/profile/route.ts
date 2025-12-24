@@ -50,22 +50,34 @@ export async function GET(request: NextRequest) {
     if ((!user || userError) && userId) {
       console.log('[Profile API] User not found by ID, checking Supabase Auth:', userId);
 
-      // Create admin client for auth operations
-      const supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-          },
+      try {
+        // Create admin client for auth operations
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false,
+            },
+          }
+        );
+
+        // Get auth user info
+        const { data: { user: authUser }, error: authFetchError } = await supabaseAdmin.auth.admin.getUserById(userId);
+
+        if (authFetchError || !authUser) {
+          console.error('[Profile API] Error fetching auth user:', authFetchError);
+          return NextResponse.json(
+            {
+              error: 'Utilisateur non trouvé dans Supabase Auth',
+              details: authFetchError?.message || 'No auth user found'
+            },
+            { status: 404 }
+          );
         }
-      );
 
-      // Get auth user info
-      const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(userId);
-
-      if (authUser) {
+        if (authUser) {
         console.log('[Profile API] Auth user found, creating profile:', authUser.email);
 
         // Create user profile from auth data
@@ -150,6 +162,17 @@ export async function GET(request: NextRequest) {
           userError = null;
           console.log('[Profile API] Profile created successfully:', user.id);
         }
+      }
+      } catch (err) {
+        console.error('[Profile API] Unexpected error creating OAuth profile:', err);
+        return NextResponse.json(
+          {
+            error: 'Erreur lors de la création du profil',
+            details: err instanceof Error ? err.message : 'Unknown error',
+            stack: err instanceof Error ? err.stack : undefined
+          },
+          { status: 500 }
+        );
       }
     }
 
