@@ -176,7 +176,57 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (userError || !user) {
+    // If wallet user not found, auto-create profile
+    if ((userError || !user) && walletAddress) {
+      console.log('[Profile API] Wallet user not found, creating profile for:', walletAddress);
+
+      try {
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            auth: {
+              autoRefreshToken: false,
+              persistSession: false,
+            },
+          }
+        );
+
+        const defaultUsername = `Player_${walletAddress.slice(2, 10)}`;
+
+        const { data: newUser, error: createError } = await supabaseAdmin
+          .from('users')
+          .insert({
+            wallet_address: walletAddress,
+            username: defaultUsername,
+            display_name: defaultUsername,
+            is_anonymous: false,
+            total_points: 0,
+            avatar_type: 'default',
+            avatar_url: '/avatars/predefined/default-player.svg',
+            theme_color: 'yellow',
+          })
+          .select()
+          .single();
+
+        if (createError || !newUser) {
+          console.error('[Profile API] Error creating wallet profile:', createError);
+          return NextResponse.json(
+            { error: 'Failed to create profile', details: createError?.message },
+            { status: 500 }
+          );
+        }
+
+        console.log('[Profile API] Wallet profile created:', newUser.id);
+        user = newUser;
+      } catch (err) {
+        console.error('[Profile API] Exception creating wallet profile:', err);
+        return NextResponse.json(
+          { error: 'Error creating profile' },
+          { status: 500 }
+        );
+      }
+    } else if (userError || !user) {
       console.log('[Profile API] User not found:', { userError, hasUser: !!user });
       return NextResponse.json(
         { error: 'User not found' },
