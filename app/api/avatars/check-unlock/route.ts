@@ -35,19 +35,24 @@ export async function GET(request: NextRequest) {
     );
 
     // Check if avatar is already unlocked
+    // Try auth_user_id first (for OAuth users), then fall back to id
     const { data: user, error: userError } = (await supabase
       .from('users')
-      .select('avatar_unlocked')
-      .eq('id', userId)
+      .select('id, avatar_unlocked')
+      .or(`auth_user_id.eq.${userId},id.eq.${userId}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .single()) as { data: any; error: any };
+      .maybeSingle()) as { data: any; error: any };
 
     if (userError || !user) {
+      console.error('[Avatar Check] User not found:', { userId, error: userError });
       return NextResponse.json(
         { error: 'Utilisateur non trouvé' },
         { status: 404 }
       );
     }
+
+    // Use the actual database ID for subsequent queries
+    const actualUserId = user.id;
 
     // If already unlocked, return true
     if (user.avatar_unlocked) {
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
     // Check via database function
     const { data: canUnlock, error: checkError } = (await supabase
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .rpc('can_unlock_custom_avatar', { p_user_id: userId })) as { data: boolean; error: any };
+      .rpc('can_unlock_custom_avatar', { p_user_id: actualUserId })) as { data: boolean; error: any };
 
     if (checkError) {
       console.error('Error checking avatar unlock:', checkError);
@@ -76,7 +81,7 @@ export async function GET(request: NextRequest) {
       await supabase
         .from('users')
         .update({ avatar_unlocked: true })
-        .eq('id', userId);
+        .eq('id', actualUserId);
     }
 
     // Get progress info
@@ -84,12 +89,12 @@ export async function GET(request: NextRequest) {
       .from('game_sessions')
       .select('id', { count: 'exact', head: true })
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .eq('user_id', userId)) as { data: any; count: number | null };
+      .eq('user_id', actualUserId)) as { data: any; count: number | null };
 
     const { data: badges } = (await supabase
       .from('user_badges')
       .select('badge_id')
-      .eq('user_id', userId)
+      .eq('user_id', actualUserId)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .eq('badge_id', 'veteran')) as { data: any[] | null; error: any };
 

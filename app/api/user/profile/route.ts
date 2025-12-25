@@ -299,6 +299,16 @@ export async function PUT(request: NextRequest) {
     // For now, we'll require a userId or walletAddress in the body
     const userId = body.userId || request.headers.get('x-user-id');
 
+    console.log('[Profile PUT] Request received:', {
+      userId,
+      walletAddress,
+      hasDisplayName: !!display_name,
+      hasUsername: !!username,
+      hasBio: !!bio,
+      themeColor: theme_color,
+      avatarType: avatar_type,
+    });
+
     if (!userId && !walletAddress) {
       return NextResponse.json(
         { error: 'Authentification requise - userId ou walletAddress nécessaire' },
@@ -374,8 +384,10 @@ export async function PUT(request: NextRequest) {
 
     // Validate display name
     if (display_name) {
+      console.log('[Profile PUT] Validating display name:', display_name);
       const displayNameResult = validateDisplayName(display_name);
       if (!displayNameResult.valid) {
+        console.error('[Profile PUT] Display name validation failed:', displayNameResult.error);
         return NextResponse.json(
           { error: displayNameResult.error },
           { status: 400 }
@@ -385,11 +397,22 @@ export async function PUT(request: NextRequest) {
 
     // Validate username
     if (username) {
-      const usernameResult = await validateUsername(username, actualUserId, supabaseAdmin);
-      if (!usernameResult.valid) {
+      console.log('[Profile PUT] Validating username:', username, 'for user:', actualUserId);
+      try {
+        const usernameResult = await validateUsername(username, actualUserId, supabaseAdmin);
+        console.log('[Profile PUT] Username validation result:', usernameResult);
+        if (!usernameResult.valid) {
+          console.error('[Profile PUT] Username validation failed:', usernameResult.error);
+          return NextResponse.json(
+            { error: usernameResult.error },
+            { status: 400 }
+          );
+        }
+      } catch (validationError) {
+        console.error('[Profile PUT] Username validation threw error:', validationError);
         return NextResponse.json(
-          { error: usernameResult.error },
-          { status: 400 }
+          { error: 'Erreur lors de la validation du nom d\'utilisateur', details: String(validationError) },
+          { status: 500 }
         );
       }
     }
@@ -447,6 +470,12 @@ export async function PUT(request: NextRequest) {
     if (show_game_history !== undefined) updateData.show_game_history = show_game_history;
     updateData.updated_at = new Date().toISOString();
 
+    console.log('[Profile PUT] Updating user with data:', {
+      actualUserId,
+      updateFields: Object.keys(updateData),
+      updateData
+    });
+
     // Update user
     const { data: updatedUser, error: updateError } = (await supabaseAdmin
       .from('users')
@@ -457,12 +486,24 @@ export async function PUT(request: NextRequest) {
       .single()) as { data: any; error: any };
 
     if (updateError) {
-      console.error('Error updating profile:', updateError);
+      console.error('[Profile PUT] Update failed:', {
+        error: updateError,
+        code: updateError?.code,
+        message: updateError?.message,
+        details: updateError?.details,
+        hint: updateError?.hint,
+      });
       return NextResponse.json(
-        { error: 'Échec de la mise à jour du profil' },
+        {
+          error: 'Échec de la mise à jour du profil',
+          details: updateError?.message || 'Unknown error',
+          code: updateError?.code
+        },
         { status: 500 }
       );
     }
+
+    console.log('[Profile PUT] Update successful for user:', actualUserId);
 
     // Refresh leaderboard if username changed
     if (username) {
@@ -480,9 +521,13 @@ export async function PUT(request: NextRequest) {
       message: 'Profil mis à jour avec succès',
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    console.error('[Profile PUT] Unexpected error:', error);
+    console.error('[Profile PUT] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
-      { error: 'Une erreur est survenue' },
+      {
+        error: 'Une erreur est survenue',
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }
