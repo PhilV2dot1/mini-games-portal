@@ -318,15 +318,18 @@ export async function PUT(request: NextRequest) {
       }
     );
 
-    // Find the user by userId or walletAddress
+    // Find the user by userId (try auth_user_id first, then id) or walletAddress
     let query = supabaseAdmin.from('users').select('id');
     if (userId) {
-      query = query.eq('id', userId);
+      // Try auth_user_id first (for OAuth users), then fall back to id
+      query = query.or(`auth_user_id.eq.${userId},id.eq.${userId}`);
     } else if (walletAddress) {
       query = query.eq('wallet_address', walletAddress.toLowerCase());
     }
 
     const { data: userData, error: userError } = await query.maybeSingle();
+
+    console.log('[Profile PUT] Looking for user:', { userId, walletAddress, found: !!userData, error: userError });
 
     let actualUserId: string;
 
