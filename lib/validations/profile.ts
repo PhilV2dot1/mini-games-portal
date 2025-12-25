@@ -8,7 +8,8 @@
  * - Avatar type validation
  */
 
-import { supabase } from '@/lib/supabase/client';
+import { supabase as defaultSupabase } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ============================================================================
 // Constants
@@ -109,14 +110,18 @@ export function checkReservedUsername(username: string): ValidationResult {
  * Checks if username is unique in the database
  * @param username The username to check
  * @param currentUserId The current user's ID (to exclude from check)
+ * @param supabaseClient Optional Supabase client (uses default client if not provided)
  * @returns Validation result
  */
 export async function checkUsernameUniqueness(
   username: string,
-  currentUserId?: string
+  currentUserId?: string,
+  supabaseClient?: SupabaseClient
 ): Promise<ValidationResult> {
   try {
-    let query = supabase
+    const client = supabaseClient || defaultSupabase;
+
+    let query = client
       .from('users')
       .select('id, auth_user_id')
       .eq('username', username);
@@ -160,11 +165,13 @@ export async function checkUsernameUniqueness(
  * Validates username (format, reserved, uniqueness)
  * @param username The username to validate
  * @param currentUserId The current user's ID (optional)
+ * @param supabaseClient Optional Supabase client (uses default client if not provided)
  * @returns Validation result
  */
 export async function validateUsername(
   username: string,
-  currentUserId?: string
+  currentUserId?: string,
+  supabaseClient?: SupabaseClient
 ): Promise<ValidationResult> {
   // Check format
   const formatResult = validateUsernameFormat(username);
@@ -179,7 +186,7 @@ export async function validateUsername(
   }
 
   // Check uniqueness
-  const uniquenessResult = await checkUsernameUniqueness(username, currentUserId);
+  const uniquenessResult = await checkUsernameUniqueness(username, currentUserId, supabaseClient);
   if (!uniquenessResult.valid) {
     return uniquenessResult;
   }
@@ -376,6 +383,7 @@ export function validateAvatarUrl(url?: string): ValidationResult {
  * Validates complete profile update data
  * @param data The profile data to validate
  * @param currentUserId The current user's ID
+ * @param supabaseClient Optional Supabase client (uses default client if not provided)
  * @returns Validation results for all fields
  */
 export async function validateProfileUpdate(
@@ -386,7 +394,8 @@ export async function validateProfileUpdate(
     avatarUrl?: string;
     socialLinks?: SocialLinks;
   },
-  currentUserId: string
+  currentUserId: string,
+  supabaseClient?: SupabaseClient
 ): Promise<{
   valid: boolean;
   errors: {
@@ -407,7 +416,7 @@ export async function validateProfileUpdate(
 
   // Validate username if provided
   if (data.username) {
-    const usernameResult = await validateUsername(data.username, currentUserId);
+    const usernameResult = await validateUsername(data.username, currentUserId, supabaseClient);
     if (!usernameResult.valid && usernameResult.error) {
       errors.username = usernameResult.error;
     }

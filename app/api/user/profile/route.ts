@@ -385,7 +385,7 @@ export async function PUT(request: NextRequest) {
 
     // Validate username
     if (username) {
-      const usernameResult = await validateUsername(username, actualUserId);
+      const usernameResult = await validateUsername(username, actualUserId, supabaseAdmin);
       if (!usernameResult.valid) {
         return NextResponse.json(
           { error: usernameResult.error },
