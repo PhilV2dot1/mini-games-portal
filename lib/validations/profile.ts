@@ -121,7 +121,7 @@ export async function checkUsernameUniqueness(
   try {
     const client = supabaseClient || defaultSupabase;
 
-    let query = client
+    const query = client
       .from('users')
       .select('id, auth_user_id')
       .eq('username', username);
