@@ -10,6 +10,7 @@ interface LeaderboardEntry {
   rank: number;
   userId: string;
   username: string;
+  displayName?: string;
   fid: number | null;
   totalPoints?: number;
   gamePoints?: number;
@@ -154,7 +155,7 @@ export default function LeaderboardPage() {
                         />
                       </div>
                     </div>
-                    <div className="text-lg font-bold text-gray-800 mb-2">{leaderboard[1].username}</div>
+                    <div className="text-lg font-bold text-gray-800 mb-2">{leaderboard[1].displayName || leaderboard[1].username}</div>
                     <div className="text-3xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[1].totalPoints : leaderboard[1].gamePoints)?.toLocaleString() || 0}
                     </div>
@@ -188,7 +189,7 @@ export default function LeaderboardPage() {
                         />
                       </div>
                     </div>
-                    <div className="text-xl font-black text-gray-900 mb-3">{leaderboard[0].username}</div>
+                    <div className="text-xl font-black text-gray-900 mb-3">{leaderboard[0].displayName || leaderboard[0].username}</div>
                     <div className="text-4xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[0].totalPoints : leaderboard[0].gamePoints)?.toLocaleString() || 0}
                     </div>
@@ -222,7 +223,7 @@ export default function LeaderboardPage() {
                         />
                       </div>
                     </div>
-                    <div className="text-base font-bold text-gray-800 mb-2">{leaderboard[2].username}</div>
+                    <div className="text-base font-bold text-gray-800 mb-2">{leaderboard[2].displayName || leaderboard[2].username}</div>
                     <div className="text-2xl font-black text-gray-900 mb-1">
                       {(selectedGame === 'all' ? leaderboard[2].totalPoints : leaderboard[2].gamePoints)?.toLocaleString() || 0}
                     </div>
@@ -306,10 +307,10 @@ export default function LeaderboardPage() {
                                 />
                               </div>
                             </div>
-                            {/* Username */}
+                            {/* Display Name */}
                             <div>
                               <div className="text-sm font-bold text-gray-900">
-                                {entry.username}
+                                {entry.displayName || entry.username}
                               </div>
                               {entry.fid && (
                                 <div className="text-xs text-gray-500">

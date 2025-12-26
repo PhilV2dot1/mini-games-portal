@@ -8,7 +8,11 @@ interface LeaderboardEntry {
   rank: number;
   user_id: string;
   username: string | null;
+  display_name: string | null;
   fid: number | null;
+  avatar_type: string | null;
+  avatar_url: string | null;
+  theme_color: string | null;
   game_points: number;
   games_played: number;
   wins: number;
@@ -43,7 +47,11 @@ export async function GET(
       rank: entry.rank,
       userId: entry.user_id,
       username: entry.username || `Player ${entry.fid || 'Unknown'}`,
+      displayName: entry.display_name || entry.username || `Player ${entry.fid || 'Unknown'}`,
       fid: entry.fid,
+      avatarType: entry.avatar_type,
+      avatarUrl: entry.avatar_url,
+      themeColor: entry.theme_color || 'yellow',
       gamePoints: entry.game_points,
       gamesPlayed: entry.games_played,
       wins: entry.wins,

@@ -68,8 +68,9 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
           games: {},
         };
 
-        // Add username and avatar to profile
+        // Add username, display_name and avatar to profile
         profile.username = username;
+        profile.display_name = username; // Use username as initial display_name
         profile.avatar_type = 'predefined';
         profile.avatar_url = selectedAvatar;
 
@@ -87,6 +88,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
       // If user is authenticated OR wallet connected, save to database via API
       const requestBody: Record<string, unknown> = {
         username,
+        display_name: username, // Use username as initial display_name
         avatar_type: 'predefined',
         avatar_url: selectedAvatar,
       };
