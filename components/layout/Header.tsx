@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useLocalStats } from "@/hooks/useLocalStats";
@@ -19,6 +19,25 @@ export function Header() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  // Fetch user's display name from database
+  useEffect(() => {
+    if (user?.id && isAuthenticated) {
+      fetch(`/api/user/profile?id=${user.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user?.display_name) {
+            setDisplayName(data.user.display_name);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching display name:', err);
+        });
+    } else {
+      setDisplayName(null);
+    }
+  }, [user?.id, isAuthenticated]);
 
   return (
     <motion.header
@@ -105,7 +124,7 @@ export function Header() {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="px-5 sm:px-6 py-3 bg-purple-500/90 rounded-lg font-bold text-sm sm:text-base text-white hover:bg-purple-600 transition-colors shadow-sm"
               >
-                👤 {user?.email?.split('@')[0] || 'Mon compte'} ▾
+                👤 {displayName || user?.email?.split('@')[0] || 'Mon compte'} ▾
               </button>
 
               {/* User Dropdown Menu */}
