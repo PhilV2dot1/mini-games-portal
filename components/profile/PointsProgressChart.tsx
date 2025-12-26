@@ -87,9 +87,9 @@ export function PointsProgressChart({ data }: PointsProgressChartProps) {
             type="monotone"
             dataKey="cumulative_points"
             name="Total Cumulé"
-            stroke="#FCFF52"
+            stroke="#3b82f6"
             strokeWidth={3}
-            dot={{ fill: '#FCFF52', r: 4 }}
+            dot={{ fill: '#3b82f6', r: 4 }}
             activeDot={{ r: 6 }}
           />
         </LineChart>
