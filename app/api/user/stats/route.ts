@@ -27,32 +27,32 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch win rate by game
-    const { data: winRates, error: winRatesError } = await supabase
+    const { data: winRates, error: winRatesError } = await (supabase
       .rpc('get_user_win_rate_by_game', {
         p_user_id: userId,
-      });
+      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
 
     if (winRatesError) {
       console.error('Error fetching win rates:', winRatesError);
     }
 
     // Fetch points progress
-    const { data: pointsProgress, error: pointsError } = await supabase
+    const { data: pointsProgress, error: pointsError } = await (supabase
       .rpc('get_user_points_progress', {
         p_user_id: userId,
         p_days: days,
-      });
+      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
 
     if (pointsError) {
       console.error('Error fetching points progress:', pointsError);
     }
 
     // Fetch activity timeline
-    const { data: activityTimeline, error: activityError } = await supabase
+    const { data: activityTimeline, error: activityError } = await (supabase
       .rpc('get_user_activity_timeline', {
         p_user_id: userId,
         p_limit: 20,
-      });
+      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
 
     if (activityError) {
       console.error('Error fetching activity timeline:', activityError);
