@@ -82,11 +82,11 @@ export function WinRateChart({ data }: WinRateChartProps) {
               border: '2px solid #FCFF52',
               borderRadius: '8px',
             }}
-            formatter={(value: number, name: string) => {
-              if (name === 'winRate') {
+            formatter={(value: number | undefined, name: string) => {
+              if (name === 'winRate' && typeof value === 'number') {
                 return [`${value.toFixed(1)}%`, 'Taux de victoire'];
               }
-              return [value, name === 'wins' ? 'Victoires' : 'Défaites'];
+              return [value ?? 0, name === 'wins' ? 'Victoires' : 'Défaites'];
             }}
           />
           <Legend
