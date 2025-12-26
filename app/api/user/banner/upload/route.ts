@@ -14,6 +14,12 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // Allowed MIME types
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+// Type for user data response
+type UserData = {
+  id: string;
+  avatar_unlocked: boolean;
+};
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerClient();
@@ -57,7 +63,7 @@ export async function POST(request: NextRequest) {
       .from('users')
       .select('id, avatar_unlocked')
       .eq('auth_user_id', user.id)
-      .maybeSingle();
+      .maybeSingle() as { data: UserData | null; error: any };
 
     if (userError || !userData) {
       return NextResponse.json(
