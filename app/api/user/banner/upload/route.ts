@@ -59,11 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has unlocked custom banner (100+ games played)
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = (await supabase
       .from('users')
       .select('id, avatar_unlocked')
       .eq('auth_user_id', user.id)
-      .maybeSingle() as { data: UserData | null; error: any };
+      .maybeSingle()) as { data: UserData | null; error: unknown };
 
     if (userError || !userData) {
       return NextResponse.json(
