@@ -17,6 +17,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface PointsProgressData {
   date: string;
@@ -29,11 +30,13 @@ interface PointsProgressChartProps {
 }
 
 export function PointsProgressChart({ data }: PointsProgressChartProps) {
+  const { t } = useLanguage();
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-gray-50 rounded-xl p-8 text-center">
-        <p className="text-gray-600">Pas encore de données de progression</p>
-        <p className="text-sm text-gray-500 mt-1">Jouez à des jeux pour voir vos progrès!</p>
+        <p className="text-gray-600">{t('stats.noProgressData') || 'No progress data yet'}</p>
+        <p className="text-sm text-gray-500 mt-1">{t('stats.playToSeeProgress') || 'Play games to see your progress!'}</p>
       </div>
     );
   }
@@ -50,8 +53,8 @@ export function PointsProgressChart({ data }: PointsProgressChartProps) {
   return (
     <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Progression des Points</h3>
-        <p className="text-sm text-gray-600">Points gagnés au fil du temps (30 derniers jours)</p>
+        <h3 className="text-lg font-semibold text-gray-900">{t('stats.pointsProgress') || 'Points Progress'}</h3>
+        <p className="text-sm text-gray-600">{t('stats.pointsProgressSubtitle') || 'Points earned over time (last 30 days)'}</p>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
@@ -77,7 +80,7 @@ export function PointsProgressChart({ data }: PointsProgressChartProps) {
           <Line
             type="monotone"
             dataKey="daily_points"
-            name="Points Quotidiens"
+            name={t('stats.dailyPoints') || 'Daily Points'}
             stroke="#f59e0b"
             strokeWidth={2}
             dot={{ fill: '#f59e0b', r: 4 }}
@@ -86,7 +89,7 @@ export function PointsProgressChart({ data }: PointsProgressChartProps) {
           <Line
             type="monotone"
             dataKey="cumulative_points"
-            name="Total Cumulé"
+            name={t('stats.cumulativeTotal') || 'Cumulative Total'}
             stroke="#3b82f6"
             strokeWidth={3}
             dot={{ fill: '#3b82f6', r: 4 }}

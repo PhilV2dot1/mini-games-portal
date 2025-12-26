@@ -17,6 +17,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface WinRateData {
   game_id: string;
@@ -33,11 +34,13 @@ interface WinRateChartProps {
 }
 
 export function WinRateChart({ data }: WinRateChartProps) {
+  const { t } = useLanguage();
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-gray-50 rounded-xl p-8 text-center">
-        <p className="text-gray-600">Pas encore de statistiques de jeu</p>
-        <p className="text-sm text-gray-500 mt-1">Jouez à des jeux pour voir vos taux de victoire!</p>
+        <p className="text-gray-600">{t('stats.noGameStats') || 'No game statistics yet'}</p>
+        <p className="text-sm text-gray-500 mt-1">{t('stats.playToSeeWinRate') || 'Play games to see your win rates!'}</p>
       </div>
     );
   }
@@ -60,8 +63,8 @@ export function WinRateChart({ data }: WinRateChartProps) {
   return (
     <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Taux de Victoire par Jeu</h3>
-        <p className="text-sm text-gray-600">Performances dans chaque jeu</p>
+        <h3 className="text-lg font-semibold text-gray-900">{t('stats.winRateByGame') || 'Win Rate by Game'}</h3>
+        <p className="text-sm text-gray-600">{t('stats.performancePerGame') || 'Performance in each game'}</p>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
@@ -84,15 +87,15 @@ export function WinRateChart({ data }: WinRateChartProps) {
             }}
             formatter={(value: number | undefined, name: string | undefined) => {
               if (name === 'winRate' && typeof value === 'number') {
-                return [`${value.toFixed(1)}%`, 'Taux de victoire'];
+                return [`${value.toFixed(1)}%`, t('stats.winRate') || 'Win Rate'];
               }
-              return [value ?? 0, name === 'wins' ? 'Victoires' : 'Défaites'];
+              return [value ?? 0, name === 'wins' ? (t('stats.wins') || 'Wins') : (t('stats.losses') || 'Losses')];
             }}
           />
           <Legend
             formatter={(value) => {
-              if (value === 'wins') return 'Victoires';
-              if (value === 'losses') return 'Défaites';
+              if (value === 'wins') return t('stats.wins') || 'Wins';
+              if (value === 'losses') return t('stats.losses') || 'Losses';
               return value;
             }}
           />
@@ -113,7 +116,7 @@ export function WinRateChart({ data }: WinRateChartProps) {
             </div>
             <div className="text-xs text-gray-600 mt-1">{game.name}</div>
             <div className="text-xs text-gray-500 mt-1">
-              {game.totalGames} {game.totalGames === 1 ? 'partie' : 'parties'}
+              {game.totalGames} {game.totalGames === 1 ? (t('stats.game') || 'game') : (t('stats.games') || 'games')}
             </div>
           </div>
         ))}

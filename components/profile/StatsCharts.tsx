@@ -9,6 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import { PointsProgressChart } from './PointsProgressChart';
 import { WinRateChart } from './WinRateChart';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface StatsChartsProps {
   userId: string;
@@ -41,6 +42,7 @@ interface StatsData {
 }
 
 export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
+  const { t } = useLanguage();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -77,7 +79,7 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
       <div className="space-y-6">
         <div className="bg-white rounded-xl p-12 text-center border-2 border-gray-300">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-yellow-400"></div>
-          <p className="mt-4 text-gray-600">Chargement des statistiques...</p>
+          <p className="mt-4 text-gray-600">{t('stats.loading') || 'Loading statistics...'}</p>
         </div>
       </div>
     );
@@ -88,7 +90,7 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
       <div className="bg-red-50 rounded-xl p-6 border-2 border-red-200">
         <p className="text-red-800 font-semibold">⚠️ {error}</p>
         <p className="text-red-600 text-sm mt-1">
-          Impossible de charger les statistiques
+          {t('stats.loadError') || 'Unable to load statistics'}
         </p>
       </div>
     );
@@ -107,10 +109,10 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
       <div className="bg-gray-50 rounded-xl p-12 text-center border-2 border-gray-200">
         <div className="text-6xl mb-4">📊</div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">
-          Pas encore de statistiques
+          {t('stats.noData') || 'No statistics yet'}
         </h3>
         <p className="text-gray-600">
-          Jouez à des jeux pour voir vos statistiques et graphiques de progression!
+          {t('stats.noDataMessage') || 'Play games to see your statistics and progress charts!'}
         </p>
       </div>
     );
@@ -124,10 +126,10 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
       >
         <div className="text-4xl mb-2">📊</div>
         <h2 className="text-3xl font-black text-gray-900 mb-2">
-          Statistiques
+          {t('stats.title') || 'Statistics'}
         </h2>
         <p className="text-sm text-gray-600">
-          Visualisez vos performances et votre progression
+          {t('stats.subtitle') || 'Visualize your performance and progress'}
         </p>
       </div>
 
@@ -145,7 +147,7 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
       {stats.activityTimeline && stats.activityTimeline.length > 0 && (
         <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Activité Récente
+            {t('stats.recentActivity') || 'Recent Activity'}
           </h3>
           <div className="space-y-2">
             {stats.activityTimeline.slice(0, 5).map((activity, index) => (
@@ -181,7 +183,7 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
                     <div className={`text-xs font-semibold ${
                       activity.result === 'win' ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {activity.result === 'win' ? 'Victoire' : 'Défaite'}
+                      {activity.result === 'win' ? (t('stats.win') || 'Win') : (t('stats.loss') || 'Loss')}
                     </div>
                   )}
                 </div>
