@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
         banner_url: publicUrl,
         banner_type: 'custom',
       } as never)
-      .eq('id', userData.id) as Promise<{ error: unknown }>);
+      .eq('id', userData.id) as unknown as Promise<{ error: unknown }>);
 
     if (updateError) {
       console.error('Banner update error:', updateError);
