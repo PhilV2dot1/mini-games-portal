@@ -30,9 +30,9 @@ interface ProfileCompletenessProps {
 
 export function ProfileCompleteness({ profile, compact = false }: ProfileCompletenessProps) {
   const { t } = useLanguage();
-  const completeness = calculateProfileCompleteness(profile);
-  const levelBadge = getLevelBadge(completeness.level);
-  const message = getMotivationalMessage(completeness.percentage);
+  const completeness = calculateProfileCompleteness(profile, t);
+  const levelBadge = getLevelBadge(completeness.level, t);
+  const message = getMotivationalMessage(completeness.percentage, t);
 
   // Color based on completion percentage
   const getProgressColor = (percentage: number): string => {

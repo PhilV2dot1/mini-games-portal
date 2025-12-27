@@ -39,33 +39,36 @@ interface ProfileData {
 /**
  * Calculate profile completeness based on user data
  */
-export function calculateProfileCompleteness(profile: ProfileData): ProfileCompletenessResult {
+export function calculateProfileCompleteness(
+  profile: ProfileData,
+  t?: (key: string) => string
+): ProfileCompletenessResult {
   const checks: ProfileCompletenessCheck[] = [
     {
       id: 'display_name',
-      label: 'Nom affiché défini',
-      description: 'Ajoutez un nom d\'affichage personnalisé avec espaces et émojis',
+      label: t?.('profile.completion.displayName') || 'Nom affiché défini',
+      description: t?.('profile.completion.displayNameDesc') || 'Ajoutez un nom d\'affichage personnalisé avec espaces et émojis',
       completed: !!(profile.display_name && profile.display_name !== profile.username),
       weight: 15,
     },
     {
       id: 'custom_avatar',
-      label: 'Avatar personnalisé',
-      description: 'Choisissez un avatar prédéfini ou téléchargez le vôtre',
+      label: t?.('profile.completion.customAvatar') || 'Avatar personnalisé',
+      description: t?.('profile.completion.customAvatarDesc') || 'Choisissez un avatar prédéfini ou téléchargez le vôtre',
       completed: profile.avatar_type === 'predefined' || profile.avatar_type === 'custom',
       weight: 15,
     },
     {
       id: 'bio',
-      label: 'Bio renseignée',
-      description: 'Décrivez-vous en quelques mots (min. 20 caractères)',
+      label: t?.('profile.completion.bioFilled') || 'Bio renseignée',
+      description: t?.('profile.completion.bioDesc') || 'Décrivez-vous en quelques mots (min. 20 caractères)',
       completed: !!(profile.bio && profile.bio.trim().length >= 20),
       weight: 15,
     },
     {
       id: 'social_link',
-      label: 'Lien social ajouté',
-      description: 'Ajoutez au moins un lien social (Twitter, Farcaster, Discord)',
+      label: t?.('profile.completion.socialLink') || 'Lien social ajouté',
+      description: t?.('profile.completion.socialLinkDesc') || 'Ajoutez au moins un lien social (Twitter, Farcaster, Discord)',
       completed: !!(
         profile.social_links &&
         (profile.social_links.twitter ||
@@ -76,15 +79,15 @@ export function calculateProfileCompleteness(profile: ProfileData): ProfileCompl
     },
     {
       id: 'first_game',
-      label: 'Premier jeu joué',
-      description: 'Jouez à votre premier jeu et gagnez des points',
+      label: t?.('profile.completion.firstGame') || 'Premier jeu joué',
+      description: t?.('profile.completion.firstGameDesc') || 'Jouez à votre premier jeu et gagnez des points',
       completed: !!(profile.stats?.gamesPlayed && profile.stats.gamesPlayed > 0),
       weight: 20,
     },
     {
       id: 'points_milestone',
-      label: '100 points atteints',
-      description: 'Atteignez 100 points en jouant aux jeux',
+      label: t?.('profile.completion.pointsMilestone') || '100 points atteints',
+      description: t?.('profile.completion.pointsMilestoneDesc') || 'Atteignez 100 points en jouant aux jeux',
       completed: !!(profile.total_points && profile.total_points >= 100),
       weight: 20,
     },
@@ -129,38 +132,41 @@ export function calculateProfileCompleteness(profile: ProfileData): ProfileCompl
 /**
  * Get level badge emoji and text
  */
-export function getLevelBadge(level: ProfileCompletenessResult['level']): {
+export function getLevelBadge(
+  level: ProfileCompletenessResult['level'],
+  t?: (key: string) => string
+): {
   emoji: string;
   text: string;
   color: string;
 } {
   switch (level) {
     case 'complete':
-      return { emoji: '🏆', text: 'Profil Complet', color: 'text-yellow-600' };
+      return { emoji: '🏆', text: t?.('profile.completion.levelComplete') || 'Profil Complet', color: 'text-yellow-600' };
     case 'advanced':
-      return { emoji: '⭐', text: 'Avancé', color: 'text-blue-600' };
+      return { emoji: '⭐', text: t?.('profile.completion.levelAdvanced') || 'Avancé', color: 'text-blue-600' };
     case 'intermediate':
-      return { emoji: '📈', text: 'Intermédiaire', color: 'text-green-600' };
+      return { emoji: '📈', text: t?.('profile.completion.levelIntermediate') || 'Intermédiaire', color: 'text-green-600' };
     case 'beginner':
-      return { emoji: '🌱', text: 'Débutant', color: 'text-gray-600' };
+      return { emoji: '🌱', text: t?.('profile.completion.levelBeginner') || 'Débutant', color: 'text-gray-600' };
   }
 }
 
 /**
  * Get motivational message based on completion level
  */
-export function getMotivationalMessage(percentage: number): string {
+export function getMotivationalMessage(percentage: number, t?: (key: string) => string): string {
   if (percentage === 100) {
-    return 'Félicitations! Votre profil est parfait! 🎉';
+    return t?.('profile.completion.msg100') || 'Félicitations! Votre profil est parfait! 🎉';
   } else if (percentage >= 80) {
-    return 'Excellent! Encore quelques détails et c\'est parfait!';
+    return t?.('profile.completion.msg80') || 'Excellent! Encore quelques détails et c\'est parfait!';
   } else if (percentage >= 60) {
-    return 'Très bien! Vous êtes sur la bonne voie!';
+    return t?.('profile.completion.msg60') || 'Très bien! Vous êtes sur la bonne voie!';
   } else if (percentage >= 40) {
-    return 'Bon début! Continuez à compléter votre profil!';
+    return t?.('profile.completion.msg40') || 'Bon début! Continuez à compléter votre profil!';
   } else if (percentage >= 20) {
-    return 'C\'est un début! Complétez quelques actions pour améliorer votre profil.';
+    return t?.('profile.completion.msg20') || 'C\'est un début! Complétez quelques actions pour améliorer votre profil.';
   } else {
-    return 'Bienvenue! Commencez par compléter votre profil.';
+    return t?.('profile.completion.msg0') || 'Bienvenue! Commencez par compléter votre profil.';
   }
 }
