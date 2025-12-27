@@ -7,6 +7,7 @@ import {
   getLevelBadge,
   getMotivationalMessage,
 } from '@/lib/utils/profileCompleteness';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ProfileCompletenessProps {
   profile: {
@@ -28,6 +29,7 @@ interface ProfileCompletenessProps {
 }
 
 export function ProfileCompleteness({ profile, compact = false }: ProfileCompletenessProps) {
+  const { t } = useLanguage();
   const completeness = calculateProfileCompleteness(profile);
   const levelBadge = getLevelBadge(completeness.level);
   const message = getMotivationalMessage(completeness.percentage);
@@ -49,7 +51,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
           <div className="flex items-center gap-2">
             <span className="text-2xl">{levelBadge.emoji}</span>
             <div>
-              <h3 className="font-semibold text-gray-900">Profil</h3>
+              <h3 className="font-semibold text-gray-900">{t('profile.completion.profile') || 'Profile'}</h3>
               <p className={`text-xs font-medium ${levelBadge.color}`}>
                 {levelBadge.text}
               </p>
@@ -58,7 +60,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
           <div className="text-right">
             <p className="text-2xl font-bold text-gray-900">{completeness.percentage}%</p>
             <p className="text-xs text-gray-600">
-              {completeness.completedChecks}/{completeness.totalChecks} complété
+              {completeness.completedChecks}/{completeness.totalChecks} {t('profile.completion.completed') || 'completed'}
             </p>
           </div>
         </div>
@@ -75,7 +77,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
 
         {completeness.percentage < 100 && completeness.nextAction && (
           <p className="text-xs text-gray-600 mt-2">
-            <span className="font-semibold">Prochaine étape:</span> {completeness.nextAction}
+            <span className="font-semibold">{t('profile.completion.nextStep') || 'Next step'}:</span> {completeness.nextAction}
           </p>
         )}
       </div>
@@ -89,7 +91,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
         <div className="flex items-center gap-3">
           <span className="text-4xl">{levelBadge.emoji}</span>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Complétion du profil</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('profile.completion.title') || 'Profile Completion'}</h2>
             <p className={`text-sm font-medium ${levelBadge.color}`}>
               {levelBadge.text}
             </p>
@@ -98,7 +100,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
         <div className="text-right">
           <p className="text-4xl font-bold text-gray-900">{completeness.percentage}%</p>
           <p className="text-sm text-gray-600">
-            {completeness.completedChecks}/{completeness.totalChecks} complété
+            {completeness.completedChecks}/{completeness.totalChecks} {t('profile.completion.completed') || 'completed'}
           </p>
         </div>
       </div>
@@ -119,7 +121,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
       {/* Checklist */}
       <div className="space-y-3">
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-          Actions à compléter
+          {t('profile.completion.actionsToComplete') || 'Actions to complete'}
         </h3>
         {completeness.checks.map((check, index) => (
           <motion.div
@@ -189,8 +191,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
           className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl"
         >
           <p className="text-sm text-gray-900">
-            <span className="font-semibold">💡 Astuce:</span> Un profil complet vous aide à vous
-            démarquer et à gagner la confiance de la communauté!
+            <span className="font-semibold">💡 {t('profile.completion.tip') || 'Tip'}:</span> {t('profile.completion.tipMessage') || 'A complete profile helps you stand out and gain the trust of the community!'}
           </p>
         </motion.div>
       )}
@@ -204,9 +205,9 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
           className="mt-6 p-4 bg-gradient-to-r from-yellow-100 to-yellow-200 border-2 border-yellow-400 rounded-xl text-center"
         >
           <p className="text-2xl mb-2">🎉 🏆 🎉</p>
-          <p className="text-lg font-bold text-gray-900">Profil 100% complet!</p>
+          <p className="text-lg font-bold text-gray-900">{t('profile.completion.complete') || '100% Complete Profile!'}</p>
           <p className="text-sm text-gray-700 mt-1">
-            Vous êtes maintenant un membre exemplaire de la communauté!
+            {t('profile.completion.completeMessage') || 'You are now an exemplary member of the community!'}
           </p>
         </motion.div>
       )}
