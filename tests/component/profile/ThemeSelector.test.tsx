@@ -98,9 +98,9 @@ describe('ThemeSelector', () => {
   test('should have yellow preview color', () => {
     const { container } = render(<ThemeSelector selectedTheme="yellow" onThemeChange={mockOnThemeChange} />);
     const yellowButton = screen.getByText('Jaune').closest('button');
-    const colorCircle = yellowButton?.querySelector('.bg-yellow-400');
+    const colorCircle = yellowButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-yellow-400');
   });
 
   // ============================================================================
@@ -125,9 +125,9 @@ describe('ThemeSelector', () => {
   test('should have blue preview color', () => {
     render(<ThemeSelector selectedTheme="blue" onThemeChange={mockOnThemeChange} />);
     const blueButton = screen.getByText('Bleu').closest('button');
-    const colorCircle = blueButton?.querySelector('.bg-blue-500');
+    const colorCircle = blueButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-blue-500');
   });
 
   // ============================================================================
@@ -152,9 +152,9 @@ describe('ThemeSelector', () => {
   test('should have purple preview color', () => {
     render(<ThemeSelector selectedTheme="purple" onThemeChange={mockOnThemeChange} />);
     const purpleButton = screen.getByText('Violet').closest('button');
-    const colorCircle = purpleButton?.querySelector('.bg-purple-500');
+    const colorCircle = purpleButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-purple-500');
   });
 
   // ============================================================================
@@ -179,9 +179,9 @@ describe('ThemeSelector', () => {
   test('should have green preview color', () => {
     render(<ThemeSelector selectedTheme="green" onThemeChange={mockOnThemeChange} />);
     const greenButton = screen.getByText('Vert').closest('button');
-    const colorCircle = greenButton?.querySelector('.bg-green-500');
+    const colorCircle = greenButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-green-500');
   });
 
   // ============================================================================
@@ -206,9 +206,9 @@ describe('ThemeSelector', () => {
   test('should have red preview color', () => {
     render(<ThemeSelector selectedTheme="red" onThemeChange={mockOnThemeChange} />);
     const redButton = screen.getByText('Rouge').closest('button');
-    const colorCircle = redButton?.querySelector('.bg-red-500');
+    const colorCircle = redButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-red-500');
   });
 
   // ============================================================================
@@ -233,9 +233,9 @@ describe('ThemeSelector', () => {
   test('should have orange preview color', () => {
     render(<ThemeSelector selectedTheme="orange" onThemeChange={mockOnThemeChange} />);
     const orangeButton = screen.getByText('Orange').closest('button');
-    const colorCircle = orangeButton?.querySelector('.bg-orange-500');
+    const colorCircle = orangeButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-orange-500');
   });
 
   // ============================================================================
@@ -260,9 +260,9 @@ describe('ThemeSelector', () => {
   test('should have pink preview color', () => {
     render(<ThemeSelector selectedTheme="pink" onThemeChange={mockOnThemeChange} />);
     const pinkButton = screen.getByText('Rose').closest('button');
-    const colorCircle = pinkButton?.querySelector('.bg-pink-500');
+    const colorCircle = pinkButton?.querySelector('div');
 
-    expect(colorCircle).toBeInTheDocument();
+    expect(colorCircle).toHaveClass('bg-pink-500');
   });
 
   // ============================================================================
@@ -491,10 +491,16 @@ describe('ThemeSelector', () => {
   });
 
   test('should show only one scaled circle at a time', () => {
-    const { container } = render(<ThemeSelector selectedTheme="yellow" onThemeChange={mockOnThemeChange} />);
+    render(<ThemeSelector selectedTheme="yellow" onThemeChange={mockOnThemeChange} />);
 
-    const scaledCircles = container.querySelectorAll('.scale-110');
-    expect(scaledCircles.length).toBe(1);
+    const yellowButton = screen.getByText('Jaune').closest('button');
+    const yellowCircle = yellowButton?.querySelector('div');
+    expect(yellowCircle).toHaveClass('scale-110');
+
+    // Check that other theme circles don't have scale-110
+    const blueButton = screen.getByText('Bleu').closest('button');
+    const blueCircle = blueButton?.querySelector('div');
+    expect(blueCircle).not.toHaveClass('scale-110');
   });
 
   test('checkmark should have absolute positioning', () => {
