@@ -92,7 +92,7 @@ export async function getRPSStats(address?: `0x${string}`) {
   const stats = await publicClient.readContract({
     address: RPS_CONTRACT_ADDRESS,
     abi: RPS_CONTRACT_ABI,
-    functionName: 'getStats',
+    functionName: 'obtenirStats',
     args: [],
     account: playerAddress,
   });
