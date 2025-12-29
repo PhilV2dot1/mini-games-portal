@@ -31,36 +31,65 @@ tests/e2e/
 
 ## Exécution des tests
 
-### Tous les tests E2E
+### 🎯 Méthode Recommandée : Helper Scripts
+
+Des scripts helper sont disponibles pour faciliter l'exécution des tests :
+
+**Linux/Mac (Bash)**:
+```bash
+cd tests/e2e/scripts
+chmod +x run-e2e-tests.sh
+./run-e2e-tests.sh                    # Mode headless (défaut)
+./run-e2e-tests.sh --headed           # Mode avec fenêtre visible
+./run-e2e-tests.sh --debug            # Mode debug interactif
+./run-e2e-tests.sh --ui               # Interface Playwright UI
+./run-e2e-tests.sh --project=chromium # Un navigateur spécifique
+```
+
+**Windows (PowerShell)**:
+```powershell
+cd tests\e2e\scripts
+.\run-e2e-tests.ps1                # Mode headless (défaut)
+.\run-e2e-tests.ps1 --headed       # Mode avec fenêtre visible
+.\run-e2e-tests.ps1 --debug        # Mode debug interactif
+.\run-e2e-tests.ps1 --ui           # Interface Playwright UI
+```
+
+**Windows (Batch)**:
+```cmd
+cd tests\e2e\scripts
+run-e2e-tests.bat                  # Mode headless (défaut)
+run-e2e-tests.bat --headed         # Mode avec fenêtre visible
+run-e2e-tests.bat --debug          # Mode debug interactif
+run-e2e-tests.bat --ui             # Interface Playwright UI
+```
+
+Ces scripts :
+- ✅ Vérifient l'installation de Playwright browsers
+- ✅ Détectent si le dev server tourne
+- ✅ Affichent des messages d'aide clairs
+- ✅ Gèrent les codes d'erreur proprement
+- ✅ Suggèrent des commandes de debugging
+
+### Méthode Manuelle : npm scripts
 
 ```bash
+# Tous les tests E2E
 npm run test:e2e
-```
 
-### En mode headed (avec fenêtre visible)
-
-```bash
+# En mode headed (avec fenêtre visible)
 npm run test:e2e:headed
-```
 
-### En mode debug
-
-```bash
+# En mode debug
 npm run test:e2e:debug
-```
 
-### Un fichier spécifique
-
-```bash
+# Un fichier spécifique
 npx playwright test tests/e2e/user-registration.spec.ts
-```
 
-### Sur un navigateur spécifique
-
-```bash
+# Sur un navigateur spécifique
 npx playwright test --project=chromium
 npx playwright test --project=firefox
-npx playwright test --project=webkit
+npx playwright test --project="Mobile Chrome"
 ```
 
 ## Tests disponibles
@@ -227,12 +256,32 @@ npm run test:e2e:headed
 
 ## CI/CD
 
-Les tests E2E sont exécutés automatiquement dans la CI via GitHub Actions :
+Les tests E2E peuvent être exécutés automatiquement dans la CI via GitHub Actions.
 
-- Sur chaque push vers `main` ou `develop`
-- Sur chaque Pull Request
-- Avec 2 retries en cas d'échec
-- Rapport HTML uploadé en artifacts
+### Configuration GitHub Actions
+
+Un exemple de workflow est disponible dans `.github-workflows-example.yml` :
+
+**Fichier**: `tests/e2e/.github-workflows-example.yml`
+
+Le workflow inclut :
+- ✅ Tests parallèles sur Chromium et Firefox
+- ✅ Tests mobiles (Mobile Chrome) sur la branche `main`
+- ✅ Upload automatique des rapports et screenshots
+- ✅ Retry automatique en cas d'échec
+- ✅ Tests programmés (nightly) optionnels
+
+**Pour activer** :
+1. Copier `.github-workflows-example.yml` vers `.github/workflows/e2e-tests.yml`
+2. Configurer les variables d'environnement nécessaires dans GitHub Secrets
+3. Pousser sur `main` ou créer une Pull Request
+
+**Features clés** :
+- **Matrix Strategy** : Tests parallèles sur plusieurs navigateurs
+- **Artifacts** : Rapports HTML conservés 30 jours
+- **Screenshots** : Captures d'écran en cas d'échec (7 jours)
+- **Timeout** : 60 minutes par job
+- **Nightly Tests** : Tests complets programmés (optionnel)
 
 ## Limitations actuelles
 

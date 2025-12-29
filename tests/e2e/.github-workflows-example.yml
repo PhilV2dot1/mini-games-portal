@@ -1,0 +1,163 @@
+# Example GitHub Actions Workflow for E2E Tests
+# Copy this file to .github/workflows/e2e-tests.yml to enable CI/CD
+
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps ${{ matrix.project }}
+
+    - name: Setup environment variables
+      run: |
+        cp .env.example .env.local
+        echo "NEXT_PUBLIC_URL=http://localhost:3000" >> .env.local
+        # Add other required env vars for testing
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run E2E tests
+      run: npx playwright test --project=${{ matrix.project }}
+      env:
+        CI: true
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-${{ matrix.project }}
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Upload test screenshots
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-screenshots-${{ matrix.project }}
+        path: test-results/
+        retention-days: 7
+
+# Optional: Mobile Chrome tests (runs on a separate job due to longer runtime)
+  e2e-tests-mobile:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Setup environment variables
+      run: |
+        cp .env.example .env.local
+        echo "NEXT_PUBLIC_URL=http://localhost:3000" >> .env.local
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run Mobile E2E tests
+      run: npx playwright test --project="Mobile Chrome"
+      env:
+        CI: true
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-mobile
+        path: playwright-report/
+        retention-days: 30
+
+# Optional: Scheduled nightly tests
+  e2e-tests-nightly:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    timeout-minutes: 90
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Setup environment variables
+      run: |
+        cp .env.example .env.local
+        echo "NEXT_PUBLIC_URL=http://localhost:3000" >> .env.local
+
+    - name: Build application
+      run: npm run build
+
+    - name: Run all E2E tests
+      run: npm run test:e2e
+      env:
+        CI: true
+
+    - name: Upload comprehensive report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-nightly
+        path: playwright-report/
+        retention-days: 90
+
+    - name: Notify on failure
+      if: failure()
+      run: |
+        # Add notification logic here (Slack, Discord, email, etc.)
+        echo "E2E tests failed in nightly run"
+
+# Uncomment to enable scheduled nightly tests
+# on:
+#   schedule:
+#     - cron: '0 2 * * *'  # Run at 2 AM UTC every day
