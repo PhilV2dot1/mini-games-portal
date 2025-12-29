@@ -9,6 +9,48 @@ Ce dossier contient les tests blockchain pour les smart contracts déployés sur
 - Les tests d'écriture (`write`) nécessitent du CELO testnet pour le gas
 - Aucune transaction n'est envoyée sur le mainnet
 
+## 🔒 Tests Skip par Défaut (Nouveau!)
+
+**Par défaut, tous les tests blockchain sont SKIPPÉS** lors de l'exécution normale des tests (`npm test`).
+
+Cela évite :
+- ✅ Les timeouts causés par les connexions réseau lors des tests locaux
+- ✅ Les échecs sur des environnements sans accès internet
+- ✅ L'utilisation de ressources externes lors des tests unitaires/composants
+- ✅ Les coûts de gas inutiles pendant le développement
+
+### Pour activer les tests blockchain :
+
+```bash
+# Activer tous les tests blockchain
+RUN_BLOCKCHAIN_TESTS=true npm test -- tests/blockchain
+
+# Ou utiliser le script npm dédié
+RUN_BLOCKCHAIN_TESTS=true npm run test:blockchain
+
+# Avec watch mode
+RUN_BLOCKCHAIN_TESTS=true npx vitest tests/blockchain --watch
+```
+
+**Configuration technique :**
+
+Les tests utilisent `describeBlockchain()` à la place de `describe()` pour implémenter le skip conditionnel :
+
+```typescript
+// tests/blockchain/helpers/test-config.ts
+export const SHOULD_RUN_BLOCKCHAIN_TESTS =
+  process.env.RUN_BLOCKCHAIN_TESTS === 'true';
+
+export const describeBlockchain = SHOULD_RUN_BLOCKCHAIN_TESTS
+  ? describe
+  : describe.skip;
+```
+
+Cette approche garantit :
+- 🚀 Tests unitaires/intégration rapides (pas de timeouts blockchain)
+- 🔍 Tests blockchain disponibles à la demande
+- 📊 Résultats de tests clairs (223 skipped au lieu de 22 timeouts)
+
 ## Structure
 
 ```
@@ -56,10 +98,40 @@ npm install
 
 ## Exécution des tests
 
-### Tous les tests blockchain
+### 🎯 Méthode Recommandée : Helper Scripts
+
+Des scripts helper sont disponibles pour faciliter l'exécution des tests :
+
+**Linux/Mac (Bash)**:
+```bash
+cd tests/blockchain/scripts
+chmod +x run-blockchain-tests.sh
+./run-blockchain-tests.sh
+```
+
+**Windows (PowerShell)**:
+```powershell
+cd tests\blockchain\scripts
+.\run-blockchain-tests.ps1
+```
+
+**Windows (Batch)**:
+```cmd
+cd tests\blockchain\scripts
+run-blockchain-tests.bat
+```
+
+Ces scripts :
+- ✅ Configurent automatiquement `RUN_BLOCKCHAIN_TESTS=true`
+- ✅ Vérifient la présence du fichier `.env.test`
+- ✅ Affichent des messages d'aide clairs
+- ✅ Gèrent les codes d'erreur proprement
+
+### Méthode Manuelle : npm scripts
 
 ```bash
-npm run test:blockchain
+# Activer et exécuter tous les tests blockchain
+RUN_BLOCKCHAIN_TESTS=true npm run test:blockchain
 ```
 
 ### Tests par catégorie
@@ -171,6 +243,14 @@ Tests de parsing des events blockchain :
 | **Jackpot** | `0x07Bc49E8A2BaF7c68519F9a61FCD733490061644` | ⏳ Helpers créés |
 | **2048** | `0x3a4A909ed31446FFF21119071F4Db0b7DAe36Ed1` | ⏳ Helpers créés |
 | **Mastermind** | `0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9` | ⏳ Helpers créés |
+
+**📖 Documentation complète**: Voir [CONTRACTS.md](./CONTRACTS.md) pour la documentation détaillée de chaque contrat, incluant:
+- Fonctions disponibles et signatures
+- Événements émis
+- Coûts gas estimés
+- Mécaniques de jeu
+- Guides de développement
+- Liens vers block explorer
 
 ## Configuration
 
