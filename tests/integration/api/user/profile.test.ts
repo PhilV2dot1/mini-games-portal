@@ -404,10 +404,10 @@ describe('/api/user/profile', () => {
         })),
       });
 
-      // 4. Fetch existing user after race condition (regular client)
+      // 4. Fetch existing user after race condition (admin client)
       mockFrom.mockReturnValueOnce({
         select: vi.fn(() => ({
-          or: vi.fn(() => ({
+          eq: vi.fn(() => ({
             maybeSingle: vi.fn(() => Promise.resolve({ data: existingUser, error: null })),
           })),
         })),
@@ -732,8 +732,8 @@ describe('/api/user/profile', () => {
       };
 
       const mockSessions = [
-        { id: 's1', game_id: 'blackjack', result: 'win', points: 100, played_at: '2024-01-01' },
-        { id: 's2', game_id: 'rps', result: 'lose', points: 10, played_at: '2024-01-02' },
+        { id: 's1', game_id: 'blackjack', result: 'win', points_earned: 100, played_at: '2024-01-01' },
+        { id: 's2', game_id: 'rps', result: 'lose', points_earned: 10, played_at: '2024-01-02' },
       ];
 
       // Mock different queries for sessions, badges, leaderboard
@@ -787,8 +787,8 @@ describe('/api/user/profile', () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.sessions).toBeDefined();
-      expect(data.sessions).toHaveLength(2);
+      expect(data.recentSessions).toBeDefined();
+      expect(data.recentSessions).toHaveLength(2);
     });
 
     it('should include badges in response', async () => {
@@ -910,10 +910,10 @@ describe('/api/user/profile', () => {
       };
 
       const mockSessions = [
-        { game_id: 'blackjack', result: 'win', points: 100 },
-        { game_id: 'blackjack', result: 'lose', points: 10 },
-        { game_id: 'blackjack', result: 'win', points: 100 },
-        { game_id: 'rps', result: 'win', points: 35 },
+        { game_id: 'blackjack', result: 'win', points_earned: 100 },
+        { game_id: 'blackjack', result: 'lose', points_earned: 10 },
+        { game_id: 'blackjack', result: 'win', points_earned: 100 },
+        { game_id: 'rps', result: 'win', points_earned: 35 },
       ];
 
       let callCount = 0;
