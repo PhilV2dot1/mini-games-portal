@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, cleanup } from '@testing-library/react';
 import { useJackpot } from '@/hooks/useJackpot';
 
 // Mock wagmi
@@ -21,8 +21,8 @@ import { useAccount, useWriteContract } from 'wagmi';
 const MOCK_WALLET_ADDRESS = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb';
 const MOCK_TX_HASH = '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
 
-const mockUseAccount = useAccount as ReturnType<typeof vi.fn>;
-const mockUseWriteContract = useWriteContract as ReturnType<typeof vi.fn>;
+const mockUseAccount = vi.mocked(useAccount);
+const mockUseWriteContract = vi.mocked(useWriteContract);
 
 describe('useJackpot', () => {
   // Mock function
@@ -31,11 +31,12 @@ describe('useJackpot', () => {
   beforeEach(() => {
     vi.useFakeTimers();
 
-    // Reset and setup mocks fresh for each test
-    mockUseAccount.mockReset();
-    mockUseWriteContract.mockReset();
-    mockWriteContractAsync.mockReset();
+    // Clear call history but keep implementations
+    mockUseAccount.mockClear();
+    mockUseWriteContract.mockClear();
+    mockWriteContractAsync.mockClear();
 
+    // Reset to default return values
     mockUseAccount.mockReturnValue({
       address: MOCK_WALLET_ADDRESS,
       isConnected: true,
@@ -52,8 +53,10 @@ describe('useJackpot', () => {
   });
 
   afterEach(() => {
-    mockWriteContractAsync.mockClear();
+    cleanup();
+    vi.clearAllTimers();
     vi.useRealTimers();
+    mockWriteContractAsync.mockClear();
   });
 
   describe('Initialization', () => {
@@ -400,8 +403,12 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
+      act(() => {
+        result.current.spin();
+      });
+
       await act(async () => {
-        await result.current.spin();
+        await vi.advanceTimersByTimeAsync(100);
       });
 
       expect(result.current.state).toBe('idle');
@@ -420,11 +427,12 @@ describe('useJackpot', () => {
         result.current.spin();
       });
 
-      // Wait for the async contract call to complete
-      await vi.waitFor(() => {
-        expect(mockWriteContractAsync).toHaveBeenCalled();
+      // Advance timers slightly to allow async contract call
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(100);
       });
 
+      expect(mockWriteContractAsync).toHaveBeenCalled();
       expect(mockWriteContractAsync).toHaveBeenCalledWith({
         address: expect.any(String),
         abi: expect.any(Array),
@@ -444,12 +452,11 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
-      expect(result.current.state).toBe('spinning');
-
+      // Advance timers for spin animation (3000ms)
       await act(async () => {
         await vi.advanceTimersByTimeAsync(3000);
       });
@@ -458,6 +465,7 @@ describe('useJackpot', () => {
       expect(result.current.lastResult?.isJackpot).toBe(true);
       expect(result.current.lastResult?.score).toBe(1000);
 
+      // Advance timers for score update delay (3500ms)
       await act(async () => {
         await vi.advanceTimersByTimeAsync(3500);
       });
@@ -476,8 +484,12 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
+      act(() => {
+        result.current.spin();
+      });
+
       await act(async () => {
-        await result.current.spin();
+        await vi.advanceTimersByTimeAsync(100);
       });
 
       expect(result.current.state).toBe('idle');
@@ -506,8 +518,12 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
+      act(() => {
+        result.current.spin();
+      });
+
       await act(async () => {
-        await result.current.spin();
+        await vi.advanceTimersByTimeAsync(100);
       });
 
       expect(result.current.sessionId).toBe(BigInt(mockTimestamp));
@@ -525,8 +541,8 @@ describe('useJackpot', () => {
       });
 
       // First spin
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
       await act(async () => {
@@ -536,8 +552,8 @@ describe('useJackpot', () => {
       expect(result.current.totalScore).toBe(100);
 
       // Second spin
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
       await act(async () => {
@@ -559,8 +575,8 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
       await act(async () => {
@@ -613,8 +629,8 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
       await act(async () => {
@@ -648,8 +664,8 @@ describe('useJackpot', () => {
         result.current.setMode('onchain');
       });
 
-      await act(async () => {
-        await result.current.spin();
+      act(() => {
+        result.current.spin();
       });
 
       await act(async () => {

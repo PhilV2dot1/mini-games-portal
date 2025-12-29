@@ -152,6 +152,7 @@ export function useJackpot() {
     setLastResult(null);
     setIsSpinning(false);
     setSessionId(null);
+    setTotalScore(0);
   }, []);
 
   const switchMode = useCallback((newMode: GameMode) => {
