@@ -51,8 +51,8 @@ export const PlayerStats = memo(function PlayerStats({ stats, onReset }: PlayerS
           </div>
           <div className="text-xs font-semibold text-red-700">Losses</div>
         </div>
-        <div className="text-center bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3">
-          <div className="text-2xl font-black text-yellow-600">
+        <div className="text-center bg-celo/5 border-2 border-yellow-200 rounded-xl p-3">
+          <div className="text-2xl font-black text-celo">
             {stats.ties}
           </div>
           <div className="text-xs font-semibold text-yellow-700">Ties</div>

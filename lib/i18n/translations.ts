@@ -26,6 +26,7 @@ export const translations = {
       profile: 'Profile',
       about: 'About',
       guide: 'Guide',
+      signOut: 'Sign Out',
     },
 
     // Home Page
@@ -357,6 +358,7 @@ export const translations = {
       profile: 'Profil',
       about: 'À propos',
       guide: 'Guide',
+      signOut: 'Déconnexion',
     },
 
     // Home Page

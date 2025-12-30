@@ -48,8 +48,7 @@ export default function Game2048Page() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border-2 border-gray-700 text-center space-y-1"
-          style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div className="text-5xl mb-2">🔢</div>
           <h1 className="text-4xl font-black text-gray-900">2048</h1>
@@ -70,8 +69,7 @@ export default function Game2048Page() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="rounded-lg p-3 text-center"
-            style={{ backgroundColor: 'rgba(252, 255, 82, 0.4)', border: '4px solid #FCFF52' }}
+            className="rounded-lg p-3 text-center bg-celo/10 border-2 border-celo"
           >
             <p className="text-gray-900 text-sm font-bold">
               ⚠️ On-chain games require <span className="font-black">0.01 CELO</span> to start
@@ -84,8 +82,7 @@ export default function Game2048Page() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/95 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-xl border-2 border-gray-700"
-          style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-lg border-2 border-gray-300"
         >
           <div>
             <div className="text-sm text-gray-600 font-medium">Score</div>
@@ -131,7 +128,7 @@ export default function Game2048Page() {
                 transition={{ duration: 0.15 }}
                 onClick={submitScore}
                 disabled={isPending}
-                className="px-8 py-3 bg-white border-[3px] border-celo hover:bg-gray-50 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isPending ? "Submitting..." : "Submit Score"}
               </motion.button>

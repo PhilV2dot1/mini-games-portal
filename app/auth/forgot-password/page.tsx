@@ -128,7 +128,7 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-yellow-400 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-celo transition-all"
                 disabled={loading}
               />
             </div>
@@ -136,7 +136,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading || !email}
-              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+              className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
             >
               {loading ? 'Envoi en cours...' : 'Envoyer le lien de réinitialisation'}
             </button>
@@ -146,13 +146,13 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center space-y-2">
             <p className="text-sm text-gray-600">
               Vous vous souvenez de votre mot de passe?{' '}
-              <Link href="/" className="text-yellow-600 hover:text-yellow-700 font-semibold">
+              <Link href="/" className="text-celo hover:brightness-110 font-semibold">
                 Se connecter
               </Link>
             </p>
             <p className="text-sm text-gray-600">
               Pas encore de compte?{' '}
-              <Link href="/" className="text-yellow-600 hover:text-yellow-700 font-semibold">
+              <Link href="/" className="text-celo hover:brightness-110 font-semibold">
                 S&apos;inscrire
               </Link>
             </p>

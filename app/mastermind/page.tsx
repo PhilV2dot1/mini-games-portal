@@ -196,7 +196,7 @@ export default function MastermindPage() {
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
               onClick={newGame}
-              className="px-8 py-3 bg-white border-[3px] border-celo hover:bg-gray-50 text-gray-900 rounded-xl font-black shadow-lg transition-all"
+              className="px-8 py-3 bg-white bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg transition-all"
             >
               New Game
             </motion.button>

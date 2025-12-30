@@ -138,7 +138,7 @@ export default function ResetPasswordPage() {
               </p>
               <Link
                 href="/auth/forgot-password"
-                className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
               >
                 Demander un nouveau lien
               </Link>
@@ -223,7 +223,7 @@ export default function ResetPasswordPage() {
                 placeholder="••••••••"
                 required
                 minLength={8}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-yellow-400 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-celo transition-all"
                 disabled={loading || success}
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -242,7 +242,7 @@ export default function ResetPasswordPage() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-yellow-400 transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-celo transition-all"
                 disabled={loading || success}
               />
             </div>
@@ -250,7 +250,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={loading || success || !password || !confirmPassword}
-              className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+              className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
             >
               {loading ? 'Réinitialisation...' : 'Réinitialiser le mot de passe'}
             </button>

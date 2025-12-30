@@ -173,7 +173,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
                         onClick={() => handleAvatarSelect(avatar)}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
-                        className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-300 hover:border-yellow-400 hover:ring-2 hover:ring-yellow-400 transition-all bg-gradient-to-br from-gray-100 to-gray-200"
+                        className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-300 hover:border-celo hover:ring-2 hover:ring-yellow-400 transition-all bg-gradient-to-br from-gray-100 to-gray-200"
                       >
                         <Image
                           src={`/avatars/predefined/${avatar}.svg`}
@@ -211,7 +211,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
                 >
                   {/* Avatar Preview */}
                   <div className="flex justify-center">
-                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg">
+                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-celo shadow-lg">
                       <Image
                         src={selectedAvatar}
                         alt="Avatar sélectionné"
@@ -231,7 +231,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="PlayerOne"
                       maxLength={20}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-yellow-400 transition-all text-lg text-center"
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-celo transition-all text-lg text-center"
                     />
                     <p className="text-sm text-gray-500 mt-2 text-center">
                       {t('profileSetup.usernameRules')}
@@ -254,7 +254,7 @@ export function ProfileSetup({ isOpen, onClose, onComplete }: ProfileSetupProps)
                     <button
                       onClick={handleSave}
                       disabled={saving || !username.trim()}
-                      className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+                      className="flex-1 bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                     >
                       {saving ? t('profileSetup.saving') : t('profileSetup.startPlaying')}
                     </button>

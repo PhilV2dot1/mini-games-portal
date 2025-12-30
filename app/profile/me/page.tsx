@@ -200,12 +200,12 @@ export default function MyProfilePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-yellow-400"
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-celo"
         >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               {/* Avatar */}
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-celo shadow-lg">
                 <Image
                   src={avatarUrl}
                   alt="Avatar"
@@ -237,7 +237,7 @@ export default function MyProfilePage() {
             {/* Edit Button */}
             <Link
               href="/profile/edit"
-              className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
             >
               ✏️ {t('home.edit') || 'Modifier'}
             </Link>
@@ -273,7 +273,7 @@ export default function MyProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg"
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">📊 {t('home.stats') || 'Statistiques'}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -317,7 +317,7 @@ export default function MyProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg"
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">🏅 {t('badges.title') || 'Badges'}</h2>
@@ -340,7 +340,7 @@ export default function MyProfilePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg"
+          className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4">🎮 {t('stats.perGame') || 'Statistiques par Jeu'}</h2>
           {Object.keys(games).length > 0 ? (
@@ -398,7 +398,7 @@ export default function MyProfilePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="mt-6 bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-400 rounded-xl p-6 text-center shadow-lg"
+            className="mt-6 bg-gradient-to-br from-celo/5 to-celo/10 border-2 border-celo rounded-xl p-6 text-center shadow-lg"
           >
             <h3 className="text-xl font-bold text-gray-900 mb-2">
               🎉 {t('profile.saveYourProgress') || 'Sauvegardez votre Progression!'}
@@ -408,7 +408,7 @@ export default function MyProfilePage() {
             </p>
             <Link
               href="/"
-              className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
+              className="inline-block px-6 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
             >
               ⛓️ {t('profile.createAccount') || 'Créer un Compte'}
             </Link>

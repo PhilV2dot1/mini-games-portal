@@ -45,7 +45,7 @@ export const GameStatus = memo(function GameStatus({ result, message }: GameStat
                   ? "bg-green-100 text-green-800"
                   : result.result === "lose"
                   ? "bg-red-100 text-red-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  : "bg-celo/10 text-yellow-800"
               }`}
             >
               {message}
@@ -54,7 +54,7 @@ export const GameStatus = memo(function GameStatus({ result, message }: GameStat
         )}
 
         {!result && message && (
-          <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center py-3 px-4 rounded-xl font-semibold border-2 border-yellow-400">
+          <div className="bg-gradient-to-r from-gray-700 to-gray-800 text-white text-center py-3 px-4 rounded-xl font-semibold border-2 border-celo">
             {message}
           </div>
         )}

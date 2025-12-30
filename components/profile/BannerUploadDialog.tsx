@@ -187,7 +187,7 @@ export function BannerUploadDialog({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full py-4 px-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all text-center"
+                    className="w-full py-4 px-6 border-2 border-dashed border-gray-300 rounded-xl hover:border-celo hover:bg-celo/5 transition-all text-center"
                   >
                     <div className="text-4xl mb-2">📤</div>
                     <p className="font-semibold text-gray-900 mb-1">
@@ -218,7 +218,7 @@ export function BannerUploadDialog({
                   <button
                     onClick={handleUpload}
                     disabled={!file || uploading}
-                    className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                   >
                     {uploading ? 'Téléchargement...' : 'Télécharger'}
                   </button>

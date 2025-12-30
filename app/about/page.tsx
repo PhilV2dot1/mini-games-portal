@@ -18,14 +18,14 @@ import Link from 'next/link';
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <Header />
 
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-8 mb-6 shadow-xl border-2 border-yellow-400"
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-8 mb-6 shadow-xl border-2 border-celo"
         >
           <h1 className="text-4xl font-bold text-gray-900 mb-4 text-center">
             🎮 How to Play
@@ -99,11 +99,11 @@ export default function AboutPage() {
                 <p className="text-sm text-purple-700">Bonus points for consecutive wins</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+            <div className="flex items-center gap-3 p-3 bg-celo/5 rounded-lg">
               <span className="text-2xl">🏅</span>
               <div>
-                <p className="font-semibold text-yellow-900">Badges</p>
-                <p className="text-sm text-yellow-700">10 to 1000 bonus points per unlocked badge</p>
+                <p className="font-semibold text-gray-900">Badges</p>
+                <p className="text-sm text-gray-900">10 to 1000 bonus points per unlocked badge</p>
               </div>
             </div>
           </div>
@@ -163,8 +163,8 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-4">
-            <p className="text-sm text-yellow-900">
+          <div className="bg-celo/5 border-2 border-celo rounded-xl p-4">
+            <p className="text-sm text-gray-900">
               💡 <strong>Tip:</strong> The <strong>Veteran</strong> badge (100 games) unlocks the ability
               to upload a custom avatar!
             </p>
@@ -186,11 +186,11 @@ export default function AboutPage() {
           </p>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg border-2 border-yellow-400">
+            <div className="flex items-center gap-3 p-3 bg-celo/5 rounded-lg border-2 border-celo">
               <span className="text-3xl">🥇</span>
               <div>
-                <p className="font-bold text-yellow-900">1st Place</p>
-                <p className="text-sm text-yellow-700">Golden crown + exclusive badge</p>
+                <p className="font-bold text-gray-900">1st Place</p>
+                <p className="text-sm text-gray-900">Golden crown + exclusive badge</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg border-2 border-gray-400">
@@ -200,11 +200,11 @@ export default function AboutPage() {
                 <p className="text-sm text-gray-600">Silver medal</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg border-2 border-orange-400">
+            <div className="flex items-center gap-3 p-3 bg-celo/5 rounded-lg border-2 border-celo">
               <span className="text-3xl">🥉</span>
               <div>
-                <p className="font-bold text-orange-900">3rd Place</p>
-                <p className="text-sm text-orange-700">Bronze medal</p>
+                <p className="font-bold text-gray-900">3rd Place</p>
+                <p className="text-sm text-gray-900">Bronze medal</p>
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function AboutPage() {
           <div className="mt-4 text-center">
             <Link
               href="/leaderboard"
-              className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg"
+              className="inline-block bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg"
             >
               View Leaderboard →
             </Link>
@@ -252,7 +252,7 @@ export default function AboutPage() {
         >
           <Link
             href="/"
-            className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-xl text-lg"
+            className="inline-block bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-xl text-lg"
           >
             Start Playing! 🎮
           </Link>

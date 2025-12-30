@@ -25,25 +25,27 @@ export function LanguageSwitcher() {
         {language === 'en' && (
           <motion.div
             layoutId="activeLanguage"
-            className="absolute inset-0 bg-yellow-400 rounded-lg"
+            className="absolute inset-0 rounded-lg"
+            style={{ backgroundColor: '#4B5563' }}
             transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
           />
         )}
-        <span className="relative z-10">EN</span>
+        <span className="relative z-10" style={{ color: language === 'en' ? 'white' : undefined }}>EN</span>
       </button>
 
       <button
         onClick={() => setLanguage('fr')}
         className={`relative px-3 py-1 rounded-lg text-sm font-bold transition-all ${
           language === 'fr'
-            ? 'text-gray-900'
+            ? 'text-white'
             : 'text-gray-500 hover:text-gray-700'
         }`}
       >
         {language === 'fr' && (
           <motion.div
             layoutId="activeLanguage"
-            className="absolute inset-0 bg-yellow-400 rounded-lg"
+            className="absolute inset-0 rounded-lg"
+            style={{ backgroundColor: '#4B5563' }}
             transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
           />
         )}

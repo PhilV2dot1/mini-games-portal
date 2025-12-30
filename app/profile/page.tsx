@@ -114,7 +114,7 @@ export default function ProfilePage() {
         </Link>
 
         {/* Page Title */}
-        <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg" style={{ border: '3px solid #FCFF52' }}>
+        <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-xl border-2 border-celo">
           <h1 className="text-3xl font-black text-gray-900 text-center mb-2">
             👤 Player Profile
           </h1>
@@ -124,7 +124,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Search Form */}
-        <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg">
+        <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 mb-6 shadow-lg border-2 border-gray-300">
           <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
             <div className="mb-4">
               <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -183,7 +183,7 @@ export default function ProfilePage() {
         {profile && (
           <div className="space-y-6">
             {/* User Stats */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg">
+            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-black text-gray-900">
@@ -222,7 +222,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Badges */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg">
+            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
               <h3 className="text-xl font-black text-gray-900 mb-4">
                 🏅 Badges ({profile.badges.length})
               </h3>
@@ -231,12 +231,12 @@ export default function ProfilePage() {
                   {profile.badges.map((badge) => (
                     <div
                       key={badge.id}
-                      className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-2 border-yellow-300 rounded-lg p-4 text-center hover:scale-105 transition-transform"
+                      className="bg-gradient-to-br from-celo/5 to-celo/10 border-2 border-celo/30 rounded-lg p-4 text-center hover:scale-105 transition-transform"
                     >
                       <div className="text-4xl mb-2">{badge.icon}</div>
                       <div className="font-black text-gray-900 text-sm mb-1">{badge.name}</div>
                       <div className="text-xs text-gray-600 mb-2">{badge.description}</div>
-                      <div className="text-xs font-bold text-yellow-700">+{badge.points} pts</div>
+                      <div className="text-xs font-bold text-gray-900">+{badge.points} pts</div>
                     </div>
                   ))}
                 </div>
@@ -249,7 +249,7 @@ export default function ProfilePage() {
 
             {/* Per-Game Stats */}
             {Object.keys(profile.gameStats).length > 0 && (
-              <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg">
+              <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
                 <h3 className="text-xl font-black text-gray-900 mb-4">
                   📊 Per-Game Statistics
                 </h3>
@@ -279,7 +279,7 @@ export default function ProfilePage() {
 
             {/* Recent Games */}
             {profile.recentSessions.length > 0 && (
-              <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg">
+              <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
                 <h3 className="text-xl font-black text-gray-900 mb-4">
                   🎮 Recent Games
                 </h3>

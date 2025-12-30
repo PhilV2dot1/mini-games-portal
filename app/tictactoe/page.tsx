@@ -54,8 +54,7 @@ export default function TicTacToePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-lg rounded-2xl p-4 shadow-xl border-2 border-gray-700 text-center space-y-1"
-          style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div className="text-5xl mb-2" role="img" aria-label="Circle and X">
             ⭕
@@ -104,7 +103,7 @@ export default function TicTacToePage() {
               whileHover={{ scale: 1.05 }}
               onClick={resetGame}
               disabled={isProcessing}
-              className="px-6 py-2 bg-white border-[3px] border-celo hover:bg-gray-50 text-gray-900 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Reset
             </motion.button>

@@ -259,7 +259,7 @@ export function BadgeGallery({
           </div>
           <Link
             href="/about"
-            className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline"
+            className="text-celo hover:text-yellow-700 font-semibold text-sm underline"
           >
             {t('badges.howToEarn')}
           </Link>
@@ -279,57 +279,48 @@ export function BadgeGallery({
       )}
 
       {/* Badge Grid */}
-      <div className={`grid ${compact ? 'grid-cols-4 sm:grid-cols-6 gap-2' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'}`}>
+      <div className={`grid ${compact ? 'grid-cols-2 sm:grid-cols-3 gap-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'}`}>
         {badges.map((badge, index) => (
           <motion.div
             key={badge.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`relative ${
-              compact
-                ? 'aspect-square'
-                : 'bg-white/90 backdrop-blur-sm rounded-xl p-4 border-2'
-            } ${
+            className={`relative bg-white/90 backdrop-blur-sm rounded-xl p-4 border-2 ${
               badge.earned
-                ? compact
-                  ? 'border-2 border-yellow-400'
-                  : 'border-yellow-400 shadow-lg'
-                : compact
-                ? 'border-2 border-gray-300 opacity-50'
-                : 'border-gray-300'
+                ? 'border-celo shadow-lg'
+                : 'border-gray-300 opacity-70'
             } transition-all hover:scale-105`}
-            title={compact ? `${badge.name}: ${badge.description}` : undefined}
           >
             {/* Badge Icon */}
-            <div className={`${compact ? 'text-3xl' : 'text-5xl'} text-center mb-2`}>
+            <div className={`${compact ? 'text-4xl' : 'text-5xl'} text-center mb-2`}>
               {badge.earned ? badge.icon : '🔒'}
             </div>
 
+            {/* Badge Name */}
+            <h3 className={`font-bold text-gray-900 text-center mb-1 ${compact ? 'text-xs' : 'text-sm'}`}>
+              {badge.name}
+            </h3>
+
             {!compact && (
               <>
-                {/* Badge Name */}
-                <h3 className="font-bold text-gray-900 text-center mb-1">
-                  {badge.name}
-                </h3>
-
                 {/* Badge Description */}
                 <p className="text-xs text-gray-600 text-center mb-2">
                   {badge.description}
                 </p>
-
-                {/* Badge Points */}
-                <div className="text-center">
-                  <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1 rounded-full">
-                    +{badge.points} pts
-                  </span>
-                </div>
               </>
             )}
 
+            {/* Badge Points */}
+            <div className="text-center">
+              <span className={`inline-block bg-celo/10 text-yellow-800 font-semibold px-2 py-1 rounded-full ${compact ? 'text-[10px]' : 'text-xs'}`}>
+                +{badge.points} pts
+              </span>
+            </div>
+
             {/* Earned Indicator */}
-            {badge.earned && !compact && (
-              <div className="absolute top-2 right-2 bg-yellow-400 text-gray-900 rounded-full w-6 h-6 flex items-center justify-center">
+            {badge.earned && (
+              <div className="absolute top-2 right-2 bg-celo text-gray-900 rounded-full w-6 h-6 flex items-center justify-center">
                 <span className="text-xs font-bold">✓</span>
               </div>
             )}
@@ -342,7 +333,7 @@ export function BadgeGallery({
         <div className="text-center pt-2">
           <Link
             href="/profile"
-            className="text-yellow-600 hover:text-yellow-700 font-semibold text-sm underline"
+            className="text-celo hover:text-yellow-700 font-semibold text-sm underline"
           >
             {t('badges.viewAll')} ({totalCount})
           </Link>

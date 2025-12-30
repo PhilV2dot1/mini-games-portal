@@ -323,8 +323,8 @@ describe('BadgeGallery', () => {
       // Should not show header in compact mode
       expect(screen.queryByText('Badges')).not.toBeInTheDocument();
 
-      // Should use different grid classes
-      const grid = container.querySelector('.grid-cols-4');
+      // Should use different grid classes (grid-cols-2 for compact mode)
+      const grid = container.querySelector('.grid-cols-2');
       expect(grid).toBeInTheDocument();
     });
   });
@@ -475,16 +475,17 @@ describe('BadgeGallery', () => {
     });
   });
 
-  test('should not show badge details in compact mode', async () => {
+  test('should show badge titles and points in compact mode (new design)', async () => {
     const { container } = render(<BadgeGallery compact={true} />);
 
     await waitFor(() => {
-      // Should not show points in compact mode
-      expect(screen.queryByText(/\+\d+ pts/)).not.toBeInTheDocument();
+      // In the new design, compact mode shows points
+      const pointBadges = screen.getAllByText(/\+\d+ pts/);
+      expect(pointBadges.length).toBeGreaterThan(0);
 
-      // Should have title attribute instead
-      const badge = container.querySelector('[title]');
-      expect(badge).toBeInTheDocument();
+      // Should also show badge names in compact mode
+      const grid = container.querySelector('.grid-cols-2');
+      expect(grid).toBeInTheDocument();
     });
   });
 

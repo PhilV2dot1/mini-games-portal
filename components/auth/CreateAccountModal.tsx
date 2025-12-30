@@ -154,13 +154,13 @@ export function CreateAccountModal({
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
+                      <div className="text-2xl font-bold text-celo">
                         {currentStats.totalPoints}
                       </div>
                       <div className="text-xs text-yellow-700">Points</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-yellow-600">
+                      <div className="text-2xl font-bold text-celo">
                         {currentStats.gamesPlayed}
                       </div>
                       <div className="text-xs text-yellow-700">Parties</div>
@@ -272,7 +272,7 @@ export function CreateAccountModal({
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="votre@email.com"
                     disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -286,7 +286,7 @@ export function CreateAccountModal({
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
                   />
                   <p className="text-xs text-gray-500 mt-1">Minimum 8 caractères</p>
                 </div>
@@ -301,14 +301,14 @@ export function CreateAccountModal({
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
                     disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   {loading ? 'Création en cours...' : 'Créer mon compte'}
                 </button>

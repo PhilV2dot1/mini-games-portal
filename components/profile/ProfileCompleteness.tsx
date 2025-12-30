@@ -36,7 +36,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
 
   // Color based on completion percentage
   const getProgressColor = (percentage: number): string => {
-    if (percentage === 100) return 'bg-yellow-500';
+    if (percentage === 100) return 'bg-celo/50';
     if (percentage >= 70) return 'bg-blue-500';
     if (percentage >= 40) return 'bg-green-500';
     return 'bg-gray-400';
@@ -202,7 +202,7 @@ export function ProfileCompleteness({ profile, compact = false }: ProfileComplet
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, type: 'spring' }}
-          className="mt-6 p-4 bg-gradient-to-r from-yellow-100 to-yellow-200 border-2 border-yellow-400 rounded-xl text-center"
+          className="mt-6 p-4 bg-gradient-to-r from-yellow-100 to-yellow-200 border-2 border-celo rounded-xl text-center"
         >
           <p className="text-2xl mb-2">🎉 🏆 🎉</p>
           <p className="text-lg font-bold text-gray-900">{t('profile.completion.complete') || '100% Complete Profile!'}</p>

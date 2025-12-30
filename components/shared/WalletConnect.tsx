@@ -45,10 +45,10 @@ export function WalletConnect() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 flex items-center gap-3"
+            className="bg-celo/10 border-2 border-celo rounded-xl p-3 flex items-center gap-3"
           >
-            <div className="w-4 h-4 border-2 border-yellow-600 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-semibold text-yellow-800">
+            <div className="w-4 h-4 border-2 border-celo border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-semibold text-gray-900">
               Switching to Celo network...
             </span>
           </motion.div>
@@ -58,7 +58,7 @@ export function WalletConnect() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-yellow-400/30 to-gray-100 border-2 border-yellow-400 rounded-xl p-4 flex items-center justify-between"
+          className="bg-gradient-to-r from-celo/30 to-gray-100 border-2 border-celo rounded-xl p-4 flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full animate-pulse ${isOnCelo ? 'bg-green-500' : 'bg-orange-500'}`} />
@@ -86,7 +86,7 @@ export function WalletConnect() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-yellow-400 rounded-xl p-4">
+    <div className="bg-gradient-to-br from-gray-700 to-gray-800 border-2 border-celo rounded-xl p-4">
       <p className="text-sm sm:text-base mb-3 text-center text-white font-semibold">
         Connect your wallet to play on-chain
       </p>
@@ -98,7 +98,7 @@ export function WalletConnect() {
       )}
 
       {isInFarcaster && !isSDKReady && (
-        <div className="mb-3 p-2 bg-yellow-100 border border-yellow-300 rounded-lg text-xs text-yellow-700">
+        <div className="mb-3 p-2 bg-celo/10 border border-celo/30 rounded-lg text-xs text-gray-900">
           Farcaster SDK not ready. Some features may not work.
         </div>
       )}
@@ -114,7 +114,7 @@ export function WalletConnect() {
               whileTap={{ scale: 0.98 }}
               onClick={() => connect({ connector })}
               disabled={isPending}
-              className="flex flex-col items-center justify-center gap-1 px-6 py-4 min-h-[56px] rounded-xl font-semibold transition-all bg-gradient-to-r from-yellow-400 to-yellow-300 hover:from-yellow-300 hover:to-yellow-400 active:scale-95 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              className="flex flex-col items-center justify-center gap-1 px-6 py-4 min-h-[56px] rounded-xl font-semibold transition-all bg-gradient-to-r from-celo to-celo hover:brightness-110 active:scale-95 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
               aria-label={description}
             >
               {isPending ? (

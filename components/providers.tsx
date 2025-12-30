@@ -92,14 +92,14 @@ export function Providers({ children }: { children: ReactNode }) {
             <RainbowKitProvider
               modalSize="compact"
               theme={lightTheme({
-                accentColor: '#FBCC5C',
-                accentColorForeground: 'black',
+                accentColor: '#4B5563',
+                accentColorForeground: 'white',
                 borderRadius: 'large',
               })}
             >
               <AuthProvider>
                 {initError && isInFarcaster && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 text-xs text-yellow-700">
+                  <div className="bg-celo/5 border-l-4 border-celo p-3 text-xs text-yellow-700">
                     ⚠️ Farcaster SDK: {initError}
                   </div>
                 )}

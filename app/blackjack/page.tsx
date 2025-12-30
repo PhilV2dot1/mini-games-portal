@@ -56,7 +56,7 @@ export default function BlackjackPage() {
           >
             ← Back to Portal
           </Link>
-          <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center mb-4" style={{ border: '4px solid #FCFF52' }}>
+          <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center mb-4">
             <div className="text-6xl mb-2">🃏</div>
             <h1 className="text-4xl sm:text-6xl font-black text-gray-900 mb-2">
               Blackjack

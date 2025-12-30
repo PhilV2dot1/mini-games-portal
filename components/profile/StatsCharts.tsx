@@ -176,7 +176,7 @@ export function StatsCharts({ userId, days = 30 }: StatsChartsProps) {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-yellow-600">
+                  <div className="font-bold text-celo">
                     +{activity.points_earned} pts
                   </div>
                   {activity.result && (

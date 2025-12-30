@@ -59,10 +59,7 @@ export default function RockPaperScissorsPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-lg rounded-2xl p-5 shadow-xl border-2 border-gray-700 text-center space-y-2"
-          style={{
-            boxShadow: "0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-          }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-2"
         >
           <div className="text-5xl mb-2" role="img" aria-label="Hand fist">
             ✊
@@ -91,10 +88,7 @@ export default function RockPaperScissorsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/95 backdrop-blur-lg rounded-2xl p-4 sm:p-6 shadow-xl border-2 border-gray-700"
-          style={{
-            boxShadow: "0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-          }}
+          className="bg-white/90 backdrop-blur-lg rounded-2xl p-4 sm:p-6 shadow-lg border-2 border-gray-300"
         >
           <GameBoard onChoice={play} disabled={isProcessing} />
         </motion.div>

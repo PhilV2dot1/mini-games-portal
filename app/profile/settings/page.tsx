@@ -47,7 +47,7 @@ export default function ProfileSettingsPage() {
         <div className="mb-6">
           <Link
             href="/profile/me"
-            className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-semibold transition-colors bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-yellow-400"
+            className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 font-semibold transition-colors bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-celo"
           >
             ← Retour au profil
           </Link>
@@ -74,7 +74,7 @@ export default function ProfileSettingsPage() {
           <div className="space-y-3">
             <Link
               href="/profile/edit"
-              className="block p-4 border-2 border-gray-300 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all group"
+              className="block p-4 border-2 border-gray-300 rounded-xl hover:border-celo hover:bg-celo/5 transition-all group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export default function ProfileSettingsPage() {
                     </p>
                   </div>
                 </div>
-                <span className="text-gray-400 group-hover:text-yellow-600 transition-colors">
+                <span className="text-gray-400 group-hover:text-celo transition-colors">
                   →
                 </span>
               </div>
@@ -134,7 +134,7 @@ export default function ProfileSettingsPage() {
             Besoin d&apos;aide ?{' '}
             <a
               href="mailto:support@celo-games-portal.com"
-              className="text-yellow-600 hover:text-yellow-700 font-semibold"
+              className="text-celo hover:brightness-110 font-semibold"
             >
               Contactez le support
             </a>

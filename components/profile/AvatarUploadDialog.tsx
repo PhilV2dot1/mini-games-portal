@@ -175,7 +175,7 @@ export function AvatarUploadDialog({
                 {/* Preview */}
                 {previewUrl && (
                   <div className="flex justify-center">
-                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg">
+                    <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-celo shadow-lg">
                       <Image
                         src={previewUrl}
                         alt="Preview"
@@ -219,7 +219,7 @@ export function AvatarUploadDialog({
                   <button
                     onClick={handleUpload}
                     disabled={!selectedFile || uploading}
-                    className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
                   >
                     {uploading ? t('avatar.uploading') : `📤 ${t('avatar.upload')}`}
                   </button>

@@ -370,13 +370,13 @@ export default function ProfileEditPage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => router.back()}
-              className="text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-yellow-400 transition-all"
+              className="text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-celo transition-all"
             >
               ← Retour
             </button>
             <button
               onClick={() => router.push('/profile/settings')}
-              className="text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-yellow-400 transition-all"
+              className="text-gray-700 hover:text-gray-900 font-semibold flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-gray-300 hover:border-celo transition-all"
             >
               ⚙️ Paramètres
             </button>
@@ -428,7 +428,7 @@ export default function ProfileEditPage() {
           {/* Avatar section */}
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-yellow-400 shadow-lg">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-celo shadow-lg">
                 <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
               </div>
               <div>
@@ -479,7 +479,7 @@ export default function ProfileEditPage() {
               className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all ${
                 displayNameError
                   ? 'border-red-400 focus:border-red-500'
-                  : 'border-gray-300 focus:border-yellow-400'
+                  : 'border-gray-300 focus:border-celo'
               }`}
             />
             {displayNameError && <p className="text-red-600 text-xs mt-1">{displayNameError}</p>}
@@ -501,7 +501,7 @@ export default function ProfileEditPage() {
               className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all ${
                 usernameError
                   ? 'border-red-400 focus:border-red-500'
-                  : 'border-gray-300 focus:border-yellow-400'
+                  : 'border-gray-300 focus:border-celo'
               }`}
             />
             {usernameError && <p className="text-red-600 text-xs mt-1">{usernameError}</p>}
@@ -524,7 +524,7 @@ export default function ProfileEditPage() {
               className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all resize-none ${
                 bioError
                   ? 'border-red-400 focus:border-red-500'
-                  : 'border-gray-300 focus:border-yellow-400'
+                  : 'border-gray-300 focus:border-celo'
               }`}
             />
             {bioError && <p className="text-red-600 text-xs mt-1">{bioError}</p>}
@@ -550,7 +550,7 @@ export default function ProfileEditPage() {
                 className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all ${
                   socialErrors.twitter
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-gray-300 focus:border-yellow-400'
+                    : 'border-gray-300 focus:border-celo'
                 }`}
               />
               {socialErrors.twitter && (
@@ -571,7 +571,7 @@ export default function ProfileEditPage() {
                 className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all ${
                   socialErrors.farcaster
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-gray-300 focus:border-yellow-400'
+                    : 'border-gray-300 focus:border-celo'
                 }`}
               />
               {socialErrors.farcaster && (
@@ -592,7 +592,7 @@ export default function ProfileEditPage() {
                 className={`w-full px-4 py-2 border-2 rounded-xl focus:outline-none transition-all ${
                   socialErrors.discord
                     ? 'border-red-400 focus:border-red-500'
-                    : 'border-gray-300 focus:border-yellow-400'
+                    : 'border-gray-300 focus:border-celo'
                 }`}
               />
               {socialErrors.discord && (
@@ -630,7 +630,7 @@ export default function ProfileEditPage() {
                 !!bioError ||
                 Object.values(socialErrors).some((e) => e)
               }
-              className="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
+              className="flex-1 bg-gradient-to-r from-celo to-celo hover:brightness-110 disabled:from-gray-300 disabled:to-gray-400 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:cursor-not-allowed shadow-lg"
             >
               {saving ? 'Sauvegarde...' : 'Sauvegarder'}
             </button>

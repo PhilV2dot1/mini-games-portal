@@ -112,24 +112,24 @@ describe('GameCard', () => {
     expect(link).toHaveAttribute('href', '/games/blackjack');
   });
 
-  test('should render play button hint', () => {
+  test('should render play button', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     render(<GameCard game={mockGame} />);
 
-    expect(screen.getByText('Play →')).toBeInTheDocument();
+    expect(screen.getByText('Play Now')).toBeInTheDocument();
   });
 
   // ============================================================================
-  // NEW Badge Tests
+  // NEW Badge Tests (badges removed in new design)
   // ============================================================================
 
-  test('should show NEW badge when isNew is true', () => {
+  test('should not show NEW badge (removed in new design)', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     render(<GameCard game={mockGame} isNew={true} />);
 
-    expect(screen.getByText('NEW')).toBeInTheDocument();
+    expect(screen.queryByText('NEW')).not.toBeInTheDocument();
   });
 
   test('should not show NEW badge when isNew is false', () => {
@@ -149,10 +149,10 @@ describe('GameCard', () => {
   });
 
   // ============================================================================
-  // Fee Indicator Tests
+  // Fee Indicator Tests (fee badges removed in new design)
   // ============================================================================
 
-  test('should show fee indicator for paid games', () => {
+  test('should not show fee indicator for paid games (removed in new design)', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     const paidGame: GameMetadata = {
@@ -162,7 +162,7 @@ describe('GameCard', () => {
 
     render(<GameCard game={paidGame} />);
 
-    expect(screen.getByText('0.01 CELO')).toBeInTheDocument();
+    expect(screen.queryByText('0.01 CELO')).not.toBeInTheDocument();
   });
 
   test('should not show fee indicator for free games', () => {
@@ -173,7 +173,7 @@ describe('GameCard', () => {
     expect(screen.queryByText('0.01 CELO')).not.toBeInTheDocument();
   });
 
-  test('should not show fee indicator when game is new (NEW badge takes priority)', () => {
+  test('should not show fee indicator or NEW badge (both removed in new design)', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     const newPaidGame: GameMetadata = {
@@ -183,7 +183,7 @@ describe('GameCard', () => {
 
     render(<GameCard game={newPaidGame} isNew={true} />);
 
-    expect(screen.getByText('NEW')).toBeInTheDocument();
+    expect(screen.queryByText('NEW')).not.toBeInTheDocument();
     expect(screen.queryByText('0.01 CELO')).not.toBeInTheDocument();
   });
 
@@ -275,7 +275,7 @@ describe('GameCard', () => {
     expect(screen.getByText('45')).toBeInTheDocument();
   });
 
-  test('should render 2048 game with fee indicator', () => {
+  test('should render 2048 game without fee indicator', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     const game2048: GameMetadata = {
@@ -291,10 +291,10 @@ describe('GameCard', () => {
     render(<GameCard game={game2048} />);
 
     expect(screen.getByText('2048')).toBeInTheDocument();
-    expect(screen.getByText('0.01 CELO')).toBeInTheDocument();
+    expect(screen.queryByText('0.01 CELO')).not.toBeInTheDocument();
   });
 
-  test('should render Mastermind game', () => {
+  test('should render Mastermind game without fee indicator', () => {
     mockGetStats.mockReturnValue({ played: 7, wins: 4, totalPoints: 120 });
 
     const mastermindGame: GameMetadata = {
@@ -311,7 +311,7 @@ describe('GameCard', () => {
 
     expect(screen.getByText('Mastermind')).toBeInTheDocument();
     expect(screen.getByText('Crack the code')).toBeInTheDocument();
-    expect(screen.getByText('0.01 CELO')).toBeInTheDocument();
+    expect(screen.queryByText('0.01 CELO')).not.toBeInTheDocument();
     expect(screen.getByText('7')).toBeInTheDocument();
     expect(screen.getByText('4')).toBeInTheDocument();
     expect(screen.getByText('120')).toBeInTheDocument();
@@ -391,19 +391,19 @@ describe('GameCard', () => {
     expect(motionDiv).toBeInTheDocument();
 
     const whileHover = JSON.parse(motionDiv!.getAttribute('data-while-hover')!);
-    expect(whileHover).toEqual({ scale: 1.03, y: -3 });
+    expect(whileHover).toEqual({ scale: 1.02, y: -4 });
 
     const whileTap = JSON.parse(motionDiv!.getAttribute('data-while-tap')!);
     expect(whileTap).toEqual({ scale: 0.98 });
   });
 
-  test('should have correct border style', () => {
+  test('should have transparent border initially', () => {
     mockGetStats.mockReturnValue({ played: 0, wins: 0, totalPoints: 0 });
 
     const { container } = render(<GameCard game={mockGame} />);
 
     const card = container.querySelector('[style*="border"]');
     expect(card).toBeInTheDocument();
-    expect(card).toHaveStyle({ border: '3px solid #FCFF52' });
+    expect(card).toHaveStyle({ borderColor: 'transparent' });
   });
 });

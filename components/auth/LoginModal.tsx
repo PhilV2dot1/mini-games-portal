@@ -199,7 +199,7 @@ export function LoginModal({
                     placeholder="votre@email.com"
                     disabled={loading}
                     autoComplete="email"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
                   />
                 </div>
 
@@ -214,7 +214,7 @@ export function LoginModal({
                     placeholder="••••••••"
                     disabled={loading}
                     autoComplete="current-password"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
                   />
                   <div className="text-right mt-1">
                     <button
@@ -233,7 +233,7 @@ export function LoginModal({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   {loading ? 'Connexion...' : 'Se connecter'}
                 </button>

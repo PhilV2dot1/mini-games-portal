@@ -73,8 +73,8 @@ export default function TestAuthPage() {
 
         {/* Message */}
         {message && (
-          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3 mb-4">
-            <p className="text-sm text-yellow-900">{message}</p>
+          <div className="bg-celo/5 border-2 border-celo-300 rounded-xl p-3 mb-4">
+            <p className="text-sm text-gray-900">{message}</p>
           </div>
         )}
 
@@ -89,7 +89,7 @@ export default function TestAuthPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:outline-none"
                 placeholder="test@example.com"
               />
             </div>
@@ -102,7 +102,7 @@ export default function TestAuthPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:outline-none"
                 placeholder="••••••••"
               />
             </div>

@@ -17,7 +17,7 @@ export function Footer() {
               href="https://celo.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-900 hover:text-yellow-600 font-semibold transition-colors underline"
+              className="text-gray-900 hover:text-celo font-semibold transition-colors underline"
             >
               {t('home.footerLearnCelo')}
             </a>
@@ -26,7 +26,7 @@ export function Footer() {
 
         {/* Right side - Author attribution */}
         <div className="flex items-center gap-3 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl px-4 py-3 border-2 border-gray-300 shadow-md hover:shadow-lg transition-all">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-yellow-400 shadow-sm bg-white">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-celo shadow-sm bg-white">
             <Image
               src="/avatars/author/philv2dot1.png"
               alt="Philv2dot1"

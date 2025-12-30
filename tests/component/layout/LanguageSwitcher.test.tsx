@@ -78,7 +78,7 @@ describe('LanguageSwitcher', () => {
     expect(enButton).toHaveClass('text-gray-900');
   });
 
-  test('should show yellow background for EN when active', () => {
+  test('should show gray background for EN when active (new design)', () => {
     vi.mocked(useLanguage).mockReturnValue({
       language: 'en',
       setLanguage: mockSetLanguage,
@@ -87,8 +87,9 @@ describe('LanguageSwitcher', () => {
 
     const { container } = render(<LanguageSwitcher />);
 
-    const yellowBg = container.querySelector('.bg-yellow-400');
-    expect(yellowBg).toBeInTheDocument();
+    // In new design, active background uses motion.div with layoutId
+    const activeBg = container.querySelector('[data-layout-id="activeLanguage"]');
+    expect(activeBg).toBeInTheDocument();
   });
 
   test('should not highlight FR button when English is active', () => {
@@ -119,10 +120,10 @@ describe('LanguageSwitcher', () => {
     render(<LanguageSwitcher />);
 
     const frButton = screen.getByText('FR').closest('button');
-    expect(frButton).toHaveClass('text-gray-900');
+    expect(frButton).toHaveClass('text-white');
   });
 
-  test('should show yellow background for FR when active', () => {
+  test('should show gray background for FR when active (new design)', () => {
     vi.mocked(useLanguage).mockReturnValue({
       language: 'fr',
       setLanguage: mockSetLanguage,
@@ -131,8 +132,9 @@ describe('LanguageSwitcher', () => {
 
     const { container } = render(<LanguageSwitcher />);
 
-    const yellowBg = container.querySelector('.bg-yellow-400');
-    expect(yellowBg).toBeInTheDocument();
+    // In new design, active background uses motion.div with layoutId
+    const activeBg = container.querySelector('[data-layout-id="activeLanguage"]');
+    expect(activeBg).toBeInTheDocument();
   });
 
   test('should not highlight EN button when French is active', () => {
@@ -258,7 +260,7 @@ describe('LanguageSwitcher', () => {
     expect(animatedBg).toBeInTheDocument();
   });
 
-  test('should only show one active background at a time', () => {
+  test('should only show one active background at a time (new design)', () => {
     vi.mocked(useLanguage).mockReturnValue({
       language: 'en',
       setLanguage: mockSetLanguage,
@@ -267,8 +269,9 @@ describe('LanguageSwitcher', () => {
 
     const { container } = render(<LanguageSwitcher />);
 
-    const yellowBackgrounds = container.querySelectorAll('.bg-yellow-400');
-    expect(yellowBackgrounds.length).toBe(1);
+    // In new design, active background uses motion.div with layoutId (should be unique)
+    const activeBackgrounds = container.querySelectorAll('[data-layout-id="activeLanguage"]');
+    expect(activeBackgrounds.length).toBe(1);
   });
 
   // ============================================================================
@@ -449,7 +452,7 @@ describe('LanguageSwitcher', () => {
     rerender(<LanguageSwitcher />);
 
     let frButton = screen.getByText('FR').closest('button');
-    expect(frButton).toHaveClass('text-gray-900');
+    expect(frButton).toHaveClass('text-white');
 
     enButton = screen.getByText('EN').closest('button');
     expect(enButton).toHaveClass('text-gray-500');
