@@ -8,10 +8,9 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 
 interface GameCardProps {
   game: GameMetadata;
-  isNew?: boolean;
 }
 
-export function GameCard({ game, isNew = false }: GameCardProps) {
+export function GameCard({ game }: GameCardProps) {
   const { getStats } = useLocalStats();
   const stats = getStats(game.id);
 
