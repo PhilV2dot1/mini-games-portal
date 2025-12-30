@@ -16,6 +16,10 @@ export function GameCard({ game }: GameCardProps) {
   const stats = getStats(game.id);
   const { t } = useLanguage();
 
+  // Get translated description
+  const translationKey = `games.${game.id}`;
+  const description = t(translationKey as 'games.blackjack') || game.description;
+
   return (
     <Link href={game.route}>
       <motion.div
@@ -52,7 +56,7 @@ export function GameCard({ game }: GameCardProps) {
 
           {/* Description */}
           <p className="text-gray-600 text-sm text-center mb-4 leading-relaxed min-h-[2.5rem]">
-            {t(`games.${game.id}` as any) || game.description}
+            {description}
           </p>
 
           {/* Stats */}
