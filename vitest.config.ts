@@ -20,6 +20,17 @@ export default defineConfig({
         '**/*.d.ts',
         '**/types/**',
         'lib/contracts/*-abi.ts', // ABIs are auto-generated
+        '.next/**', // Exclude Next.js build files
+        '**/vendor-chunks/**', // Exclude vendor bundles
+        '**/_app.{js,ts,tsx}',
+        '**/_document.{js,ts,tsx}',
+        '**/middleware.{js,ts}',
+      ],
+      include: [
+        'app/**/*.{ts,tsx}',
+        'components/**/*.{ts,tsx}',
+        'hooks/**/*.{ts,tsx}',
+        'lib/**/*.{ts,tsx}',
       ],
       thresholds: {
         lines: 60,
