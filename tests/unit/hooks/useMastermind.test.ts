@@ -961,4 +961,60 @@ describe('useMastermind', () => {
     // Stats should not change in onchain mode (comes from contract)
     expect(result.current.stats).toEqual(statsBefore);
   });
+
+  test('should call abandonGame in onchain mode', async () => {
+    const { result } = renderHook(() => useMastermind());
+
+    act(() => {
+      result.current.switchMode('onchain');
+    });
+
+    // Just verify abandonGame can be called without crashing in onchain mode
+    act(() => {
+      result.current.abandonGame();
+    });
+
+    // Function should exist and be callable
+    expect(typeof result.current.abandonGame).toBe('function');
+    expect(result.current.mode).toBe('onchain');
+  });
+
+  test('should return freeStats when in free mode', () => {
+    const { result } = renderHook(() => useMastermind());
+
+    // In free mode by default
+    expect(result.current.mode).toBe('free');
+    expect(result.current.stats).toEqual({
+      wins: 0,
+      losses: 0,
+      totalGames: 0,
+      averageAttempts: 0,
+      bestScore: 0,
+    });
+
+    // Play a game to update freeStats
+    act(() => {
+      result.current.newGame();
+    });
+
+    vi.spyOn(mastermindLogic, 'isValidGuess').mockReturnValue(true);
+    vi.spyOn(mastermindLogic, 'evaluateGuess').mockReturnValue({ black: 4, white: 0 });
+    vi.spyOn(mastermindLogic, 'hasWon').mockReturnValue(true);
+    vi.spyOn(mastermindLogic, 'calculateScore').mockReturnValue(500);
+
+    act(() => {
+      result.current.updateGuess(0, 'red');
+      result.current.updateGuess(1, 'blue');
+      result.current.updateGuess(2, 'green');
+      result.current.updateGuess(3, 'yellow');
+    });
+
+    act(() => {
+      result.current.submitGuess();
+    });
+
+    // Stats should reflect the win (from freeStats, not onchain)
+    expect(result.current.stats.wins).toBe(1);
+    expect(result.current.stats.totalGames).toBe(1);
+  });
 });
