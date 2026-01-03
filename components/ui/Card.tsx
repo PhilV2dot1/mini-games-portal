@@ -17,7 +17,10 @@ import { cn } from '@/lib/utils';
 export type CardVariant = 'default' | 'elevated' | 'outlined' | 'glass';
 export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 
-export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+export interface CardProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+> {
   /**
    * Visual variant of the card
    * @default 'default'
