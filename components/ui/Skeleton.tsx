@@ -163,16 +163,19 @@ export function SkeletonButton({
   width = 100,
   height = 40,
   className,
+  disableAnimation,
 }: {
   width?: number | string;
   height?: number | string;
   className?: string;
+  disableAnimation?: boolean;
 }) {
   return (
     <Skeleton
       width={width}
       height={height}
       className={cn('rounded-xl', className)}
+      disableAnimation={disableAnimation}
     />
   );
 }
