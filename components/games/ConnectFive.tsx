@@ -88,11 +88,9 @@ function Cell({
  * Column hover indicator
  */
 function ColumnHover({
-  col,
   currentPlayer,
   isPlayable,
 }: {
-  col: number;
   currentPlayer: Player;
   isPlayable: boolean;
 }) {
@@ -159,7 +157,7 @@ export function ConnectFive({ className }: ConnectFiveProps) {
         {/* Status Badge */}
         {status === 'playing' && (
           <Badge variant={currentPlayer === 1 ? 'danger' : 'warning'}>
-            Player {currentPlayer}'s Turn
+            Player {currentPlayer}&apos;s Turn
           </Badge>
         )}
 
@@ -184,7 +182,6 @@ export function ConnectFive({ className }: ConnectFiveProps) {
             <div key={col} className="relative group">
               {/* Column hover indicator */}
               <ColumnHover
-                col={col}
                 currentPlayer={currentPlayer}
                 isPlayable={isColumnPlayable(col)}
               />

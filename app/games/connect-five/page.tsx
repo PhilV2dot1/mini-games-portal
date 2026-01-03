@@ -50,7 +50,7 @@ export default function ConnectFivePage() {
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>• Control the center columns</li>
                 <li>• Create multiple winning opportunities</li>
-                <li>• Block your opponent's connections</li>
+                <li>• Block your opponent&apos;s connections</li>
                 <li>• Think several moves ahead</li>
                 <li>• Watch for diagonal opportunities</li>
               </ul>
