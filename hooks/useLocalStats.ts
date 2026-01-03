@@ -29,6 +29,7 @@ const DEFAULT_PROFILE: UserProfile = {
     jackpot: { ...DEFAULT_GAME_STATS },
     "2048": { ...DEFAULT_GAME_STATS },
     mastermind: { ...DEFAULT_GAME_STATS },
+    connectfive: { ...DEFAULT_GAME_STATS },
   },
 };
 
