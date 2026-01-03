@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 
 interface ModeToggleProps {
   mode: 'free' | 'onchain';
@@ -10,28 +10,24 @@ interface ModeToggleProps {
 export function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
   return (
     <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-2 border-2 border-gray-300 shadow-lg inline-flex gap-1">
-      <motion.button
-        whileTap={{ scale: 0.95 }}
+      <Button
+        variant={mode === "free" ? "celo" : "ghost"}
+        size="md"
         onClick={() => onModeChange("free")}
-        className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${
-          mode === "free"
-            ? "bg-gradient-to-r from-celo to-celo text-gray-900 shadow-md"
-            : "bg-transparent text-gray-600 hover:text-gray-900"
-        }`}
+        className={mode !== "free" ? "text-gray-600 hover:text-gray-900" : ""}
+        ariaLabel="Switch to free play mode"
       >
         🆓 Free Play
-      </motion.button>
-      <motion.button
-        whileTap={{ scale: 0.95 }}
+      </Button>
+      <Button
+        variant={mode === "onchain" ? "celo" : "ghost"}
+        size="md"
         onClick={() => onModeChange("onchain")}
-        className={`px-6 py-2 rounded-xl font-bold text-sm transition-all ${
-          mode === "onchain"
-            ? "bg-gradient-to-r from-celo to-celo text-gray-900 shadow-md"
-            : "bg-transparent text-gray-600 hover:text-gray-900"
-        }`}
+        className={mode !== "onchain" ? "text-gray-600 hover:text-gray-900" : ""}
+        ariaLabel="Switch to on-chain mode"
       >
         ⛓️ On-Chain
-      </motion.button>
+      </Button>
     </div>
   );
 }

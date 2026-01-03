@@ -7,9 +7,12 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import { Modal, ModalBody, ModalFooter } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -82,37 +85,14 @@ export function LoginModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-gray-700 max-w-md w-full"
-              style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Connexion
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Bienvenue ! Connectez-vous pour continuer
-                </p>
-              </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Connexion"
+      description="Bienvenue ! Connectez-vous pour continuer"
+      size="md"
+    >
+      <ModalBody>
 
               {/* Error Message */}
               {error && (
@@ -188,33 +168,29 @@ export function LoginModal({
 
               {/* Email/Password Form */}
               <form onSubmit={handleEmailLogin} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="votre@email.com"
-                    disabled={loading}
-                    autoComplete="email"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
-                  />
-                </div>
+                <Input
+                  type="email"
+                  label="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  disabled={loading}
+                  autoComplete="email"
+                  fullWidth
+                  required
+                />
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mot de passe
-                  </label>
-                  <input
+                  <Input
                     type="password"
+                    label="Mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     disabled={loading}
                     autoComplete="current-password"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
+                    fullWidth
+                    required
                   />
                   <div className="text-right mt-1">
                     <button
@@ -230,37 +206,37 @@ export function LoginModal({
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  variant="celo"
+                  size="lg"
+                  fullWidth
+                  loading={loading}
+                  ariaLabel="Se connecter avec email et mot de passe"
                 >
-                  {loading ? 'Connexion...' : 'Se connecter'}
-                </button>
+                  Se connecter
+                </Button>
               </form>
 
-              {/* Footer */}
-              <div className="mt-6 pt-4 border-t border-gray-200 text-center space-y-2">
-                <p className="text-sm text-gray-600">
-                  Pas encore de compte ?{' '}
-                  <button
-                    onClick={onSwitchToSignup}
-                    className="text-blue-600 hover:text-blue-800 font-semibold underline"
-                  >
-                    Créer un compte
-                  </button>
-                </p>
-                <button
-                  onClick={onClose}
-                  className="text-sm text-gray-600 hover:text-gray-900 underline"
-                >
-                  Continuer en tant qu&apos;invité
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
+      </ModalBody>
+
+      <ModalFooter className="flex-col gap-2">
+        <p className="text-sm text-gray-600 text-center">
+          Pas encore de compte ?{' '}
+          <button
+            onClick={onSwitchToSignup}
+            className="text-blue-600 hover:text-blue-800 font-semibold underline"
+          >
+            Créer un compte
+          </button>
+        </p>
+        <button
+          onClick={onClose}
+          className="text-sm text-gray-600 hover:text-gray-900 underline"
+        >
+          Continuer en tant qu&apos;invité
+        </button>
+      </ModalFooter>
+    </Modal>
   );
 }

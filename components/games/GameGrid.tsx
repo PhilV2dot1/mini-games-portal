@@ -3,9 +3,11 @@
 import { GameMetadata } from "@/lib/types";
 import { GameCard } from "./GameCard";
 import { motion } from "framer-motion";
+import { SkeletonCardGrid } from "@/components/ui/SkeletonCard";
 
 interface GameGridProps {
   games: GameMetadata[];
+  loading?: boolean;
 }
 
 const container = {
@@ -30,7 +32,11 @@ const item = {
   },
 };
 
-export function GameGrid({ games }: GameGridProps) {
+export function GameGrid({ games, loading = false }: GameGridProps) {
+  if (loading) {
+    return <SkeletonCardGrid count={6} />;
+  }
+
   return (
     <motion.div
       variants={container}

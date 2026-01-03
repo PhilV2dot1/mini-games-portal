@@ -14,6 +14,9 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { Card } from '@/components/ui/Card';
+import { Badge as BadgeUI } from '@/components/ui/Badge';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 
 interface Badge {
   id: string;
@@ -237,8 +240,8 @@ export function BadgeGallery({
 
   if (loading) {
     return (
-      <div className="text-center py-8">
-        <div className="text-gray-500">{t('loading')}</div>
+      <div className={`grid ${compact ? 'grid-cols-2 sm:grid-cols-3 gap-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'}`}>
+        <SkeletonCard count={compact ? 6 : 12} />
       </div>
     );
   }
@@ -286,44 +289,54 @@ export function BadgeGallery({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`relative bg-white/90 backdrop-blur-sm rounded-xl p-4 border-2 ${
-              badge.earned
-                ? 'border-celo shadow-lg'
-                : 'border-gray-300 opacity-70'
-            } transition-all hover:scale-105`}
           >
-            {/* Badge Icon */}
-            <div className={`${compact ? 'text-4xl' : 'text-5xl'} text-center mb-2`}>
-              {badge.earned ? badge.icon : '🔒'}
-            </div>
-
-            {/* Badge Name */}
-            <h3 className={`font-bold text-gray-900 text-center mb-1 ${compact ? 'text-xs' : 'text-sm'}`}>
-              {badge.name}
-            </h3>
-
-            {!compact && (
-              <>
-                {/* Badge Description */}
-                <p className="text-xs text-gray-600 text-center mb-2">
-                  {badge.description}
-                </p>
-              </>
-            )}
-
-            {/* Badge Points */}
-            <div className="text-center">
-              <span className={`inline-block bg-celo/10 text-yellow-800 font-semibold px-2 py-1 rounded-full ${compact ? 'text-[10px]' : 'text-xs'}`}>
-                +{badge.points} pts
-              </span>
-            </div>
-
-            {/* Earned Indicator */}
-            {badge.earned && (
-              <div className="absolute top-2 right-2 bg-celo text-gray-900 rounded-full w-6 h-6 flex items-center justify-center">
-                <span className="text-xs font-bold">✓</span>
+            <Card
+              variant="glass"
+              padding="md"
+              hover
+              className={`relative ${
+                badge.earned
+                  ? 'border-2 border-celo shadow-lg'
+                  : 'border-2 border-gray-300 opacity-70'
+              }`}
+            >
+              {/* Badge Icon */}
+              <div className={`${compact ? 'text-4xl' : 'text-5xl'} text-center mb-2`}>
+                {badge.earned ? badge.icon : '🔒'}
               </div>
-            )}
+
+              {/* Badge Name */}
+              <h3 className={`font-bold text-gray-900 text-center mb-1 ${compact ? 'text-xs' : 'text-sm'}`}>
+                {badge.name}
+              </h3>
+
+              {!compact && (
+                <>
+                  {/* Badge Description */}
+                  <p className="text-xs text-gray-600 text-center mb-2">
+                    {badge.description}
+                  </p>
+                </>
+              )}
+
+              {/* Badge Points */}
+              <div className="text-center">
+                <BadgeUI
+                  variant="warning"
+                  size={compact ? 'sm' : 'md'}
+                  icon={<span>💰</span>}
+                >
+                  +{badge.points} pts
+                </BadgeUI>
+              </div>
+
+              {/* Earned Indicator */}
+              {badge.earned && (
+                <div className="absolute top-2 right-2 bg-celo text-gray-900 rounded-full w-6 h-6 flex items-center justify-center">
+                  <span className="text-xs font-bold">✓</span>
+                </div>
+              )}
+            </Card>
           </motion.div>
         ))}
       </div>

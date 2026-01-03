@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { GameMetadata } from "@/lib/types";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 interface GameCardProps {
   game: GameMetadata;
@@ -22,14 +23,11 @@ export function GameCard({ game }: GameCardProps) {
 
   return (
     <Link href={game.route}>
-      <motion.div
-        whileHover={{ scale: 1.02, y: -4 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
-        className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer group border-2 border-gray-200 overflow-hidden"
-        style={{ borderColor: 'transparent' }}
-        onMouseEnter={(e) => e.currentTarget.style.borderColor = '#FCFF52'}
-        onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+      <Card
+        variant="default"
+        padding="lg"
+        hover
+        className="relative cursor-pointer group border-2 border-gray-200 hover:border-celo overflow-hidden"
       >
         {/* Subtle accent bar */}
         <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(to right, #FCFF52, #e5e600)' }} />
@@ -79,25 +77,22 @@ export function GameCard({ game }: GameCardProps) {
 
           {/* Play button */}
           <div className="text-center">
-            <style jsx>{`
-              .play-button {
-                background-color: #1f2937;
-                color: white;
+            <Button
+              variant="primary"
+              size="md"
+              className="group-hover:bg-celo group-hover:text-gray-900"
+              rightIcon={
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               }
-              .group:hover .play-button {
-                background-color: #FCFF52;
-                color: #1f2937;
-              }
-            `}</style>
-            <div className="play-button inline-flex items-center gap-2 font-semibold text-sm px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm">
+              ariaLabel={`Play ${game.name}`}
+            >
               Play Now
-              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+            </Button>
           </div>
         </div>
-      </motion.div>
+      </Card>
     </Link>
   );
 }

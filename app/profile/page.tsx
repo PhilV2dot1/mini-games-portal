@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { SkeletonCard } from "@/components/ui/SkeletonCard";
 
 interface Badge {
   id: string;
@@ -179,8 +181,43 @@ export default function ProfilePage() {
           </form>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="space-y-6">
+            {/* User Stats Skeleton */}
+            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
+              <Skeleton width="40%" height="2rem" className="mb-2" />
+              <Skeleton width="20%" height="1rem" className="mb-6" />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <Skeleton height="5rem" />
+                <Skeleton height="5rem" />
+                <Skeleton height="5rem" />
+                <Skeleton height="5rem" />
+              </div>
+            </div>
+
+            {/* Badges Skeleton */}
+            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
+              <Skeleton width="30%" height="1.5rem" className="mb-4" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <SkeletonCard count={4} />
+              </div>
+            </div>
+
+            {/* Game Stats Skeleton */}
+            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">
+              <Skeleton width="40%" height="1.5rem" className="mb-4" />
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton height="8rem" />
+                <Skeleton height="8rem" />
+                <Skeleton height="8rem" />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Profile Content */}
-        {profile && (
+        {!loading && profile && (
           <div className="space-y-6">
             {/* User Stats */}
             <div className="bg-white/90 backdrop-blur-lg rounded-xl p-6 shadow-lg border-2 border-gray-300">

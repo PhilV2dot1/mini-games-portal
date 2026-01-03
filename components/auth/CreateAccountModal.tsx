@@ -8,8 +8,11 @@
  */
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from './AuthProvider';
+import { Modal, ModalBody, ModalFooter } from '@/components/ui/Modal';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 
 interface CreateAccountModalProps {
   isOpen: boolean;
@@ -110,37 +113,14 @@ export function CreateAccountModal({
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-gray-700 max-w-md w-full"
-              style={{ boxShadow: '0 0 0 6px #FCFF52, 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Créer un compte
-                </h2>
-                <p className="text-gray-600 text-sm">
-                  Sauvegardez vos progrès et jouez sur tous vos appareils
-                </p>
-              </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Créer un compte"
+      description="Sauvegardez vos progrès et jouez sur tous vos appareils"
+      size="md"
+    >
+      <ModalBody>
 
               {/* Stats Display */}
               {currentStats && currentStats.gamesPlayed > 0 && (
@@ -262,74 +242,65 @@ export function CreateAccountModal({
 
               {/* Email/Password Form */}
               <form onSubmit={handleEmailSignup} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="votre@email.com"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Minimum 8 caractères</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Confirmer le mot de passe
-                  </label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    disabled={loading}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-xl focus:border-celo focus:ring-2 focus:ring-yellow-200 outline-none transition-all disabled:opacity-50"
-                  />
-                </div>
-
-                <button
-                  type="submit"
+                <Input
+                  type="email"
+                  label="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  fullWidth
+                  required
+                />
+
+                <Input
+                  type="password"
+                  label="Mot de passe"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                  hint="Minimum 8 caractères"
+                  fullWidth
+                  required
+                />
+
+                <Input
+                  type="password"
+                  label="Confirmer le mot de passe"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  disabled={loading}
+                  fullWidth
+                  required
+                />
+
+                <Button
+                  type="submit"
+                  variant="celo"
+                  size="lg"
+                  fullWidth
+                  loading={loading}
+                  ariaLabel="Créer un compte avec email et mot de passe"
                 >
-                  {loading ? 'Création en cours...' : 'Créer mon compte'}
-                </button>
+                  Créer mon compte
+                </Button>
               </form>
 
-              {/* Footer */}
-              <div className="mt-6 pt-4 border-t border-gray-200 text-center space-y-2">
-                <button
-                  onClick={onClose}
-                  className="text-sm text-gray-600 hover:text-gray-900 underline"
-                >
-                  Continuer en tant qu&apos;invité
-                </button>
-                <p className="text-xs text-gray-500">
-                  En créant un compte, vous acceptez nos conditions d&apos;utilisation
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </>
-      )}
-    </AnimatePresence>
+      </ModalBody>
+
+      <ModalFooter className="flex-col gap-2">
+        <button
+          onClick={onClose}
+          className="text-sm text-gray-600 hover:text-gray-900 underline"
+        >
+          Continuer en tant qu&apos;invité
+        </button>
+        <p className="text-xs text-gray-500 text-center">
+          En créant un compte, vous acceptez nos conditions d&apos;utilisation
+        </p>
+      </ModalFooter>
+    </Modal>
   );
 }

@@ -4,6 +4,7 @@ import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { motion } from "framer-motion";
 import { useFarcaster } from "../providers";
 import { useSwitchToCelo } from "@/hooks/useSwitchToCelo";
+import { Button } from "@/components/ui/Button";
 
 const CONNECTOR_ICONS: Record<string, string> = {
   "Farcaster Wallet": "🔵",
@@ -73,13 +74,14 @@ export function WalletConnect() {
               )}
             </div>
           </div>
-          <button
+          <Button
             onClick={() => disconnect()}
-            className="px-4 py-2 min-h-[44px] bg-gray-700 hover:bg-gray-800 active:bg-gray-900 text-white rounded-lg transition-colors text-sm font-semibold touch-manipulation"
-            aria-label="Disconnect wallet"
+            variant="primary"
+            size="sm"
+            ariaLabel="Disconnect wallet"
           >
             Disconnect
-          </button>
+          </Button>
         </motion.div>
       </div>
     );
@@ -109,29 +111,25 @@ export function WalletConnect() {
           const description = CONNECTOR_DESCRIPTIONS[connector.name] || `Connect with ${connector.name}`;
 
           return (
-            <motion.button
+            <Button
               key={connector.uid}
-              whileTap={{ scale: 0.98 }}
+              variant="celo"
+              size="lg"
+              fullWidth
               onClick={() => connect({ connector })}
               disabled={isPending}
-              className="flex flex-col items-center justify-center gap-1 px-6 py-4 min-h-[56px] rounded-xl font-semibold transition-all bg-gradient-to-r from-celo to-celo hover:brightness-110 active:scale-95 text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-              aria-label={description}
+              loading={isPending}
+              ariaLabel={description}
+              leftIcon={!isPending ? <span className="text-xl">{icon}</span> : undefined}
+              className="flex-col gap-1 min-h-[56px]"
             >
-              {isPending ? (
+              {!isPending && (
                 <>
-                  <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm">Connecting...</span>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{icon}</span>
-                    <span>{connector.name}</span>
-                  </div>
+                  <span>{connector.name}</span>
                   <span className="text-xs text-gray-700">{description}</span>
                 </>
               )}
-            </motion.button>
+            </Button>
           );
         })}
       </div>
