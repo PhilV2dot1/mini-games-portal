@@ -15,7 +15,10 @@ import { cn } from '@/lib/utils';
 // TYPES
 // ========================================
 
-export interface SkeletonProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
+export interface SkeletonProps extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd' | 'onAnimationIteration'
+> {
   /**
    * Width of the skeleton (CSS value)
    */
