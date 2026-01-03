@@ -75,7 +75,12 @@ export function useLocalStats() {
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
-          setProfile(parsed);
+
+          // Migrate old data: add missing game entries
+          const migratedProfile = { ...DEFAULT_PROFILE, ...parsed };
+          migratedProfile.games = { ...DEFAULT_PROFILE.games, ...parsed.games };
+
+          setProfile(migratedProfile);
         } catch (error) {
           console.error("Failed to parse stored stats:", error);
         }

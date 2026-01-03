@@ -58,7 +58,7 @@ export function GameCard({ game }: GameCardProps) {
           </p>
 
           {/* Stats */}
-          {typeof stats !== 'boolean' && 'played' in stats && stats.played > 0 && (
+          {typeof stats !== 'boolean' && stats && 'played' in stats && stats.played > 0 && (
             <div className="flex justify-center gap-4 text-gray-500 text-xs mb-4 pb-4 border-b border-gray-200">
               <div className="text-center">
                 <div className="font-bold text-gray-900 text-sm mb-0.5">{stats.played}</div>

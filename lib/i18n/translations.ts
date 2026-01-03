@@ -235,6 +235,9 @@ export const translations = {
       cat_elite: 'Elite',
       cat_collection: 'Collection',
       cat_engagement: 'Engagement',
+      cat_points: 'Points',
+      cat_ranking: 'Ranking',
+      cat_classement: 'Ranking',
     },
 
     // About Page
@@ -318,6 +321,7 @@ export const translations = {
       jackpot: 'Spin the crypto wheel!',
       '2048': 'Merge tiles to 2048!',
       mastermind: 'Crack the crypto code!',
+      connectfive: 'Connect 4 pieces in a row!',
     },
 
     // Leaderboard
@@ -577,6 +581,9 @@ export const translations = {
       cat_elite: 'Elite',
       cat_collection: 'Collection',
       cat_engagement: 'Engagement',
+      cat_points: 'Points',
+      cat_ranking: 'Classement',
+      cat_classement: 'Classement',
     },
 
     // About Page
@@ -660,6 +667,7 @@ export const translations = {
       jackpot: 'Faites tourner la roue crypto !',
       '2048': 'Fusionnez les tuiles jusqu\'à 2048 !',
       mastermind: 'Cassez le code crypto !',
+      connectfive: 'Connectez 4 pièces d\'affilée !',
     },
 
     // Leaderboard
