@@ -161,7 +161,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     const baseStyles = [
       'rounded-2xl',
       'transition-all duration-200',
-      isInteractive && 'cursor-pointer',
+      isInteractive ? 'cursor-pointer' : '',
     ];
 
     // Variant-specific styles
@@ -170,20 +170,20 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         'bg-white',
         'border-2 border-gray-200',
         'shadow-md',
-        hover && 'hover:shadow-lg',
+        hover ? 'hover:shadow-lg' : '',
       ],
 
       elevated: [
         'bg-white',
         'border-2 border-gray-300',
         'shadow-lg',
-        hover && 'hover:shadow-xl',
+        hover ? 'hover:shadow-xl' : '',
       ],
 
       outlined: [
         'bg-white',
         'border-2 border-gray-300',
-        hover && 'hover:border-gray-400',
+        hover ? 'hover:border-gray-400' : '',
       ],
 
       glass: [
@@ -191,7 +191,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         'backdrop-blur-lg',
         'border-2 border-gray-300',
         'shadow-md',
-        hover && 'hover:shadow-lg hover:bg-white/95',
+        hover ? 'hover:shadow-lg hover:bg-white/95' : '',
       ],
     };
 
