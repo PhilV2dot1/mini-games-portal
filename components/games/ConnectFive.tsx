@@ -156,19 +156,19 @@ export function ConnectFive({ className }: ConnectFiveProps) {
 
         {/* Status Badge */}
         {status === 'playing' && (
-          <Badge variant={currentPlayer === 1 ? 'danger' : 'warning'}>
+          <Badge variant={currentPlayer === 1 ? 'error' : 'warning'}>
             Player {currentPlayer}&apos;s Turn
           </Badge>
         )}
 
         {status === 'won' && (
-          <Badge variant={winner === 1 ? 'danger' : 'warning'}>
+          <Badge variant={winner === 1 ? 'error' : 'warning'}>
             Player {winner} Wins! 🎉
           </Badge>
         )}
 
         {status === 'draw' && (
-          <Badge variant="secondary">
+          <Badge variant="default">
             Draw! 🤝
           </Badge>
         )}
