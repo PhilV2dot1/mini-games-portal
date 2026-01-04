@@ -22,7 +22,7 @@ export function ConnectFiveBoard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4 shadow-2xl border-4 border-blue-800">
+    <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-4 shadow-2xl border-4 border-celo">
       <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)` }}>
         {Array.from({ length: COLS }).map((_, col) => (
           <div key={col} className="space-y-2">
@@ -31,10 +31,10 @@ export function ConnectFiveBoard({
               onClick={() => !disabled && onColumnClick(col)}
               disabled={disabled || board[0][col] !== null}
               className={cn(
-                "w-full h-10 rounded-lg transition-all duration-200 flex items-center justify-center text-4xl font-black text-white",
+                "w-full h-10 rounded-lg transition-all duration-200 flex items-center justify-center text-4xl font-black text-gray-900",
                 disabled || board[0][col] !== null
-                  ? "cursor-not-allowed opacity-30 bg-blue-800/50"
-                  : "cursor-pointer bg-blue-600 hover:bg-blue-500 hover:scale-105 shadow-md"
+                  ? "cursor-not-allowed opacity-30 bg-gray-300"
+                  : "cursor-pointer bg-celo hover:brightness-110 hover:scale-105 shadow-md"
               )}
               aria-label={`Drop piece in column ${col + 1}`}
             >
