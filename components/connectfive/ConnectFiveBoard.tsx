@@ -31,13 +31,15 @@ export function ConnectFiveBoard({
               onClick={() => !disabled && onColumnClick(col)}
               disabled={disabled || board[0][col] !== null}
               className={cn(
-                "w-full aspect-square rounded-full transition-all duration-200",
+                "w-full h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-2xl",
                 disabled || board[0][col] !== null
-                  ? "cursor-not-allowed opacity-50"
-                  : "cursor-pointer hover:bg-blue-500/30 hover:scale-105"
+                  ? "cursor-not-allowed opacity-30 bg-blue-800/30"
+                  : "cursor-pointer bg-blue-500/40 hover:bg-blue-400/60 hover:scale-105"
               )}
               aria-label={`Drop piece in column ${col + 1}`}
-            />
+            >
+              {!(disabled || board[0][col] !== null) && "↓"}
+            </button>
 
             {/* Cells */}
             {Array.from({ length: ROWS }).map((_, row) => {
