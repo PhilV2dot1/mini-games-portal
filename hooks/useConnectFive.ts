@@ -11,6 +11,7 @@ export type Board = Cell[][];
 export type GameMode = "free" | "onchain";
 export type GameStatus = "idle" | "playing" | "processing" | "finished";
 export type GameResult = "win" | "lose" | "draw" | null;
+export type AIDifficulty = "easy" | "medium" | "hard";
 
 export interface PlayerStats {
   games: number;
@@ -297,8 +298,15 @@ function minimax(
 /**
  * Get AI's best move using minimax algorithm
  */
-function getAIMove(board: Board): number {
-  const [_, column] = minimax(board, 4, -Infinity, Infinity, true); // Depth 4 for good AI
+function getAIMove(board: Board, difficulty: AIDifficulty = "medium"): number {
+  const depthMap = {
+    easy: 2,    // Easy: Depth 2 (weak AI, makes mistakes)
+    medium: 4,  // Medium: Depth 4 (balanced AI)
+    hard: 6,    // Hard: Depth 6 (strong AI, very challenging)
+  };
+
+  const depth = depthMap[difficulty];
+  const [_, column] = minimax(board, depth, -Infinity, Infinity, true);
   return column ?? Math.floor(Math.random() * COLS);
 }
 
@@ -311,6 +319,7 @@ export function useConnectFive() {
   const [mode, setMode] = useState<GameMode>("free");
   const [status, setStatus] = useState<GameStatus>("idle");
   const [result, setResult] = useState<GameResult>(null);
+  const [difficulty, setDifficulty] = useState<AIDifficulty>("medium");
   const [stats, setStats] = useState<PlayerStats>({
     games: 0,
     wins: 0,
@@ -461,7 +470,7 @@ export function useConnectFive() {
       // AI move
       setMessage("AI is thinking...");
       setTimeout(() => {
-        const aiCol = getAIMove(newBoard);
+        const aiCol = getAIMove(newBoard, difficulty);
         const aiRow = getDropRow(newBoard, aiCol);
 
         if (aiRow !== -1) {
@@ -485,7 +494,7 @@ export function useConnectFive() {
         }
       }, 500); // Small delay for AI "thinking"
     },
-    [board, status, endGame]
+    [board, status, difficulty, endGame]
   );
 
   // Start game
@@ -543,6 +552,7 @@ export function useConnectFive() {
     mode,
     status,
     result,
+    difficulty,
     stats,
     message,
     isConnected,
@@ -550,5 +560,6 @@ export function useConnectFive() {
     handleMove,
     resetGame,
     switchMode,
+    setDifficulty,
   };
 }

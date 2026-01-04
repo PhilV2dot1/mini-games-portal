@@ -9,6 +9,7 @@ import { GameStatus } from "@/components/connectfive/GameStatus";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { PlayerStats } from "@/components/connectfive/PlayerStats";
+import { DifficultySelector } from "@/components/connectfive/DifficultySelector";
 import { motion } from "framer-motion";
 
 export default function ConnectFivePage() {
@@ -17,6 +18,7 @@ export default function ConnectFivePage() {
     mode,
     status,
     result,
+    difficulty,
     stats,
     message,
     isConnected,
@@ -24,6 +26,7 @@ export default function ConnectFivePage() {
     handleMove,
     resetGame,
     switchMode,
+    setDifficulty,
   } = useConnectFive();
 
   const { recordGame } = useLocalStats();
@@ -69,6 +72,13 @@ export default function ConnectFivePage() {
         <div className="flex justify-center">
           <ModeToggle mode={mode} onModeChange={switchMode} />
         </div>
+
+        {/* Difficulty Selector */}
+        <DifficultySelector
+          difficulty={difficulty}
+          onDifficultyChange={setDifficulty}
+          disabled={status === "playing"}
+        />
 
         {/* Wallet Connect (On-Chain Mode) */}
         {mode === "onchain" && <WalletConnect />}
