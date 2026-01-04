@@ -40,7 +40,7 @@ export default function ConnectFivePage() {
   const isFinished = status === "finished";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
       <div className="max-w-md mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link

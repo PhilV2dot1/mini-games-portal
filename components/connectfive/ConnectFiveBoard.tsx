@@ -31,7 +31,7 @@ export function ConnectFiveBoard({
               onClick={() => !disabled && onColumnClick(col)}
               disabled={disabled || board[0][col] !== null}
               className={cn(
-                "w-full h-8 rounded-lg transition-all duration-200 flex items-center justify-center text-2xl font-bold text-white",
+                "w-full h-10 rounded-lg transition-all duration-200 flex items-center justify-center text-4xl font-black text-white",
                 disabled || board[0][col] !== null
                   ? "cursor-not-allowed opacity-30 bg-blue-800/50"
                   : "cursor-pointer bg-blue-600 hover:bg-blue-500 hover:scale-105 shadow-md"
