@@ -4,7 +4,7 @@ A comprehensive gaming platform built on Celo blockchain featuring multiple game
 
 ## 🌟 Features
 
-- **6 Blockchain Games**: Blackjack, Rock-Paper-Scissors, TicTacToe, Jackpot, 2048, Mastermind
+- **8 Blockchain Games**: Blackjack, Rock-Paper-Scissors, TicTacToe, Jackpot, 2048, Mastermind, Connect 4, Snake
 - **Dual Mode Gaming**: Free play (off-chain) and On-chain modes with real CELO
 - **User Profiles**: Customizable profiles with themes, avatars, and social links
 - **Badge System**: Earn badges by playing games and achieving milestones
@@ -90,6 +90,18 @@ Addictive tile-merging puzzle game. Combine tiles to reach 2048!
 Code-breaking logic game. Guess the secret color combination!
 
 **Contract**: `0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9` (Alfajores)
+
+### 7. Connect 4
+Classic strategy game. Connect four pieces in a row to win! Play against AI with 3 difficulty levels.
+
+**Contract**: `0xd00a6170d83b446314b2e79f9603bc0a72c463e6` (Celo Mainnet)
+**Documentation**: [contracts/ConnectFive.README.md](contracts/ConnectFive.README.md)
+
+### 8. Snake
+Eat food, grow long, and avoid crashing! Classic arcade game with blockchain scoring.
+
+**Contract**: `0x5646fda34aaf8a95b9b0607db5ca02bdee267598` (Celo Mainnet)
+**Documentation**: [contracts/Snake.README.md](contracts/Snake.README.md)
 
 ## 🧪 Testing
 

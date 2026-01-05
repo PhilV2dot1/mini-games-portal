@@ -79,6 +79,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     description: "Align 4 pieces in a row!",
     icon: "/icons/connectfive.svg",
     route: "/games/connect-five",
+    contractAddress: "0xd00a6170d83b446314b2e79f9603bc0a72c463e6",
     color: "from-blue-500 to-indigo-600",
     hasFee: false,
   },

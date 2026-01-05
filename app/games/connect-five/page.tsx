@@ -131,7 +131,17 @@ export default function ConnectFivePage() {
           className="text-center text-xs text-gray-600 pt-2 space-y-1"
         >
           <p className="font-semibold">🎮 Play against intelligent AI with minimax algorithm</p>
-          <p className="text-gray-500">Contract: 0xd00a...63e6</p>
+          <p className="text-gray-500">
+            Contract:{" "}
+            <a
+              href="https://celoscan.io/address/0xd00a6170d83b446314b2e79f9603bc0a72c463e6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-celo underline transition-colors"
+            >
+              0xd00a...63e6
+            </a>
+          </p>
         </motion.div>
       </div>
     </main>
