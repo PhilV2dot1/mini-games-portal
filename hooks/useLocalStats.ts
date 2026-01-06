@@ -31,6 +31,7 @@ const DEFAULT_PROFILE: UserProfile = {
     mastermind: { ...DEFAULT_GAME_STATS },
     connectfive: { ...DEFAULT_GAME_STATS },
     snake: { ...DEFAULT_GAME_STATS },
+    solitaire: { ...DEFAULT_GAME_STATS },
   },
 };
 

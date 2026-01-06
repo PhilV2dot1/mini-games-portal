@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire";
 
 export interface GameMetadata {
   id: GameId;
@@ -91,6 +91,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     route: "/games/snake",
     contractAddress: "0x5646fda34aaf8a95b9b0607db5ca02bdee267598",
     color: "from-green-500 to-green-700",
+    hasFee: false,
+  },
+  solitaire: {
+    id: "solitaire",
+    name: "Klondike Solitaire",
+    description: "Classic card patience game!",
+    icon: "/icons/solitaire.svg",
+    route: "/games/solitaire",
+    contractAddress: "0x552c22fe8e0dbff856d45bcf32ddf6fe1ccb1525",
+    color: "from-purple-500 to-indigo-600",
     hasFee: false,
   },
 };
