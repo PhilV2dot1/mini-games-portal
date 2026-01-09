@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { TileValue, TILE_COLORS } from "@/lib/games/2048-logic";
 
@@ -7,7 +8,12 @@ interface TileProps {
   col: number;
 }
 
-export function Tile({ value, row, col }: TileProps) {
+/**
+ * 2048 Tile Component (Optimized with React.memo)
+ * Prevents unnecessary re-renders when other tiles update
+ * Critical for performance in 16-tile grid with frequent updates
+ */
+export const Tile = memo(function Tile({ value, row, col }: TileProps) {
   const colors = TILE_COLORS[value];
 
   // Calculate font size based on value length
@@ -66,4 +72,4 @@ export function Tile({ value, row, col }: TileProps) {
       {value}
     </motion.div>
   );
-}
+});

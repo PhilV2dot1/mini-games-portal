@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +10,12 @@ interface TicTacToeCellProps {
   disabled: boolean;
 }
 
-export function TicTacToeCell({ value, onClick, disabled }: TicTacToeCellProps) {
+/**
+ * TicTacToe Cell Component (Optimized with React.memo)
+ * Prevents unnecessary re-renders when other cells update
+ * Only re-renders when its own value, onClick, or disabled props change
+ */
+export const TicTacToeCell = memo(function TicTacToeCell({ value, onClick, disabled }: TicTacToeCellProps) {
   return (
     <motion.button
       onClick={onClick}
@@ -48,4 +54,4 @@ export function TicTacToeCell({ value, onClick, disabled }: TicTacToeCellProps) 
       )}
     </motion.button>
   );
-}
+});
