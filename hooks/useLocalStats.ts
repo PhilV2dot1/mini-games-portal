@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { GameId, GameMode, GameResult, UserProfile, GameStats } from "@/lib/types";
 import { useAccount } from "wagmi";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/Toast";
 
 const STORAGE_KEY = "celo_games_portal_stats";
 const ACCOUNT_PROMPT_THRESHOLD = 5; // Show create account modal after 5 games
@@ -69,6 +70,7 @@ export function useLocalStats() {
 
   const { address } = useAccount();
   const { user, isAuthenticated, isAnonymous } = useAuth();
+  const { showBadgeToast } = useToast();
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -154,7 +156,8 @@ export function useLocalStats() {
     gameId: GameId,
     mode: GameMode,
     result: GameResult,
-    txHash?: string
+    txHash?: string,
+    difficulty?: 'easy' | 'medium' | 'hard'
   ) => {
     // Calculate points
     let points = 0;
@@ -193,6 +196,7 @@ export function useLocalStats() {
             mode,
             result,
             txHash,
+            difficulty,
           }),
         });
 
@@ -215,10 +219,21 @@ export function useLocalStats() {
                 const badgeData = await badgeResponse.json();
                 if (badgeData.newBadges && badgeData.newBadges.length > 0) {
                   console.log('New badges earned:', badgeData.newBadges);
-                  // TODO: Show notification to user
-                  badgeData.newBadges.forEach((badge: { name: string; icon: string }) => {
-                    console.log(`🎉 Badge Unlocked: ${badge.icon} ${badge.name}`);
+
+                  // Show Toast notification for each badge
+                  badgeData.newBadges.forEach((badge: { name: string; icon: string; points: number }) => {
+                    showBadgeToast(badge.name, badge.icon, badge.points);
                   });
+
+                  // Also show browser notification if permission granted (fallback)
+                  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+                    badgeData.newBadges.forEach((badge: { name: string; icon: string; points: number }) => {
+                      new Notification('🎉 Badge Unlocked!', {
+                        body: `${badge.icon} ${badge.name} (+${badge.points} points)`,
+                        icon: '/icons/badge.png',
+                      });
+                    });
+                  }
                 }
               }
             } catch (badgeError) {

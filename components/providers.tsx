@@ -8,6 +8,7 @@ import { config } from "@/lib/wagmi";
 import { initializeFarcaster } from "@/lib/farcaster";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import { ToastProvider } from "@/components/ui/Toast";
 
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -98,12 +99,14 @@ export function Providers({ children }: { children: ReactNode }) {
               })}
             >
               <AuthProvider>
-                {initError && isInFarcaster && (
-                  <div className="bg-celo/5 border-l-4 border-celo p-3 text-xs text-yellow-700">
-                    ⚠️ Farcaster SDK: {initError}
-                  </div>
-                )}
-                {children}
+                <ToastProvider>
+                  {initError && isInFarcaster && (
+                    <div className="bg-celo/5 border-l-4 border-celo p-3 text-xs text-yellow-700">
+                      ⚠️ Farcaster SDK: {initError}
+                    </div>
+                  )}
+                  {children}
+                </ToastProvider>
               </AuthProvider>
             </RainbowKitProvider>
           </QueryClientProvider>

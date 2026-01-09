@@ -12,12 +12,13 @@ interface SessionRequest {
   mode: GameMode;
   result: 'win' | 'lose' | 'draw' | 'push';
   txHash?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: SessionRequest = await request.json();
-    const { fid, gameId, mode, result, txHash } = body;
+    const { fid, gameId, mode, result, txHash, difficulty } = body;
 
     // Normalize wallet address to lowercase for consistent storage/querying
     const walletAddress = body.walletAddress?.toLowerCase();
@@ -127,6 +128,7 @@ export async function POST(request: NextRequest) {
         result,
         points_earned: pointsEarned,
         tx_hash: txHash,
+        difficulty,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)
       .select('*')

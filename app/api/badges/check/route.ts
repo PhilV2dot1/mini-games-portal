@@ -3,6 +3,25 @@ import { supabase } from '@/lib/supabase/client';
 
 export const runtime = 'edge';
 
+/**
+ * Calculate max win streak for a specific game difficulty
+ */
+function calculateWinStreak(sessions: any[], difficulty: string): number { // eslint-disable-line @typescript-eslint/no-explicit-any
+  let currentStreak = 0;
+  let maxStreak = 0;
+
+  for (const session of sessions) {
+    if (session.difficulty === difficulty && session.result === 'win') {
+      currentStreak++;
+      maxStreak = Math.max(maxStreak, currentStreak);
+    } else if (session.difficulty === difficulty) {
+      currentStreak = 0;
+    }
+  }
+
+  return maxStreak;
+}
+
 interface BadgeRequirement {
   games_played?: number;
   wins?: number;
@@ -14,6 +33,11 @@ interface BadgeRequirement {
   games_played_new?: number;
   onchain_games?: number;
   celo_wagered?: number;
+  // Connect 4 specific
+  game?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  all_difficulties?: boolean;
+  all_difficulties_streak?: boolean;
 }
 
 interface Badge {
@@ -116,6 +140,24 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Calculate Connect 4 stats by difficulty
+    const connect4Sessions = sessions.filter(s => s.game_id === 'connectfive');
+    const connect4Stats = {
+      easy: {
+        wins: connect4Sessions.filter(s => s.difficulty === 'easy' && s.result === 'win').length,
+        streak: calculateWinStreak(connect4Sessions, 'easy'),
+      },
+      medium: {
+        wins: connect4Sessions.filter(s => s.difficulty === 'medium' && s.result === 'win').length,
+        streak: calculateWinStreak(connect4Sessions, 'medium'),
+      },
+      hard: {
+        wins: connect4Sessions.filter(s => s.difficulty === 'hard' && s.result === 'win').length,
+        streak: calculateWinStreak(connect4Sessions, 'hard'),
+      },
+      totalGames: connect4Sessions.length,
+    };
+
     const userStats = {
       games_played: gamesPlayed,
       wins,
@@ -127,6 +169,7 @@ export async function POST(request: NextRequest) {
       games_played_new: newGamesPlayed,
       onchain_games: onchainGames,
       celo_wagered: onchainGames * 0.01, // Simplified: each on-chain game = 0.01 CELO
+      connect4Stats,
     };
 
     console.log('[Badge Check] User stats:', userStats);
@@ -143,36 +186,72 @@ export async function POST(request: NextRequest) {
       const req = badge.requirement as BadgeRequirement;
       let qualifies = true;
 
-      // Check each requirement
-      if (req.games_played !== undefined && userStats.games_played < req.games_played) {
-        qualifies = false;
-      }
-      if (req.wins !== undefined && userStats.wins < req.wins) {
-        qualifies = false;
-      }
-      if (req.win_streak !== undefined && userStats.win_streak < req.win_streak) {
-        qualifies = false;
-      }
-      if (req.leaderboard_rank !== undefined && userStats.leaderboard_rank > req.leaderboard_rank) {
-        qualifies = false;
-      }
-      if (req.unique_games !== undefined && userStats.unique_games < req.unique_games) {
-        qualifies = false;
-      }
-      if (req.games_won_all !== undefined && userStats.games_won_all < req.games_won_all) {
-        qualifies = false;
-      }
-      if (req.games_played_og !== undefined && userStats.games_played_og < req.games_played_og) {
-        qualifies = false;
-      }
-      if (req.games_played_new !== undefined && userStats.games_played_new < req.games_played_new) {
-        qualifies = false;
-      }
-      if (req.onchain_games !== undefined && userStats.onchain_games < req.onchain_games) {
-        qualifies = false;
-      }
-      if (req.celo_wagered !== undefined && userStats.celo_wagered < req.celo_wagered) {
-        qualifies = false;
+      // Check Connect 4 specific requirements
+      if (req.game === 'connectfive') {
+        // Check difficulty-specific badges
+        if (req.difficulty) {
+          const diffStats = userStats.connect4Stats[req.difficulty];
+
+          if (req.wins !== undefined && diffStats.wins < req.wins) {
+            qualifies = false;
+          }
+          if (req.win_streak !== undefined && diffStats.streak < req.win_streak) {
+            qualifies = false;
+          }
+        }
+
+        // Check all difficulties badge
+        if (req.all_difficulties) {
+          const hasWinOnEasy = userStats.connect4Stats.easy.wins > 0;
+          const hasWinOnMedium = userStats.connect4Stats.medium.wins > 0;
+          const hasWinOnHard = userStats.connect4Stats.hard.wins > 0;
+          qualifies = hasWinOnEasy && hasWinOnMedium && hasWinOnHard;
+        }
+
+        // Check all difficulties streak badge
+        if (req.all_difficulties_streak) {
+          const hasStreakOnEasy = userStats.connect4Stats.easy.streak >= 5;
+          const hasStreakOnMedium = userStats.connect4Stats.medium.streak >= 5;
+          const hasStreakOnHard = userStats.connect4Stats.hard.streak >= 5;
+          qualifies = hasStreakOnEasy && hasStreakOnMedium && hasStreakOnHard;
+        }
+
+        // Check total games played (for engagement badges)
+        if (req.games_played !== undefined && userStats.connect4Stats.totalGames < req.games_played) {
+          qualifies = false;
+        }
+      } else {
+        // Check general requirements (non-Connect4 badges)
+        if (req.games_played !== undefined && userStats.games_played < req.games_played) {
+          qualifies = false;
+        }
+        if (req.wins !== undefined && userStats.wins < req.wins) {
+          qualifies = false;
+        }
+        if (req.win_streak !== undefined && userStats.win_streak < req.win_streak) {
+          qualifies = false;
+        }
+        if (req.leaderboard_rank !== undefined && userStats.leaderboard_rank > req.leaderboard_rank) {
+          qualifies = false;
+        }
+        if (req.unique_games !== undefined && userStats.unique_games < req.unique_games) {
+          qualifies = false;
+        }
+        if (req.games_won_all !== undefined && userStats.games_won_all < req.games_won_all) {
+          qualifies = false;
+        }
+        if (req.games_played_og !== undefined && userStats.games_played_og < req.games_played_og) {
+          qualifies = false;
+        }
+        if (req.games_played_new !== undefined && userStats.games_played_new < req.games_played_new) {
+          qualifies = false;
+        }
+        if (req.onchain_games !== undefined && userStats.onchain_games < req.onchain_games) {
+          qualifies = false;
+        }
+        if (req.celo_wagered !== undefined && userStats.celo_wagered < req.celo_wagered) {
+          qualifies = false;
+        }
       }
 
       if (qualifies) {

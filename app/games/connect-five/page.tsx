@@ -34,9 +34,9 @@ export default function ConnectFivePage() {
   // Record game to portal stats when finished
   useEffect(() => {
     if (status === "finished" && result) {
-      recordGame("connectfive", mode, result);
+      recordGame("connectfive", mode, result, undefined, difficulty);
     }
-  }, [status, result, mode, recordGame]);
+  }, [status, result, mode, difficulty, recordGame]);
 
   const canPlay = status === "playing";
   const isProcessing = status === "processing";
