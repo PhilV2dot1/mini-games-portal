@@ -82,15 +82,17 @@ export default function MinesweeperPage() {
           <p className="text-sm text-gray-600">
             {t("games.minesweeper.subtitle")}
           </p>
-          <p className="text-xs text-gray-500">
-            {isMobile
-              ? t("games.minesweeper.mobileInstructions")
-              : t("games.minesweeper.instructions")}
-          </p>
-          <p className="text-xs text-gray-400">
-            {t("games.minesweeper.keyboardInstructions")}
-          </p>
-          <p className="text-xs font-semibold text-gray-700">
+          <div className="space-y-2 bg-blue-50/50 rounded-lg p-3 border border-blue-200">
+            <p className="text-sm font-semibold text-gray-800">
+              {isMobile
+                ? t("games.minesweeper.mobileInstructions")
+                : t("games.minesweeper.instructions")}
+            </p>
+            <p className="text-xs text-gray-600">
+              {t("games.minesweeper.keyboardInstructions")}
+            </p>
+          </div>
+          <p className="text-sm font-bold text-gray-800">
             {t("games.minesweeper.gameInfo")}
           </p>
         </motion.div>
