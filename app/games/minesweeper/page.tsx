@@ -158,7 +158,7 @@ export default function MinesweeperPage() {
         </div>
 
         {/* Player Stats */}
-        <PlayerStats stats={stats} difficulty={difficulty} />
+        <PlayerStats stats={stats} />
 
         {/* Footer */}
         <motion.div

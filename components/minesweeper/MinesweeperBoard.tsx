@@ -40,7 +40,7 @@ interface CellProps {
     col: number;
   };
   onClick: () => void;
-  onRightClick: (e: React.MouseEvent) => void;
+  onRightClick: (e: React.MouseEvent | React.TouchEvent) => void;
   disabled: boolean;
   cellSize: { desktop: string; mobile: string };
   isFocused: boolean;
@@ -62,7 +62,7 @@ const Cell = memo(function Cell({
   const handleTouchStart = (e: React.TouchEvent) => {
     e.preventDefault();
     pressTimer = setTimeout(() => {
-      onRightClick(e as any);
+      onRightClick(e);
     }, 500);
   };
 

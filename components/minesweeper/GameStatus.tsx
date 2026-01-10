@@ -9,7 +9,6 @@ interface GameStatusProps {
 export function GameStatus({ message, result }: GameStatusProps) {
   // Determine colors based on result
   let bgColor = "from-blue-500 to-blue-600"; // Default playing
-  let textColor = "text-white";
   let icon = "💡";
 
   if (result === "win") {
@@ -31,7 +30,7 @@ export function GameStatus({ message, result }: GameStatusProps) {
       transition={{
         scale: { duration: 0.3 },
       }}
-      className={`bg-gradient-to-r ${bgColor} ${textColor} rounded-xl px-6 py-3 shadow-lg text-center font-bold`}
+      className={`bg-gradient-to-r ${bgColor} text-white rounded-xl px-6 py-3 shadow-lg text-center font-bold`}
     >
       <div className="flex items-center justify-center gap-2">
         <span className="text-2xl" role="img" aria-hidden="true">

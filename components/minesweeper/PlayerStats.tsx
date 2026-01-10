@@ -1,12 +1,11 @@
 import { motion } from "framer-motion";
-import type { PlayerStats as Stats, Difficulty } from "@/hooks/useMinesweeper";
+import type { PlayerStats as Stats } from "@/hooks/useMinesweeper";
 
 interface PlayerStatsProps {
   stats: Stats;
-  difficulty: Difficulty;
 }
 
-export function PlayerStats({ stats, difficulty }: PlayerStatsProps) {
+export function PlayerStats({ stats }: PlayerStatsProps) {
   const winRate =
     stats.games > 0 ? ((stats.wins / stats.games) * 100).toFixed(1) : "0.0";
 
