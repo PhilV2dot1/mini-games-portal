@@ -32,23 +32,23 @@ INSERT INTO badges (id, name, description, icon, category, requirement, points) 
 ('connect4_streak_5_hard', 'AI Slayer', 'Win 5 consecutive games on Hard difficulty', '👊', 'performance', '{"game": "connectfive", "difficulty": "hard", "win_streak": 5}', 150)
 ON CONFLICT (id) DO NOTHING;
 
--- Elite Badges (Total Wins)
+-- Mastery Badges (Total Wins)
 INSERT INTO badges (id, name, description, icon, category, requirement, points) VALUES
-('connect4_wins_50_easy', 'Easy Conqueror', 'Win 50 games on Easy difficulty', '🏅', 'elite', '{"game": "connectfive", "difficulty": "easy", "wins": 50}', 50),
-('connect4_wins_50_medium', 'Strategic Mind', 'Win 50 games on Medium difficulty', '🧠', 'elite', '{"game": "connectfive", "difficulty": "medium", "wins": 50}', 150),
-('connect4_wins_50_hard', 'Grandmaster', 'Win 50 games on Hard difficulty', '👑', 'elite', '{"game": "connectfive", "difficulty": "hard", "wins": 50}', 300)
+('connect4_wins_50_easy', 'Easy Conqueror', 'Win 50 games on Easy difficulty', '🏅', 'performance', '{"game": "connectfive", "difficulty": "easy", "wins": 50}', 50),
+('connect4_wins_50_medium', 'Strategic Mind', 'Win 50 games on Medium difficulty', '🧠', 'performance', '{"game": "connectfive", "difficulty": "medium", "wins": 50}', 150),
+('connect4_wins_50_hard', 'Grandmaster', 'Win 50 games on Hard difficulty', '👑', 'performance', '{"game": "connectfive", "difficulty": "hard", "wins": 50}', 300)
 ON CONFLICT (id) DO NOTHING;
 
 -- Engagement Badges (Games Played)
 INSERT INTO badges (id, name, description, icon, category, requirement, points) VALUES
-('connect4_games_100', 'Connect 4 Enthusiast', 'Play 100 Connect 4 games (any difficulty)', '🎮', 'engagement', '{"game": "connectfive", "games_played": 100}', 50),
-('connect4_games_500', 'Connect 4 Veteran', 'Play 500 Connect 4 games (any difficulty)', '🏆', 'engagement', '{"game": "connectfive", "games_played": 500}', 150)
+('connect4_games_100', 'Connect 4 Enthusiast', 'Play 100 Connect 4 games (any difficulty)', '🎮', 'progression', '{"game": "connectfive", "games_played": 100}', 50),
+('connect4_games_500', 'Connect 4 Veteran', 'Play 500 Connect 4 games (any difficulty)', '🏆', 'progression', '{"game": "connectfive", "games_played": 500}', 150)
 ON CONFLICT (id) DO NOTHING;
 
 -- Collection Badges
 INSERT INTO badges (id, name, description, icon, category, requirement, points) VALUES
-('connect4_all_difficulties', 'Triple Threat', 'Win at least one game on each difficulty level', '🎯', 'collection', '{"game": "connectfive", "all_difficulties": true}', 100),
-('connect4_all_difficulties_streak', 'Perfect Champion', 'Achieve a 5-game win streak on all difficulty levels', '⭐', 'collection', '{"game": "connectfive", "all_difficulties_streak": true}', 250)
+('connect4_all_difficulties', 'Triple Threat', 'Win at least one game on each difficulty level', '🎯', 'exploration', '{"game": "connectfive", "all_difficulties": true}', 100),
+('connect4_all_difficulties_streak', 'Perfect Champion', 'Achieve a 5-game win streak on all difficulty levels', '⭐', 'exploration', '{"game": "connectfive", "all_difficulties_streak": true}', 250)
 ON CONFLICT (id) DO NOTHING;
 
 -- ========================================

@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper";
 
 export interface GameMetadata {
   id: GameId;
@@ -101,6 +101,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     route: "/games/solitaire",
     contractAddress: "0x552c22fe8e0dbff856d45bcf32ddf6fe1ccb1525",
     color: "from-purple-500 to-indigo-600",
+    hasFee: false,
+  },
+  minesweeper: {
+    id: "minesweeper",
+    name: "Minesweeper",
+    description: "Classic mine-sweeping puzzle!",
+    icon: "/icons/minesweeper.png",
+    route: "/games/minesweeper",
+    contractAddress: "0x62798e5246169e655901C546c0496bb2C6158041",
+    color: "from-gray-500 to-gray-700",
     hasFee: false,
   },
 };

@@ -33,6 +33,7 @@ const DEFAULT_PROFILE: UserProfile = {
     connectfive: { ...DEFAULT_GAME_STATS },
     snake: { ...DEFAULT_GAME_STATS },
     solitaire: { ...DEFAULT_GAME_STATS },
+    minesweeper: { ...DEFAULT_GAME_STATS },
   },
 };
 
