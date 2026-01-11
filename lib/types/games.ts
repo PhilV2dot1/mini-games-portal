@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee";
 
 export interface GameMetadata {
   id: GameId;
@@ -111,6 +111,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     route: "/games/minesweeper",
     contractAddress: "0x62798e5246169e655901C546c0496bb2C6158041",
     color: "from-gray-500 to-gray-700",
+    hasFee: false,
+  },
+  yahtzee: {
+    id: "yahtzee",
+    name: "Yahtzee",
+    description: "Roll dice and make combos!",
+    icon: "/icons/yahtzee.png",
+    route: "/games/yahtzee",
+    contractAddress: "0xfff18d55e8365a9d60971543d9f7f3541c0a9ce0",
+    color: "from-gray-600 to-gray-800",
     hasFee: false,
   },
 };

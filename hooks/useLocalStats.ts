@@ -34,6 +34,7 @@ const DEFAULT_PROFILE: UserProfile = {
     snake: { ...DEFAULT_GAME_STATS },
     solitaire: { ...DEFAULT_GAME_STATS },
     minesweeper: { ...DEFAULT_GAME_STATS },
+    yahtzee: { ...DEFAULT_GAME_STATS },
   },
 };
 
