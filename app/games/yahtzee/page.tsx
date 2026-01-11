@@ -75,7 +75,7 @@ export default function YahtzeePage() {
     if (status === "finished" && isComplete && mode === "free") {
       // Determine result based on score
       const result = finalScore >= 200 ? "win" : "lose";
-      recordGame("yahtzee", mode, result, finalScore);
+      recordGame("yahtzee", mode, result);
     }
   }, [status, isComplete, mode, finalScore, recordGame]);
 
