@@ -89,10 +89,10 @@ export default function SudokuPage() {
 
           {/* Instructions */}
           <div className="mt-4 p-4 bg-blue-50 rounded-xl text-left">
-            <p className="text-sm font-semibold text-gray-700 mb-2">
+            <p className="text-base font-semibold text-gray-700 mb-2">
               📖 How to Play:
             </p>
-            <ul className="text-xs text-gray-600 space-y-1">
+            <ul className="text-sm text-gray-600 space-y-1">
               <li>• Fill the 9×9 grid so each row, column, and 3×3 box contains 1-9</li>
               <li>• Click a cell, then use the number pad or keyboard (1-9) to fill it</li>
               <li>• Use hints (3 max) to highlight conflicts in your solution</li>
@@ -102,7 +102,9 @@ export default function SudokuPage() {
         </motion.div>
 
         {/* Mode Toggle */}
-        <ModeToggle mode={mode} onModeChange={switchMode} />
+        <div className="flex justify-center">
+          <ModeToggle mode={mode} onModeChange={switchMode} />
+        </div>
 
         {/* Difficulty Selector */}
         <DifficultySelector
