@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku";
 
 export interface GameMetadata {
   id: GameId;
@@ -121,6 +121,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     route: "/games/yahtzee",
     contractAddress: "0xfff18d55e8365a9d60971543d9f7f3541c0a9ce0",
     color: "from-gray-600 to-gray-800",
+    hasFee: false,
+  },
+  sudoku: {
+    id: "sudoku",
+    name: "Sudoku",
+    description: "Fill the 9×9 grid with logic!",
+    icon: "/icons/sudoku.png",
+    route: "/games/sudoku",
+    contractAddress: "0xB404882d0eb3A7c1022071559ab149e38d60cbE1",
+    color: "from-orange-500 to-yellow-600",
     hasFee: false,
   },
 };

@@ -158,6 +158,42 @@ export async function POST(request: NextRequest) {
       totalGames: connect4Sessions.length,
     };
 
+    // Calculate Sudoku stats by difficulty
+    const sudokuSessions = sessions.filter(s => s.game_id === 'sudoku');
+    const sudokuStats = {
+      easy: {
+        wins: sudokuSessions.filter(s => s.difficulty === 'easy' && s.result === 'win').length,
+        bestTime: Math.min(...sudokuSessions.filter(s => s.difficulty === 'easy' && s.result === 'win' && s.time_taken).map(s => s.time_taken), Infinity),
+      },
+      medium: {
+        wins: sudokuSessions.filter(s => s.difficulty === 'medium' && s.result === 'win').length,
+        bestTime: Math.min(...sudokuSessions.filter(s => s.difficulty === 'medium' && s.result === 'win' && s.time_taken).map(s => s.time_taken), Infinity),
+      },
+      hard: {
+        wins: sudokuSessions.filter(s => s.difficulty === 'hard' && s.result === 'win').length,
+        bestTime: Math.min(...sudokuSessions.filter(s => s.difficulty === 'hard' && s.result === 'win' && s.time_taken).map(s => s.time_taken), Infinity),
+      },
+      totalGames: sudokuSessions.length,
+      perfectGames: sudokuSessions.filter(s => s.result === 'win' && s.hints_used === 0).length,
+      winStreak: calculateWinStreak(sudokuSessions, ''),
+      perfectStreak: (() => {
+        let streak = 0;
+        let maxStreak = 0;
+        for (const session of sudokuSessions) {
+          if (session.result === 'win' && session.hints_used === 0) {
+            streak++;
+            maxStreak = Math.max(maxStreak, streak);
+          } else if (session.result === 'win') {
+            streak = 0;
+          }
+        }
+        return maxStreak;
+      })(),
+      hasAllDifficulties: sudokuSessions.filter(s => s.difficulty === 'easy' && s.result === 'win').length > 0 &&
+                           sudokuSessions.filter(s => s.difficulty === 'medium' && s.result === 'win').length > 0 &&
+                           sudokuSessions.filter(s => s.difficulty === 'hard' && s.result === 'win').length > 0,
+    };
+
     const userStats = {
       games_played: gamesPlayed,
       wins,
@@ -170,6 +206,7 @@ export async function POST(request: NextRequest) {
       onchain_games: onchainGames,
       celo_wagered: onchainGames * 0.01, // Simplified: each on-chain game = 0.01 CELO
       connect4Stats,
+      sudokuStats,
     };
 
     console.log('[Badge Check] User stats:', userStats);
@@ -218,6 +255,53 @@ export async function POST(request: NextRequest) {
 
         // Check total games played (for engagement badges)
         if (req.games_played !== undefined && userStats.connect4Stats.totalGames < req.games_played) {
+          qualifies = false;
+        }
+      } else if (req.game === 'sudoku') {
+        // Check Sudoku specific requirements
+        // Check difficulty-specific badges (wins and speed)
+        if (req.difficulty) {
+          const diffStats = userStats.sudokuStats[req.difficulty];
+
+          if (req.wins !== undefined && diffStats.wins < req.wins) {
+            qualifies = false;
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((req as any).time_under !== undefined && (diffStats.bestTime === Infinity || diffStats.bestTime > (req as any).time_under)) {
+            qualifies = false;
+          }
+        }
+
+        // Check all difficulties badge
+        if (req.all_difficulties) {
+          qualifies = userStats.sudokuStats.hasAllDifficulties;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((req as any).perfect_game) {
+          qualifies = userStats.sudokuStats.perfectGames > 0;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((req as any).perfect_streak !== undefined && userStats.sudokuStats.perfectStreak < (req as any).perfect_streak) {
+          qualifies = false;
+        }
+
+        if (req.win_streak !== undefined && userStats.sudokuStats.winStreak < req.win_streak) {
+          qualifies = false;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((req as any).speed_champion) {
+          // User needs to have all 3 speed badges
+          const hasSpeedEasy = userStats.sudokuStats.easy.bestTime < 180;
+          const hasSpeedMedium = userStats.sudokuStats.medium.bestTime < 300;
+          const hasSpeedHard = userStats.sudokuStats.hard.bestTime < 600;
+          qualifies = hasSpeedEasy && hasSpeedMedium && hasSpeedHard;
+        }
+
+        // Check total games played (for engagement badges)
+        if (req.games_played !== undefined && userStats.sudokuStats.totalGames < req.games_played) {
           qualifies = false;
         }
       } else {
