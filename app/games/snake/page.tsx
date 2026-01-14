@@ -69,17 +69,31 @@ export default function SnakePage() {
           <p className="text-sm text-gray-600">
             {t('games.snake.subtitle')}
           </p>
-          <div className="space-y-2 bg-celo/10 rounded-lg p-3 border-2 border-celo">
-            <p className="text-sm font-semibold text-gray-800">
-              {t('games.snake.instructions')}
-            </p>
-          </div>
         </motion.div>
 
         {/* Mode Toggle */}
         <div className="flex justify-center">
           <ModeToggle mode={mode} onModeChange={switchMode} />
         </div>
+
+        {/* How to Play Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200"
+        >
+          <h2 className="font-bold text-lg mb-2 text-gray-900">
+            {t('games.snake.howToPlay')}
+          </h2>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• {t('games.snake.rule1')}</li>
+            <li>• {t('games.snake.rule2')}</li>
+            <li>• {t('games.snake.rule3')}</li>
+            <li>• {t('games.snake.rule4')}</li>
+            <li>• {t('games.snake.rule5')}</li>
+          </ul>
+        </motion.div>
 
         {/* Wallet Connect (On-Chain Mode) */}
         {mode === "onchain" && <WalletConnect />}
