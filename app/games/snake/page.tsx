@@ -69,6 +69,11 @@ export default function SnakePage() {
           <p className="text-sm text-gray-600">
             {t('games.snake.subtitle')}
           </p>
+          <div className="space-y-2 bg-celo/10 rounded-lg p-3 border-2 border-celo">
+            <p className="text-sm font-semibold text-gray-800">
+              {t('games.snake.instructions')}
+            </p>
+          </div>
         </motion.div>
 
         {/* Mode Toggle */}

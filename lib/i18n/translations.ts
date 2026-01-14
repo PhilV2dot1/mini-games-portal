@@ -149,6 +149,7 @@ export const translations = {
       solitaire: {
         title: 'Solitaire',
         subtitle: 'Classic card patience game - Stack cards to win!',
+        instructions: '🃏 Build foundations from Ace to King - drag cards, alternate colors, only Kings on empty columns',
         howToPlay: 'How to Play',
         rule1: 'Build foundations from Ace to King by suit',
         rule2: 'Stack tableau cards in descending order, alternating colors',
@@ -822,6 +823,7 @@ export const translations = {
       solitaire: {
         title: 'Solitaire',
         subtitle: 'Jeu de cartes patience classique - Empilez pour gagner !',
+        instructions: '🃏 Construisez les fondations de l\'As au Roi - glissez les cartes, alternez les couleurs, uniquement des Rois sur colonnes vides',
         howToPlay: 'Comment Jouer',
         rule1: 'Construisez les fondations de l\'As au Roi par couleur',
         rule2: 'Empilez les cartes du tableau par ordre décroissant, en alternant les couleurs',

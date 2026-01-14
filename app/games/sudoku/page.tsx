@@ -86,18 +86,10 @@ export default function SudokuPage() {
           <p className="text-sm text-gray-600">
             Classic number puzzle - fill the grid!
           </p>
-
-          {/* Instructions */}
-          <div className="mt-4 p-4 bg-blue-50 rounded-xl text-left">
-            <p className="text-base font-semibold text-gray-700 mb-2">
-              📖 How to Play:
+          <div className="space-y-2 bg-celo/10 rounded-lg p-3 border-2 border-celo">
+            <p className="text-sm font-semibold text-gray-800">
+              {t("games.sudoku.instructions")}
             </p>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Fill the 9×9 grid so each row, column, and 3×3 box contains 1-9</li>
-              <li>• Click a cell, then use the number pad or keyboard (1-9) to fill it</li>
-              <li>• Use hints (3 max) to highlight conflicts in your solution</li>
-              <li>• Complete the puzzle without errors to win!</li>
-            </ul>
           </div>
         </motion.div>
 
