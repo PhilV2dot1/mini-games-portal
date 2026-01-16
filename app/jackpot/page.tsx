@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useJackpot } from "@/hooks/useJackpot";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { JackpotMachine } from "@/components/jackpot/JackpotMachine";
@@ -26,6 +27,7 @@ export default function JackpotPage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('jackpot');
 
   const [localSpinning, setLocalSpinning] = useState(false);
   const [showResult, setShowResult] = useState(false);
@@ -46,8 +48,15 @@ export default function JackpotPage() {
       // Map jackpot result to standard game result
       const result = lastResult.score > 0 ? 'win' : 'lose';
       recordGame('jackpot', mode, result);
+
+      // Play result sound
+      if (lastResult.isJackpot) {
+        play('jackpot');
+      } else if (lastResult.score > 0) {
+        play('win');
+      }
     }
-  }, [state, lastResult, mode, recordGame]);
+  }, [state, lastResult, mode, recordGame, play]);
 
   const handleSpin = async () => {
     if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current);
@@ -55,6 +64,7 @@ export default function JackpotPage() {
 
     setLocalSpinning(true);
     setShowResult(false);
+    play('spin');
 
     try {
       await spin();
@@ -71,6 +81,7 @@ export default function JackpotPage() {
     if (resultTimeoutRef.current) clearTimeout(resultTimeoutRef.current);
 
     if (!localSpinning) {
+      play('stop');
       resultTimeoutRef.current = setTimeout(() => {
         setShowResult(true);
         resultTimeoutRef.current = null;
@@ -81,12 +92,12 @@ export default function JackpotPage() {
   const canSpin = state === "idle" || state === "result";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-md mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           {t('games.backToPortal')}
         </Link>
@@ -96,12 +107,12 @@ export default function JackpotPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
           style={{ border: '4px solid #FCFF52' }}
         >
           <div className="text-6xl mb-2">🎰</div>
-          <h1 className="text-4xl font-black text-gray-900">{t('games.jackpot.title')}</h1>
-          <p className="text-sm text-gray-700 mt-2 font-medium">{t('games.jackpot.subtitle')}</p>
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.jackpot.title')}</h1>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 font-medium">{t('games.jackpot.subtitle')}</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -117,11 +128,11 @@ export default function JackpotPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 text-center shadow-lg"
           style={{ border: '4px solid #FCFF52' }}
         >
-          <div className="text-sm text-gray-600 mb-1 font-medium">{t('games.jackpot.totalScore')}</div>
-          <div className="text-4xl font-black text-gray-900">{totalScore}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">{t('games.jackpot.totalScore')}</div>
+          <div className="text-4xl font-black text-gray-900 dark:text-white">{totalScore}</div>
         </motion.div>
 
         {/* Jackpot Machine */}

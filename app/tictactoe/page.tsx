@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useTicTacToe } from "@/hooks/useTicTacToe";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { TicTacToeBoard } from "@/components/tictactoe/TicTacToeBoard";
 import { GameStatus } from "@/components/tictactoe/GameStatus";
 import { ModeToggle } from "@/components/shared/ModeToggle";
@@ -29,6 +30,26 @@ export default function TicTacToePage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('tictactoe');
+
+  // Wrapper for handleMove with sound effect
+  const handleMoveWithSound = useCallback((index: number) => {
+    play('place');
+    handleMove(index);
+  }, [play, handleMove]);
+
+  // Play result sound when game finishes
+  useEffect(() => {
+    if (status === 'finished' && result) {
+      if (result === 'win') {
+        play('win');
+      } else if (result === 'lose') {
+        play('lose');
+      } else if (result === 'draw') {
+        play('tie');
+      }
+    }
+  }, [status, result, play]);
 
   // Record game to portal stats when finished
   useEffect(() => {
@@ -42,12 +63,12 @@ export default function TicTacToePage() {
   const isFinished = status === "finished";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-md mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           {t('games.backToPortal')}
         </Link>
@@ -56,15 +77,15 @@ export default function TicTacToePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div className="text-5xl mb-2" role="img" aria-label={t('games.tictactoe.title')}>
             ⭕
           </div>
-          <h1 className="text-4xl font-black text-gray-900">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t('games.tictactoe.title')}
           </h1>
-          <p className="text-sm text-gray-600">{t('games.tictactoe.subtitle')}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{t('games.tictactoe.subtitle')}</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -81,7 +102,7 @@ export default function TicTacToePage() {
         {/* Game Board */}
         <TicTacToeBoard
           board={board}
-          onCellClick={handleMove}
+          onCellClick={handleMoveWithSound}
           disabled={!canPlay || isProcessing}
         />
 

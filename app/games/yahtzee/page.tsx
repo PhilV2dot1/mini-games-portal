@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
-import { useYahtzee } from "@/hooks/useYahtzee";
+import { useYahtzee, type CategoryName } from "@/hooks/useYahtzee";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { DiceBoard } from "@/components/yahtzee/DiceBoard";
@@ -69,6 +70,38 @@ export default function YahtzeePage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('yahtzee');
+  const prevTurn = useRef(currentTurn);
+
+  // Wrapper functions with sound effects
+  const handleRollDice = useCallback(() => {
+    play('roll');
+    rollDice();
+  }, [play, rollDice]);
+
+  const handleToggleHold = useCallback((index: number) => {
+    play('hold');
+    toggleHold(index);
+  }, [play, toggleHold]);
+
+  const handleSelectCategory = useCallback((category: CategoryName) => {
+    // Check if it's a Yahtzee (all dice same value)
+    const isYahtzee = category === 'yahtzee' && dice.every(d => d === dice[0]);
+    if (isYahtzee) {
+      play('yahtzee');
+    } else {
+      play('score');
+    }
+    selectCategory(category);
+  }, [play, selectCategory, dice]);
+
+  // Detect turn change for bonus sound
+  useEffect(() => {
+    if (currentTurn > prevTurn.current && hasBonus && !prevTurn.current) {
+      play('bonus');
+    }
+    prevTurn.current = currentTurn;
+  }, [currentTurn, hasBonus, play]);
 
   // Record game to portal stats when finished
   useEffect(() => {
@@ -80,12 +113,12 @@ export default function YahtzeePage() {
   }, [status, isComplete, mode, finalScore, recordGame]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           ← {t("games.backToPortal")}
         </Link>
@@ -94,19 +127,19 @@ export default function YahtzeePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div className="text-5xl mb-2" role="img" aria-label="Yahtzee game">
             🎲🎯
           </div>
-          <h1 className="text-4xl font-black text-gray-900">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t("games.yahtzee.title")}
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {t("games.yahtzee.subtitle")}
           </p>
-          <div className="space-y-2 bg-celo/10 rounded-lg p-3 border-2 border-celo">
-            <p className="text-sm font-semibold text-gray-800">
+          <div className="space-y-2 bg-celo/10 dark:bg-celo/20 rounded-lg p-3 border-2 border-celo">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               {t("games.yahtzee.instructions")}
             </p>
           </div>
@@ -117,7 +150,7 @@ export default function YahtzeePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 bg-white/80 backdrop-blur rounded-xl p-4 shadow-lg"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-xl p-4 shadow-lg"
         >
           <ModeToggle mode={mode} onModeChange={switchMode} />
           {mode === "onchain" && <WalletConnect />}
@@ -132,7 +165,7 @@ export default function YahtzeePage() {
             className="flex flex-col gap-4 max-w-2xl mx-auto"
           >
             {/* Solo vs AI Toggle */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border-2 border-gray-300">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border-2 border-gray-300 dark:border-gray-600">
               <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 text-center">
                 Game Mode
               </h3>
@@ -187,12 +220,12 @@ export default function YahtzeePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200 dark:border-gray-700"
         >
-          <h2 className="font-bold text-lg mb-2 text-gray-900">
+          <h2 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
             {t("games.yahtzee.howToPlay")}
           </h2>
-          <ul className="text-sm text-gray-600 space-y-1">
+          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• {t("games.yahtzee.rule1")}</li>
             <li>• {t("games.yahtzee.rule2")}</li>
           </ul>
@@ -258,13 +291,13 @@ export default function YahtzeePage() {
             <DiceBoard
               dice={dice}
               heldDice={heldDice}
-              onToggleHold={toggleHold}
+              onToggleHold={handleToggleHold}
               disabled={rollsRemaining === 0 || isProcessing || (vsAI && currentPlayer === "ai")}
             />
 
             {/* Game Controls */}
             <GameControls
-              onRoll={rollDice}
+              onRoll={handleRollDice}
               rollsRemaining={rollsRemaining}
               currentTurn={currentTurn}
               disabled={rollsRemaining === 0 || (vsAI && currentPlayer === "ai")}
@@ -278,7 +311,7 @@ export default function YahtzeePage() {
                 <ScoreCard
                   scoreCard={playerScoreCard}
                   getPotentialScore={getPotentialScore}
-                  onSelectCategory={selectCategory}
+                  onSelectCategory={handleSelectCategory}
                   upperSectionTotal={playerUpperTotal}
                   hasBonus={playerHasBonus}
                   finalScore={playerFinalScore}
@@ -304,7 +337,7 @@ export default function YahtzeePage() {
               <ScoreCard
                 scoreCard={scoreCard}
                 getPotentialScore={getPotentialScore}
-                onSelectCategory={selectCategory}
+                onSelectCategory={handleSelectCategory}
                 upperSectionTotal={upperSectionTotal}
                 hasBonus={hasBonus}
                 finalScore={finalScore}

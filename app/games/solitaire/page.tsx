@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useSolitaire, Suit } from "@/hooks/useSolitaire";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { SolitaireBoard } from "@/components/solitaire/SolitaireBoard";
 import { GameStatus } from "@/components/solitaire/GameStatus";
 import { PlayerStats } from "@/components/solitaire/PlayerStats";
@@ -42,16 +43,24 @@ export default function SolitairePage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('solitaire');
 
   // Record game to portal stats when finished
   useEffect(() => {
     if (status === "won") {
       recordGame("solitaire", mode, "win");
+      play('win');
     }
-  }, [status, mode, recordGame]);
+  }, [status, mode, recordGame, play]);
 
   const isPlaying = status === "playing";
   const isWon = status === "won";
+
+  // Wrappers with sound effects
+  const drawFromStockWithSound = useCallback(() => {
+    play('flip');
+    drawFromStock();
+  }, [play, drawFromStock]);
 
   // Handle tableau click (for quick move to foundation)
   const handleTableauClick = (columnIndex: number, cardIndex: number) => {
@@ -63,6 +72,7 @@ export default function SolitairePage() {
     const card = column[cardIndex];
 
     // Try to move to foundation
+    play('place');
     moveTableauToFoundation(columnIndex, card.suit);
   };
 
@@ -70,6 +80,7 @@ export default function SolitairePage() {
   const handleTableauDrop = (item: DragItem, targetColumnIndex: number) => {
     if (!isPlaying) return;
 
+    play('place');
     if (item.fromWaste) {
       moveWasteToTableau(targetColumnIndex);
     } else if (item.fromTableau !== undefined) {
@@ -90,12 +101,12 @@ export default function SolitairePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-100 to-blue-200 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-100 to-blue-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-purple-700 transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-purple-700 dark:hover:text-celo transition-colors font-bold"
         >
           {t('games.backToPortal')}
         </Link>
@@ -104,13 +115,13 @@ export default function SolitairePage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-purple-500 text-center space-y-1"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-purple-500 text-center space-y-1"
         >
           <div className="text-5xl mb-2" role="img" aria-label={t('games.solitaire.title')}>
             🃏
           </div>
-          <h1 className="text-4xl font-black text-gray-900">{t('games.solitaire.title')}</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.solitaire.title')}</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {t('games.solitaire.subtitle')}
           </p>
         </motion.div>
@@ -125,12 +136,12 @@ export default function SolitairePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200 dark:border-gray-700"
         >
-          <h2 className="font-bold text-lg mb-2 text-gray-900">
+          <h2 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
             {t('games.solitaire.howToPlay')}
           </h2>
-          <ul className="text-sm text-gray-600 space-y-1">
+          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• {t('games.solitaire.rule1')}</li>
             <li>• {t('games.solitaire.rule2')}</li>
           </ul>
@@ -159,7 +170,7 @@ export default function SolitairePage() {
             onTableauClick={handleTableauClick}
             onTableauDrop={handleTableauDrop}
             onFoundationDrop={handleFoundationDrop}
-            onStockClick={drawFromStock}
+            onStockClick={drawFromStockWithSound}
           />
         </motion.div>
 

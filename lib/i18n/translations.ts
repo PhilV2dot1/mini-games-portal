@@ -678,6 +678,25 @@ export const translations = {
       noPlayers: 'No players yet',
     },
 
+    // Audio
+    audio: {
+      mute: 'Mute sounds',
+      unmute: 'Unmute sounds',
+      soundOn: 'Sound On',
+      soundOff: 'Sound Off',
+      volume: 'Volume',
+    },
+
+    // Theme
+    theme: {
+      light: 'Light',
+      dark: 'Dark',
+      system: 'System',
+      switchToLight: 'Switch to light mode',
+      switchToDark: 'Switch to dark mode',
+      switchToSystem: 'Use system preference',
+    },
+
     // Errors
     errors: {
       generic: 'An error occurred',
@@ -1362,6 +1381,25 @@ export const translations = {
       wins: 'Victoires',
       loadingLeaderboard: 'Chargement du classement...',
       noPlayers: 'Aucun joueur pour le moment',
+    },
+
+    // Audio
+    audio: {
+      mute: 'Couper le son',
+      unmute: 'Activer le son',
+      soundOn: 'Son activé',
+      soundOff: 'Son désactivé',
+      volume: 'Volume',
+    },
+
+    // Theme
+    theme: {
+      light: 'Clair',
+      dark: 'Sombre',
+      system: 'Système',
+      switchToLight: 'Passer au mode clair',
+      switchToDark: 'Passer au mode sombre',
+      switchToSystem: 'Utiliser le réglage système',
     },
 
     // Errors

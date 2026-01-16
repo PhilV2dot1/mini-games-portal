@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useMastermind } from "@/hooks/useMastermind";
 import { useLocalStats } from "@/hooks/useLocalStats";
-import { MAX_ATTEMPTS } from "@/lib/games/mastermind-logic";
+import { useGameAudio } from "@/lib/audio/AudioContext";
+import { MAX_ATTEMPTS, type Color } from "@/lib/games/mastermind-logic";
 import { ColorPalette } from "@/components/mastermind/ColorPalette";
 import { CurrentGuess } from "@/components/mastermind/CurrentGuess";
 import { GameHistory } from "@/components/mastermind/GameHistory";
@@ -38,6 +39,27 @@ export default function MastermindPage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('mastermind');
+
+  // Wrappers with sound effects
+  const updateGuessWithSound = useCallback((position: number, color: Color | null) => {
+    play('place');
+    updateGuess(position, color);
+  }, [play, updateGuess]);
+
+  const submitGuessWithSound = useCallback(() => {
+    play('check');
+    submitGuess();
+  }, [play, submitGuess]);
+
+  // Play result sound when game finishes
+  useEffect(() => {
+    if (gamePhase === "won") {
+      play('win');
+    } else if (gamePhase === "lost") {
+      play('lose');
+    }
+  }, [gamePhase, play]);
 
   // Record game when finished
   useEffect(() => {
@@ -51,12 +73,12 @@ export default function MastermindPage() {
   const firstEmptyPosition = currentGuess.findIndex(color => color === null);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           {t('games.backToPortal')}
         </Link>
@@ -66,12 +88,12 @@ export default function MastermindPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
           style={{ border: '4px solid #FCFF52' }}
         >
           <div className="text-6xl mb-2">🎯</div>
-          <h1 className="text-4xl font-black text-gray-900">{t('games.mastermind.title')}</h1>
-          <p className="text-sm text-gray-700 mt-2 font-medium">{t('games.mastermind.subtitle')}</p>
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.mastermind.title')}</h1>
+          <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 font-medium">{t('games.mastermind.subtitle')}</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -142,7 +164,7 @@ export default function MastermindPage() {
           >
             <CurrentGuess
               guess={currentGuess}
-              onClearPosition={(pos) => updateGuess(pos, null)}
+              onClearPosition={(pos) => updateGuessWithSound(pos, null)}
               disabled={isPending}
             />
           </motion.div>
@@ -157,7 +179,7 @@ export default function MastermindPage() {
             <ColorPalette
               onSelectColor={(color) => {
                 if (firstEmptyPosition !== -1) {
-                  updateGuess(firstEmptyPosition, color);
+                  updateGuessWithSound(firstEmptyPosition, color);
                 }
               }}
               disabled={isPending}
@@ -185,7 +207,7 @@ export default function MastermindPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ duration: 0.15 }}
-              onClick={submitGuess}
+              onClick={submitGuessWithSound}
               disabled={currentGuess.some(c => c === null) || isPending}
               className="px-8 py-3 bg-gradient-to-r from-celo to-celo hover:brightness-110 text-gray-900 rounded-xl font-black shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >

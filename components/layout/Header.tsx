@@ -7,6 +7,8 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { AudioControls } from "@/components/shared/AudioControls";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import Link from "next/link";
@@ -47,7 +49,7 @@ export function Header() {
       className="mb-8"
     >
       {/* Top Bar */}
-      <div className="bg-white/90 rounded-xl shadow-md mb-6" style={{ borderBottom: '3px solid #FCFF52' }}>
+      <div className="bg-white/90 dark:bg-gray-900/95 rounded-xl shadow-md mb-6 dark:shadow-gray-900/50" style={{ borderBottom: '3px solid #FCFF52' }}>
         <div className="flex items-center justify-between p-4">
           {/* Logo/Brand */}
           <div className="flex items-center gap-3">
@@ -55,10 +57,10 @@ export function Header() {
               <span className="text-2xl">🎮</span>
             </div>
             <div>
-              <h1 className="text-4xl sm:text-5xl font-black text-gray-900">
+              <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white">
                 Celo Mini Games Portal
               </h1>
-              <p className="text-sm text-gray-600 hidden sm:block">
+              <p className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
                 Play Mini-Games on the Blockchain
               </p>
             </div>
@@ -66,6 +68,8 @@ export function Header() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
+            <ThemeToggle size="sm" />
+            <AudioControls size="sm" />
             <LanguageSwitcher />
 
             {/* Authentication */}
@@ -73,7 +77,7 @@ export function Header() {
               <>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors"
+                  className="px-4 py-2 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
                 >
                   {t('auth.login')}
                 </button>
@@ -111,17 +115,17 @@ export function Header() {
                   </button>
 
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden">
                       <Link
                         href="/profile/me"
-                        className="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+                        className="block px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
                         onClick={() => setShowUserMenu(false)}
                       >
                         {t('nav.profile')}
                       </Link>
                       <Link
                         href="/profile/edit"
-                        className="block px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors text-sm border-t border-gray-100"
+                        className="block px-4 py-3 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm border-t border-gray-100 dark:border-gray-700"
                         onClick={() => setShowUserMenu(false)}
                       >
                         {t('edit')}
@@ -131,7 +135,7 @@ export function Header() {
                           signOut();
                           setShowUserMenu(false);
                         }}
-                        className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors text-sm border-t border-gray-100"
+                        className="w-full text-left px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm border-t border-gray-100 dark:border-gray-700"
                       >
                         {t('nav.signOut')}
                       </button>
@@ -144,24 +148,24 @@ export function Header() {
         </div>
 
         {/* Navigation */}
-        <nav className="border-t border-gray-200">
+        <nav className="border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               <Link
                 href="/"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 {t('nav.home')}
               </Link>
               <Link
                 href="/leaderboard"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 {t('nav.leaderboard')}
               </Link>
               <Link
                 href="/profile/me"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 {t('nav.profile')}
               </Link>
@@ -180,13 +184,13 @@ export function Header() {
             {profile.gamesPlayed > 0 && (
               <div className="hidden md:flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-gray-600">Points:</span>
-                  <span className="font-bold text-gray-900">{profile.totalPoints}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Points:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{profile.totalPoints}</span>
                 </div>
-                <div className="w-px h-4 bg-gray-300" />
+                <div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
                 <div className="flex items-center gap-1.5">
-                  <span className="text-gray-600">Games:</span>
-                  <span className="font-bold text-gray-900">{profile.gamesPlayed}</span>
+                  <span className="text-gray-600 dark:text-gray-400">Games:</span>
+                  <span className="font-bold text-gray-900 dark:text-white">{profile.gamesPlayed}</span>
                 </div>
               </div>
             )}

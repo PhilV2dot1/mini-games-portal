@@ -3,15 +3,65 @@
 @tailwind utilities;
 
 :root {
+  /* Base colors */
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Card and surface colors */
+  --card-background: rgba(255, 255, 255, 0.9);
+  --card-border: #e5e7eb;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Text colors */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+
+  /* Celo brand */
+  --celo: #FCFF52;
+  --celo-hover: #E5E600;
+
+  /* Game board colors */
+  --board-bg: rgba(255, 255, 255, 0.95);
+  --board-border: #d1d5db;
+  --cell-bg: #f9fafb;
+  --cell-hover: #f3f4f6;
+
+  /* Gradient backgrounds */
+  --gradient-from: #f9fafb;
+  --gradient-via: #e5e7eb;
+  --gradient-to: #9ca3af;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark mode - applied via .dark class on html element */
+.dark {
+  --background: #0f0f0f;
+  --foreground: #ededed;
+
+  /* Card and surface colors */
+  --card-background: rgba(31, 31, 31, 0.95);
+  --card-border: #374151;
+  --card-shadow: rgba(0, 0, 0, 0.4);
+
+  /* Text colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+
+  /* Celo brand - slightly adjusted for dark mode contrast */
+  --celo: #FCFF52;
+  --celo-hover: #FFF06B;
+
+  /* Game board colors */
+  --board-bg: rgba(31, 31, 31, 0.95);
+  --board-border: #4b5563;
+  --cell-bg: #1f2937;
+  --cell-hover: #374151;
+
+  /* Gradient backgrounds */
+  --gradient-from: #111827;
+  --gradient-via: #1f2937;
+  --gradient-to: #374151;
 }
 
 body {
@@ -23,5 +73,26 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+/* Dark mode utility classes for common patterns */
+@layer components {
+  .game-card {
+    background: var(--card-background);
+    border-color: var(--card-border);
+  }
+
+  .game-board {
+    background: var(--board-bg);
+    border-color: var(--board-border);
+  }
+
+  .game-cell {
+    background: var(--cell-bg);
+  }
+
+  .game-cell:hover {
+    background: var(--cell-hover);
   }
 }

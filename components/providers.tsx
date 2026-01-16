@@ -8,6 +8,8 @@ import { config } from "@/lib/wagmi";
 import { initializeFarcaster } from "@/lib/farcaster";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
+import { AudioProvider } from "@/lib/audio/AudioContext";
+import { ThemeProvider } from "@/lib/theme/ThemeContext";
 import { ToastProvider } from "@/components/ui/Toast";
 
 import '@rainbow-me/rainbowkit/styles.css';
@@ -86,9 +88,11 @@ export function Providers({ children }: { children: ReactNode }) {
   }
 
   return (
-    <LanguageProvider>
-      <FarcasterContext.Provider value={{ isInFarcaster, isSDKReady: !initError }}>
-        <WagmiProvider config={config}>
+    <ThemeProvider>
+      <LanguageProvider>
+        <AudioProvider>
+          <FarcasterContext.Provider value={{ isInFarcaster, isSDKReady: !initError }}>
+          <WagmiProvider config={config}>
           <QueryClientProvider client={queryClient}>
             <RainbowKitProvider
               modalSize="compact"
@@ -111,7 +115,9 @@ export function Providers({ children }: { children: ReactNode }) {
             </RainbowKitProvider>
           </QueryClientProvider>
         </WagmiProvider>
-      </FarcasterContext.Provider>
-    </LanguageProvider>
+          </FarcasterContext.Provider>
+        </AudioProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

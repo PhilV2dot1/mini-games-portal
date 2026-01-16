@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useBlackjack } from "@/hooks/useBlackjack";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { BlackjackTable } from "@/components/blackjack/BlackjackTable";
 import { GameControls } from "@/components/blackjack/GameControls";
 import { GameStats } from "@/components/blackjack/GameStats";
@@ -35,6 +36,40 @@ export default function BlackjackPage() {
   } = useBlackjack();
 
   const { recordGame } = useLocalStats();
+  const { play } = useGameAudio('blackjack');
+  const prevHandLength = useRef(playerHand.length);
+
+  // Wrappers with sound effects
+  const hitWithSound = useCallback(() => {
+    play('hit');
+    hit();
+  }, [play, hit]);
+
+  const newGameWithSound = useCallback(() => {
+    play('deal');
+    newGame();
+  }, [play, newGame]);
+
+  // Play sound when cards are dealt (hand length increases)
+  useEffect(() => {
+    if (playerHand.length > prevHandLength.current) {
+      play('deal');
+    }
+    prevHandLength.current = playerHand.length;
+  }, [playerHand.length, play]);
+
+  // Play result sound when game finishes
+  useEffect(() => {
+    if (gamePhase === 'finished' && outcome) {
+      if (outcome === 'blackjack') {
+        play('blackjack');
+      } else if (outcome === 'win') {
+        play('win');
+      } else if (outcome === 'lose') {
+        play('lose');
+      }
+    }
+  }, [gamePhase, outcome, play]);
 
   // Record game to portal stats when finished
   useEffect(() => {
@@ -46,22 +81,22 @@ export default function BlackjackPage() {
   }, [gamePhase, outcome, mode, recordGame]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold mb-4"
+            className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold mb-4"
           >
             ← Back to Portal
           </Link>
-          <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center mb-4">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center mb-4">
             <div className="text-6xl mb-2">🃏</div>
-            <h1 className="text-4xl sm:text-6xl font-black text-gray-900 mb-2">
+            <h1 className="text-4xl sm:text-6xl font-black text-gray-900 dark:text-white mb-2">
               Blackjack
             </h1>
-            <p className="text-gray-700 text-sm sm:text-base font-medium">
+            <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base font-medium">
               Beat the dealer to 21!
             </p>
           </div>
@@ -95,9 +130,9 @@ export default function BlackjackPage() {
 
             {/* Game Controls */}
             <GameControls
-              onHit={hit}
+              onHit={hitWithSound}
               onStand={stand}
-              onNewGame={newGame}
+              onNewGame={newGameWithSound}
               onPlayOnChain={playOnChain}
               gamePhase={gamePhase}
               mode={mode}

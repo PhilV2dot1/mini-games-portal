@@ -409,6 +409,172 @@ export const skeletonPulseVariants: Variants = {
 };
 
 // ========================================
+// ADDITIONAL GAME ANIMATIONS (Phase 2)
+// ========================================
+
+/**
+ * Dice roll animation (Yahtzee)
+ * 3D rotation effect for rolling dice
+ */
+export const diceRollVariants: Variants = {
+  initial: {
+    rotateX: 0,
+    rotateY: 0,
+    rotateZ: 0,
+  },
+  animate: {
+    rotateX: [0, 360, 720, 1080],
+    rotateY: [0, 360, 720, 1080],
+    rotateZ: [0, 180, 360, 540],
+    transition: {
+      duration: 1.2,
+      ease: 'easeOut',
+    },
+  },
+};
+
+/**
+ * Score popup animation
+ * Used for score changes, bonuses, points earned
+ */
+export const scorePopupVariants: Variants = {
+  initial: {
+    opacity: 0,
+    y: 0,
+    scale: 0.5,
+  },
+  animate: {
+    opacity: [0, 1, 1, 0],
+    y: [0, -20, -40, -60],
+    scale: [0.5, 1.2, 1, 0.8],
+    transition: {
+      duration: 1.5,
+      times: [0, 0.2, 0.6, 1],
+      ease: 'easeOut',
+    },
+  },
+};
+
+/**
+ * Counter animation (for animated number changes)
+ */
+export const counterVariants: Variants = {
+  initial: { scale: 1 },
+  animate: {
+    scale: [1, 1.3, 1],
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut',
+    },
+  },
+};
+
+/**
+ * Card lift animation (for GameCards on homepage)
+ * Combines scale, Y transform, and shadow enhancement
+ */
+export const cardLiftVariants: Variants = {
+  initial: {
+    y: 0,
+    scale: 1,
+  },
+  hover: {
+    y: -8,
+    scale: 1.02,
+    transition: {
+      duration: durations.fast / 1000,
+      ease: easings.easeOut,
+    },
+  },
+};
+
+/**
+ * Glow effect animation
+ * Pulsing celo-colored glow
+ */
+export const glowVariants: Variants = {
+  initial: {
+    boxShadow: '0 0 0 0 rgba(252, 255, 82, 0)',
+  },
+  animate: {
+    boxShadow: [
+      '0 0 0 0 rgba(252, 255, 82, 0)',
+      '0 0 20px 5px rgba(252, 255, 82, 0.4)',
+      '0 0 0 0 rgba(252, 255, 82, 0)',
+    ],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: 'easeInOut',
+    },
+  },
+};
+
+/**
+ * Stagger container for homepage games grid
+ * Optimized for 12+ items
+ */
+export const gameGridStaggerVariants: Variants = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+/**
+ * Game card entry animation
+ */
+export const gameCardEntryVariants: Variants = {
+  initial: {
+    opacity: 0,
+    y: 30,
+    scale: 0.95,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: durations.normal / 1000,
+      ease: easings.easeOut,
+    },
+  },
+};
+
+/**
+ * Win celebration animation
+ * Confetti-like scale and rotation
+ */
+export const winCelebrationVariants: Variants = {
+  initial: { scale: 0, rotate: -180, opacity: 0 },
+  animate: {
+    scale: [0, 1.5, 1],
+    rotate: [-180, 20, 0],
+    opacity: 1,
+    transition: {
+      duration: 0.8,
+      ease: 'easeOut',
+    },
+  },
+};
+
+/**
+ * Number increment animation helper
+ * Returns transition config for counting up/down
+ */
+export function getCounterTransition(
+  duration: number = 1000
+): { duration: number; ease: string } {
+  return {
+    duration: duration / 1000,
+    ease: 'easeOut',
+  };
+}
+
+// ========================================
 // UTILITY FUNCTIONS
 // ========================================
 

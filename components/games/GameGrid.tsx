@@ -44,9 +44,9 @@ export function GameGrid({ games, loading = false }: GameGridProps) {
       animate="show"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
     >
-      {games.map((game) => (
+      {games.map((game, index) => (
         <motion.div key={game.id} variants={item}>
-          <GameCard game={game} />
+          <GameCard game={game} index={index} />
         </motion.div>
       ))}
     </motion.div>

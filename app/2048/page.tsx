@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { use2048 } from "@/hooks/use2048";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { GameGrid } from "@/components/2048/GameGrid";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -26,6 +27,29 @@ export default function Game2048Page() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('2048');
+  const prevScore = useRef(score);
+  const prevStatus = useRef(status);
+
+  // Play sound when score changes (merge happened)
+  useEffect(() => {
+    if (score > prevScore.current && status === 'playing') {
+      play('merge');
+    }
+    prevScore.current = score;
+  }, [score, status, play]);
+
+  // Play sound when game ends
+  useEffect(() => {
+    if (status !== prevStatus.current) {
+      if (status === 'won') {
+        play('win');
+      } else if (status === 'lost') {
+        play('lose');
+      }
+    }
+    prevStatus.current = status;
+  }, [status, play]);
 
   // Record game when finished
   useEffect(() => {
@@ -36,12 +60,12 @@ export default function Game2048Page() {
   }, [status, mode, recordGame]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           {t('games.backToPortal')}
         </Link>
@@ -50,11 +74,11 @@ export default function Game2048Page() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div className="text-5xl mb-2">🔢</div>
-          <h1 className="text-4xl font-black text-gray-900">{t('games.2048.title')}</h1>
-          <p className="text-sm text-gray-600">{t('games.2048.subtitle')}</p>
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.2048.title')}</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{t('games.2048.subtitle')}</p>
         </motion.div>
 
         {/* Mode Toggle */}
@@ -86,15 +110,15 @@ export default function Game2048Page() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/90 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-lg border-2 border-gray-300"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 flex justify-between items-center shadow-lg border-2 border-gray-300 dark:border-gray-600"
         >
           <div>
-            <div className="text-sm text-gray-600 font-medium">{t('games.2048.score')}</div>
-            <div className="text-3xl font-black text-gray-900">{score}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('games.2048.score')}</div>
+            <div className="text-3xl font-black text-gray-900 dark:text-white">{score}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-600 font-medium">{t('games.2048.status')}</div>
-            <div className="text-xl font-bold text-gray-900">
+            <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('games.2048.status')}</div>
+            <div className="text-xl font-bold text-gray-900 dark:text-white">
               {status === "playing" && t('games.2048.playing')}
               {status === "won" && t('games.2048.won')}
               {status === "lost" && t('games.2048.lost')}

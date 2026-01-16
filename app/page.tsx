@@ -58,7 +58,7 @@ export default function Home() {
   }, [isAuthenticated, user, hasSeenSetup]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
         <Header />
 
@@ -67,15 +67,15 @@ export default function Home() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 rounded-xl p-6 mb-8 shadow-md"
+          className="bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 rounded-xl p-6 mb-8 shadow-md"
           style={{ borderLeft: '4px solid #FCFF52' }}
         >
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {t('home.welcome')}
               </h2>
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
                 {t('home.subtitle')}
               </p>
             </div>
@@ -97,11 +97,11 @@ export default function Home() {
           className="mb-10"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold text-gray-900 tracking-tight">{t('home.availableGames')}</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{t('home.availableGames')}</h2>
             {isAuthenticated && userProfile && (
               <Link
                 href="/leaderboard"
-                className="text-gray-700 hover:text-gray-900 font-semibold text-sm flex items-center gap-2 transition-colors"
+                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-semibold text-sm flex items-center gap-2 transition-colors"
               >
                 {t('home.leaderboard')} →
               </Link>
@@ -116,10 +116,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-white/90 rounded-xl p-5 mb-8 shadow-md border border-gray-300"
+            className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-5 mb-8 shadow-md border border-gray-300 dark:border-gray-700"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">{t('home.yourProfile')}</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('home.yourProfile')}</h3>
               <Link
                 href="/profile/edit"
                 className="font-medium text-sm transition-colors"
@@ -129,21 +129,21 @@ export default function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                <div className="text-3xl font-bold text-gray-900 mb-1">{userProfile.total_points || 0}</div>
-                <div className="text-xs text-gray-600">{t('home.points')}</div>
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center border border-gray-200 dark:border-gray-600">
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{userProfile.total_points || 0}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">{t('home.points')}</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center border border-gray-200 dark:border-gray-600">
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                   {userProfile.username ? '✓' : '-'}
                 </div>
-                <div className="text-xs text-gray-600">{t('home.profile')}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">{t('home.profile')}</div>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4 text-center border border-gray-200">
-                <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center border border-gray-200 dark:border-gray-600">
+                <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                   {userProfile.avatar_unlocked ? '🔓' : '🔒'}
                 </div>
-                <div className="text-xs text-gray-600">{t('home.customAvatar')}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">{t('home.customAvatar')}</div>
               </div>
             </div>
           </motion.div>
@@ -155,13 +155,13 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 rounded-xl p-6 mb-8 shadow-md"
+            className="bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-800 dark:via-gray-800 dark:to-gray-700 rounded-xl p-6 mb-8 shadow-md"
             style={{ borderLeft: '4px solid #FCFF52' }}
           >
             <div className="flex items-center justify-between gap-6">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{t('home.createProfile')}</h3>
-                <p className="text-sm text-gray-700">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t('home.createProfile')}</h3>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   {t('home.saveProgress')}
                 </p>
               </div>
@@ -181,10 +181,10 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="bg-white/90 rounded-xl p-5 mb-8 shadow-md border border-gray-300"
+          className="bg-white/90 dark:bg-gray-800/90 rounded-xl p-5 mb-8 shadow-md border border-gray-300 dark:border-gray-700"
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">{t('home.availableBadges')}</h3>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('home.availableBadges')}</h3>
             <Link
               href="/about"
               className="font-medium text-sm transition-colors"

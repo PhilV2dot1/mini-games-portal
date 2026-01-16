@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useSudoku } from "@/hooks/useSudoku";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { useGameAudio } from "@/lib/audio/AudioContext";
 import { SudokuGrid } from "@/components/sudoku/SudokuGrid";
 import { GameStatus } from "@/components/sudoku/GameStatus";
 import { GameControls } from "@/components/sudoku/GameControls";
@@ -44,6 +45,39 @@ export default function SudokuPage() {
 
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
+  const { play } = useGameAudio('sudoku');
+  const prevConflicts = useRef(conflictCells.size);
+
+  // Wrappers with sound effects
+  const handleNumberInputWithSound = useCallback((num: number) => {
+    play('place');
+    handleNumberInput(num);
+  }, [play, handleNumberInput]);
+
+  const handleEraseWithSound = useCallback(() => {
+    play('erase');
+    handleErase();
+  }, [play, handleErase]);
+
+  const handleHintWithSound = useCallback(() => {
+    play('hint');
+    handleHint();
+  }, [play, handleHint]);
+
+  // Play error sound when conflicts appear
+  useEffect(() => {
+    if (conflictCells.size > prevConflicts.current) {
+      play('error');
+    }
+    prevConflicts.current = conflictCells.size;
+  }, [conflictCells.size, play]);
+
+  // Play complete sound when game is won
+  useEffect(() => {
+    if (status === "finished" && result === "win") {
+      play('complete');
+    }
+  }, [status, result, play]);
 
   // Record game to portal stats when finished
   useEffect(() => {
@@ -57,12 +91,12 @@ export default function SudokuPage() {
   const canStart = status === "idle" || isFinished;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-900 hover:text-celo transition-colors font-bold"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-celo transition-colors font-bold"
         >
           ← {t("games.backToPortal")}
         </Link>
@@ -71,7 +105,7 @@ export default function SudokuPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-celo text-center space-y-1"
         >
           <div
             className="text-5xl mb-2"
@@ -80,10 +114,10 @@ export default function SudokuPage() {
           >
             🔢
           </div>
-          <h1 className="text-4xl font-black text-gray-900">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             Sudoku
           </h1>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Classic number puzzle - fill the grid!
           </p>
         </motion.div>
@@ -98,12 +132,12 @@ export default function SudokuPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-xl p-4 shadow-lg max-w-2xl mx-auto border border-gray-200 dark:border-gray-700"
         >
-          <h2 className="font-bold text-lg mb-2 text-gray-900">
+          <h2 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
             {t("games.sudoku.howToPlay")}
           </h2>
-          <ul className="text-sm text-gray-600 space-y-1">
+          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• {t("games.sudoku.rule1")}</li>
             <li>• {t("games.sudoku.rule2")}</li>
           </ul>
@@ -155,8 +189,8 @@ export default function SudokuPage() {
             {/* Number Pad */}
             {canPlay && (
               <NumberPad
-                onNumberClick={handleNumberInput}
-                onErase={handleErase}
+                onNumberClick={handleNumberInputWithSound}
+                onErase={handleEraseWithSound}
                 disabled={!canPlay}
               />
             )}
@@ -165,7 +199,7 @@ export default function SudokuPage() {
             {canPlay && (
               <HintButton
                 hintsRemaining={hintsRemaining}
-                onHintClick={handleHint}
+                onHintClick={handleHintWithSound}
                 disabled={!canPlay}
               />
             )}
