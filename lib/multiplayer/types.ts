@@ -149,11 +149,11 @@ export interface RPSState {
 }
 
 export interface ConnectFiveState {
-  board: (number | null)[][]; // 15x15 grid, 1 or 2 for player, null for empty
+  board: (1 | 2 | null)[][]; // 6x7 grid (Connect 4 style), 1 or 2 for player, null for empty
   currentTurn: 1 | 2;
   lastMove: { row: number; col: number } | null;
   winner: 1 | 2 | 'draw' | null;
-  moveCount: number;
+  winningCells?: { row: number; col: number }[];
 }
 
 // Union type for all game states
