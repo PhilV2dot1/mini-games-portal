@@ -186,8 +186,42 @@ export interface YahtzeeState {
   phase: 'rolling' | 'scoring' | 'finished'; // Current phase of the turn
 }
 
+export interface BlackjackState {
+  phase: 'waiting' | 'playing' | 'standing' | 'finished';
+  currentTurn: 1 | 2;
+  deck: number[]; // Shared deck (card indices)
+  deckIndex: number; // Next card to deal
+  player1Hand: number[]; // Card values
+  player2Hand: number[];
+  dealerHand: number[];
+  player1Total: number;
+  player2Total: number;
+  dealerTotal: number;
+  player1Status: 'playing' | 'standing' | 'bust' | 'blackjack';
+  player2Status: 'playing' | 'standing' | 'bust' | 'blackjack';
+  showDealerCards: boolean;
+  player1Result: 'win' | 'lose' | 'push' | 'blackjack' | null;
+  player2Result: 'win' | 'lose' | 'push' | 'blackjack' | null;
+  winner: 1 | 2 | 'draw' | null;
+}
+
+export interface MastermindState {
+  secretCode: number[]; // 4 colors (0-5)
+  currentTurn: 1 | 2;
+  player1Attempts: number;
+  player2Attempts: number;
+  player1History: { guess: number[]; exact: number; partial: number }[];
+  player2History: { guess: number[]; exact: number; partial: number }[];
+  player1Won: boolean | null; // null = still playing
+  player2Won: boolean | null;
+  player1Score: number;
+  player2Score: number;
+  phase: 'playing' | 'finished';
+  winner: 1 | 2 | 'draw' | null;
+}
+
 // Union type for all game states
-export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | Record<string, unknown>;
+export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | BlackjackState | MastermindState | Record<string, unknown>;
 
 // ============================================
 // HOOK TYPES
