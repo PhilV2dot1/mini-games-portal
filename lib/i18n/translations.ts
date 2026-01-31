@@ -326,6 +326,11 @@ export const translations = {
       noConnectors: 'No wallet connectors available',
     },
 
+    // Header
+    header: {
+      subtitle: 'Play Mini-Games on the Blockchain',
+    },
+
     // Navigation
     nav: {
       home: 'Home',
@@ -1124,6 +1129,11 @@ export const translations = {
       // Errors & Warnings
       farcasterNotReady: 'SDK Farcaster pas prêt. Certaines fonctionnalités peuvent ne pas fonctionner.',
       noConnectors: 'Aucun connecteur de wallet disponible',
+    },
+
+    // Header
+    header: {
+      subtitle: 'Jouez à des Mini-Jeux sur la Blockchain',
     },
 
     // Navigation

@@ -63,7 +63,7 @@ export function Header() {
                 Mini Games Portal
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
-                Play Mini-Games on the Blockchain
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
