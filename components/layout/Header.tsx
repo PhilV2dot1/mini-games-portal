@@ -60,7 +60,7 @@ export function Header() {
             </div>
             <div>
               <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white">
-                Celo Mini Games Portal
+                Mini Games Portal
               </h1>
               <p className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
                 Play Mini-Games on the Blockchain

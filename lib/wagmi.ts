@@ -23,7 +23,7 @@ export const config = createConfig({
     walletConnect({
       projectId: walletConnectProjectId,
       metadata: {
-        name: "Celo Games Portal",
+        name: "Mini Games Portal",
         description: "Play 6 mini-games on Celo blockchain! Blackjack, RPS, TicTacToe, Jackpot, 2048, and Mastermind.",
         url: getAppUrl(),
         icons: [`${getAppUrl()}/icon.png`],
@@ -32,7 +32,7 @@ export const config = createConfig({
     }),
     metaMask({
       dappMetadata: {
-        name: "Celo Games Portal",
+        name: "Mini Games Portal",
         url: getAppUrl(),
       },
     }),

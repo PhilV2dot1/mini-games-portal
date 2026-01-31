@@ -84,8 +84,8 @@ describe('Translations', () => {
     });
 
     test('has welcome message in both languages', () => {
-      expect(translations.en.home.welcome).toBe('Welcome to Celo Games Portal');
-      expect(translations.fr.home.welcome).toBe('Bienvenue sur Celo Games Portal');
+      expect(translations.en.home.welcome).toBe('Welcome to Mini Games Portal');
+      expect(translations.fr.home.welcome).toBe('Bienvenue sur Mini Games Portal');
     });
 
     test('home sections have the same keys', () => {

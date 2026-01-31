@@ -174,7 +174,7 @@ export default function ForgotPasswordPage() {
               </h3>
               <ul className="text-xs text-blue-800 space-y-1">
                 <li>• Le lien de réinitialisation expire après 1 heure</li>
-                <li>• Vérifiez que l&apos;email provient bien de Celo Games Portal</li>
+                <li>• Vérifiez que l&apos;email provient bien de Mini Games Portal</li>
                 <li>• Ne partagez jamais votre lien de réinitialisation</li>
               </ul>
             </div>

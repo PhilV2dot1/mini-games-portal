@@ -82,7 +82,7 @@ export default function LeaderboardPage() {
             {t('leaderboard.title') || 'Leaderboard'}
           </h1>
           <p className="text-sm text-gray-600">
-            {t('leaderboard.subtitle') || 'Top players across all games on Celo Games Portal'}
+            {t('leaderboard.subtitle') || 'Top players across all games on Mini Games Portal'}
           </p>
         </div>
 

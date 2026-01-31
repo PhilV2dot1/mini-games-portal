@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Celo Games Portal - Play 6 Mini-Games on Blockchain",
+  title: "Mini Games Portal - Play Mini-Games on Blockchain",
   description: "Play Blackjack, Rock-Paper-Scissors, Tic-Tac-Toe, Crypto Jackpot, 2048, and Mastermind on Celo blockchain. Free mode or compete on-chain!",
 };
 

@@ -1,5 +1,5 @@
 /**
- * Design Tokens - Celo Games Portal
+ * Design Tokens - Mini Games Portal
  * Centralized design values for consistent styling across the application
  */
 

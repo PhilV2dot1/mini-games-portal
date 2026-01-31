@@ -18,7 +18,7 @@ test.describe('User Registration Flow', () => {
   }) => {
     // Step 1: Visit homepage
     await page.goto('/');
-    await expect(page).toHaveTitle(/Celo Games Portal/i);
+    await expect(page).toHaveTitle(/Mini Games Portal/i);
 
     // Step 2: Sign up with new account
     const email = generateTestEmail();

@@ -382,7 +382,7 @@ export default function ProfileEditPage() {
             </button>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Éditer mon profil</h1>
-          <p className="text-gray-700">Personnalisez votre profil Celo Games Portal</p>
+          <p className="text-gray-700">Personnalisez votre profil Mini Games Portal</p>
         </div>
 
         {/* Main form */}

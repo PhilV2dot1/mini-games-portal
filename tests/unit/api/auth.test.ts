@@ -578,7 +578,7 @@ describe('Authentication Routes', () => {
           body: JSON.stringify({
             address: '0xABC123',
             signature: '0xsignature',
-            message: 'Sign in to Celo Games Portal',
+            message: 'Sign in to Mini Games Portal',
           }),
         });
 
@@ -591,7 +591,7 @@ describe('Authentication Routes', () => {
         expect(data.message).toBe('Logged in successfully');
         expect(mockVerifyMessage).toHaveBeenCalledWith({
           address: '0xabc123',
-          message: 'Sign in to Celo Games Portal',
+          message: 'Sign in to Mini Games Portal',
           signature: '0xsignature',
         });
       });

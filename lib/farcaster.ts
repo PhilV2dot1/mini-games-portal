@@ -46,7 +46,7 @@ export async function shareGameResult(
     push: '🤝'
   };
 
-  const text = `I just played ${gameName} on Celo Games Portal!\n\n${emojis[outcome] || '🎮'} ${outcome.toUpperCase()}\n\nStats: ${stats.wins}W / ${stats.played - stats.wins}L\n\nPlay now:`;
+  const text = `I just played ${gameName} on Mini Games Portal!\n\n${emojis[outcome] || '🎮'} ${outcome.toUpperCase()}\n\nStats: ${stats.wins}W / ${stats.played - stats.wins}L\n\nPlay now:`;
 
   const shareUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(appUrl)}`;
 
