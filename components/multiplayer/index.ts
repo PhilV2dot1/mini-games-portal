@@ -8,3 +8,5 @@ export { WaitingRoom } from './WaitingRoom';
 export { PlayerCard } from './PlayerCard';
 export { GameResult } from './GameResult';
 export { RoomCodeInput } from './RoomCodeInput';
+export { GameChat } from './GameChat';
+export { ReplayControls } from './ReplayControls';

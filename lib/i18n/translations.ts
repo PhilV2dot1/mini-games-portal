@@ -162,6 +162,16 @@ export const translations = {
         rule5: 'Use Undo to reverse moves, Auto-Complete when possible',
         footer: '🃏 Classic Solitaire with blockchain integration',
         awaitingDeployment: '(Awaiting deployment)',
+        collabSubtitle: 'Collaborative mode - Work together!',
+        collabHowToPlay: 'Collaborative Solitaire',
+        collabRule1: 'Work together with 2-4 players to complete the Solitaire',
+        collabRule2: 'Take turns making moves (30 seconds per turn)',
+        collabRule3: 'Everyone wins or loses together!',
+        collabWin: 'You all won together!',
+        collabLose: 'Game blocked - No more moves!',
+        contributions: 'Player Contributions',
+        scoreLabel: 'Score',
+        movesLabel: 'moves',
       },
 
       // Minesweeper specific
@@ -760,6 +770,8 @@ export const translations = {
       // In-game
       yourTurn: 'Your Turn!',
       opponentTurn: "Opponent's Turn...",
+      playerTurn: 'Player',
+      turnSuffix: "'s Turn...",
       youAre: 'You are',
       vs: 'vs',
       opponent: 'Opponent',
@@ -800,6 +812,46 @@ export const translations = {
     },
 
     // Chain / Network
+    // Spectator
+    spectator: {
+      title: 'Spectate',
+      subtitle: 'Watch live multiplayer games in real-time',
+      liveLabel: 'LIVE',
+      watching: 'Watching',
+      gameState: 'Game State',
+      currentTurn: 'Current Turn',
+      score: 'Score',
+      round: 'Round',
+      scores: 'Scores',
+      gameFinished: 'Game Finished!',
+      recentActions: 'Recent Actions',
+      stopWatching: 'Stop Watching',
+      allGames: 'All Games',
+      loading: 'Loading active games...',
+      noGames: 'No active games right now',
+      checkBack: 'Check back later or start a game yourself!',
+      watch: 'Watch',
+      autoRefresh: 'Auto-refreshing every 10 seconds',
+      playersLabel: 'players',
+    },
+
+    // Chat
+    chat: {
+      title: 'Chat',
+      empty: 'No messages yet',
+      placeholder: 'Type a message...',
+    },
+
+    // Replay
+    replay: {
+      title: 'Replay',
+      actions: 'actions',
+      stepBack: 'Step Back',
+      stepForward: 'Step Forward',
+      exit: 'Exit Replay',
+      replayFinished: 'Replay finished',
+    },
+
     chain: {
       network: 'Network',
       celo: 'Celo',
@@ -967,6 +1019,16 @@ export const translations = {
         rule5: 'Utilisez Annuler pour inverser les mouvements, Auto-Compléter si possible',
         footer: '🃏 Solitaire classique avec intégration blockchain',
         awaitingDeployment: '(En attente de déploiement)',
+        collabSubtitle: 'Mode collaboratif - Jouez ensemble !',
+        collabHowToPlay: 'Solitaire Collaboratif',
+        collabRule1: 'Collaborez avec 2-4 joueurs pour compléter le Solitaire',
+        collabRule2: 'Jouez à tour de rôle (30 secondes par tour)',
+        collabRule3: 'Tout le monde gagne ou perd ensemble !',
+        collabWin: 'Vous avez tous gagné ensemble !',
+        collabLose: 'Jeu bloqué - Plus de coups possibles !',
+        contributions: 'Contributions des Joueurs',
+        scoreLabel: 'Score',
+        movesLabel: 'coups',
       },
 
       // Minesweeper specific
@@ -1565,6 +1627,8 @@ export const translations = {
       // In-game
       yourTurn: 'À votre tour !',
       opponentTurn: 'Tour de l\'adversaire...',
+      playerTurn: 'Joueur',
+      turnSuffix: ' joue...',
       youAre: 'Vous êtes',
       vs: 'vs',
       opponent: 'Adversaire',
@@ -1605,6 +1669,46 @@ export const translations = {
     },
 
     // Chain / Network
+    // Spectator
+    spectator: {
+      title: 'Spectateur',
+      subtitle: 'Regardez les parties multijoueurs en direct',
+      liveLabel: 'EN DIRECT',
+      watching: 'Regarder',
+      gameState: 'État du Jeu',
+      currentTurn: 'Tour Actuel',
+      score: 'Score',
+      round: 'Manche',
+      scores: 'Scores',
+      gameFinished: 'Partie Terminée !',
+      recentActions: 'Actions Récentes',
+      stopWatching: 'Arrêter de Regarder',
+      allGames: 'Tous les Jeux',
+      loading: 'Chargement des parties en cours...',
+      noGames: 'Aucune partie en cours actuellement',
+      checkBack: 'Revenez plus tard ou lancez une partie !',
+      watch: 'Regarder',
+      autoRefresh: 'Actualisation automatique toutes les 10 secondes',
+      playersLabel: 'joueurs',
+    },
+
+    // Chat
+    chat: {
+      title: 'Chat',
+      empty: 'Aucun message',
+      placeholder: 'Écrivez un message...',
+    },
+
+    // Replay
+    replay: {
+      title: 'Replay',
+      actions: 'actions',
+      stepBack: 'Reculer',
+      stepForward: 'Avancer',
+      exit: 'Quitter le Replay',
+      replayFinished: 'Replay terminé',
+    },
+
     chain: {
       network: 'Réseau',
       celo: 'Celo',

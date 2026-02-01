@@ -114,18 +114,21 @@ interface ListRoomsQuery {
 
 /**
  * GET /api/multiplayer/rooms
- * List available (waiting) rooms for a game
+ * List rooms for a game. Supports ?status=waiting (default) or ?status=playing (for spectating).
+ * gameId is optional when status=playing (list all active games for spectating).
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const gameId = searchParams.get('gameId');
     const mode = searchParams.get('mode') as RoomMode | null;
+    const status = searchParams.get('status') || 'waiting';
     const limit = parseInt(searchParams.get('limit') || '20', 10);
 
-    if (!gameId) {
+    // gameId is required for waiting rooms, optional for playing (spectate)
+    if (status === 'waiting' && !gameId) {
       return NextResponse.json(
-        { error: 'gameId query parameter is required' },
+        { error: 'gameId query parameter is required for waiting rooms' },
         { status: 400 }
       );
     }
@@ -147,11 +150,14 @@ export async function GET(request: NextRequest) {
           )
         )
       `)
-      .eq('game_id', gameId)
-      .eq('status', 'waiting')
+      .eq('status', status)
       .is('room_code', null) // Only public rooms
       .order('created_at', { ascending: false })
       .limit(limit);
+
+    if (gameId) {
+      query = query.eq('game_id', gameId);
+    }
 
     if (mode) {
       query = query.eq('mode', mode);

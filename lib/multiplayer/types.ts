@@ -220,8 +220,28 @@ export interface MastermindState {
   winner: 1 | 2 | 'draw' | null;
 }
 
+export interface SolitaireCollaborativeState {
+  tableau: { suit: string; rank: string; faceUp: boolean; id: string }[][];
+  foundations: {
+    hearts: { suit: string; rank: string; faceUp: boolean; id: string }[];
+    diamonds: { suit: string; rank: string; faceUp: boolean; id: string }[];
+    clubs: { suit: string; rank: string; faceUp: boolean; id: string }[];
+    spades: { suit: string; rank: string; faceUp: boolean; id: string }[];
+  };
+  stock: { suit: string; rank: string; faceUp: boolean; id: string }[];
+  waste: { suit: string; rank: string; faceUp: boolean; id: string }[];
+  moves: number;
+  score: number;
+  currentTurn: number; // Player number whose turn it is (1-4)
+  maxPlayers: number; // 2-4
+  turnTimeLimit: number; // seconds per turn (30)
+  turnStartedAt: number | null; // timestamp
+  playerMoves: Record<number, number>; // player_number -> move count
+  status: 'playing' | 'won' | 'blocked';
+}
+
 // Union type for all game states
-export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | BlackjackState | MastermindState | Record<string, unknown>;
+export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | BlackjackState | MastermindState | SolitaireCollaborativeState | Record<string, unknown>;
 
 // ============================================
 // HOOK TYPES
