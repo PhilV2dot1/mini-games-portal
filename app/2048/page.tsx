@@ -93,22 +93,6 @@ export default function Game2048Page() {
         {/* Wallet Connect (On-Chain Mode) */}
         {mode === "onchain" && <WalletConnect />}
 
-        {/* Fee Warning for On-Chain Mode */}
-        {mode === "onchain" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="rounded-lg p-3 text-center bg-chain/10 border-2 border-chain"
-          >
-            <p className="text-gray-900 text-sm font-bold">
-              {t('games.2048.onChainFeeWarning').split('0.01 CELO')[0]}
-              <span className="font-black">0.01 CELO</span>
-              {t('games.2048.onChainFeeWarning').split('0.01 CELO')[1]}
-            </p>
-          </motion.div>
-        )}
-
         {/* Score Display */}
         <motion.div
           initial={{ opacity: 0 }}

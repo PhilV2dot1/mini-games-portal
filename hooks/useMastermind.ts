@@ -14,7 +14,7 @@ import {
   calculateScore,
   Color,
 } from "@/lib/games/mastermind-logic";
-import { MASTERMIND_CONTRACT_ABI, MASTERMIND_GAME_FEE } from "@/lib/contracts/mastermind-abi";
+import { MASTERMIND_CONTRACT_ABI } from "@/lib/contracts/mastermind-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 type GamePhase = 'playing' | 'won' | 'lost';
@@ -347,7 +347,6 @@ export function useMastermind() {
         functionName: 'startGame',
         chainId: chain!.id,
         gas: BigInt(200000),
-        value: BigInt(MASTERMIND_GAME_FEE),
       });
 
     } catch (error) {

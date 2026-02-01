@@ -169,23 +169,6 @@ export default function MastermindPage() {
             {/* Wallet Connect (On-Chain Mode) */}
             {soloGame.mode === "onchain" && <WalletConnect />}
 
-            {/* Fee Warning for On-Chain Mode */}
-            {soloGame.mode === "onchain" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-lg p-3 text-center"
-                style={{ backgroundColor: 'color-mix(in srgb, var(--chain-primary) 40%, transparent)', border: '4px solid var(--chain-primary)' }}
-              >
-                <p className="text-gray-900 text-sm font-bold">
-                  {t('games.mastermind.onChainFeeWarning').split('0.01 CELO')[0]}
-                  <span className="font-black">0.01 CELO</span>
-                  {t('games.mastermind.onChainFeeWarning').split('0.01 CELO')[1]}
-                </p>
-              </motion.div>
-            )}
-
             {/* Game Stats */}
             <motion.div
               initial={{ opacity: 0 }}

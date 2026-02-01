@@ -81,7 +81,6 @@ export const translations = {
       2048: {
         title: '2048',
         subtitle: 'Merge tiles to reach 2048!',
-        onChainFeeWarning: '⚠️ On-chain games require 0.01 CELO to start',
         score: 'Score',
         status: 'Status',
         playing: '🎮 Playing',
@@ -120,7 +119,6 @@ export const translations = {
       mastermind: {
         title: 'Crypto Mastermind',
         subtitle: 'Crack the crypto code!',
-        onChainFeeWarning: '⚠️ On-chain games require 0.01 CELO to start',
         attempts: 'Attempts',
         wins: 'Wins',
         bestScore: 'Best Score',
@@ -888,7 +886,6 @@ export const translations = {
       2048: {
         title: '2048',
         subtitle: 'Fusionnez les tuiles pour atteindre 2048 !',
-        onChainFeeWarning: '⚠️ Les jeux on-chain nécessitent 0,01 CELO pour démarrer',
         score: 'Score',
         status: 'Statut',
         playing: '🎮 En cours',
@@ -927,7 +924,6 @@ export const translations = {
       mastermind: {
         title: 'Crypto Mastermind',
         subtitle: 'Déchiffrez le code crypto !',
-        onChainFeeWarning: '⚠️ Les jeux on-chain nécessitent 0,01 CELO pour démarrer',
         attempts: 'Tentatives',
         wins: 'Victoires',
         bestScore: 'Meilleur Score',

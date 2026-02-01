@@ -1,7 +1,7 @@
 // Game2048V2 Smart Contract ABI
 // Contract Address (Celo Mainnet): 0x3a4A909ed31446FFF21119071F4Db0b7DAe36Ed1
 // Deployed and verified on Celo Mainnet
-// Requires 0.01 CELO per game
+// Free to play (gas only)
 
 export const GAME2048_CONTRACT_ADDRESS = "0x3a4A909ed31446FFF21119071F4Db0b7DAe36Ed1" as `0x${string}`;
 
@@ -11,7 +11,7 @@ export const GAME2048_CONTRACT_ABI = [
     name: "startGame",
     inputs: [],
     outputs: [],
-    stateMutability: "payable"
+    stateMutability: "nonpayable"
   },
   {
     type: "function",
@@ -56,13 +56,6 @@ export const GAME2048_CONTRACT_ABI = [
     stateMutability: "view"
   },
   {
-    type: "function",
-    name: "GAME_FEE",
-    inputs: [],
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view"
-  },
-  {
     type: "event",
     name: "GameStarted",
     inputs: [
@@ -90,5 +83,3 @@ export const GAME2048_CONTRACT_ABI = [
   }
 ] as const;
 
-// Game fee is 0.01 CELO
-export const GAME_FEE = "10000000000000000"; // 0.01 CELO in wei

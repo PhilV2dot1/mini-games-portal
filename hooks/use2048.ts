@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useAccount, useWriteContract } from "wagmi";
-import { GAME2048_CONTRACT_ABI, GAME_FEE } from "@/lib/contracts/2048-abi";
+import { GAME2048_CONTRACT_ABI } from "@/lib/contracts/2048-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import {
   Grid,
@@ -82,7 +82,6 @@ export function use2048() {
           address: contractAddress!,
           abi: GAME2048_CONTRACT_ABI,
           functionName: "startGame",
-          value: BigInt(GAME_FEE),
         });
         setGameStartedOnChain(true);
       } catch (error) {

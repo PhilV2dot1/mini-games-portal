@@ -61,7 +61,7 @@ export default function AboutPage() {
                 <li>• Connect your Celo wallet</li>
                 <li>• Stats saved on the blockchain</li>
                 <li>• Participate in the global leaderboard</li>
-                <li>• Some games require 0.01 CELO</li>
+                <li>• Free to play (gas fees only)</li>
               </ul>
             </div>
           </div>
