@@ -1,7 +1,17 @@
 import { createConfig, http, cookieStorage, createStorage } from "wagmi";
 import { celo, base } from "wagmi/chains";
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
-import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+  coinbaseWallet,
+  walletConnectWallet,
+  injectedWallet,
+  rabbyWallet,
+  braveWallet,
+  metaMaskWallet,
+  phantomWallet,
+  valoraWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 
 const celoRpcUrl = "https://forno.celo.org";
 const baseRpcUrl = "https://mainnet.base.org";
@@ -14,33 +24,44 @@ function getAppUrl() {
 }
 
 // WalletConnect project ID - get one from https://cloud.walletconnect.com
-// Without a valid project ID, WalletConnect and Coinbase Wallet will not work
-const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+const walletConnectProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'PLACEHOLDER';
+
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: "Popular",
+      wallets: [
+        coinbaseWallet,
+        metaMaskWallet,
+        rabbyWallet,
+        braveWallet,
+        valoraWallet,
+      ],
+    },
+    {
+      groupName: "More",
+      wallets: [
+        walletConnectWallet,
+        phantomWallet,
+        injectedWallet,
+      ],
+    },
+  ],
+  {
+    appName: "Mini Games Portal",
+    projectId: walletConnectProjectId,
+    appDescription: "Play 12 mini-games on Celo & Base! Blackjack, RPS, TicTacToe, Solitaire, and more.",
+    appUrl: getAppUrl(),
+    appIcon: `${getAppUrl()}/icon.png`,
+  }
+);
 
 export const config = createConfig({
   chains: [celo, base],
   connectors: [
     // Farcaster Mini App connector (only active inside Farcaster/Warpcast)
     farcasterMiniApp(),
-    // Injected wallet: auto-detects MetaMask, Rabby, Trust Wallet, Brave, etc.
-    // This must come before specific connectors to avoid provider conflicts
-    injected(),
-    // Coinbase Wallet / Base Wallet - important for Base chain users
-    coinbaseWallet({
-      appName: "Mini Games Portal",
-      appLogoUrl: `${getAppUrl()}/icon.png`,
-    }),
-    // WalletConnect - QR code scanning for mobile wallets
-    ...(walletConnectProjectId ? [walletConnect({
-      projectId: walletConnectProjectId,
-      metadata: {
-        name: "Mini Games Portal",
-        description: "Play 12 mini-games on Celo & Base! Blackjack, RPS, TicTacToe, Solitaire, and more.",
-        url: getAppUrl(),
-        icons: [`${getAppUrl()}/icon.png`],
-      },
-      showQrModal: true,
-    })] : []),
+    ...connectors,
   ],
   transports: {
     [celo.id]: http(celoRpcUrl, {
