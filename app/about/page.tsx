@@ -2,20 +2,17 @@
 
 /**
  * About Page - Explain game mechanics, badges, and leaderboard
- *
- * Comprehensive guide to:
- * - How to earn points
- * - Badge system
- * - Leaderboard rankings
- * - Game modes
  */
 
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function AboutPage() {
+  const { t } = useLanguage();
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
@@ -28,10 +25,10 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-8 mb-6 shadow-xl border-2 border-chain"
         >
           <h1 className="text-4xl font-bold text-gray-900 mb-4 text-center">
-            🎮 How to Play
+            🎮 {t('about.title')}
           </h1>
           <p className="text-lg text-gray-700 text-center">
-            Learn how to earn points, unlock badges and climb the leaderboard!
+            {t('about.subtitle')}
           </p>
         </motion.div>
 
@@ -43,25 +40,23 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            🎯 Game Modes
+            🎯 {t('about.gameModesTitle')}
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-300">
-              <h3 className="text-lg font-bold text-blue-900 mb-2">🆓 Free Play Mode</h3>
+              <h3 className="text-lg font-bold text-blue-900 mb-2">🆓 {t('about.freePlayTitle')}</h3>
               <ul className="space-y-2 text-sm text-blue-800">
-                <li>• Play immediately without a wallet</li>
-                <li>• Earn points and badges</li>
-                <li>• Stats saved locally</li>
-                <li>• Perfect for discovering the games</li>
+                {(t('about.freePlayBullets') as string[]).map((bullet, i) => (
+                  <li key={i}>• {bullet}</li>
+                ))}
               </ul>
             </div>
             <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-300">
-              <h3 className="text-lg font-bold text-purple-900 mb-2">⛓️ On-Chain Mode</h3>
+              <h3 className="text-lg font-bold text-purple-900 mb-2">⛓️ {t('about.onChainTitle')}</h3>
               <ul className="space-y-2 text-sm text-purple-800">
-                <li>• Connect your Celo wallet</li>
-                <li>• Stats saved on the blockchain</li>
-                <li>• Participate in the global leaderboard</li>
-                <li>• Free to play (gas fees only)</li>
+                {(t('about.onChainBullets') as string[]).map((bullet, i) => (
+                  <li key={i}>• {bullet}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -75,35 +70,35 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            ⭐ Points System
+            ⭐ {t('about.pointsSystemTitle')}
           </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
               <span className="text-2xl">🏆</span>
               <div>
-                <p className="font-semibold text-green-900">Victory</p>
-                <p className="text-sm text-green-700">+10 to +50 points depending on the game</p>
+                <p className="font-semibold text-green-900">{t('about.victory')}</p>
+                <p className="text-sm text-green-700">{t('about.victoryDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
               <span className="text-2xl">🎮</span>
               <div>
-                <p className="font-semibold text-blue-900">Participation</p>
-                <p className="text-sm text-blue-700">+5 points even if you lose</p>
+                <p className="font-semibold text-blue-900">{t('about.participation')}</p>
+                <p className="text-sm text-blue-700">{t('about.participationDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
               <span className="text-2xl">🔥</span>
               <div>
-                <p className="font-semibold text-purple-900">Streak Bonus</p>
-                <p className="text-sm text-purple-700">Bonus points for consecutive wins</p>
+                <p className="font-semibold text-purple-900">{t('about.streakBonus')}</p>
+                <p className="text-sm text-purple-700">{t('about.streakBonusDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-chain/5 rounded-lg">
               <span className="text-2xl">🏅</span>
               <div>
-                <p className="font-semibold text-gray-900">Badges</p>
-                <p className="text-sm text-gray-900">10 to 1000 bonus points per unlocked badge</p>
+                <p className="font-semibold text-gray-900">{t('about.badgeBonus')}</p>
+                <p className="text-sm text-gray-900">{t('about.badgeBonusDesc')}</p>
               </div>
             </div>
           </div>
@@ -117,56 +112,55 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            🏅 Badges to Unlock
+            🏅 {t('about.badgesToUnlockTitle')}
           </h2>
           <p className="text-gray-700 mb-4">
-            Complete challenges to unlock badges and earn bonus points!
+            {t('about.badgesToUnlockDesc')}
           </p>
 
           <div className="grid sm:grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
-              <h3 className="font-bold text-gray-900">🎯 Progression</h3>
+              <h3 className="font-bold text-gray-900">🎯 {t('badges.progression')}</h3>
               <ul className="space-y-1 text-sm text-gray-700">
-                <li>🏆 <strong>First Victory</strong> - Win your first game (+10 pts)</li>
-                <li>🎮 <strong>Beginner</strong> - Play 10 games (+25 pts)</li>
-                <li>🎯 <strong>Regular Player</strong> - Play 50 games (+75 pts)</li>
-                <li>⭐ <strong>Veteran</strong> - Play 100 games (+150 pts)</li>
-                <li>👑 <strong>Game Master</strong> - Play 500 games (+500 pts)</li>
+                <li>🏆 <strong>{t('badges.first_win')}</strong> - {t('badges.desc_first_win')} (+10 pts)</li>
+                <li>🎮 <strong>{t('badges.games_10')}</strong> - {t('badges.desc_games_10')} (+25 pts)</li>
+                <li>🎯 <strong>{t('badges.games_50')}</strong> - {t('badges.desc_games_50')} (+75 pts)</li>
+                <li>⭐ <strong>{t('badges.veteran')}</strong> - {t('badges.desc_veteran')} (+150 pts)</li>
+                <li>👑 <strong>{t('badges.master')}</strong> - {t('badges.desc_master')} (+500 pts)</li>
               </ul>
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-bold text-gray-900">⚡ Performance</h3>
+              <h3 className="font-bold text-gray-900">⚡ {t('badges.performance')}</h3>
               <ul className="space-y-1 text-sm text-gray-700">
-                <li>🔥 <strong>Streak of 5</strong> - 5 wins in a row (+50 pts)</li>
-                <li>⚡ <strong>Streak of 10</strong> - 10 wins in a row (+100 pts)</li>
-                <li>💎 <strong>High Roller</strong> - Accumulate 1000 points (+250 pts)</li>
-                <li>🏅 <strong>Champion</strong> - Accumulate 5000 points (+500 pts)</li>
+                <li>🔥 <strong>{t('badges.win_streak_5')}</strong> - {t('badges.desc_win_streak_5')} (+50 pts)</li>
+                <li>⚡ <strong>{t('badges.win_streak_10')}</strong> - {t('badges.desc_win_streak_10')} (+100 pts)</li>
+                <li>💎 <strong>{t('badges.high_roller')}</strong> - {t('badges.desc_high_roller')} (+250 pts)</li>
+                <li>🏅 <strong>{t('badges.points_5000')}</strong> - {t('badges.desc_points_5000')} (+500 pts)</li>
               </ul>
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-bold text-gray-900">📊 Leaderboard</h3>
+              <h3 className="font-bold text-gray-900">📊 {t('badges.ranking')}</h3>
               <ul className="space-y-1 text-sm text-gray-700">
-                <li>📊 <strong>Top 10</strong> - Reach top 10 on leaderboard (+300 pts)</li>
-                <li>🥉 <strong>Podium</strong> - Reach top 3 on leaderboard (+500 pts)</li>
-                <li>🥇 <strong>Number 1</strong> - Reach 1st place (+1000 pts)</li>
+                <li>📊 <strong>{t('badges.leaderboard_top10')}</strong> - {t('badges.desc_leaderboard_top10')} (+300 pts)</li>
+                <li>🥉 <strong>{t('badges.leaderboard_top3')}</strong> - {t('badges.desc_leaderboard_top3')} (+500 pts)</li>
+                <li>🥇 <strong>{t('badges.leaderboard_1')}</strong> - {t('badges.desc_leaderboard_1')} (+1000 pts)</li>
               </ul>
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-bold text-gray-900">🌟 Collection</h3>
+              <h3 className="font-bold text-gray-900">🌟 {t('badges.collection')}</h3>
               <ul className="space-y-1 text-sm text-gray-700">
-                <li>🌟 <strong>Jack of All Trades</strong> - Play all games (+100 pts)</li>
-                <li>📅 <strong>Perfect Week</strong> - Win every day for 7 days (+200 pts)</li>
+                <li>🌟 <strong>{t('badges.all_games')}</strong> - {t('badges.desc_all_games')} (+100 pts)</li>
+                <li>📅 <strong>{t('badges.perfect_week')}</strong> - {t('badges.desc_perfect_week')} (+200 pts)</li>
               </ul>
             </div>
           </div>
 
           <div className="bg-chain/5 border-2 border-chain rounded-xl p-4">
             <p className="text-sm text-gray-900">
-              💡 <strong>Tip:</strong> The <strong>Veteran</strong> badge (100 games) unlocks the ability
-              to upload a custom avatar!
+              💡 <strong>{t('about.veteranTip')}</strong> {t('about.veteranTipDesc')}
             </p>
           </div>
         </motion.div>
@@ -179,32 +173,32 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            📊 Leaderboard
+            📊 {t('about.leaderboardTitle')}
           </h2>
           <p className="text-gray-700 mb-4">
-            The leaderboard is updated in real-time and ranks players by their total points.
+            {t('about.leaderboardDesc')}
           </p>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-chain/5 rounded-lg border-2 border-chain">
               <span className="text-3xl">🥇</span>
               <div>
-                <p className="font-bold text-gray-900">1st Place</p>
-                <p className="text-sm text-gray-900">Golden crown + exclusive badge</p>
+                <p className="font-bold text-gray-900">{t('about.firstPlace')}</p>
+                <p className="text-sm text-gray-900">{t('about.firstPlaceDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-gray-100 rounded-lg border-2 border-gray-400">
               <span className="text-3xl">🥈</span>
               <div>
-                <p className="font-bold text-gray-700">2nd Place</p>
-                <p className="text-sm text-gray-600">Silver medal</p>
+                <p className="font-bold text-gray-700">{t('about.secondPlace')}</p>
+                <p className="text-sm text-gray-600">{t('about.secondPlaceDesc')}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-chain/5 rounded-lg border-2 border-chain">
               <span className="text-3xl">🥉</span>
               <div>
-                <p className="font-bold text-gray-900">3rd Place</p>
-                <p className="text-sm text-gray-900">Bronze medal</p>
+                <p className="font-bold text-gray-900">{t('about.thirdPlace')}</p>
+                <p className="text-sm text-gray-900">{t('about.thirdPlaceDesc')}</p>
               </div>
             </div>
           </div>
@@ -214,7 +208,7 @@ export default function AboutPage() {
               href="/leaderboard"
               className="inline-block bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 font-bold py-3 px-6 rounded-xl transition-all shadow-lg"
             >
-              View Leaderboard →
+              {t('about.viewLeaderboard')}
             </Link>
           </div>
         </motion.div>
@@ -227,18 +221,16 @@ export default function AboutPage() {
           className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 mb-6 shadow-lg border-2 border-gray-300"
         >
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            👤 Avatar System
+            👤 {t('about.avatarSystemTitle')}
           </h2>
           <div className="space-y-3">
             <div className="p-3 bg-blue-50 rounded-lg">
-              <p className="font-semibold text-blue-900">Predefined Avatars</p>
-              <p className="text-sm text-blue-700">Choose from 30 stylized gaming avatars</p>
+              <p className="font-semibold text-blue-900">{t('about.predefinedAvatars')}</p>
+              <p className="text-sm text-blue-700">{t('about.predefinedAvatarsDesc')}</p>
             </div>
             <div className="p-3 bg-purple-50 rounded-lg">
-              <p className="font-semibold text-purple-900">Custom Avatar 🔓</p>
-              <p className="text-sm text-purple-700">
-                Upload your own image (unlocked after 100 games or Veteran badge)
-              </p>
+              <p className="font-semibold text-purple-900">{t('about.customAvatar')} 🔓</p>
+              <p className="text-sm text-purple-700">{t('about.customAvatarDesc')}</p>
             </div>
           </div>
         </motion.div>
@@ -254,7 +246,7 @@ export default function AboutPage() {
             href="/"
             className="inline-block bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 font-bold py-4 px-8 rounded-xl transition-all shadow-xl text-lg"
           >
-            Start Playing! 🎮
+            {t('about.startPlaying')} 🎮
           </Link>
         </motion.div>
       </div>
