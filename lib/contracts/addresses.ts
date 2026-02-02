@@ -93,6 +93,7 @@ export interface ChainConfig {
   chainId: number;
   icon: string;
   explorerUrl: string;
+  explorerName: string;
   rpcUrl: string;
   nativeCurrency: string;
 }
@@ -104,6 +105,7 @@ export const CHAIN_CONFIG: Record<SupportedChain, ChainConfig> = {
     chainId: celo.id,
     icon: '🟡',
     explorerUrl: 'https://celoscan.io',
+    explorerName: 'Celoscan',
     rpcUrl: 'https://forno.celo.org',
     nativeCurrency: 'CELO',
   },
@@ -113,6 +115,7 @@ export const CHAIN_CONFIG: Record<SupportedChain, ChainConfig> = {
     chainId: base.id,
     icon: '🔷',
     explorerUrl: 'https://basescan.org',
+    explorerName: 'Basescan',
     rpcUrl: 'https://mainnet.base.org',
     nativeCurrency: 'ETH',
   },
@@ -152,4 +155,11 @@ export function getExplorerTxUrl(chainId: number | undefined, txHash: string): s
 
 export function getExplorerAddressUrl(chainId: number | undefined, address: string | null): string {
   return `${getExplorerUrl(chainId)}/address/${address ?? ''}`;
+}
+
+export function getExplorerName(chainId: number | undefined): string {
+  if (!chainId) return CHAIN_CONFIG.celo.explorerName;
+  const chainName = getChainName(chainId);
+  if (!chainName) return CHAIN_CONFIG.celo.explorerName;
+  return CHAIN_CONFIG[chainName].explorerName;
 }

@@ -17,7 +17,7 @@ import { WalletConnect } from "@/components/shared/WalletConnect";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 export default function SudokuPage() {
   const {
@@ -249,7 +249,7 @@ export default function SudokuPage() {
                 rel="noopener noreferrer"
                 className="hover:text-chain transition-colors underline"
               >
-                View Contract on Explorer →
+                View Contract on {getExplorerName(chain?.id)} →
               </a>
             ) : (
               <span>Coming soon on Base</span>

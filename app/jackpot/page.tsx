@@ -11,7 +11,7 @@ import { JackpotMachine } from "@/components/jackpot/JackpotMachine";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 export default function JackpotPage() {
   const {
@@ -231,7 +231,7 @@ export default function JackpotPage() {
                   rel="noopener noreferrer"
                   className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
                 >
-                  View on Explorer
+                  View on {getExplorerName(chain?.id)} →
                 </a>
               </p>
             </>

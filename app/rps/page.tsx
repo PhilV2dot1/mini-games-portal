@@ -20,7 +20,7 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
 
@@ -429,7 +429,7 @@ export default function RockPaperScissorsPage() {
                     rel="noopener noreferrer"
                     className="text-gray-900 dark:text-white hover:text-chain font-semibold transition-colors underline decoration-chain"
                   >
-                    {t('games.rps.viewOnCeloscan')}
+                    {t('games.rps.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                   </a>
                 </p>
               </>

@@ -21,7 +21,7 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
 
@@ -355,7 +355,7 @@ export default function TicTacToePage() {
                     rel="noopener noreferrer"
                     className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
                   >
-                    {t('games.tictactoe.viewOnCeloscan')}
+                    {t('games.tictactoe.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                   </a>
                 </p>
               </>

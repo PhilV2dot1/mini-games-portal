@@ -11,7 +11,7 @@ import { WalletConnect } from "@/components/shared/WalletConnect";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 export default function Game2048Page() {
   const {
@@ -169,7 +169,7 @@ export default function Game2048Page() {
                   rel="noopener noreferrer"
                   className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
                 >
-                  {t('games.2048.viewOnCeloscan').replace('Celoscan', 'Explorer')}
+                  {t('games.2048.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                 </a>
               </p>
             </>

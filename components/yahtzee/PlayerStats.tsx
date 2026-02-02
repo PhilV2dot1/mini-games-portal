@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import type { GameMode } from "@/lib/types";
 import type { PlayerStats as PlayerStatsType } from "@/hooks/useYahtzee";
 import { YAHTZEE_CONTRACT_ADDRESS } from "@/lib/contracts/yahtzee-abi";
+import { getExplorerAddressUrl, getExplorerName } from "@/lib/contracts/addresses";
+import { useAccount } from "wagmi";
 
 interface PlayerStatsProps {
   stats: PlayerStatsType;
@@ -12,6 +14,7 @@ interface PlayerStatsProps {
 }
 
 export function PlayerStats({ stats, averageScore, mode }: PlayerStatsProps) {
+  const { chain } = useAccount();
   const statCards = [
     {
       label: "Games Played",
@@ -84,7 +87,7 @@ export function PlayerStats({ stats, averageScore, mode }: PlayerStatsProps) {
 
       {mode === "onchain" && (
         <motion.a
-          href={`https://celoscan.io/address/${YAHTZEE_CONTRACT_ADDRESS}`}
+          href={getExplorerAddressUrl(chain?.id, YAHTZEE_CONTRACT_ADDRESS)}
           target="_blank"
           rel="noopener noreferrer"
           className="
@@ -93,7 +96,7 @@ export function PlayerStats({ stats, averageScore, mode }: PlayerStatsProps) {
           "
           whileHover={{ scale: 1.02 }}
         >
-          View contract on Celoscan →
+          View contract on {getExplorerName(chain?.id)} →
         </motion.a>
       )}
     </div>

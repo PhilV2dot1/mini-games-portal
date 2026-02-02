@@ -15,7 +15,7 @@ import { DifficultySelector } from "@/components/minesweeper/DifficultySelector"
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 export default function MinesweeperPage() {
   const {
@@ -209,7 +209,7 @@ export default function MinesweeperPage() {
                 rel="noopener noreferrer"
                 className="hover:text-chain underline transition-colors"
               >
-                {t("games.minesweeper.viewOnCeloscan").replace("Celoscan", "Explorer")}
+                {t("games.minesweeper.viewOnCeloscan").replace("Celoscan", getExplorerName(chain?.id))}
               </a>
             </p>
           ) : (

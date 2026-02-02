@@ -22,7 +22,7 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
 
@@ -542,7 +542,7 @@ export default function MastermindPage() {
                     rel="noopener noreferrer"
                     className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
                   >
-                    {t('games.mastermind.viewOnCeloscan')?.replace('Celoscan', 'Explorer') || 'View on Explorer'}
+                    {t('games.mastermind.viewOnCeloscan')?.replace('Celoscan', getExplorerName(chain?.id)) || 'View on Explorer'}
                   </a>
                 </p>
               </>
