@@ -9,10 +9,8 @@ interface ChainSelectorProps {
 }
 
 export function ChainSelector({ className = '' }: ChainSelectorProps) {
-  const { currentChainId, isOnCelo, isOnBase, switchToCelo, switchToBase } = useChainSelector();
+  const { isOnCelo, isOnBase, switchToCelo, switchToBase } = useChainSelector();
   const { t } = useLanguage();
-
-  if (!currentChainId) return null;
 
   return (
     <div className={`flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 ${className}`}>

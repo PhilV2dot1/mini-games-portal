@@ -71,14 +71,20 @@ export function LoginModal({
     setLoading(true);
 
     try {
+      let result: { success: boolean; error?: string };
       if (provider === 'google') {
-        await signInWithGoogle();
+        result = await signInWithGoogle();
       } else if (provider === 'twitter') {
-        await signInWithTwitter();
-      } else if (provider === 'discord') {
-        await signInWithDiscord();
+        result = await signInWithTwitter();
+      } else {
+        result = await signInWithDiscord();
       }
-      // Social login redirects, so no success handling needed
+
+      if (!result.success) {
+        setError(result.error || t('auth.socialLoginFailed'));
+        setLoading(false);
+      }
+      // If success, OAuth will redirect - no further handling needed
     } catch (err) {
       console.error('Social login error:', err);
       setError(t('auth.socialLoginFailed'));

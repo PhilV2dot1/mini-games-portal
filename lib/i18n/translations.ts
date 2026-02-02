@@ -318,6 +318,7 @@ export const translations = {
       connectFarcaster: 'Connect with your Farcaster wallet',
       connectWalletConnect: 'Connect with any mobile wallet',
       connectMetaMask: 'Connect with MetaMask',
+      connectCoinbase: 'Connect with Coinbase / Base Wallet',
       connectBrowser: 'Connect with your browser wallet',
       connectWith: 'Connect with',
 
@@ -1175,6 +1176,7 @@ export const translations = {
       connectFarcaster: 'Connectez-vous avec votre wallet Farcaster',
       connectWalletConnect: 'Connectez-vous avec n\'importe quel wallet mobile',
       connectMetaMask: 'Connectez-vous avec MetaMask',
+      connectCoinbase: 'Connectez-vous avec Coinbase / Base Wallet',
       connectBrowser: 'Connectez-vous avec votre wallet navigateur',
       connectWith: 'Connecter avec',
 

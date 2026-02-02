@@ -11,6 +11,9 @@ const CONNECTOR_ICONS: Record<string, string> = {
   "Farcaster Wallet": "🔵",
   "WalletConnect": "🔗",
   "MetaMask": "🦊",
+  "Rabby Wallet": "🟣",
+  "Coinbase Wallet": "🔷",
+  "Injected": "💼",
   "Browser Wallet": "💼",
 };
 
@@ -30,6 +33,9 @@ export function WalletConnect() {
         return t('wallet.connectWalletConnect');
       case "MetaMask":
         return t('wallet.connectMetaMask');
+      case "Coinbase Wallet":
+        return t('wallet.connectCoinbase');
+      case "Injected":
       case "Browser Wallet":
         return t('wallet.connectBrowser');
       default:
@@ -41,12 +47,22 @@ export function WalletConnect() {
   const { isSupportedChain: isOnSupportedChain } = useChainSelector();
   const isSwitching = isConnected && !isOnSupportedChain;
 
-  // Filter connectors based on context
-  const availableConnectors = connectors.filter((connector) => {
+  // Filter connectors based on context and deduplicate
+  const availableConnectors = connectors.filter((connector, index, arr) => {
     // If not in Farcaster, hide Farcaster connector
     if (connector.name === "Farcaster Wallet" && !isInFarcaster) {
       return false;
     }
+    // Hide generic "Injected" if a named injected wallet (MetaMask, Rabby, etc.) is present
+    if (connector.name === "Injected") {
+      const hasNamedInjected = arr.some(
+        (c) => c.type === "injected" && c.name !== "Injected"
+      );
+      if (hasNamedInjected) return false;
+    }
+    // Deduplicate by name (keep first occurrence)
+    const firstIndex = arr.findIndex((c) => c.name === connector.name);
+    if (firstIndex !== index) return false;
     return true;
   });
 

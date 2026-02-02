@@ -29,9 +29,9 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 
   // Social auth
-  signInWithGoogle: () => Promise<void>;
-  signInWithTwitter: () => Promise<void>;
-  signInWithDiscord: () => Promise<void>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signInWithTwitter: () => Promise<{ success: boolean; error?: string }>;
+  signInWithDiscord: () => Promise<{ success: boolean; error?: string }>;
 
   // Wallet/Farcaster linking
   linkWallet: (address: string) => Promise<{ success: boolean; error?: string }>;
@@ -157,52 +157,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   /**
-   * Sign in with Google
+   * Sign in with OAuth provider (Google, Twitter, Discord)
    */
-  const signInWithGoogle = async () => {
+  const signInWithOAuth = async (provider: 'google' | 'twitter' | 'discord') => {
     try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
+
+      if (error) {
+        console.error(`${provider} sign in error:`, error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error(`${provider} sign in error:`, error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : `Failed to sign in with ${provider}`,
+      };
     }
   };
 
-  /**
-   * Sign in with Twitter
-   */
-  const signInWithTwitter = async () => {
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-    } catch (error) {
-      console.error('Twitter sign in error:', error);
-    }
-  };
-
-  /**
-   * Sign in with Discord
-   */
-  const signInWithDiscord = async () => {
-    try {
-      await supabase.auth.signInWithOAuth({
-        provider: 'discord',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-    } catch (error) {
-      console.error('Discord sign in error:', error);
-    }
-  };
+  const signInWithGoogle = () => signInWithOAuth('google');
+  const signInWithTwitter = () => signInWithOAuth('twitter');
+  const signInWithDiscord = () => signInWithOAuth('discord');
 
   // ============================================================================
   // Wallet/Farcaster Linking
