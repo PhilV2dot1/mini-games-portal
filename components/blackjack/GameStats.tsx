@@ -1,4 +1,5 @@
 import type { GameStats as Stats } from "@/hooks/useBlackjack";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface GameStatsProps {
   stats: Stats;
@@ -8,12 +9,13 @@ interface GameStatsProps {
 }
 
 export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsProps) {
+  const { t } = useLanguage();
   const totalGames = stats.wins + stats.losses + stats.pushes;
   const winRate = totalGames > 0 ? ((stats.wins / totalGames) * 100).toFixed(1) : '0.0';
 
   return (
     <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-lg border-2 border-gray-300">
-      <h3 className="text-xl font-bold text-center mb-4 text-gray-900">Statistics</h3>
+      <h3 className="text-xl font-bold text-center mb-4 text-gray-900">{t('games.blackjack.statistics')}</h3>
 
       {/* Free mode credits */}
       {mode === 'free' && credits !== undefined && (
@@ -33,9 +35,9 @@ export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsPro
 
       {/* Game stats grid */}
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <StatItem label="Wins" value={stats.wins} color="text-green-600" />
-        <StatItem label="Losses" value={stats.losses} color="text-red-600" />
-        <StatItem label="Pushes" value={stats.pushes} color="text-gray-600" />
+        <StatItem label={t('stats.wins')} value={stats.wins} color="text-green-600" />
+        <StatItem label={t('stats.losses')} value={stats.losses} color="text-red-600" />
+        <StatItem label={t('games.blackjack.pushes')} value={stats.pushes} color="text-gray-600" />
       </div>
 
       {/* Blackjacks */}
@@ -49,7 +51,7 @@ export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsPro
       {/* Win rate */}
       <div className="pt-4 border-t border-gray-300">
         <div className="text-center">
-          <div className="text-sm text-gray-600 mb-1">Win Rate</div>
+          <div className="text-sm text-gray-600 mb-1">{t('stats.winRate')}</div>
           <div className="text-3xl font-bold text-gray-900">{winRate}%</div>
         </div>
       </div>
@@ -59,11 +61,11 @@ export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsPro
         <div className="mt-4 pt-4 border-t border-gray-300">
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center">
-              <div className="text-xs text-gray-600">Current</div>
+              <div className="text-xs text-gray-600">{t('stats.current')}</div>
               <div className="text-lg font-bold text-blue-600">{stats.currentStreak}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs text-gray-600">Best</div>
+              <div className="text-xs text-gray-600">{t('stats.best')}</div>
               <div className="text-lg font-bold text-gray-700">{stats.bestStreak}</div>
             </div>
           </div>

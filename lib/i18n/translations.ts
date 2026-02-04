@@ -63,6 +63,11 @@ export const translations = {
         newGame: 'NEW GAME',
         playOnChain: 'PLAY ON-CHAIN',
         playAgain: 'PLAY AGAIN',
+        subtitle: 'Beat the dealer to 21!',
+        clickNewGame: 'Click "NEW GAME" to start',
+        clickPlayOnChain: 'Click "PLAY ON-CHAIN" to start',
+        statistics: 'Statistics',
+        pushes: 'Pushes',
       },
 
       // Connect Five specific
@@ -929,6 +934,11 @@ export const translations = {
         newGame: 'NOUVELLE PARTIE',
         playOnChain: 'JOUER ON-CHAIN',
         playAgain: 'REJOUER',
+        subtitle: 'Battez le croupier à 21 !',
+        clickNewGame: 'Cliquez sur "NOUVELLE PARTIE" pour commencer',
+        clickPlayOnChain: 'Cliquez sur "JOUER ON-CHAIN" pour commencer',
+        statistics: 'Statistiques',
+        pushes: 'Égalités',
       },
 
       // Connect Five specific

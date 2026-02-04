@@ -43,6 +43,15 @@ export default function BlackjackPage() {
   const { play } = useGameAudio('blackjack');
   const prevHandLength = useRef(soloGame.playerHand.length);
 
+  // Translate game messages from hook
+  const translateMessage = useCallback((message: string): string => {
+    const messageMap: Record<string, string> = {
+      'Click "NEW GAME" to start': t('games.blackjack.clickNewGame'),
+      'Click "PLAY ON-CHAIN" to start': t('games.blackjack.clickPlayOnChain'),
+    };
+    return messageMap[message] || message;
+  }, [t]);
+
   // Wrappers with sound effects (solo)
   const hitWithSound = useCallback(() => {
     play('hit');
@@ -134,7 +143,7 @@ export default function BlackjackPage() {
               Blackjack
             </h1>
             <p className="text-gray-700 dark:text-gray-300 text-sm sm:text-base font-medium">
-              Beat the dealer to 21!
+              {t('games.blackjack.subtitle')}
             </p>
           </div>
         </header>
@@ -151,7 +160,7 @@ export default function BlackjackPage() {
               {soloGame.mode === 'onchain' && !soloGame.isConnected && (
                 <WalletConnect />
               )}
-              {soloGame.message && <GameMessage message={soloGame.message} />}
+              {soloGame.message && <GameMessage message={translateMessage(soloGame.message)} />}
               <BlackjackTable
                 playerCards={soloGame.playerHand}
                 dealerCards={soloGame.dealerHand}
