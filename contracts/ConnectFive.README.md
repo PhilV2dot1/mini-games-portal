@@ -1,8 +1,5 @@
 # ConnectFive Smart Contract
 
-Solidity smart contract for Connect Four game on Celo blockchain with optional betting mechanism.
-
-## Features
 
 ### Core Gameplay
 - **7×6 Grid**: Classic Connect Four board (7 columns × 6 rows)
