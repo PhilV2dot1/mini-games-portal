@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
+import { render } from '@/tests/helpers/render';
 import { GameBoard } from '@/components/rps/GameBoard';
 import type { Choice } from '@/hooks/useRockPaperScissors';
 import { useFarcaster } from '@/components/providers';
