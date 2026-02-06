@@ -23,7 +23,7 @@ test.describe('Portal Navigation', () => {
     { name: 'Solitaire', path: '/games/solitaire' },
     { name: 'Minesweeper', path: '/games/minesweeper' },
     { name: 'Snake', path: '/games/snake' },
-    { name: 'Connect Five', path: '/games/connectfive' },
+    { name: 'Connect Five', path: '/games/connect-five' },
     { name: 'Yahtzee', path: '/games/yahtzee' },
     { name: 'Sudoku', path: '/games/sudoku' },
   ];
