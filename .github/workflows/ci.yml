@@ -67,7 +67,7 @@ jobs:
         run: npm test -- --run --coverage
 
       - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         if: always()
         with:
           file: ./coverage/coverage-final.json
@@ -94,7 +94,7 @@ jobs:
           cache: 'npm'
 
       - name: Setup Next.js cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ${{ github.workspace }}/.next/cache
@@ -146,7 +146,7 @@ jobs:
         run: npm run test:e2e || echo "E2E tests not configured yet"
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
