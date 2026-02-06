@@ -602,7 +602,6 @@ describe('use2048', () => {
       address: '0x2048',
       abi: [],
       functionName: 'startGame',
-      value: BigInt('10000000000000000'),
     });
   });
 

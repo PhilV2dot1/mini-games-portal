@@ -755,7 +755,6 @@ describe('useMastermind', () => {
       functionName: 'startGame',
       chainId: 42220,
       gas: BigInt(200000),
-      value: BigInt('10000000000000000'),
     });
   });
 
