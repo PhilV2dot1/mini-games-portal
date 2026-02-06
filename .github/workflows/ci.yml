@@ -108,8 +108,10 @@ jobs:
       - name: Build Next.js application
         run: npm run build
         env:
-          # Add environment variables if needed
-          NEXT_PUBLIC_EXAMPLE: ${{ secrets.NEXT_PUBLIC_EXAMPLE }}
+          # Placeholder values for build - real values are set in Vercel
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
+          NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID: placeholder-id
 
       - name: Check build output
         run: |
