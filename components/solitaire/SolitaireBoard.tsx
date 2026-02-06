@@ -42,17 +42,17 @@ export function SolitaireBoard({
 
   return (
     <DndProvider backend={Backend}>
-      <div className="flex flex-col gap-8 p-6" style={{ minHeight: "700px" }}>
+      <div className="flex flex-col gap-3 sm:gap-4 p-2 sm:p-3" style={{ minHeight: "400px" }}>
         {/* Top row: Stock, Waste, Spacer, Foundations */}
         <div className="flex justify-between items-start">
           {/* Left side: Stock and Waste */}
-          <div className="flex gap-3">
+          <div className="flex gap-1 sm:gap-2">
             <StockPile cards={gameState.stock} onClick={onStockClick} />
             <WastePile cards={gameState.waste} onClick={onWasteClick} />
           </div>
 
           {/* Right side: 4 Foundation piles */}
-          <div className="flex gap-3">
+          <div className="flex gap-1 sm:gap-2">
             {(["hearts", "diamonds", "clubs", "spades"] as Suit[]).map(suit => (
               <FoundationPile
                 key={suit}
@@ -65,7 +65,7 @@ export function SolitaireBoard({
         </div>
 
         {/* Tableau: 7 columns */}
-        <div className="flex gap-3 justify-center" style={{ minHeight: "500px" }}>
+        <div className="flex gap-1 sm:gap-2 justify-center" style={{ minHeight: "280px" }}>
           {gameState.tableau.map((column, index) => (
             <TableauPile
               key={index}

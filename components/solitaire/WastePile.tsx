@@ -12,14 +12,14 @@ export function WastePile({ cards, onClick }: WastePileProps) {
 
   if (!topCard) {
     return (
-      <div className="w-24 h-36 rounded-lg border-2 border-dashed border-gray-400 bg-gray-50 flex items-center justify-center">
-        <span className="text-sm text-gray-400 font-medium text-center px-1">Empty</span>
+      <div className="w-11 h-16 sm:w-12 sm:h-[72px] rounded-md border border-dashed border-gray-400 bg-gray-50 flex items-center justify-center">
+        <span className="text-[8px] sm:text-[10px] text-gray-400 font-medium text-center px-0.5">Empty</span>
       </div>
     );
   }
 
   return (
-    <div className="w-24 h-36 relative">
+    <div className="w-11 h-16 sm:w-12 sm:h-[72px] relative">
       <CardComponent
         card={topCard}
         isDraggable={true}

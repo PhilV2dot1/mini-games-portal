@@ -33,16 +33,16 @@ export function Card({ card, isDraggable = false, isTopCard = true, onClick, sty
     return (
       <div
         className={cn(
-          "w-24 h-36 rounded-lg border-2 border-slate-700 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900",
-          "flex items-center justify-center cursor-default shadow-md",
+          "w-11 h-16 sm:w-12 sm:h-[72px] rounded-md border border-slate-700 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900",
+          "flex items-center justify-center cursor-default shadow-sm",
           "relative"
         )}
         style={style}
       >
-        <div className="absolute inset-0 rounded-lg overflow-hidden">
-          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.05)_10px,rgba(255,255,255,0.05)_20px)]" />
+        <div className="absolute inset-0 rounded-md overflow-hidden">
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.05)_4px,rgba(255,255,255,0.05)_8px)]" />
         </div>
-        <div className="text-5xl font-bold text-blue-400 opacity-30 z-10">C</div>
+        <div className="text-lg sm:text-xl font-bold text-blue-400 opacity-30 z-10">C</div>
       </div>
     );
   }
@@ -55,32 +55,32 @@ export function Card({ card, isDraggable = false, isTopCard = true, onClick, sty
     <div
       ref={drag as unknown as React.Ref<HTMLDivElement>}
       className={cn(
-        "w-24 h-36 rounded-lg border-2 border-gray-300 shadow-md",
+        "w-11 h-16 sm:w-12 sm:h-[72px] rounded-md border border-gray-300 shadow-sm",
         bgColor,
         "flex flex-col relative",
         "transition-all duration-150",
         isDragging && "opacity-30",
-        isDraggable && isTopCard && "cursor-move hover:scale-105 hover:shadow-lg hover:z-10",
+        isDraggable && isTopCard && "cursor-move hover:scale-105 hover:shadow-md hover:z-10",
         !isDraggable && "cursor-default"
       )}
       style={style}
       onClick={onClick}
     >
       {/* Top left corner */}
-      <div className={cn("absolute top-1.5 left-2 flex flex-col items-center", color)}>
-        <div className="text-lg font-bold leading-none">{card.rank}</div>
-        <div className="text-xl leading-none">{getSuitSymbol(card.suit)}</div>
+      <div className={cn("absolute top-0.5 left-0.5 sm:top-1 sm:left-1 flex flex-col items-center", color)}>
+        <div className="text-[10px] sm:text-xs font-bold leading-none">{card.rank}</div>
+        <div className="text-xs sm:text-sm leading-none">{getSuitSymbol(card.suit)}</div>
       </div>
 
       {/* Center symbol */}
       <div className={cn("flex-1 flex items-center justify-center", color)}>
-        <div className="text-5xl">{getSuitSymbol(card.suit)}</div>
+        <div className="text-xl sm:text-2xl">{getSuitSymbol(card.suit)}</div>
       </div>
 
       {/* Bottom right corner (rotated) */}
-      <div className={cn("absolute bottom-1.5 right-2 flex flex-col items-center rotate-180", color)}>
-        <div className="text-lg font-bold leading-none">{card.rank}</div>
-        <div className="text-xl leading-none">{getSuitSymbol(card.suit)}</div>
+      <div className={cn("absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1 flex flex-col items-center rotate-180", color)}>
+        <div className="text-[10px] sm:text-xs font-bold leading-none">{card.rank}</div>
+        <div className="text-xs sm:text-sm leading-none">{getSuitSymbol(card.suit)}</div>
       </div>
     </div>
   );
