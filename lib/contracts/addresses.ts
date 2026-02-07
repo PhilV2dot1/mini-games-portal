@@ -70,7 +70,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   },
   connectfive: {
     celo: '0xd00a6170d83b446314b2e79f9603bc0a72c463e6',
-    base: '0x64d4E14411C93A42348eD0641Cc21Fd70FafFf18',
+    base: '0xA2017B6A6A04112AB32534a6D1BEFcaA7a75FC9e',
   },
   solitaire: {
     celo: '0x552c22fe8e0dbff856d45bcf32ddf6fe1ccb1525',
