@@ -178,6 +178,7 @@ export function useLocalStats() {
       };
 
       return {
+        ...prev,
         totalPoints: prev.totalPoints + points,
         gamesPlayed: prev.gamesPlayed + 1,
         games: {

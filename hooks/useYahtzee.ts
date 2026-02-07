@@ -972,7 +972,7 @@ export function useYahtzee() {
     hasBonus: hasUpperBonus(vsAI ? (currentPlayer === "human" ? playerScoreCard : aiScoreCard) : scoreCard),
     finalScore: getFinalScore(vsAI ? (currentPlayer === "human" ? playerScoreCard : aiScoreCard) : scoreCard),
     averageScore: getAverageScore(),
-    isComplete: isGameComplete(scoreCard),
+    isComplete: vsAI ? isGameComplete(playerScoreCard) : isGameComplete(scoreCard),
 
     // AI Mode Computed Values
     playerUpperTotal: getUpperSectionTotal(playerScoreCard),

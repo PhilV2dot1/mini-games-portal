@@ -97,8 +97,14 @@ export default function YahtzeePage() {
   }, [mode, soloGame.currentTurn, soloGame.hasBonus, play]);
 
   // Record game to portal stats when finished (solo and vs AI)
+  const hasRecordedGame = useRef(false);
   useEffect(() => {
-    if (mode !== 'multiplayer' && soloGame.status === "finished" && soloGame.isComplete) {
+    // Reset recording flag when game restarts
+    if (soloGame.status === "idle" || soloGame.status === "playing") {
+      hasRecordedGame.current = false;
+    }
+
+    if (mode !== 'multiplayer' && soloGame.status === "finished" && soloGame.isComplete && !hasRecordedGame.current) {
       // For AI mode, use player's score and win/lose based on AI comparison
       // For solo mode, use finalScore >= 200 as win threshold
       let result: "win" | "lose";
@@ -107,6 +113,8 @@ export default function YahtzeePage() {
       } else {
         result = soloGame.finalScore >= 200 ? "win" : "lose";
       }
+      console.log("Recording Yahtzee game:", { mode: soloGame.mode, result, vsAI: soloGame.vsAI, isComplete: soloGame.isComplete });
+      hasRecordedGame.current = true;
       recordGame("yahtzee", soloGame.mode, result);
     }
   }, [mode, soloGame.status, soloGame.isComplete, soloGame.mode, soloGame.finalScore, soloGame.vsAI, soloGame.winner, recordGame]);
