@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
-import { useWriteContract, useAccount } from "wagmi";
+import { useWriteContract, useAccount, usePublicClient } from "wagmi";
+import { decodeEventLog } from "viem";
 import { JACKPOT_CONTRACT_ABI } from "@/lib/contracts/jackpot-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
@@ -55,6 +56,7 @@ export function useJackpot() {
   const contractAddress = getContractAddress('jackpot', chain?.id);
   const gameAvailable = isGameAvailableOnChain('jackpot', chain?.id);
   const { writeContractAsync, isPending } = useWriteContract();
+  const publicClient = usePublicClient();
 
   const spin = useCallback(async () => {
     if (isSpinning) return;
@@ -86,18 +88,44 @@ export function useJackpot() {
           // Start party on-chain (use default FID 1 for now)
           const fid = BigInt(1); // Default FID for testing
 
-          const tx = await writeContractAsync({
+          const txHash = await writeContractAsync({
             address: contractAddress!,
             abi: JACKPOT_CONTRACT_ABI,
             functionName: "startParty",
             args: [fid],
           });
 
-          console.log("Party started, tx:", tx);
+          console.log("Party started, tx:", txHash);
 
-          // Get the sessionId from the transaction (would need to parse events in production)
-          // For now, use a timestamp as sessionId approximation
-          const newSessionId = BigInt(Date.now());
+          // Wait for transaction receipt and parse the PartyStarted event to get sessionId
+          let newSessionId: bigint | null = null;
+          if (publicClient) {
+            const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            console.log("Transaction receipt:", receipt);
+
+            // Find the PartyStarted event in the logs
+            for (const log of receipt.logs) {
+              try {
+                const decoded = decodeEventLog({
+                  abi: JACKPOT_CONTRACT_ABI,
+                  data: log.data,
+                  topics: log.topics,
+                });
+                if (decoded.eventName === "PartyStarted") {
+                  newSessionId = (decoded.args as { sessionId: bigint }).sessionId;
+                  console.log("Session ID from event:", newSessionId);
+                  break;
+                }
+              } catch {
+                // Not the event we're looking for, continue
+              }
+            }
+          }
+
+          if (!newSessionId) {
+            throw new Error("Failed to get session ID from transaction");
+          }
+
           setSessionId(newSessionId);
 
           // Simulate spin animation
@@ -122,7 +150,7 @@ export function useJackpot() {
       setState("idle");
       setIsSpinning(false);
     }
-  }, [mode, isConnected, address, isSpinning, writeContractAsync]);
+  }, [mode, isConnected, address, isSpinning, writeContractAsync, publicClient, contractAddress]);
 
   const submitScore = useCallback(async () => {
     if (!sessionId || !lastResult || mode !== "onchain") return;
@@ -148,7 +176,7 @@ export function useJackpot() {
     } finally {
       setIsSpinning(false);
     }
-  }, [sessionId, lastResult, mode, writeContractAsync]);
+  }, [sessionId, lastResult, mode, writeContractAsync, contractAddress]);
 
   const resetGame = useCallback(() => {
     setState("idle");
