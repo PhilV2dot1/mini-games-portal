@@ -13,7 +13,7 @@ export function StockPile({ cards, onClick }: StockPileProps) {
   return (
     <div
       className={cn(
-        "w-11 h-16 sm:w-12 sm:h-[72px] rounded-md border shadow-sm",
+        "w-14 h-20 rounded-md border shadow-sm",
         "flex items-center justify-center relative",
         "transition-all duration-150",
         hasCards ? "bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 border-slate-700 cursor-pointer hover:scale-105 hover:shadow-md"
@@ -27,19 +27,19 @@ export function StockPile({ cards, onClick }: StockPileProps) {
           <div className="absolute inset-0 rounded-md overflow-hidden">
             <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(255,255,255,0.05)_4px,rgba(255,255,255,0.05)_8px)]" />
           </div>
-          <div className="text-lg sm:text-xl font-bold text-blue-400 opacity-30 z-10">C</div>
+          <div className="text-xl font-bold text-blue-400 opacity-30 z-10">C</div>
 
           {/* Card count */}
-          <div className="absolute bottom-0.5 right-0.5 bg-slate-900 text-white text-[8px] sm:text-[10px] px-1 py-0.5 rounded font-bold z-10">
+          <div className="absolute bottom-1 right-1 bg-slate-900 text-white text-[10px] px-1 py-0.5 rounded font-bold z-10">
             {cards.length}
           </div>
         </>
       ) : (
         <div className="flex flex-col items-center gap-0.5">
-          <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span className="text-[8px] sm:text-[10px] text-gray-400 font-medium">Reset</span>
+          <span className="text-[10px] text-gray-400 font-medium">Reset</span>
         </div>
       )}
     </div>

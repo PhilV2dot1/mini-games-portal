@@ -40,7 +40,7 @@ export function FoundationPile({ suit, cards, onDrop }: FoundationPileProps) {
     <div
       ref={drop as unknown as React.Ref<HTMLDivElement>}
       className={cn(
-        "w-11 h-16 sm:w-12 sm:h-[72px] rounded-md border transition-all duration-150",
+        "w-14 h-20 rounded-md border transition-all duration-150",
         isOver && canDrop && "bg-green-200 ring-2 ring-green-500",
         isOver && !canDrop && "bg-red-200 ring-2 ring-red-500",
         !topCard && "border-dashed border-gray-400 bg-gray-50"
@@ -50,7 +50,7 @@ export function FoundationPile({ suit, cards, onDrop }: FoundationPileProps) {
         <CardComponent card={topCard} isDraggable={false} />
       ) : (
         <div className="w-full h-full flex items-center justify-center">
-          <span className={cn("text-2xl sm:text-3xl opacity-30", suitColor)}>
+          <span className={cn("text-3xl opacity-30", suitColor)}>
             {getSuitSymbol(suit)}
           </span>
         </div>
