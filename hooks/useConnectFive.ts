@@ -530,29 +530,39 @@ export function useConnectFive() {
         setMessage("Checking for previous game...");
 
         // Use publicClient.readContract to directly check if there's an active game
-        const isActive = await publicClient.readContract({
-          address: contractAddress,
-          abi: CONNECTFIVE_CONTRACT_ABI,
-          functionName: "isGameActive",
-          args: [address],
-        });
-
-        console.log("isGameActive result:", isActive);
+        let isActive = false;
+        try {
+          isActive = await publicClient.readContract({
+            address: contractAddress,
+            abi: CONNECTFIVE_CONTRACT_ABI,
+            functionName: "isGameActive",
+            args: [address],
+          }) as boolean;
+          console.log("isGameActive result:", isActive);
+        } catch (readError) {
+          console.error("Error reading isGameActive:", readError);
+          // Continue anyway - try to start the game
+        }
 
         // If there's an active game, end it first with a LOSE result (forfeit)
         if (isActive === true) {
           console.log("Active game detected, ending previous game...");
           setMessage("Ending previous unfinished game...");
 
-          await writeContractAsync({
-            address: contractAddress,
-            abi: CONNECTFIVE_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [GAME_RESULT.LOSE], // Forfeit the previous game
-          });
-
-          // Wait a bit for the transaction to be processed
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          try {
+            await writeContractAsync({
+              address: contractAddress,
+              abi: CONNECTFIVE_CONTRACT_ABI,
+              functionName: "endGame",
+              args: [GAME_RESULT.LOSE], // Forfeit the previous game
+            });
+            console.log("Previous game ended successfully");
+            // Wait a bit for the transaction to be processed
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } catch (endError) {
+            console.error("Error ending previous game:", endError);
+            // Continue anyway - the game might have been ended already
+          }
         }
 
         // Now start the new game
@@ -568,7 +578,8 @@ export function useConnectFive() {
         setMessage("Game started! Your turn");
       } catch (error) {
         console.error("Failed to start on-chain game:", error);
-        setMessage("⚠️ Failed to start on-chain game");
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        setMessage(`⚠️ Failed to start on-chain game: ${errorMessage.slice(0, 50)}`);
         setStatus("idle");
       }
     } else {
