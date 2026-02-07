@@ -56,6 +56,13 @@ const CONNECTFIVE_CONTRACT_ABI = [
       {"name": "draws", "type": "uint256"}
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isGameActive",
+    "inputs": [{"name": "player", "type": "address"}],
+    "outputs": [{"name": "", "type": "bool"}],
+    "stateMutability": "view"
   }
 ] as const;
 
@@ -513,13 +520,43 @@ export function useConnectFive() {
 
       try {
         setStatus("processing");
-        setMessage("Starting game on blockchain...");
+        setMessage("Checking for previous game...");
 
-        await writeContractAsync({
-          address: contractAddress!,
-          abi: CONNECTFIVE_CONTRACT_ABI,
-          functionName: "startGame",
-        });
+        // Check if there's an active game that needs to be ended first
+        // We'll try to start the game, and if it fails due to an active game,
+        // we'll end the previous game with a LOSE result and try again
+        try {
+          await writeContractAsync({
+            address: contractAddress!,
+            abi: CONNECTFIVE_CONTRACT_ABI,
+            functionName: "startGame",
+          });
+        } catch (startError: unknown) {
+          // Check if the error is due to an active game
+          const errorMessage = startError instanceof Error ? startError.message : String(startError);
+          if (errorMessage.includes("already in progress") || errorMessage.includes("1002") || errorMessage.includes("revert")) {
+            console.log("Active game detected, ending previous game...");
+            setMessage("Ending previous unfinished game...");
+
+            // End the previous game with a LOSE result
+            await writeContractAsync({
+              address: contractAddress!,
+              abi: CONNECTFIVE_CONTRACT_ABI,
+              functionName: "endGame",
+              args: [GAME_RESULT.LOSE], // Forfeit the previous game
+            });
+
+            // Now try to start the new game
+            setMessage("Starting new game on blockchain...");
+            await writeContractAsync({
+              address: contractAddress!,
+              abi: CONNECTFIVE_CONTRACT_ABI,
+              functionName: "startGame",
+            });
+          } else {
+            throw startError;
+          }
+        }
 
         setGameStartedOnChain(true);
         setStatus("playing");
@@ -532,7 +569,7 @@ export function useConnectFive() {
     } else {
       setStatus("playing");
     }
-  }, [mode, isConnected, address, writeContractAsync]);
+  }, [mode, isConnected, address, writeContractAsync, contractAddress]);
 
   // Reset game
   const resetGame = useCallback(() => {
