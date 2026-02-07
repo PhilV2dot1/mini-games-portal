@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, usePublicClient } from "wagmi";
 import type { GameMode, GameResult } from "@/lib/types";
 import {
   YAHTZEE_CONTRACT_ABI,
@@ -490,23 +490,13 @@ export function useYahtzee() {
   const contractAddress = getContractAddress('yahtzee', chain?.id);
   const gameAvailable = isGameAvailableOnChain('yahtzee', chain?.id);
   const { writeContractAsync, isPending } = useWriteContract();
+  const publicClient = usePublicClient();
 
   const { data: onChainStats, refetch: refetchStats } = useReadContract({
     address: contractAddress!,
     abi: YAHTZEE_CONTRACT_ABI,
     functionName: "getPlayerStats",
     args: address ? [address] : undefined,
-  });
-
-  // Check if there's an active game on-chain
-  const { refetch: refetchActiveGame } = useReadContract({
-    address: contractAddress!,
-    abi: YAHTZEE_CONTRACT_ABI,
-    functionName: "isGameActive",
-    args: address ? [address] : undefined,
-    query: {
-      enabled: mode === "onchain" && isConnected && !!address && gameAvailable,
-    },
   });
 
   // Load stats from localStorage (free mode) or blockchain (on-chain mode)
@@ -881,29 +871,43 @@ export function useYahtzee() {
 
     // Start game on-chain if in on-chain mode (works with AI mode too - only player score is recorded)
     if (mode === "onchain" && address && isConnected) {
+      if (!publicClient || !contractAddress) {
+        setMessage("⚠️ Unable to connect to blockchain");
+        return;
+      }
+
       setStatus("processing");
       try {
-        // Check if there's an active game that needs to be abandoned first
-        const { data: currentActiveGame } = await refetchActiveGame();
+        setMessage("Checking for previous game...");
 
-        if (currentActiveGame === true) {
+        // Use publicClient.readContract to directly check if there's an active game
+        const isActive = await publicClient.readContract({
+          address: contractAddress,
+          abi: YAHTZEE_CONTRACT_ABI,
+          functionName: "isGameActive",
+          args: [address],
+        });
+
+        console.log("isGameActive result:", isActive);
+
+        if (isActive === true) {
           console.log("Active game detected, abandoning previous game...");
           setMessage("Abandoning previous unfinished game...");
 
           await writeContractAsync({
-            address: contractAddress!,
+            address: contractAddress,
             abi: YAHTZEE_CONTRACT_ABI,
             functionName: "abandonGame",
           });
 
           // Wait a bit for the transaction to be processed
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         // Now start the new game
         setMessage("Starting new game on blockchain...");
         await writeContractAsync({
-          address: contractAddress!,
+          address: contractAddress,
           abi: YAHTZEE_CONTRACT_ABI,
           functionName: "startGame",
         });
@@ -917,7 +921,7 @@ export function useYahtzee() {
         setStatus("playing");
       }
     }
-  }, [status, mode, address, isConnected, vsAI, writeContractAsync, refetchActiveGame, contractAddress]);
+  }, [status, mode, address, isConnected, vsAI, writeContractAsync, contractAddress, publicClient]);
 
   /**
    * Reset game to idle state

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, usePublicClient } from "wagmi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -340,6 +340,7 @@ export function useConnectFive() {
   const contractAddress = getContractAddress('connectfive', chain?.id);
   const gameAvailable = isGameAvailableOnChain('connectfive', chain?.id);
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -364,16 +365,6 @@ export function useConnectFive() {
     },
   });
 
-  // Check if there's an active game on-chain
-  const { data: hasActiveGame, refetch: refetchActiveGame } = useReadContract({
-    address: contractAddress!,
-    abi: CONNECTFIVE_CONTRACT_ABI,
-    functionName: "isGameActive",
-    args: address ? [address] : undefined,
-    query: {
-      enabled: mode === "onchain" && isConnected && !!address && gameAvailable,
-    },
-  });
 
   // Update stats when on-chain data changes
   useEffect(() => {
@@ -529,32 +520,45 @@ export function useConnectFive() {
         return;
       }
 
+      if (!publicClient || !contractAddress) {
+        setMessage("⚠️ Unable to connect to blockchain");
+        return;
+      }
+
       try {
         setStatus("processing");
+        setMessage("Checking for previous game...");
 
-        // Refresh the active game status before checking
-        const { data: currentActiveGame } = await refetchActiveGame();
+        // Use publicClient.readContract to directly check if there's an active game
+        const isActive = await publicClient.readContract({
+          address: contractAddress,
+          abi: CONNECTFIVE_CONTRACT_ABI,
+          functionName: "isGameActive",
+          args: [address],
+        });
+
+        console.log("isGameActive result:", isActive);
 
         // If there's an active game, end it first with a LOSE result (forfeit)
-        if (currentActiveGame === true) {
+        if (isActive === true) {
           console.log("Active game detected, ending previous game...");
           setMessage("Ending previous unfinished game...");
 
           await writeContractAsync({
-            address: contractAddress!,
+            address: contractAddress,
             abi: CONNECTFIVE_CONTRACT_ABI,
             functionName: "endGame",
             args: [GAME_RESULT.LOSE], // Forfeit the previous game
           });
 
           // Wait a bit for the transaction to be processed
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         // Now start the new game
         setMessage("Starting new game on blockchain...");
         await writeContractAsync({
-          address: contractAddress!,
+          address: contractAddress,
           abi: CONNECTFIVE_CONTRACT_ABI,
           functionName: "startGame",
         });
@@ -570,7 +574,7 @@ export function useConnectFive() {
     } else {
       setStatus("playing");
     }
-  }, [mode, isConnected, address, writeContractAsync, contractAddress, refetchActiveGame]);
+  }, [mode, isConnected, address, writeContractAsync, contractAddress, publicClient]);
 
   // Reset game
   const resetGame = useCallback(() => {
