@@ -122,6 +122,7 @@ export async function POST(
     }
 
     // Handle ready action
+    let gameStarted = false;
     if (actionType === 'ready') {
       const { error: readyError } = await supabase
         .from('multiplayer_room_players')
@@ -165,6 +166,8 @@ export async function POST(
               started_at: new Date().toISOString(),
             })
             .eq('id', roomId);
+
+          gameStarted = true;
         }
       }
     }
@@ -221,6 +224,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       action,
+      gameStarted,
     });
   } catch (error) {
     console.error('[Multiplayer API] Error sending action:', error);

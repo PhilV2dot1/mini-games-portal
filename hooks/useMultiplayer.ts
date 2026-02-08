@@ -74,6 +74,7 @@ export function useMultiplayer(options: UseMultiplayerOptions): UseMultiplayerRe
   // Refs
   const clientRef = useRef<MultiplayerRealtimeClient | null>(null);
   const searchAbortRef = useRef<AbortController | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Computed values
   const isMyTurn = gameState && 'currentTurn' in gameState
@@ -155,6 +156,52 @@ export function useMultiplayer(options: UseMultiplayerOptions): UseMultiplayerRe
     await clientRef.current.subscribeToRoom(roomId, user.id, callbacks);
     setIsConnected(true);
   }, [user?.id, onGameStart, onGameEnd, onOpponentAction, onGameStateUpdate]);
+
+  // Poll for game start as fallback when realtime doesn't fire
+  const startGamePolling = useCallback((roomId: string) => {
+    // Clear any existing polling
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
+
+    pollingRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/multiplayer/rooms/${roomId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.room?.status === 'playing') {
+            console.log('[useMultiplayer] Game started (detected via polling)');
+            if (pollingRef.current) {
+              clearInterval(pollingRef.current);
+              pollingRef.current = null;
+            }
+            setStatus('playing');
+            onGameStart?.();
+          }
+        }
+      } catch (err) {
+        console.error('[useMultiplayer] Polling error:', err);
+      }
+    }, 2000);
+
+    // Stop polling after 60 seconds
+    setTimeout(() => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    }, 60000);
+  }, [onGameStart]);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, []);
 
   // Find a match
   const findMatch = useCallback(async (mode: 'ranked' | 'casual') => {
@@ -362,11 +409,23 @@ export function useMultiplayer(options: UseMultiplayerOptions): UseMultiplayerRe
         const data = await response.json();
         throw new Error(data.error || 'Failed to set ready status');
       }
+
+      // Check if the server started the game (all players ready)
+      const data = await response.json();
+      if (data.gameStarted) {
+        console.log('[useMultiplayer] Game started via API response');
+        setStatus('playing');
+        onGameStart?.();
+      } else if (ready) {
+        // If we just set ready but game didn't start yet, poll for game start
+        // (in case the other player sets ready and realtime doesn't fire)
+        startGamePolling(room.id);
+      }
     } catch (err) {
       console.error('[useMultiplayer] Set ready error:', err);
       setError((err as Error).message);
     }
-  }, [room?.id, user?.id, myPlayerNumber]);
+  }, [room?.id, user?.id, myPlayerNumber, onGameStart]);
 
   // Send game action
   const sendAction = useCallback(async (type: ActionType, data: Record<string, unknown>) => {
