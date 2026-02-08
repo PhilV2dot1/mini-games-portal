@@ -231,7 +231,7 @@ export default function JackpotPage() {
                   rel="noopener noreferrer"
                   className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
                 >
-                  View on {getExplorerName(chain?.id)} →
+                  {t('games.jackpot.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                 </a>
               </p>
             </>

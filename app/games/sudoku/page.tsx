@@ -249,7 +249,7 @@ export default function SudokuPage() {
                 rel="noopener noreferrer"
                 className="hover:text-chain transition-colors underline"
               >
-                View Contract on {getExplorerName(chain?.id)} →
+                {t('games.sudoku.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
               </a>
             ) : (
               <span>Coming soon on Base</span>
