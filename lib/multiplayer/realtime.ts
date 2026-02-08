@@ -108,7 +108,6 @@ export class MultiplayerRealtimeClient {
           (payload: RealtimePostgresChangesPayload<MultiplayerRoom>) => {
             if (payload.new && typeof payload.new === 'object') {
               const room = payload.new as MultiplayerRoom;
-              const oldRoom = payload.old as Partial<MultiplayerRoom>;
 
               // Check if game started (don't rely on oldRoom.status - Supabase may not include it)
               if (room.status === 'playing') {
