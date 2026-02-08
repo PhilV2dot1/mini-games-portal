@@ -615,10 +615,10 @@ export default function YahtzeePage() {
                   >
                     <h3 className="text-xl font-black text-gray-900 dark:text-white">
                       {mp.matchResult === 'win'
-                        ? '🏆 You Win!'
+                        ? `🏆 ${t('multiplayer.youWin') || 'You Win!'}`
                         : mp.matchResult === 'lose'
-                        ? '😔 You Lose'
-                        : '🤝 Draw!'}
+                        ? `😔 ${t('multiplayer.youLose') || 'You Lose'}`
+                        : `🤝 ${t('multiplayer.draw') || "It's a Draw!"}`}
                     </h3>
                     <div className="flex justify-center items-center gap-8">
                       <div className="text-center">
