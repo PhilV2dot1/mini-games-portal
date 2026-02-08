@@ -239,7 +239,18 @@ export function useMultiplayer(options: UseMultiplayerOptions): UseMultiplayerRe
 
       const data = await response.json();
       setRoom(data.room);
-      setPlayers([]);
+
+      // Add the creator as player 1 in the local players list
+      const creatorPlayer: RoomPlayer = {
+        room_id: data.room.id,
+        user_id: user.id,
+        player_number: 1,
+        ready: false,
+        disconnected: false,
+        joined_at: new Date().toISOString(),
+        disconnected_at: null,
+      };
+      setPlayers([creatorPlayer]);
       setMyPlayerNumber(1);
       setStatus('waiting');
 

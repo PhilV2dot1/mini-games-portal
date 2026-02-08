@@ -11,6 +11,7 @@ interface MatchmakingButtonProps {
   isSearching: boolean;
   onCancel: () => void;
   disabled?: boolean;
+  onJoinByCode?: () => void;
 }
 
 export function MatchmakingButton({
@@ -19,6 +20,7 @@ export function MatchmakingButton({
   isSearching,
   onCancel,
   disabled = false,
+  onJoinByCode,
 }: MatchmakingButtonProps) {
   const { t } = useLanguage();
   const { isAuthenticated } = useAuth();
@@ -103,6 +105,22 @@ export function MatchmakingButton({
           {t('multiplayer.createPrivate') || 'Create Private Room'}
         </Button>
 
+        {onJoinByCode && (
+          <Button
+            variant="outline"
+            size="md"
+            onClick={() => {
+              setShowOptions(false);
+              onJoinByCode();
+            }}
+            disabled={disabled}
+            className="w-full"
+          >
+            <span className="text-lg mr-2">🔑</span>
+            {t('multiplayer.haveCode') || 'Join with Room Code'}
+          </Button>
+        )}
+
         <Button
           variant="ghost"
           size="sm"
@@ -116,16 +134,26 @@ export function MatchmakingButton({
   }
 
   return (
-    <Button
-      variant="celo"
-      size="lg"
-      onClick={() => setShowOptions(true)}
-      disabled={disabled}
-      className="px-8"
-    >
-      <span className="text-lg mr-2">👥</span>
-      {t('multiplayer.play') || 'Play Multiplayer'}
-    </Button>
+    <div className="flex flex-col items-center gap-3">
+      <Button
+        variant="celo"
+        size="lg"
+        onClick={() => setShowOptions(true)}
+        disabled={disabled}
+        className="px-8"
+      >
+        <span className="text-lg mr-2">👥</span>
+        {t('multiplayer.play') || 'Play Multiplayer'}
+      </Button>
+      {onJoinByCode && (
+        <button
+          onClick={onJoinByCode}
+          className="text-sm text-gray-600 dark:text-gray-400 hover:text-chain dark:hover:text-chain underline"
+        >
+          {t('multiplayer.haveCode') || 'Have a room code? Join here'}
+        </button>
+      )}
+    </div>
   );
 }
 

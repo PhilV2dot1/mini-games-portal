@@ -235,15 +235,8 @@ export default function RockPaperScissorsPage() {
                   onCreatePrivate={multiplayer.createPrivateRoom}
                   isSearching={multiplayer.isSearching}
                   onCancel={multiplayer.cancelSearch}
+                  onJoinByCode={() => setShowJoinCode(true)}
                 />
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setShowJoinCode(true)}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-chain dark:hover:text-chain underline"
-                  >
-                    {t('multiplayer.haveCode') || 'Have a room code?'}
-                  </button>
-                </div>
               </div>
             )}
 

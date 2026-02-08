@@ -338,15 +338,8 @@ export default function MastermindPage() {
                   onCreatePrivate={mp.createPrivateRoom}
                   isSearching={mp.isSearching}
                   onCancel={mp.cancelSearch}
+                  onJoinByCode={() => setShowJoinCode(true)}
                 />
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setShowJoinCode(true)}
-                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-chain dark:hover:text-chain underline"
-                  >
-                    {t('multiplayer.haveCode') || 'Have a room code?'}
-                  </button>
-                </div>
               </div>
             )}
 
