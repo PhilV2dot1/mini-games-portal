@@ -13,7 +13,7 @@ import { PlayerStats } from "@/components/snake/PlayerStats";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 export default function SnakePage() {
   const {
@@ -223,6 +223,15 @@ export default function SnakePage() {
                 className="hover:text-chain underline transition-colors"
               >
                 {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
+              </a>
+              {' | '}
+              <a
+                href={getExplorerAddressUrl(chain?.id, contractAddress)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-chain underline transition-colors"
+              >
+                {t('games.snake.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
               </a>
             </p>
           ) : (

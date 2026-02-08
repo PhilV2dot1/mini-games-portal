@@ -78,6 +78,7 @@ export const translations = {
         title: 'Connect 4',
         subtitle: 'Align 4 pieces in a row on Celo',
         aiInfo: '🎮 Play against intelligent AI with minimax algorithm',
+        viewOnCeloscan: 'View on Celoscan →',
       },
 
       // TicTacToe specific
@@ -184,6 +185,7 @@ export const translations = {
         contributions: 'Player Contributions',
         scoreLabel: 'Score',
         movesLabel: 'moves',
+        viewOnCeloscan: 'View on Celoscan →',
       },
 
       // Minesweeper specific
@@ -952,6 +954,7 @@ export const translations = {
         title: 'Puissance 4',
         subtitle: 'Alignez 4 pièces d\'affilée sur Celo',
         aiInfo: '🎮 Jouez contre une IA intelligente avec algorithme minimax',
+        viewOnCeloscan: 'Voir sur Celoscan →',
       },
 
       // TicTacToe specific
@@ -1058,6 +1061,7 @@ export const translations = {
         contributions: 'Contributions des Joueurs',
         scoreLabel: 'Score',
         movesLabel: 'coups',
+        viewOnCeloscan: 'Voir sur Celoscan →',
       },
 
       // Minesweeper specific

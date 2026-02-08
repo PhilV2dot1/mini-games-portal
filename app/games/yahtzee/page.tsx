@@ -23,7 +23,7 @@ import {
 } from "@/components/multiplayer";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, isGameAvailableOnChain } from "@/lib/contracts/addresses";
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import type { ScoreCard as ScoreCardType } from "@/hooks/useYahtzee";
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
@@ -433,6 +433,15 @@ export default function YahtzeePage() {
                       className="hover:text-chain underline transition-colors"
                     >
                       {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
+                    </a>
+                    {' | '}
+                    <a
+                      href={getExplorerAddressUrl(chain?.id, contractAddress)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-chain underline transition-colors"
+                    >
+                      {t('games.yahtzee.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                     </a>
                   </p>
                 ) : (
