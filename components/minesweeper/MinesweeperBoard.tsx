@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import type { Board, Difficulty } from "@/hooks/useMinesweeper";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface MinesweeperBoardProps {
   board: Board;
@@ -161,10 +162,12 @@ export function MinesweeperBoard({
   difficulty,
   focusedCell = [0, 0],
 }: MinesweeperBoardProps) {
+  const { t } = useLanguage();
+
   if (board.length === 0) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p className="text-gray-600">Click Start to begin!</p>
+        <p className="text-gray-600">{t('games.minesweeper.clickToStart')}</p>
       </div>
     );
   }

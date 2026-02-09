@@ -45,6 +45,26 @@ export default function MinesweeperPage() {
   const { t } = useLanguage();
   const { play } = useGameAudio('minesweeper');
 
+  // Translate hook messages
+  const translateMessage = useCallback((msg: string): string => {
+    const messageMap: Record<string, string> = {
+      'Click a cell to start!': t('games.minesweeper.clickCell'),
+      'Click Start to begin!': t('games.minesweeper.clickToStart'),
+      'Game started! Click a cell': t('games.minesweeper.clickCell'),
+      '💣 Boom! Game Over': t('games.minesweeper.gameOver'),
+      'Starting game on blockchain...': t('games.minesweeper.gameActive'),
+    };
+    // Check for victory messages with time
+    if (msg.startsWith('🎉 Victory in ')) {
+      const timeMatch = msg.match(/(\d+)s/);
+      if (timeMatch) {
+        return t('games.minesweeper.victoryTime').replace('{time}', timeMatch[1]);
+      }
+    }
+    if (msg === '🎉 Victory!') return t('games.minesweeper.victory');
+    return messageMap[msg] || msg;
+  }, [t]);
+
   // Wrappers with sound effects
   const handleCellClickWithSound = useCallback((row: number, col: number) => {
     play('click');
@@ -148,7 +168,7 @@ export default function MinesweeperPage() {
         />
 
         {/* Game Status */}
-        <GameStatus message={message} result={result} />
+        <GameStatus message={translateMessage(message)} result={result} />
 
         {/* Game Board */}
         <MinesweeperBoard

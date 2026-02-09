@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { Difficulty } from "@/hooks/useMinesweeper";
 import { DIFFICULTY_CONFIG } from "@/hooks/useMinesweeper";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface DifficultySelectorProps {
   difficulty: Difficulty;
@@ -14,18 +15,25 @@ const DIFFICULTY_EMOJIS: Record<Difficulty, string> = {
   hard: "😤",
 };
 
-const DIFFICULTY_HINTS: Record<Difficulty, string> = {
-  easy: "Great for learning!",
-  medium: "Balanced challenge",
-  hard: "Expert mode - good luck!",
-};
-
 export function DifficultySelector({
   difficulty,
   onDifficultyChange,
   disabled,
 }: DifficultySelectorProps) {
   const difficulties: Difficulty[] = ["easy", "medium", "hard"];
+  const { t } = useLanguage();
+
+  const DIFFICULTY_LABELS: Record<Difficulty, string> = {
+    easy: t('games.minesweeper.difficultyEasy'),
+    medium: t('games.minesweeper.difficultyMedium'),
+    hard: t('games.minesweeper.difficultyHard'),
+  };
+
+  const DIFFICULTY_HINTS: Record<Difficulty, string> = {
+    easy: t('games.minesweeper.difficultyEasyHint'),
+    medium: t('games.minesweeper.difficultyMediumHint'),
+    hard: t('games.minesweeper.difficultyHardHint'),
+  };
 
   return (
     <motion.div
@@ -34,7 +42,7 @@ export function DifficultySelector({
       className="bg-white/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border-2 border-gray-300"
     >
       <h3 className="text-sm font-bold text-gray-700 mb-3 text-center">
-        Select Difficulty
+        {t('games.minesweeper.difficultyTitle')}
       </h3>
       <div className="grid grid-cols-3 gap-2">
         {difficulties.map((diff) => {
@@ -56,15 +64,15 @@ export function DifficultySelector({
                 disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
               }`}
               aria-pressed={isActive}
-              aria-label={`${diff} difficulty: ${config.rows}×${config.cols} grid with ${config.mines} mines. ${DIFFICULTY_HINTS[diff]}`}
+              aria-label={`${DIFFICULTY_LABELS[diff]}: ${config.rows}×${config.cols}, ${config.mines} mines. ${DIFFICULTY_HINTS[diff]}`}
               title={DIFFICULTY_HINTS[diff]}
             >
               <div className="flex flex-col items-center gap-1">
                 <span className="text-2xl" role="img" aria-hidden="true">
                   {DIFFICULTY_EMOJIS[diff]}
                 </span>
-                <span className="text-xs sm:text-sm font-black capitalize">
-                  {diff}
+                <span className="text-xs sm:text-sm font-black">
+                  {DIFFICULTY_LABELS[diff]}
                 </span>
                 <span className="text-[10px] text-gray-600">
                   {config.rows}×{config.cols}

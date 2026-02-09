@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import type { Difficulty } from "@/hooks/useMinesweeper";
 import { DIFFICULTY_CONFIG } from "@/hooks/useMinesweeper";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 interface GameControlsProps {
   timer: number;
@@ -21,6 +22,7 @@ export function GameControls({
     .padStart(2, "0")}`;
 
   const totalMines = DIFFICULTY_CONFIG[difficulty].mines;
+  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -41,7 +43,7 @@ export function GameControls({
           >
             {formattedTime}
           </div>
-          <div className="text-xs text-gray-600">Time</div>
+          <div className="text-xs text-gray-600">{t('games.minesweeper.timer')}</div>
         </div>
 
         {/* Flags Remaining */}
@@ -62,7 +64,7 @@ export function GameControls({
           >
             {flagsRemaining}
           </div>
-          <div className="text-xs text-gray-600">Flags</div>
+          <div className="text-xs text-gray-600">{t('games.minesweeper.flagsRemaining')}</div>
         </div>
 
         {/* Total Mines */}
@@ -71,7 +73,7 @@ export function GameControls({
             💣
           </div>
           <div className="text-xl font-bold text-gray-900">{totalMines}</div>
-          <div className="text-xs text-gray-600">Mines</div>
+          <div className="text-xs text-gray-600">{t('games.minesweeper.minesTotal')}</div>
         </div>
       </div>
     </motion.div>
