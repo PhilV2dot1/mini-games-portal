@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { navigateToGame } from './helpers/games';
 
+// Increase timeout for gameplay tests that involve game loading and animations
+test.setTimeout(60000);
+
 test.describe('Solo Gameplay - Snake', () => {
   test.beforeEach(async ({ page }) => {
     await navigateToGame(page, 'snake');

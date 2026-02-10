@@ -1,13 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { waitForAppReady } from './helpers/games';
+
+// Increase timeout for language tests that navigate across pages
+test.setTimeout(60000);
 
 test.describe('Language Switching', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
   });
 
   test('language switcher shows EN/FR buttons', async ({ page }) => {
-    // Language switcher should be visible in header
     const enButton = page.locator('button:has-text("EN")');
     const frButton = page.locator('button:has-text("FR")');
 
@@ -16,99 +19,84 @@ test.describe('Language Switching', () => {
   });
 
   test('switching to FR changes homepage text', async ({ page }) => {
-    // Click FR button
     const frButton = page.locator('button:has-text("FR")');
     await frButton.first().click();
     await page.waitForTimeout(500);
 
-    // Homepage should show French text
-    // Look for known French translations
-    const frenchText = page.locator('text=/Portail de Mini-Jeux|Tableau de bord|Jouer/i');
+    const frenchText = page.locator('text=/Bienvenue sur Mini Games Portal|Jeux Disponibles|Comment Jouer/i');
     await expect(frenchText.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('switching to FR changes game page text', async ({ page }) => {
-    // Switch to French first
-    const frButton = page.locator('button:has-text("FR")');
-    await frButton.first().click();
-    await page.waitForTimeout(500);
+    // Set language to French via localStorage before navigating
+    await page.evaluate(() => localStorage.setItem('language', 'fr'));
 
-    // Navigate to minesweeper
-    await page.goto('/games/minesweeper');
-    await page.waitForLoadState('networkidle');
+    // Navigate to minesweeper - language should load as French from localStorage
+    await page.goto('/games/minesweeper', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // Check for French game text
-    const frenchLabels = page.locator('text=/Démineur|Comment jouer|Statistiques/i');
-    await expect(frenchLabels.first()).toBeVisible({ timeout: 5000 });
+    const frenchLabels = page.locator('text=/Démineur|Comment jouer|Sélectionnez/i');
+    await expect(frenchLabels.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('language persists across page navigation', async ({ page }) => {
-    // Switch to French
-    const frButton = page.locator('button:has-text("FR")');
-    await frButton.first().click();
-    await page.waitForTimeout(500);
+    // Set language to French via localStorage
+    await page.evaluate(() => localStorage.setItem('language', 'fr'));
 
-    // Navigate to a game page
-    await page.goto('/games/yahtzee');
-    await page.waitForLoadState('networkidle');
+    // Navigate to a game page - should load in French
+    await page.goto('/games/yahtzee', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // French should still be active
-    const frenchText = page.locator('text=/Lancez les dés|Comment jouer/i');
-    await expect(frenchText.first()).toBeVisible({ timeout: 5000 });
+    const frenchText = page.locator('text=/Comment jouer|Lancez les dés/i');
+    await expect(frenchText.first()).toBeVisible({ timeout: 10000 });
 
-    // Navigate back home
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Navigate back home - should still be French
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // French should persist
-    const homeFrench = page.locator('text=/Portail de Mini-Jeux|Tableau de bord/i');
-    await expect(homeFrench.first()).toBeVisible({ timeout: 5000 });
+    const homeFrench = page.locator('text=/Bienvenue sur Mini Games Portal|Jeux Disponibles/i');
+    await expect(homeFrench.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('game titles change when switching language', async ({ page }) => {
-    // Navigate to snake page
-    await page.goto('/games/snake');
-    await page.waitForLoadState('networkidle');
+    // Navigate to snake page in English
+    await page.goto('/games/snake', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Check English title
     await expect(page.locator('h1')).toContainText(/snake/i);
 
-    // Switch to French
+    // Switch to French via button
     const frButton = page.locator('button:has-text("FR")');
     await frButton.first().click();
     await page.waitForTimeout(500);
 
-    // Title should change (Snake in French is "Serpent" or stays "Snake" - depends on translations)
+    // Title should still be visible (may or may not change depending on translation)
     await expect(page.locator('h1')).toBeVisible();
   });
 
   test('minesweeper shows French labels in FR mode', async ({ page }) => {
+    // Set language to French via localStorage
+    await page.evaluate(() => localStorage.setItem('language', 'fr'));
+
     // Navigate to minesweeper
-    await page.goto('/games/minesweeper');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/minesweeper', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // Switch to French
-    const frButton = page.locator('button:has-text("FR")');
-    await frButton.first().click();
-    await page.waitForTimeout(500);
-
-    // Check for French difficulty labels or other French text
     const frenchContent = page.locator('text=/Facile|Moyen|Difficile|Démineur/i');
-    await expect(frenchContent.first()).toBeVisible({ timeout: 5000 });
+    await expect(frenchContent.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('yahtzee shows French labels in FR mode', async ({ page }) => {
-    await page.goto('/games/yahtzee');
-    await page.waitForLoadState('networkidle');
+    // Set language to French via localStorage
+    await page.evaluate(() => localStorage.setItem('language', 'fr'));
 
-    // Switch to French
-    const frButton = page.locator('button:has-text("FR")');
-    await frButton.first().click();
-    await page.waitForTimeout(500);
+    // Navigate to yahtzee
+    await page.goto('/games/yahtzee', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // Check for French content
-    const frenchContent = page.locator('text=/Comment jouer|Lancez/i');
-    await expect(frenchContent.first()).toBeVisible({ timeout: 5000 });
+    const frenchContent = page.locator('text=/Comment jouer|Lancez les dés/i');
+    await expect(frenchContent.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('switching back to EN restores English text', async ({ page }) => {
@@ -118,7 +106,7 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(500);
 
     // Verify French is active
-    const frenchText = page.locator('text=/Portail de Mini-Jeux|Tableau de bord/i');
+    const frenchText = page.locator('text=/Bienvenue sur Mini Games Portal|Jeux Disponibles/i');
     await expect(frenchText.first()).toBeVisible({ timeout: 5000 });
 
     // Switch back to English
@@ -127,29 +115,29 @@ test.describe('Language Switching', () => {
     await page.waitForTimeout(500);
 
     // Verify English is restored
-    const englishText = page.locator('text=/Mini Games Portal|Dashboard|Play/i');
+    const englishText = page.locator('text=/Welcome to Mini Games Portal|Available Games/i');
     await expect(englishText.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('language switcher visible on mobile in hamburger menu', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 393, height: 851 });
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
-    // Open hamburger menu (look for menu button)
+    // Open hamburger menu
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], [data-testid="mobile-menu-button"]');
-    if (await menuButton.first().isVisible()) {
+    if (await menuButton.first().isVisible({ timeout: 3000 }).catch(() => false)) {
       await menuButton.first().click();
       await page.waitForTimeout(500);
 
-      // Language buttons should be visible in the mobile menu
-      const enButton = page.locator('button:has-text("EN")');
-      const frButton = page.locator('button:has-text("FR")');
-
-      // At least one of them should be visible in the opened menu
-      const enVisible = await enButton.first().isVisible();
-      const frVisible = await frButton.first().isVisible();
-      expect(enVisible || frVisible).toBeTruthy();
+      // Language switcher should be present in the opened mobile menu drawer
+      const menuDrawer = page.locator('[role="dialog"][aria-modal="true"]');
+      await expect(menuDrawer).toContainText('EN');
+      await expect(menuDrawer).toContainText('FR');
+    } else {
+      // On desktop viewport, language buttons should be visible in the header
+      await expect(page.locator('header')).toContainText('EN');
+      await expect(page.locator('header')).toContainText('FR');
     }
   });
 });

@@ -21,11 +21,28 @@ const GAME_ROUTES: Record<AllGameId, string> = {
 };
 
 /**
+ * Wait for the app loading screen (Farcaster SDK init) to disappear.
+ * Uses a robust approach: wait for loading to be hidden OR for page content to appear.
+ */
+export async function waitForAppReady(page: Page) {
+  // Wait until the loading indicator is gone (hidden or detached)
+  // This handles both: page where loading shows then disappears, and page already loaded
+  await page.waitForFunction(() => {
+    const el = document.querySelector('body');
+    if (!el) return false;
+    // Check if loading screen text is NOT present or NOT visible
+    const loadingText = document.body.innerText;
+    return !loadingText.includes('Initializing Mini Games Portal');
+  }, { timeout: 30000 });
+}
+
+/**
  * Navigate to a specific game
  */
 export async function navigateToGame(page: Page, gameId: AllGameId) {
   await page.goto(GAME_ROUTES[gameId]);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
+  await waitForAppReady(page);
 }
 
 /**

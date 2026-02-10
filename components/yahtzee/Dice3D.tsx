@@ -88,6 +88,7 @@ export function Dice3D({ value, isHeld, isRolling, onToggleHold, disabled, index
 
   return (
     <motion.button
+      data-testid={`die-${index}`}
       onClick={!disabled ? onToggleHold : undefined}
       disabled={disabled}
       className={cn(

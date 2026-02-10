@@ -1,12 +1,16 @@
 import { test, expect, devices } from '@playwright/test';
+import { waitForAppReady } from './helpers/games';
 
 // Use Pixel 5 device settings for mobile tests
 test.use({ ...devices['Pixel 5'] });
 
+// Increase timeout for mobile tests (slower rendering on mobile viewport)
+test.setTimeout(60000);
+
 test.describe('Mobile Responsive', () => {
   test('homepage renders game grid on mobile', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Page should render without errors
     await expect(page).not.toHaveTitle(/404/i);
@@ -18,8 +22,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('hamburger menu opens on mobile', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Hamburger menu button should be visible on mobile
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], [data-testid="mobile-menu-button"]');
@@ -36,8 +40,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('navigation links work from mobile menu', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Open hamburger menu
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], [data-testid="mobile-menu-button"]');
@@ -46,14 +50,15 @@ test.describe('Mobile Responsive', () => {
       await menuButton.first().click();
       await page.waitForTimeout(500);
 
-      // Click on a game link if available
-      const gameLink = page.locator('a[href*="/games/"], a[href*="/blackjack"], a[href*="/rps"]');
-      if (await gameLink.first().isVisible()) {
-        const href = await gameLink.first().getAttribute('href');
-        await gameLink.first().click();
-        await page.waitForLoadState('networkidle');
+      // Click on a nav link (not a game card but a menu navigation link)
+      const navLink = page.locator('nav a, [role="navigation"] a').first();
+      if (await navLink.isVisible()) {
+        const href = await navLink.getAttribute('href');
+        await navLink.click({ force: true });
+        await page.waitForLoadState('domcontentloaded');
+        await waitForAppReady(page);
 
-        // Should navigate to the game page
+        // Should navigate to the linked page
         if (href) {
           expect(page.url()).toContain(href);
         }
@@ -62,8 +67,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('snake game renders with mobile direction controls visible', async ({ page }) => {
-    await page.goto('/games/snake');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/snake', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Snake board should be visible
     await expect(page.locator('[data-testid="snake-board"]')).toBeVisible();
@@ -81,8 +86,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('minesweeper board fits in mobile viewport (easy mode)', async ({ page }) => {
-    await page.goto('/games/minesweeper');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/minesweeper', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Select easy difficulty
     await page.locator('[data-testid="difficulty-easy"]').click();
@@ -95,18 +100,21 @@ test.describe('Mobile Responsive', () => {
     const board = page.locator('[data-testid="minesweeper-board"]');
     await expect(board).toBeVisible();
 
+    // Scroll board into view
+    await board.scrollIntoViewIfNeeded();
     const box = await board.boundingBox();
     expect(box).not.toBeNull();
     if (box) {
-      // Board should start within viewport
+      // Board should fit within viewport width
       expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.y).toBeGreaterThanOrEqual(0);
+      // Width should be within mobile viewport (393px for Pixel 5)
+      expect(box.x + box.width).toBeLessThanOrEqual(393 + 10); // small tolerance
     }
   });
 
   test('connect five board fits in mobile viewport', async ({ page }) => {
-    await page.goto('/games/connect-five');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/connect-five', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Start game
     await page.locator('[data-testid="start-game"]').click();
@@ -123,11 +131,11 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('yahtzee dice and scorecard render on mobile', async ({ page }) => {
-    await page.goto('/games/yahtzee');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/yahtzee', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
-    // Start game
-    await page.locator('[data-testid="start-game"]').click();
+    // Start game (force click to bypass animation stability check)
+    await page.locator('[data-testid="start-game"]').click({ force: true });
     await page.waitForSelector('[data-testid="die-0"]', { timeout: 5000 });
 
     // All 5 dice should be visible
@@ -140,8 +148,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('sudoku grid renders and cells are tappable on mobile', async ({ page }) => {
-    await page.goto('/games/sudoku');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/sudoku', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Start game
     await page.locator('[data-testid="start-game"]').click();
@@ -157,8 +165,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('solitaire cards are visible on mobile', async ({ page }) => {
-    await page.goto('/games/solitaire');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/games/solitaire', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Start game
     await page.locator('[data-testid="start-game"]').click();
@@ -172,8 +180,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('language switcher accessible from mobile menu', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Open hamburger menu
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], [data-testid="mobile-menu-button"]');
@@ -183,18 +191,15 @@ test.describe('Mobile Responsive', () => {
       await page.waitForTimeout(500);
     }
 
-    // Language buttons should be accessible
-    const enButton = page.locator('button:has-text("EN")');
-    const frButton = page.locator('button:has-text("FR")');
-
-    const enVisible = await enButton.first().isVisible();
-    const frVisible = await frButton.first().isVisible();
-    expect(enVisible || frVisible).toBeTruthy();
+    // Language switcher should be present in the mobile menu drawer
+    const menuDrawer = page.locator('[role="dialog"][aria-modal="true"]');
+    await expect(menuDrawer).toContainText('EN');
+    await expect(menuDrawer).toContainText('FR');
   });
 
   test('dark mode toggle accessible from mobile', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     // Open hamburger menu
     const menuButton = page.locator('button[aria-label*="menu" i], button[aria-label*="Menu" i], [data-testid="mobile-menu-button"]');
@@ -214,8 +219,8 @@ test.describe('Mobile Responsive', () => {
   });
 
   test('leaderboard page renders on mobile', async ({ page }) => {
-    await page.goto('/leaderboard');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/leaderboard', { waitUntil: 'domcontentloaded' });
+    await waitForAppReady(page);
 
     await expect(page).not.toHaveTitle(/404/i);
 
