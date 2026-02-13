@@ -30,7 +30,7 @@ export default function FriendsPage() {
   const [inviteTarget, setInviteTarget] = useState<{ userId: string; username: string } | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto">
         <Header />
 
