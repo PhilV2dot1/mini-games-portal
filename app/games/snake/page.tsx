@@ -37,6 +37,25 @@ export default function SnakePage() {
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
   const { play } = useGameAudio('snake');
+
+  // Translate game messages from hook
+  const translateMessage = useCallback((msg: string): string => {
+    const messageMap: Record<string, string> = {
+      'Press Start to begin!': t('games.msg.pressStart'),
+      'Use arrow keys or WASD to move!': t('games.msg.useArrows'),
+    };
+    if (msg.includes('Game Over') && msg.includes('crashed')) return t('games.msg.gameOver');
+    if (msg.includes('New High Score')) return '🎉 ' + t('games.msg.newHighScore') + msg.replace(/.*New High Score: /, ': ').replace('!', ' !');
+    if (msg.includes('Game Over! Score')) return t('games.msg.gameOver') + msg.replace('Game Over! Score', ' Score');
+    if (msg.includes('Recording score')) return t('games.msg.recordingScore');
+    if (msg.includes('Score recorded on blockchain')) return '✅ ' + t('games.msg.scoreRecorded');
+    if (msg.includes('not recorded on-chain')) return '⚠️ ' + t('games.msg.notRecorded');
+    if (msg.includes('connect wallet')) return '⚠️ ' + t('games.msg.connectWallet');
+    if (msg.startsWith('Starting game on blockchain')) return t('games.msg.startingBlockchain');
+    if (msg.includes('Game started! Use arrow')) return t('games.msg.gameStartedArrows');
+    if (msg.includes('Failed to start')) return '⚠️ ' + t('games.msg.failedStart');
+    return messageMap[msg] || msg;
+  }, [t]);
   const prevScore = useRef(score);
   const prevStatus = useRef(status);
 
@@ -121,7 +140,7 @@ export default function SnakePage() {
         {mode === "onchain" && <WalletConnect />}
 
         {/* Game Status */}
-        <GameStatus message={message} status={status} score={score} />
+        <GameStatus message={translateMessage(message)} status={status} score={score} />
 
         {/* Game Board */}
         <SnakeBoard snake={snake} food={food} gridSize={gridSize} />
@@ -241,7 +260,7 @@ export default function SnakePage() {
               </a>
             </p>
           ) : (
-            <p className="text-gray-500 dark:text-gray-400">Coming soon on Base</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('chain.comingSoon')}</p>
           )}
         </motion.div>
       </div>

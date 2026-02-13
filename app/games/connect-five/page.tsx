@@ -42,6 +42,31 @@ export default function ConnectFivePage() {
   const { chain } = useAccount();
   const contractAddress = getContractAddress('connectfive', chain?.id);
 
+  // Translate game messages from hook
+  const translateMessage = useCallback((message: string): string => {
+    const messageMap: Record<string, string> = {
+      'Click Start to begin!': t('games.msg.clickStart'),
+      'Your turn - drop a piece!': t('games.msg.yourTurnDrop'),
+      'AI is thinking...': t('games.msg.aiThinking'),
+    };
+    if (message.includes('Victory') && message.includes('connected')) return '🎉 ' + t('games.msg.victory');
+    if (message.startsWith('🎉 You Win') && message.includes('blockchain')) return '🎉 ' + t('games.msg.youWin') + ' ' + t('games.msg.recordingBlockchain');
+    if (message.startsWith('🎉 You Win')) return '🎉 ' + t('games.msg.youWin');
+    if (message.includes('AI Wins') && message.includes('blockchain')) return '😢 ' + t('games.msg.aiWinsRecorded');
+    if (message.startsWith('😢 AI Wins')) return '😢 ' + t('games.msg.aiWins');
+    if (message.includes('Draw') && message.includes('blockchain')) return '🤝 ' + t('games.msg.drawRecorded');
+    if (message.startsWith('🤝 Draw')) return '🤝 ' + t('games.msg.draw');
+    if (message.includes('Victory recorded')) return '🎉 ' + t('games.msg.victoryRecorded');
+    if (message.includes('not recorded on-chain')) return '⚠️ ' + t('games.msg.notRecorded');
+    if (message.includes('connect wallet')) return '⚠️ ' + t('games.msg.connectWallet');
+    if (message.includes('Unable to connect')) return '⚠️ ' + t('games.msg.txFailed');
+    if (message.startsWith('Starting new game on')) return t('games.msg.startingBlockchain');
+    if (message.startsWith('Game started')) return t('games.msg.gameStartedYourTurn');
+    if (message.startsWith('Ending previous')) return t('games.msg.endingPrevious');
+    if (message.startsWith('Transaction cancelled')) return t('games.msg.txCancelled');
+    return messageMap[message] || message;
+  }, [t]);
+
   // Wrapper for handleMove with sound effect (solo)
   const handleSoloMoveWithSound = useCallback((column: number) => {
     play('drop');
@@ -175,7 +200,7 @@ export default function ConnectFivePage() {
         {!isMultiplayer && (
           <>
             {/* Game Status */}
-            <GameStatus message={soloGame.message} result={soloGame.result} />
+            <GameStatus message={translateMessage(soloGame.message)} result={soloGame.result} />
 
             {/* Game Board */}
             <ConnectFiveBoard
@@ -378,7 +403,7 @@ export default function ConnectFivePage() {
                 </a>
               </p>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">Coming soon on Base</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('chain.comingSoon')}</p>
             )}
           </motion.div>
         )}

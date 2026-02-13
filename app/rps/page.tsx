@@ -47,6 +47,20 @@ export default function RockPaperScissorsPage() {
   const { chain } = useAccount();
   const contractAddress = getContractAddress('rps', chain?.id);
 
+  // Translate game messages from hook
+  const translateMessage = useCallback((message: string): string => {
+    if (message.startsWith('🎉 You Win')) return '🎉 ' + t('games.msg.youWin');
+    if (message.startsWith('😞 You Lose')) return '😞 ' + t('games.msg.youLose');
+    if (message.startsWith('🤝')) return '🤝 ' + t('games.msg.itsTie');
+    if (message.startsWith('❌ Please connect')) return '❌ ' + t('games.msg.connectWallet');
+    if (message.startsWith('⏳ Please wait')) return '⏳ ' + t('games.msg.processing');
+    if (message.startsWith('⏳ Sending')) return '⏳ ' + t('games.msg.processing');
+    if (message.startsWith('⏳ Waiting')) return '⏳ ' + t('games.msg.processing');
+    if (message.startsWith('✅ Transaction confirmed')) return '✅ ' + t('games.msg.gameRecorded');
+    if (message.startsWith('❌ Transaction failed')) return '❌ ' + t('games.msg.txFailed');
+    return message;
+  }, [t]);
+
   // Wrapper for play with sound effects (solo)
   const handleSoloChoice = useCallback((choice: Choice) => {
     playSound('select');
@@ -200,7 +214,7 @@ export default function RockPaperScissorsPage() {
         {!isMultiplayer && (
           <>
             {/* Game Status */}
-            <GameStatus result={soloGame.lastResult} message={soloGame.message} />
+            <GameStatus result={soloGame.lastResult} message={translateMessage(soloGame.message)} />
 
             {/* Game Board */}
             <motion.div
@@ -427,7 +441,7 @@ export default function RockPaperScissorsPage() {
                 </p>
               </>
             ) : (
-              <p>Coming soon on Base</p>
+              <p>{t('chain.comingSoon')}</p>
             )}
           </motion.div>
         )}

@@ -154,6 +154,46 @@ export default function YahtzeePage() {
     }
   };
 
+  // Translate game messages from hook (English) to current language
+  const translateMessage = useCallback((msg: string | null): string | null => {
+    if (!msg) return null;
+    const messageMap: Record<string, string> = {
+      'Click Start Game to begin!': t('games.msg.clickStartGame'),
+      'Roll the dice first!': t('games.msg.rollDiceFirst'),
+      'No rolls left! Select a category to score.': t('games.msg.noRollsLeft'),
+      'Category already used! Choose another.': t('games.msg.categoryUsed'),
+      'AI is thinking...': t('games.msg.aiThinking'),
+      'AI rolled the dice...': t('games.msg.aiRolledDice'),
+      'AI rolled again...': t('games.msg.aiRolledAgain'),
+      'AI is choosing a category...': t('games.msg.aiChoosingCategory'),
+      'AI error - switching to player': t('games.msg.aiError'),
+      'AI turn failed, switching to player...': t('games.msg.aiTurnFailed'),
+      'Blockchain error! Game saved locally.': t('games.msg.blockchainError'),
+      'Blockchain error! Switching to free mode.': t('games.msg.blockchainErrorSwitch'),
+      'Connect your wallet to play on-chain!': t('games.msg.connectWalletOnChain'),
+      'Checking for previous game...': t('games.msg.checkingPrevious'),
+      'Abandoning previous unfinished game...': t('games.msg.abandoningPrevious'),
+      'Starting new game on blockchain...': t('games.msg.startingNew'),
+    };
+    if (messageMap[msg]) return messageMap[msg];
+    // Dynamic messages with variable content
+    if (msg.startsWith('Turn ') && msg.includes('- Roll the dice!')) {
+      const turnMatch = msg.match(/Turn (\d+)\/13/);
+      if (turnMatch) return `${t('multiplayer.rps.round') || 'Tour'} ${turnMatch[1]}/13 - ${t('games.msg.rollDiceFirst')}`;
+    }
+    if (msg.includes('rolls remaining')) {
+      const rollsMatch = msg.match(/(\d+) rolls remaining/);
+      if (rollsMatch) return `${rollsMatch[1]} ${t('games.yahtzee.rollsRemaining').replace('{count}', rollsMatch[1])}`;
+    }
+    if (msg.startsWith('Game Over!')) return `${t('games.msg.gameOver')}`;
+    if (msg.startsWith('You Win!')) return `${t('games.msg.youWin')}`;
+    if (msg.startsWith('AI Wins!')) return `${t('games.msg.aiWins')}`;
+    if (msg.startsWith("It's a Tie!")) return `${t('games.msg.itsTie')}`;
+    if (msg.startsWith('⚠️')) return msg.replace('Unable to connect to blockchain', t('games.msg.unableConnect'));
+    if (msg.startsWith('Switching modes')) return t('games.msg.switchModeReset');
+    return msg;
+  }, [t]);
+
   const isMultiplayer = mode === 'multiplayer';
 
   // Multiplayer game state
@@ -231,7 +271,7 @@ export default function YahtzeePage() {
                 {/* Solo vs AI Toggle */}
                 <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 shadow-lg border-2 border-gray-300 dark:border-gray-600">
                   <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 text-center">
-                    Game Mode
+                    {t('games.msg.gameMode')}
                   </h3>
                   <div className="flex gap-2">
                     <button
@@ -244,7 +284,7 @@ export default function YahtzeePage() {
                         }
                       `}
                     >
-                      🎲 Solo Mode
+                      🎲 {t('games.msg.soloMode')}
                     </button>
                     <button
                       onClick={() => soloGame.setVsAI(true)}
@@ -256,12 +296,12 @@ export default function YahtzeePage() {
                         }
                       `}
                     >
-                      🤖 vs AI Mode
+                      🤖 {t('games.msg.vsAiMode')}
                     </button>
                   </div>
                   {soloGame.mode === "onchain" && soloGame.vsAI && (
                     <p className="text-xs text-gray-500 text-center mt-2">
-                      Your score will be recorded on-chain (AI plays locally)
+                      {t('games.msg.scoreOnChainNote')}
                     </p>
                   )}
                 </div>
@@ -297,7 +337,7 @@ export default function YahtzeePage() {
             {soloGame.status !== "idle" && (
               <GameStatus
                 status={soloGame.status}
-                message={soloGame.message}
+                message={translateMessage(soloGame.message) || ''}
                 finalScore={soloGame.status === "finished" && !soloGame.vsAI ? soloGame.finalScore : undefined}
                 currentPlayer={soloGame.vsAI ? soloGame.currentPlayer : undefined}
                 winner={soloGame.vsAI ? soloGame.winner : undefined}
@@ -321,7 +361,7 @@ export default function YahtzeePage() {
                   className="px-8 py-4 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 text-xl font-black rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {soloGame.mode === "onchain" && !soloGame.isConnected
-                    ? "Connect Wallet to Start"
+                    ? t('games.msg.connectWalletStart')
                     : t("games.startGame")}
                 </button>
               </motion.div>
@@ -338,7 +378,7 @@ export default function YahtzeePage() {
                   onClick={soloGame.resetGame}
                   className="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white text-xl font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
                 >
-                  Play Again
+                  {t('games.msg.playAgain')}
                 </button>
               </motion.div>
             )}
@@ -447,7 +487,7 @@ export default function YahtzeePage() {
                     </a>
                   </p>
                 ) : (
-                  <p>Coming soon on Base</p>
+                  <p>{t('chain.comingSoon')}</p>
                 )}
               </motion.div>
             )}

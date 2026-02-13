@@ -110,6 +110,37 @@ export default function MastermindPage() {
     mp.updateGuess(position, color);
   }, [play, mp]);
 
+  // Translate game messages from hook (English) to current language
+  const translateMessage = useCallback((msg: string | null): string | null => {
+    if (!msg) return null;
+    const messageMap: Record<string, string> = {
+      '❌ Please select all 4 colors': `❌ ${t('games.msg.selectAllColors')}`,
+      '🔄 Syncing game state...': `🔄 ${t('games.msg.syncingState')}`,
+      '❌ Please connect your wallet first': `❌ ${t('games.msg.connectWallet')}`,
+      '❌ Wallet address not found': `❌ ${t('games.msg.walletNotFound')}`,
+      '❌ Transaction cancelled by user': `❌ ${t('games.msg.txCancelled')}`,
+      '❌ Insufficient funds for transaction': `❌ ${t('games.msg.insufficientGas')}`,
+      '❌ Transaction failed - Please try again': `❌ ${t('games.msg.txFailedRetry')}`,
+      '❌ Switch to On-Chain mode first': `❌ ${t('games.msg.onlyOnChain')}`,
+      '❌ Finish the game first': `❌ ${t('games.msg.finishFirst')}`,
+      '❌ Failed to submit score - Please try again': `❌ ${t('games.msg.failedSubmitScore')}`,
+      '❌ Failed to abandon game - Please try again': `❌ ${t('games.msg.failedAbandon')}`,
+      '✅ Transaction completed successfully!': `✅ ${t('games.msg.txCompleted')}`,
+      '🎲 Starting your on-chain game...': `🎲 ${t('games.msg.startingBlockchain')}`,
+      '⏳ Submitting score on-chain...': `⏳ ${t('games.msg.submittingScore')}`,
+      '⏳ Abandoning game on-chain...': `⏳ ${t('games.msg.abandoningGame')}`,
+      '🎮 On-Chain Mode: Play and submit your score to the blockchain!': `🎮 ${t('games.msg.onChainMode')}`,
+    };
+    if (messageMap[msg]) return messageMap[msg];
+    // Dynamic messages with prefixes
+    if (msg.startsWith('🎉 You cracked the code')) return msg.replace('You cracked the code', t('games.msg.cracked'));
+    if (msg.startsWith('😢 Game Over!')) return `😢 ${t('games.msg.gameOver')}`;
+    if (msg.startsWith('❌ You already have an active game')) return `❌ ${t('games.msg.activeGameAbandon')}`;
+    if (msg.startsWith('❌ Mastermind not available')) return `❌ ${t('games.msg.notAvailableNetwork')}`;
+    if (msg.startsWith('❌ Transaction failed:')) return `❌ ${t('games.msg.txFailedRetry')}`;
+    return msg;
+  }, [t]);
+
   const isMultiplayer = mode === 'multiplayer';
   const isMultiplayerPlaying = mp.status === 'playing';
   const isMultiplayerWaiting = mp.status === 'waiting' || mp.status === 'ready';
@@ -243,7 +274,7 @@ export default function MastermindPage() {
                 className="bg-white/90 backdrop-blur-lg rounded-lg p-3 text-center text-gray-900 font-semibold shadow-lg"
                 style={{ border: '3px solid var(--chain-primary)' }}
               >
-                {soloGame.message}
+                {translateMessage(soloGame.message)}
               </motion.div>
             )}
 
@@ -391,14 +422,14 @@ export default function MastermindPage() {
                   <div className="text-center">
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('multiplayer.you') || 'You'}</div>
                     <div className="text-2xl font-black text-gray-900 dark:text-white">{mp.myAttempts}/{MAX_ATTEMPTS}</div>
-                    {mp.myWon === true && <span className="text-green-600 font-bold text-sm">Cracked!</span>}
-                    {mp.myWon === false && <span className="text-red-600 font-bold text-sm">Failed</span>}
+                    {mp.myWon === true && <span className="text-green-600 font-bold text-sm">{t('games.msg.cracked')}</span>}
+                    {mp.myWon === false && <span className="text-red-600 font-bold text-sm">{t('games.msg.failed')}</span>}
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('multiplayer.opponent') || 'Opponent'}</div>
                     <div className="text-2xl font-black text-gray-900 dark:text-white">{mp.opponentAttempts}/{MAX_ATTEMPTS}</div>
-                    {mp.opponentWon === true && <span className="text-green-600 font-bold text-sm">Cracked!</span>}
-                    {mp.opponentWon === false && <span className="text-red-600 font-bold text-sm">Failed</span>}
+                    {mp.opponentWon === true && <span className="text-green-600 font-bold text-sm">{t('games.msg.cracked')}</span>}
+                    {mp.opponentWon === false && <span className="text-red-600 font-bold text-sm">{t('games.msg.failed')}</span>}
                   </div>
                 </div>
 
@@ -477,7 +508,7 @@ export default function MastermindPage() {
                     className="bg-white/95 dark:bg-gray-800/95 rounded-2xl p-4 shadow-xl text-center"
                     style={{ border: '4px solid var(--chain-primary)' }}
                   >
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-2">Secret Code</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-2">{t('games.msg.secretCode')}</h3>
                     <div className="flex gap-2 justify-center">
                       {mp.secretCode.map((color, i) => (
                         <div
@@ -540,7 +571,7 @@ export default function MastermindPage() {
                 </p>
               </>
             ) : (
-              <p>Coming soon on Base</p>
+              <p>{t('chain.comingSoon')}</p>
             )}
           </motion.div>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useMemo } from "react";
 import { useSudoku } from "@/hooks/useSudoku";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
@@ -90,6 +90,31 @@ export default function SudokuPage() {
     }
   }, [status, result, mode, difficulty, recordGame]);
 
+  // Translate game messages from hook (English) to current language
+  const translateMessage = useCallback((msg: string | null): string | null => {
+    if (!msg) return null;
+    const messageMap: Record<string, string> = {
+      'Click Start to begin!': t('games.msg.clickStart'),
+      'Loading puzzle...': t('games.msg.loadingPuzzle'),
+      'Please connect your wallet first!': t('games.msg.connectWallet'),
+      'Starting game on blockchain...': t('games.msg.startingBlockchain'),
+      'Solve the puzzle!': t('games.msg.solvePuzzle'),
+      'Failed to load puzzle. Please try again.': t('games.msg.failedLoadPuzzle'),
+      'No conflicts found!': t('games.msg.noConflicts'),
+      'Recording result on blockchain...': t('games.msg.recordingResult'),
+      'Failed to record result on blockchain.': t('games.msg.failedRecordBlockchain'),
+      'Finish current game first!': t('games.msg.finishCurrent'),
+    };
+    if (messageMap[msg]) return messageMap[msg];
+    // Dynamic messages
+    if (msg.includes('conflict(s) highlighted')) return msg;
+    if (msg.startsWith('🎉 Solved in')) return msg.replace('Solved in', t('games.sudoku.completed') || 'Solved in');
+    return msg;
+  }, [t]);
+
+  // Translate message for display
+  const translatedMessage = useMemo(() => translateMessage(message), [translateMessage, message]);
+
   const canPlay = status === "playing";
   const isFinished = status === "finished";
   const canStart = status === "idle" || isFinished;
@@ -119,10 +144,10 @@ export default function SudokuPage() {
             🔢
           </div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">
-            Sudoku
+            {t('games.sudoku.title')}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Classic number puzzle - fill the grid!
+            {t('games.msg.sudokuSubtitle')}
           </p>
         </motion.div>
 
@@ -169,7 +194,7 @@ export default function SudokuPage() {
         )}
 
         {/* Game Status */}
-        <GameStatus status={status} result={result} message={message} />
+        <GameStatus status={status} result={result} message={translatedMessage} />
 
         {/* Main Game Area */}
         <div className="flex flex-col lg:flex-row gap-4 items-start justify-center">
@@ -221,7 +246,7 @@ export default function SudokuPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              {isProcessing ? "⏳ Processing..." : "🎮 Start Game"}
+              {isProcessing ? `⏳ ${t('games.msg.processing')}` : `🎮 ${t('games.msg.startGame')}`}
             </motion.button>
           )}
 
@@ -233,7 +258,7 @@ export default function SudokuPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🔄 Reset
+              🔄 {t('games.msg.reset')}
             </motion.button>
           )}
         </div>
@@ -254,7 +279,7 @@ export default function SudokuPage() {
                 {t('games.sudoku.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
               </a>
             ) : (
-              <span>Coming soon on Base</span>
+              <span>{t('chain.comingSoon')}</span>
             )}
           </div>
         )}

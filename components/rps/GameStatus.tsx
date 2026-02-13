@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 import type { PlayResult } from "@/hooks/useRockPaperScissors";
 
 interface GameStatusProps {
@@ -12,6 +13,8 @@ interface GameStatusProps {
 const CHOICES_EMOJI = ["🪨", "📄", "✂️"];
 
 export const GameStatus = memo(function GameStatus({ result, message }: GameStatusProps) {
+  const { t } = useLanguage();
+
   if (!result && !message) return null;
 
   return (
@@ -29,14 +32,14 @@ export const GameStatus = memo(function GameStatus({ result, message }: GameStat
                 <div className="text-5xl mb-1">
                   {CHOICES_EMOJI[result.playerChoice]}
                 </div>
-                <div className="text-xs font-semibold text-gray-600">You</div>
+                <div className="text-xs font-semibold text-gray-600">{t('games.msg.you')}</div>
               </div>
               <div className="text-2xl font-bold text-gray-400">vs</div>
               <div className="text-center">
                 <div className="text-5xl mb-1">
                   {CHOICES_EMOJI[result.computerChoice]}
                 </div>
-                <div className="text-xs font-semibold text-gray-600">CPU</div>
+                <div className="text-xs font-semibold text-gray-600">{t('games.msg.cpu')}</div>
               </div>
             </div>
             <div

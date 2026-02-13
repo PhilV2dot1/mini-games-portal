@@ -236,7 +236,7 @@ export default function MinesweeperPage() {
             </p>
           ) : (
             <p className="text-gray-500 dark:text-gray-500">
-              Coming soon on Base
+              {t("chain.comingSoon")}
             </p>
           )}
         </motion.div>

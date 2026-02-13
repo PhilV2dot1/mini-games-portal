@@ -236,7 +236,7 @@ export default function JackpotPage() {
               </p>
             </>
           ) : (
-            <p>Coming soon on Base</p>
+            <p>{t('chain.comingSoon')}</p>
           )}
         </motion.div>
       </div>

@@ -48,6 +48,27 @@ export default function SolitairePage() {
   const { chain } = useAccount();
   const contractAddress = getContractAddress('solitaire', chain?.id);
 
+  // Translate game messages from hook
+  const translateMessage = useCallback((msg: string): string => {
+    const messageMap: Record<string, string> = {
+      'Press Start to begin!': t('games.msg.pressStart'),
+      'Good luck!': t('games.msg.goodLuck'),
+      'Congratulations! You won!': t('games.msg.congratsWin'),
+      'Game started!': t('games.msg.gameStarted'),
+      'Auto-completing...': t('games.msg.autoCompleting'),
+    };
+    if (msg.includes('Win recorded on blockchain')) return '✅ ' + t('games.msg.winRecorded');
+    if (msg.includes('Game won but not recorded')) return '⚠️ ' + t('games.msg.notRecorded');
+    if (msg.includes('No more moves possible')) return t('games.msg.gameBlocked');
+    if (msg.includes('Game recorded on blockchain')) return '✅ ' + t('games.msg.gameRecorded');
+    if (msg.includes('blocked but not recorded')) return '⚠️ ' + t('games.msg.notRecorded');
+    if (msg.includes('connect wallet')) return t('games.msg.connectWallet');
+    if (msg.includes('Starting game on blockchain')) return t('games.msg.startingBlockchain');
+    if (msg.includes('Failed to start')) return t('games.msg.failedStart');
+    if (msg.includes('Cannot auto-complete')) return t('games.msg.cannotAutoComplete');
+    return messageMap[msg] || msg;
+  }, [t]);
+
   const isMultiplayer = mode === 'multiplayer';
 
   // Record game to portal stats when finished (solo)
@@ -230,7 +251,7 @@ export default function SolitairePage() {
         {!isMultiplayer && (
           <>
             <GameStatus
-              message={soloGame.message}
+              message={translateMessage(soloGame.message)}
               status={soloGame.status}
               score={soloGame.gameState.score}
               moves={soloGame.gameState.moves}
@@ -535,7 +556,7 @@ export default function SolitairePage() {
                 </a>
               </p>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">Coming soon on Base</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('chain.comingSoon')}</p>
             )}
           </motion.div>
         )}

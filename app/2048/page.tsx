@@ -174,7 +174,7 @@ export default function Game2048Page() {
               </p>
             </>
           ) : (
-            <p>Coming soon on Base</p>
+            <p>{t('chain.comingSoon')}</p>
           )}
         </motion.div>
       </div>

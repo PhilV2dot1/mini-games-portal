@@ -47,7 +47,23 @@ export default function TicTacToePage() {
     const messageMap: Record<string, string> = {
       'Click Start to begin!': t('games.tictactoe.clickToStart'),
       'Recording game start on blockchain...': t('games.tictactoe.recordingGameStart'),
+      'Your turn! Tap a cell': t('games.msg.yourTurnTap'),
+      'Your turn!': t('games.msg.yourTurn'),
+      'AI thinking...': t('games.msg.aiThinking'),
     };
+    if (message.startsWith('🎉 Victory')) return '🎉 ' + t('games.msg.victory');
+    if (message.startsWith('🎉 You Win')) return '🎉 ' + t('games.msg.youWin');
+    if (message.includes('AI Wins') && message.includes('blockchain')) return '😢 ' + t('games.msg.aiWinsRecorded');
+    if (message.startsWith('😢 AI Wins')) return '😢 ' + t('games.msg.aiWins');
+    if (message.includes('Draw') && message.includes('blockchain')) return '🤝 ' + t('games.msg.drawRecorded');
+    if (message.startsWith('🤝 Draw')) return '🤝 ' + t('games.msg.draw');
+    if (message.includes('Victory recorded')) return '🎉 ' + t('games.msg.victoryRecorded');
+    if (message.includes('not recorded on-chain')) return '⚠️ ' + t('games.msg.notRecorded');
+    if (message.includes('Recording on blockchain')) return '🎉 ' + t('games.msg.recordingBlockchain');
+    if (message.startsWith('Please connect wallet')) return t('games.msg.connectWallet');
+    if (message.startsWith('Transaction rejected')) return t('games.msg.txRejected');
+    if (message.startsWith('Insufficient')) return t('games.msg.insufficientGas');
+    if (message.startsWith('Failed to start')) return t('games.msg.txFailed');
     return messageMap[message] || message;
   }, [t]);
 
@@ -362,7 +378,7 @@ export default function TicTacToePage() {
                 </p>
               </>
             ) : (
-              <p>Coming soon on Base</p>
+              <p>{t('chain.comingSoon')}</p>
             )}
           </motion.div>
         )}

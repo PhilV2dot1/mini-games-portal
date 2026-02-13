@@ -461,7 +461,7 @@ export default function BlackjackPage() {
                 </p>
               </>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">Coming soon on Base</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('chain.comingSoon')}</p>
             )}
           </footer>
         )}
