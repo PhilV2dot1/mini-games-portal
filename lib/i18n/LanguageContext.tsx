@@ -11,7 +11,8 @@ import { translations, Language } from './translations';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: string) => any;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -33,8 +34,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('language', lang);
   };
 
-  // Translation function
-  const t = (key: string): string => {
+  // Translation function - returns string for text keys, or raw value for arrays
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const t = (key: string): any => {
     const keys = key.split('.');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let value: any = translations[language];
@@ -48,7 +50,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    return typeof value === 'string' ? value : key;
+    return value != null ? value : key;
   };
 
   return (
