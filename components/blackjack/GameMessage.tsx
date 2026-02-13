@@ -7,10 +7,10 @@ interface GameMessageProps {
 export function GameMessage({ message }: GameMessageProps) {
   if (!message) return null;
 
-  // Determine message type based on content
-  const isError = message.includes('❌') || message.toLowerCase().includes('fail');
-  const isSuccess = message.includes('✅') || message.includes('WIN') || message.includes('BLACKJACK');
-  const isProcessing = message.includes('⏳') || message.toLowerCase().includes('waiting');
+  // Determine message type based on content (supports EN + FR)
+  const isError = message.includes('❌');
+  const isSuccess = message.includes('✅') || message.includes('WIN') || message.includes('GAGNEZ') || message.includes('BLACKJACK') || message.includes('🎉');
+  const isProcessing = message.includes('⏳') || message.includes('🎲') || message.includes('⚠️');
 
   const bgColor = isError
     ? 'bg-red-100 border-red-400 text-red-800'

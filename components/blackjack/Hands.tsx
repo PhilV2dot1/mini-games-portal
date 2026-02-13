@@ -1,14 +1,17 @@
 import { Card } from "@/lib/games/blackjack-cards";
 import { CardDisplay } from "./CardDisplay";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export function PlayerHand({ cards, total }: { cards: Card[]; total: number }) {
+  const { t } = useLanguage();
+
   if (cards.length === 0) {
     return null;
   }
 
   return (
     <div className="text-center">
-      <h3 className="text-gray-900 text-lg font-bold mb-3">Your Hand</h3>
+      <h3 className="text-gray-900 text-lg font-bold mb-3">{t('games.blackjack.yourHand')}</h3>
       <div className="flex justify-center gap-2 mb-3">
         {cards.map((card, idx) => (
           <CardDisplay key={idx} card={card} />
@@ -18,23 +21,25 @@ export function PlayerHand({ cards, total }: { cards: Card[]; total: number }) {
         {total}
       </div>
       {total === 21 && cards.length === 2 && (
-        <div className="text-yellow-400 text-sm font-semibold mt-1 drop-shadow-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>BLACKJACK!</div>
+        <div className="text-yellow-400 text-sm font-semibold mt-1 drop-shadow-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>{t('games.blackjack.blackjackLabel')}</div>
       )}
       {total > 21 && (
-        <div className="text-red-600 text-sm font-semibold mt-1">BUST!</div>
+        <div className="text-red-600 text-sm font-semibold mt-1">{t('games.blackjack.bustLabel')}</div>
       )}
     </div>
   );
 }
 
 export function DealerHand({ cards, total, hideFirstCard }: { cards: Card[]; total: number; hideFirstCard?: boolean }) {
+  const { t } = useLanguage();
+
   if (cards.length === 0) {
     return null;
   }
 
   return (
     <div className="text-center">
-      <h3 className="text-gray-900 text-lg font-bold mb-3">Dealer</h3>
+      <h3 className="text-gray-900 text-lg font-bold mb-3">{t('games.blackjack.dealer')}</h3>
       <div className="flex justify-center gap-2 mb-3">
         {cards.map((card, idx) => (
           <CardDisplay
@@ -48,10 +53,10 @@ export function DealerHand({ cards, total, hideFirstCard }: { cards: Card[]; tot
         {hideFirstCard ? '?' : total}
       </div>
       {!hideFirstCard && total === 21 && cards.length === 2 && (
-        <div className="text-yellow-400 text-sm font-semibold mt-1 drop-shadow-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>BLACKJACK!</div>
+        <div className="text-yellow-400 text-sm font-semibold mt-1 drop-shadow-sm" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>{t('games.blackjack.blackjackLabel')}</div>
       )}
       {!hideFirstCard && total > 21 && (
-        <div className="text-red-600 text-sm font-semibold mt-1">BUST!</div>
+        <div className="text-red-600 text-sm font-semibold mt-1">{t('games.blackjack.bustLabel')}</div>
       )}
     </div>
   );

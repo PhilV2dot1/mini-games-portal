@@ -48,7 +48,31 @@ export default function BlackjackPage() {
     const messageMap: Record<string, string> = {
       'Click "NEW GAME" to start': t('games.blackjack.clickNewGame'),
       'Click "PLAY ON-CHAIN" to start': t('games.blackjack.clickPlayOnChain'),
+      '✅ You WIN!': '✅ ' + t('games.blackjack.youWin'),
+      'You WIN!': t('games.blackjack.youWin'),
+      'Dealer wins': t('games.blackjack.dealerWins'),
+      "It's a PUSH": t('games.blackjack.itsPush'),
+      '🎉 BLACKJACK!': '🎉 ' + t('games.blackjack.blackjackLabel'),
+      'BLACKJACK!': t('games.blackjack.blackjackLabel'),
+      'BLACKJACK! You win!': t('games.blackjack.blackjackWin'),
+      'Both Blackjack - PUSH!': t('games.blackjack.bothBlackjack'),
+      'BUST! You lose.': t('games.blackjack.bustLose'),
+      'Credits reset to 1000': t('games.blackjack.creditsReset'),
     };
+    // Check for prefix matches (messages with dynamic content)
+    if (message.startsWith('🎲 Preparing your game')) return '🎲 ' + t('games.blackjack.preparingGame');
+    if (message.startsWith('⏳ Confirming on blockchain')) return '⏳ ' + t('games.blackjack.confirmingBlockchain');
+    if (message.startsWith('✅ Transaction sent')) return '✅ ' + t('games.blackjack.txSent');
+    if (message.startsWith('❌ Transaction rejected')) return '❌ ' + t('games.blackjack.txRejected');
+    if (message.startsWith('❌ Insufficient funds')) return '❌ ' + t('games.blackjack.insufficientFunds');
+    if (message.startsWith('❌ Please connect')) return '❌ ' + t('games.blackjack.connectWallet');
+    if (message.startsWith('❌ Wallet address')) return '❌ ' + t('games.blackjack.walletNotFound');
+    if (message.startsWith('❌ Blackjack not available')) return '❌ ' + t('games.blackjack.notAvailable');
+    if (message.startsWith('❌ Not enough credits')) return '❌ ' + t('games.blackjack.notEnoughCredits');
+    if (message.startsWith('⚠️ Transaction taking longer')) return '⚠️ ' + t('games.blackjack.txTimeout');
+    if (message.startsWith('❌ Transaction error')) return '❌ ' + t('games.blackjack.txError');
+    if (message.startsWith('❌ Transaction failed')) return '❌ ' + t('games.blackjack.txFailed');
+    if (message.startsWith('⚠️ Transaction successful but')) return '⚠️ ' + t('games.blackjack.noGameData');
     return messageMap[message] || message;
   }, [t]);
 
@@ -253,7 +277,7 @@ export default function BlackjackPage() {
 
                 {/* Dealer hand (shared) */}
                 <div className="bg-white/90 dark:bg-gray-800/90 rounded-2xl p-4 shadow-lg border-2 border-gray-300 dark:border-gray-600">
-                  <h3 className="text-center font-bold text-gray-700 dark:text-gray-300 mb-2">Dealer</h3>
+                  <h3 className="text-center font-bold text-gray-700 dark:text-gray-300 mb-2">{t('games.blackjack.dealer')}</h3>
                   <BlackjackTable
                     playerCards={[]}
                     dealerCards={mp.dealerHand}
@@ -334,7 +358,7 @@ export default function BlackjackPage() {
                       onClick={() => { play('hit'); mp.hit(); }}
                       className="px-8 py-3 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 rounded-xl font-black shadow-lg transition-all"
                     >
-                      HIT
+                      {t('games.blackjack.hit')}
                     </motion.button>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -342,7 +366,7 @@ export default function BlackjackPage() {
                       onClick={() => mp.stand()}
                       className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-black shadow-lg transition-all"
                     >
-                      STAND
+                      {t('games.blackjack.stand')}
                     </motion.button>
                   </div>
                 )}
@@ -370,7 +394,7 @@ export default function BlackjackPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-white/95 dark:bg-gray-800/95 rounded-2xl p-6 shadow-xl border-2 border-chain"
                   >
-                    <h3 className="text-center text-xl font-black text-gray-900 dark:text-white mb-4">Results</h3>
+                    <h3 className="text-center text-xl font-black text-gray-900 dark:text-white mb-4">{t('multiplayer.results') || 'Results'}</h3>
                     <div className="grid grid-cols-2 gap-4 text-center mb-4">
                       <div>
                         <div className="text-sm text-gray-500">{t('multiplayer.you') || 'You'}</div>
@@ -394,7 +418,7 @@ export default function BlackjackPage() {
                       </div>
                     </div>
                     <div className="text-center text-sm text-gray-500">
-                      Dealer: {mp.dealerTotal}
+                      {t('games.blackjack.dealer')}: {mp.dealerTotal}
                     </div>
                   </motion.div>
                 )}
