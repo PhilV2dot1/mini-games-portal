@@ -472,6 +472,20 @@ export const translations = {
         clickToStart: 'Click Start to begin!',
         viewOnCeloscan: 'View on Explorer →',
       },
+
+      // Maze specific
+      maze: {
+        title: 'Maze',
+        subtitle: 'Navigate from start to finish!',
+        howToPlay: 'How to Play',
+        rule1: 'Use arrow keys or WASD to navigate the maze',
+        rule2: 'Find the path from the green start to the golden exit',
+        rule3: 'Fewer moves and faster time = higher score!',
+        moves: 'Moves',
+        clickToStart: 'Click Start to begin!',
+        instructions: 'Arrow keys / WASD to move',
+        viewOnCeloscan: 'View on Explorer →',
+      },
     },
 
     // Wallet Connection
@@ -1577,6 +1591,20 @@ export const translations = {
         moves: 'Coups',
         pairsFound: 'Paires Trouvées',
         clickToStart: 'Cliquez sur Démarrer pour commencer !',
+        viewOnCeloscan: 'Voir sur l\'Explorer →',
+      },
+
+      // Maze specific
+      maze: {
+        title: 'Labyrinthe',
+        subtitle: 'Naviguez du début à la fin !',
+        howToPlay: 'Comment Jouer',
+        rule1: 'Utilisez les flèches ou WASD pour naviguer dans le labyrinthe',
+        rule2: 'Trouvez le chemin du départ vert à la sortie dorée',
+        rule3: 'Moins de mouvements et plus rapide = meilleur score !',
+        moves: 'Mouvements',
+        clickToStart: 'Cliquez sur Démarrer pour commencer !',
+        instructions: 'Flèches / WASD pour se déplacer',
         viewOnCeloscan: 'Voir sur l\'Explorer →',
       },
     },

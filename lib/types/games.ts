@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze";
 
 export interface GameMetadata {
   id: GameId;
@@ -140,6 +140,15 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/memory.png",
     route: "/games/memory",
     color: "from-purple-400 to-pink-500",
+    hasFee: false,
+  },
+  maze: {
+    id: "maze",
+    name: "Maze",
+    description: "Navigate the labyrinth!",
+    icon: "/icons/maze.png",
+    route: "/games/maze",
+    color: "from-emerald-500 to-teal-600",
     hasFee: false,
   },
 };

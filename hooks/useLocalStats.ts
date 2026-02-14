@@ -37,6 +37,7 @@ const DEFAULT_PROFILE: UserProfile = {
     yahtzee: { ...DEFAULT_GAME_STATS },
     sudoku: { ...DEFAULT_GAME_STATS },
     memory: { ...DEFAULT_GAME_STATS },
+    maze: { ...DEFAULT_GAME_STATS },
   },
 };
 

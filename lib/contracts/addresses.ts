@@ -23,7 +23,8 @@ export type GameId =
   | 'connectfive'
   | 'solitaire'
   | 'snake'
-  | 'memory';
+  | 'memory'
+  | 'maze';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -82,6 +83,10 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     base: '0xdfe4364e40c79035dadC6B0E9e4a35Bf261412A9',
   },
   memory: {
+    celo: null,
+    base: null,
+  },
+  maze: {
     celo: null,
     base: null,
   },

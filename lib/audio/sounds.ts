@@ -117,6 +117,13 @@ export const GAME_SOUNDS = {
     win: { path: '/audio/memory/win.mp3', category: 'win' as const },
   },
 
+  // Maze
+  maze: {
+    move: { path: '/audio/maze/move.mp3', category: 'action' as const, volume: 0.3 },
+    wall: { path: '/audio/maze/wall.mp3', category: 'action' as const, volume: 0.4 },
+    win: { path: '/audio/maze/win.mp3', category: 'win' as const },
+  },
+
   // Mastermind
   mastermind: {
     place: { path: '/audio/mastermind/place.mp3', category: 'action' as const },
