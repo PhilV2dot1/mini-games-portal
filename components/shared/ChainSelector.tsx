@@ -3,6 +3,8 @@
 import { useChainSelector } from '@/hooks/useChainSelector';
 import { CHAIN_CONFIG } from '@/lib/contracts/addresses';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { CeloIcon } from './CeloIcon';
+import { BaseIcon } from './BaseIcon';
 import { MegaEthIcon } from './MegaEthIcon';
 
 interface ChainSelectorProps {
@@ -24,7 +26,7 @@ export function ChainSelector({ className = '' }: ChainSelectorProps) {
         }`}
         title={t('chain.switchTo') + ' Celo'}
       >
-        <span>{CHAIN_CONFIG.celo.icon}</span>
+        <CeloIcon size={16} />
         <span>{CHAIN_CONFIG.celo.shortName}</span>
       </button>
       <button
@@ -36,7 +38,7 @@ export function ChainSelector({ className = '' }: ChainSelectorProps) {
         }`}
         title={t('chain.switchTo') + ' Base'}
       >
-        <span>{CHAIN_CONFIG.base.icon}</span>
+        <BaseIcon size={16} />
         <span>{CHAIN_CONFIG.base.shortName}</span>
       </button>
       <button

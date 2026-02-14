@@ -28,7 +28,8 @@ export const megaeth = defineChain({
   blockExplorers: {
     default: { name: "MegaETH Explorer", url: "https://megaeth.blockscout.com" },
   },
-});
+  iconUrl: "/icons/megaeth.png",
+}) as typeof celo;
 
 function getAppUrl() {
   if (typeof window !== 'undefined') {
