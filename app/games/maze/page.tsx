@@ -74,6 +74,7 @@ export default function MazePage() {
   );
 
   const canStart = game.status === "idle" || game.status === "finished";
+  const isProcessing = game.status === "processing";
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -242,15 +243,16 @@ export default function MazePage() {
 
         {/* Action Buttons */}
         <div className="flex gap-3 justify-center">
-          {canStart && (
+          {(canStart || isProcessing) && (
             <motion.button
               data-testid="start-game"
               onClick={game.startGame}
+              disabled={isProcessing}
               className="px-8 py-3 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🎮 {t("games.msg.startGame")}
+              {isProcessing ? "⏳ ..." : `🎮 ${t("games.msg.startGame")}`}
             </motion.button>
           )}
 

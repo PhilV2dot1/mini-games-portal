@@ -1,4 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { MEMORY_CONTRACT_ABI } from "@/lib/contracts/memory-abi";
+import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import {
   type Card,
   type Difficulty,
@@ -46,6 +49,23 @@ const DEFAULT_STATS: PlayerStats = {
   bestMoves: { easy: null, medium: null, hard: null },
 };
 
+const DIFFICULTY_ENUM = {
+  EASY: 0,
+  MEDIUM: 1,
+  HARD: 2,
+} as const;
+
+function getDifficultyEnum(difficulty: Difficulty): number {
+  switch (difficulty) {
+    case "easy":
+      return DIFFICULTY_ENUM.EASY;
+    case "medium":
+      return DIFFICULTY_ENUM.MEDIUM;
+    case "hard":
+      return DIFFICULTY_ENUM.HARD;
+  }
+}
+
 // ========================================
 // HOOK
 // ========================================
@@ -65,6 +85,7 @@ export function useMemory() {
   const [timer, setTimer] = useState(0);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [isChecking, setIsChecking] = useState(false);
+  const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
 
   // Stats
   const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
@@ -73,6 +94,23 @@ export function useMemory() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
 
+  // Wagmi hooks
+  const { address, isConnected, chain } = useAccount();
+  const contractAddress = getContractAddress('memory', chain?.id);
+  const gameAvailable = isGameAvailableOnChain('memory', chain?.id);
+  const { writeContractAsync, isPending } = useWriteContract();
+
+  // Read on-chain stats
+  const { data: onChainStats, refetch: refetchStats } = useReadContract({
+    address: contractAddress!,
+    abi: MEMORY_CONTRACT_ABI,
+    functionName: "getPlayerStats",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: mode === "onchain" && isConnected && !!address && gameAvailable,
+    },
+  });
+
   // Load stats from localStorage
   useEffect(() => {
     try {
@@ -80,6 +118,29 @@ export function useMemory() {
       if (saved) setStats(JSON.parse(saved));
     } catch { /* ignore */ }
   }, []);
+
+  // Update stats when on-chain data changes
+  useEffect(() => {
+    if (mode === "onchain" && onChainStats) {
+      const [gamesPlayed, wins, bestTimeEasy, bestTimeMedium, bestTimeHard, bestMovesEasy, bestMovesMedium, bestMovesHard] =
+        onChainStats as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint];
+
+      setStats({
+        games: Number(gamesPlayed),
+        wins: Number(wins),
+        bestTimes: {
+          easy: bestTimeEasy > 0n ? Number(bestTimeEasy) : null,
+          medium: bestTimeMedium > 0n ? Number(bestTimeMedium) : null,
+          hard: bestTimeHard > 0n ? Number(bestTimeHard) : null,
+        },
+        bestMoves: {
+          easy: bestMovesEasy > 0n ? Number(bestMovesEasy) : null,
+          medium: bestMovesMedium > 0n ? Number(bestMovesMedium) : null,
+          hard: bestMovesHard > 0n ? Number(bestMovesHard) : null,
+        },
+      });
+    }
+  }, [onChainStats, mode]);
 
   // Save stats to localStorage
   const saveStats = useCallback((newStats: PlayerStats) => {
@@ -109,21 +170,103 @@ export function useMemory() {
     return () => stopTimer();
   }, [stopTimer]);
 
+  // End game (extracted to handle both free and on-chain)
+  const endGame = useCallback(async (finalTime: number, finalMoves: number, score: number) => {
+    if (mode === "free") {
+      // Update local stats
+      const newStats = { ...stats };
+      newStats.games += 1;
+      newStats.wins += 1;
+      if (!newStats.bestTimes[difficulty] || finalTime < newStats.bestTimes[difficulty]!) {
+        newStats.bestTimes[difficulty] = finalTime;
+      }
+      if (!newStats.bestMoves[difficulty] || finalMoves < newStats.bestMoves[difficulty]!) {
+        newStats.bestMoves[difficulty] = finalMoves;
+      }
+      saveStats(newStats);
+      setMessage(`🎉 Congratulations! Score: ${score}`);
+    } else {
+      // On-chain: record result
+      if (!gameStartedOnChain) {
+        setMessage(`🎉 Congratulations! Score: ${score}`);
+        return;
+      }
+
+      try {
+        setStatus("processing");
+        setMessage("🎉 Recording victory on blockchain...");
+
+        await writeContractAsync({
+          address: contractAddress!,
+          abi: MEMORY_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [getDifficultyEnum(difficulty), BigInt(finalTime), BigInt(finalMoves), BigInt(score)],
+        });
+
+        setGameStartedOnChain(false);
+        await refetchStats();
+        setMessage(`🎉 Victory! Score: ${score} - recorded on blockchain!`);
+        setStatus("finished");
+      } catch (error) {
+        console.error("Failed to record result:", error);
+        setMessage("⚠️ Game finished but not recorded on-chain");
+        setGameStartedOnChain(false);
+        setStatus("finished");
+      }
+    }
+  }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, refetchStats, saveStats]);
+
   // Start a new game
-  const startGame = useCallback(() => {
+  const startGame = useCallback(async () => {
     const config = DIFFICULTY_CONFIG[difficulty];
     const newBoard = generateBoard(config.pairs);
-    setBoard(newBoard);
-    setStatus("playing");
-    setResult(null);
-    setMoves(0);
-    setPairsFound(0);
-    setTimer(0);
-    setSelectedCards([]);
-    setIsChecking(false);
-    setMessage("");
-    startTimer();
-  }, [difficulty, startTimer]);
+
+    if (mode === "onchain") {
+      if (!isConnected || !address) {
+        setMessage("⚠️ Please connect wallet first");
+        return;
+      }
+
+      try {
+        setStatus("processing");
+        setMessage("Starting game on blockchain...");
+
+        await writeContractAsync({
+          address: contractAddress!,
+          abi: MEMORY_CONTRACT_ABI,
+          functionName: "startGame",
+          args: [getDifficultyEnum(difficulty)],
+        });
+
+        setGameStartedOnChain(true);
+        setBoard(newBoard);
+        setStatus("playing");
+        setResult(null);
+        setMoves(0);
+        setPairsFound(0);
+        setTimer(0);
+        setSelectedCards([]);
+        setIsChecking(false);
+        setMessage("");
+        startTimer();
+      } catch (error) {
+        console.error("Failed to start on-chain game:", error);
+        setMessage("⚠️ Failed to start on-chain game");
+        setStatus("idle");
+      }
+    } else {
+      setBoard(newBoard);
+      setStatus("playing");
+      setResult(null);
+      setMoves(0);
+      setPairsFound(0);
+      setTimer(0);
+      setSelectedCards([]);
+      setIsChecking(false);
+      setMessage("");
+      startTimer();
+    }
+  }, [difficulty, mode, isConnected, address, writeContractAsync, contractAddress, startTimer]);
 
   // Handle card flip
   const flipCard = useCallback((cardIndex: number) => {
@@ -164,22 +307,10 @@ export function useMemory() {
           stopTimer();
           const finalTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
           const finalMoves = moves + 1;
+          const score = calculateScore(DIFFICULTY_CONFIG[difficulty].pairs, finalMoves, finalTime);
           setStatus("finished");
           setResult("win");
-          const score = calculateScore(DIFFICULTY_CONFIG[difficulty].pairs, finalMoves, finalTime);
-          setMessage(`🎉 Congratulations! Score: ${score}`);
-
-          // Update stats
-          const newStats = { ...stats };
-          newStats.games += 1;
-          newStats.wins += 1;
-          if (!newStats.bestTimes[difficulty] || finalTime < newStats.bestTimes[difficulty]!) {
-            newStats.bestTimes[difficulty] = finalTime;
-          }
-          if (!newStats.bestMoves[difficulty] || finalMoves < newStats.bestMoves[difficulty]!) {
-            newStats.bestMoves[difficulty] = finalMoves;
-          }
-          saveStats(newStats);
+          endGame(finalTime, finalMoves, score);
         }
       } else {
         // No match - flip back after delay
@@ -193,7 +324,7 @@ export function useMemory() {
         }, FLIP_DELAY);
       }
     }
-  }, [status, isChecking, board, selectedCards, moves, difficulty, stats, stopTimer, saveStats]);
+  }, [status, isChecking, board, selectedCards, moves, difficulty, stopTimer, endGame]);
 
   // Reset game
   const resetGame = useCallback(() => {
@@ -207,13 +338,15 @@ export function useMemory() {
     setSelectedCards([]);
     setIsChecking(false);
     setMessage("Click Start to begin!");
+    setGameStartedOnChain(false);
   }, [stopTimer]);
 
   // Switch mode
   const switchMode = useCallback((newMode: GameMode) => {
     if (status === "playing") return;
     setMode(newMode);
-  }, [status]);
+    resetGame();
+  }, [status, resetGame]);
 
   // Change difficulty
   const changeDifficulty = useCallback((newDifficulty: Difficulty) => {
@@ -241,6 +374,8 @@ export function useMemory() {
     timer,
     stats,
     isChecking,
+    isConnected,
+    isProcessing: isPending,
     totalPairs: DIFFICULTY_CONFIG[difficulty].pairs,
 
     // Actions

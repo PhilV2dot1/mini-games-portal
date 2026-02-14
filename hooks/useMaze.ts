@@ -1,4 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { MAZE_CONTRACT_ABI } from "@/lib/contracts/maze-abi";
+import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import {
   type Difficulty,
   type Direction,
@@ -48,6 +51,23 @@ const DEFAULT_STATS: PlayerStats = {
   bestMoves: { easy: null, medium: null, hard: null },
 };
 
+const DIFFICULTY_ENUM = {
+  EASY: 0,
+  MEDIUM: 1,
+  HARD: 2,
+} as const;
+
+function getDifficultyEnum(difficulty: Difficulty): number {
+  switch (difficulty) {
+    case "easy":
+      return DIFFICULTY_ENUM.EASY;
+    case "medium":
+      return DIFFICULTY_ENUM.MEDIUM;
+    case "hard":
+      return DIFFICULTY_ENUM.HARD;
+  }
+}
+
 // ========================================
 // HOOK
 // ========================================
@@ -65,6 +85,7 @@ export function useMaze() {
   // Game tracking
   const [moves, setMoves] = useState(0);
   const [timer, setTimer] = useState(0);
+  const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
 
   // Stats
   const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
@@ -72,6 +93,23 @@ export function useMaze() {
   // Timer ref
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
+
+  // Wagmi hooks
+  const { address, isConnected, chain } = useAccount();
+  const contractAddress = getContractAddress('maze', chain?.id);
+  const gameAvailable = isGameAvailableOnChain('maze', chain?.id);
+  const { writeContractAsync, isPending } = useWriteContract();
+
+  // Read on-chain stats
+  const { data: onChainStats, refetch: refetchStats } = useReadContract({
+    address: contractAddress!,
+    abi: MAZE_CONTRACT_ABI,
+    functionName: "getPlayerStats",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: mode === "onchain" && isConnected && !!address && gameAvailable,
+    },
+  });
 
   // Load stats from localStorage
   useEffect(() => {
@@ -82,6 +120,29 @@ export function useMaze() {
       /* ignore */
     }
   }, []);
+
+  // Update stats when on-chain data changes
+  useEffect(() => {
+    if (mode === "onchain" && onChainStats) {
+      const [gamesPlayed, wins, bestTimeEasy, bestTimeMedium, bestTimeHard, bestMovesEasy, bestMovesMedium, bestMovesHard] =
+        onChainStats as [bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint];
+
+      setStats({
+        games: Number(gamesPlayed),
+        wins: Number(wins),
+        bestTimes: {
+          easy: bestTimeEasy > 0n ? Number(bestTimeEasy) : null,
+          medium: bestTimeMedium > 0n ? Number(bestTimeMedium) : null,
+          hard: bestTimeHard > 0n ? Number(bestTimeHard) : null,
+        },
+        bestMoves: {
+          easy: bestMovesEasy > 0n ? Number(bestMovesEasy) : null,
+          medium: bestMovesMedium > 0n ? Number(bestMovesMedium) : null,
+          hard: bestMovesHard > 0n ? Number(bestMovesHard) : null,
+        },
+      });
+    }
+  }, [onChainStats, mode]);
 
   // Save stats to localStorage
   const saveStats = useCallback((newStats: PlayerStats) => {
@@ -113,21 +174,101 @@ export function useMaze() {
     return () => stopTimer();
   }, [stopTimer]);
 
+  // End game (handles both free and on-chain)
+  const endGame = useCallback(async (finalTime: number, finalMoves: number, score: number) => {
+    if (mode === "free") {
+      // Update local stats
+      const newStats = { ...stats };
+      newStats.games += 1;
+      newStats.wins += 1;
+      if (!newStats.bestTimes[difficulty] || finalTime < newStats.bestTimes[difficulty]!) {
+        newStats.bestTimes[difficulty] = finalTime;
+      }
+      if (!newStats.bestMoves[difficulty] || finalMoves < newStats.bestMoves[difficulty]!) {
+        newStats.bestMoves[difficulty] = finalMoves;
+      }
+      saveStats(newStats);
+      setMessage(`🎉 Congratulations! Score: ${score}`);
+    } else {
+      // On-chain: record result
+      if (!gameStartedOnChain) {
+        setMessage(`🎉 Congratulations! Score: ${score}`);
+        return;
+      }
+
+      try {
+        setStatus("processing");
+        setMessage("🎉 Recording victory on blockchain...");
+
+        await writeContractAsync({
+          address: contractAddress!,
+          abi: MAZE_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [getDifficultyEnum(difficulty), BigInt(finalTime), BigInt(finalMoves), BigInt(score)],
+        });
+
+        setGameStartedOnChain(false);
+        await refetchStats();
+        setMessage(`🎉 Victory! Score: ${score} - recorded on blockchain!`);
+        setStatus("finished");
+      } catch (error) {
+        console.error("Failed to record result:", error);
+        setMessage("⚠️ Game finished but not recorded on-chain");
+        setGameStartedOnChain(false);
+        setStatus("finished");
+      }
+    }
+  }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, refetchStats, saveStats]);
+
   // Start a new game
-  const startGame = useCallback(() => {
+  const startGame = useCallback(async () => {
     const config = DIFFICULTY_CONFIG[difficulty];
     const newGrid = generateMaze(config.gridSize);
     // Place player at start
     newGrid[1][1] = PLAYER;
-    setGrid(newGrid);
-    setPlayerPos({ row: 1, col: 1 });
-    setStatus("playing");
-    setResult(null);
-    setMoves(0);
-    setTimer(0);
-    setMessage("");
-    startTimer();
-  }, [difficulty, startTimer]);
+
+    if (mode === "onchain") {
+      if (!isConnected || !address) {
+        setMessage("⚠️ Please connect wallet first");
+        return;
+      }
+
+      try {
+        setStatus("processing");
+        setMessage("Starting game on blockchain...");
+
+        await writeContractAsync({
+          address: contractAddress!,
+          abi: MAZE_CONTRACT_ABI,
+          functionName: "startGame",
+          args: [getDifficultyEnum(difficulty)],
+        });
+
+        setGameStartedOnChain(true);
+        setGrid(newGrid);
+        setPlayerPos({ row: 1, col: 1 });
+        setStatus("playing");
+        setResult(null);
+        setMoves(0);
+        setTimer(0);
+        setMessage("");
+        startTimer();
+      } catch (error) {
+        console.error("Failed to start on-chain game:", error);
+        setMessage("⚠️ Failed to start on-chain game");
+        setStatus("idle");
+      }
+    } else {
+      setGrid(newGrid);
+      setPlayerPos({ row: 1, col: 1 });
+      setStatus("playing");
+      setResult(null);
+      setMoves(0);
+      setTimer(0);
+      setMessage("");
+      startTimer();
+    }
+  }, [difficulty, mode, isConnected, address, writeContractAsync, contractAddress, startTimer]);
 
   // Handle player movement
   const move = useCallback(
@@ -154,31 +295,13 @@ export function useMaze() {
           (Date.now() - startTimeRef.current) / 1000
         );
         const finalMoves = moves + 1;
+        const score = calculateScore(gridSize, finalMoves, finalTime);
         setStatus("finished");
         setResult("win");
-        const score = calculateScore(gridSize, finalMoves, finalTime);
-        setMessage(`🎉 Congratulations! Score: ${score}`);
-
-        // Update stats
-        const newStats = { ...stats };
-        newStats.games += 1;
-        newStats.wins += 1;
-        if (
-          !newStats.bestTimes[difficulty] ||
-          finalTime < newStats.bestTimes[difficulty]!
-        ) {
-          newStats.bestTimes[difficulty] = finalTime;
-        }
-        if (
-          !newStats.bestMoves[difficulty] ||
-          finalMoves < newStats.bestMoves[difficulty]!
-        ) {
-          newStats.bestMoves[difficulty] = finalMoves;
-        }
-        saveStats(newStats);
+        endGame(finalTime, finalMoves, score);
       }
     },
-    [status, grid, playerPos, difficulty, moves, stats, stopTimer, saveStats]
+    [status, grid, playerPos, difficulty, moves, stopTimer, endGame]
   );
 
   // Keyboard controls
@@ -231,6 +354,7 @@ export function useMaze() {
     setMoves(0);
     setTimer(0);
     setMessage("Click Start to begin!");
+    setGameStartedOnChain(false);
   }, [stopTimer]);
 
   // Switch mode
@@ -238,8 +362,9 @@ export function useMaze() {
     (newMode: GameMode) => {
       if (status === "playing") return;
       setMode(newMode);
+      resetGame();
     },
-    [status]
+    [status, resetGame]
   );
 
   // Change difficulty
@@ -270,6 +395,8 @@ export function useMaze() {
     moves,
     timer,
     stats,
+    isConnected,
+    isProcessing: isPending,
     gridSize: DIFFICULTY_CONFIG[difficulty].gridSize,
 
     // Actions

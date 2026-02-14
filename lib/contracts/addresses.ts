@@ -83,12 +83,12 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     base: '0xdfe4364e40c79035dadC6B0E9e4a35Bf261412A9',
   },
   memory: {
-    celo: null,
-    base: null,
+    celo: '0xf387107bb43591c49dca7f46cd3cffc705f0cb0c',
+    base: '0x927803e696469ea76f7bc165f5add70c3efec470',
   },
   maze: {
-    celo: null,
-    base: null,
+    celo: '0x15110ed1bff11b2522234a44665bc689c500a285',
+    base: '0xed8ae4652ade0aa830f0018d0d458dbcbc42f664',
   },
 };
 
