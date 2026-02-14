@@ -20,11 +20,14 @@ export const colors = {
   baseLight: '#3378FF',
   baseDark: '#003DB8',
 
-  // Brand Colors - MegaETH
-  megaeth: '#00D4AA',
-  megaethHover: '#00B891',
-  megaethLight: '#33DDBB',
-  megaethDark: '#00A882',
+  // Brand Colors - MegaETH (official brand kit)
+  megaeth: '#FF8AA8',
+  megaethHover: '#F5949D',
+  megaethLight: '#F786C6',
+  megaethDark: '#F5AF94',
+  megaethBgDay: '#DFD9D9',     // Full Moon
+  megaethBgNight: '#19191A',   // Night Sky
+  megaethMoonWhite: '#ECE8E8', // Moon White
 
   // Semantic Colors
   success: '#10b981',
@@ -383,6 +386,12 @@ export interface ChainTheme {
   dark: string;
   /** Text color that contrasts with the primary color */
   contrastText: string;
+  /** Optional background color override for light mode */
+  bgDay?: string;
+  /** Optional background color override for dark mode */
+  bgNight?: string;
+  /** Optional font family override */
+  fontFamily?: string;
 }
 
 export const chainThemes: Record<ChainThemeName, ChainTheme> = {
@@ -405,7 +414,10 @@ export const chainThemes: Record<ChainThemeName, ChainTheme> = {
     hover: colors.megaethHover,
     light: colors.megaethLight,
     dark: colors.megaethDark,
-    contrastText: '#111827', // dark text on teal/green
+    contrastText: '#19191A', // Night Sky - dark text on rose
+    bgDay: colors.megaethBgDay,       // Full Moon #DFD9D9
+    bgNight: colors.megaethBgNight,   // Night Sky #19191A
+    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
   },
 } as const;
 

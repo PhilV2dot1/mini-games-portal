@@ -3,6 +3,7 @@
 import { useChainSelector } from '@/hooks/useChainSelector';
 import { CHAIN_CONFIG } from '@/lib/contracts/addresses';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { MegaEthIcon } from './MegaEthIcon';
 
 interface ChainSelectorProps {
   className?: string;
@@ -47,7 +48,7 @@ export function ChainSelector({ className = '' }: ChainSelectorProps) {
         }`}
         title={t('chain.switchTo') + ' MegaETH'}
       >
-        <span>{CHAIN_CONFIG.megaeth.icon}</span>
+        <MegaEthIcon size={16} />
         <span>{CHAIN_CONFIG.megaeth.shortName}</span>
       </button>
     </div>

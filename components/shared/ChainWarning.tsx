@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useChainSelector } from '@/hooks/useChainSelector';
 import { CHAIN_CONFIG } from '@/lib/contracts/addresses';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { MegaEthIcon } from './MegaEthIcon';
 
 interface ChainWarningProps {
   className?: string;
@@ -44,9 +45,9 @@ export function ChainWarning({ className = '' }: ChainWarningProps) {
         </button>
         <button
           onClick={switchToMegaeth}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-400 hover:bg-pink-500 text-gray-900 rounded-lg text-sm font-medium transition-colors"
         >
-          <span>{CHAIN_CONFIG.megaeth.icon}</span>
+          <MegaEthIcon size={16} />
           <span>{CHAIN_CONFIG.megaeth.shortName}</span>
         </button>
       </div>

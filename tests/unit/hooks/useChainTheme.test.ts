@@ -86,8 +86,8 @@ describe('useChainTheme', () => {
     const { result } = renderHook(() => useChainTheme());
 
     expect(result.current.activeChain).toBe('megaeth');
-    expect(result.current.theme.primary).toBe('#00D4AA');
-    expect(result.current.theme.contrastText).toBe('#111827');
+    expect(result.current.theme.primary).toBe('#FF8AA8');
+    expect(result.current.theme.contrastText).toBe('#19191A');
     expect(result.current.isOnMegaeth).toBe(true);
     expect(result.current.isOnCelo).toBe(false);
     expect(result.current.isOnBase).toBe(false);
