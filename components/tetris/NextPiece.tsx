@@ -40,7 +40,7 @@ export const NextPiece = memo(function NextPiece({ piece }: NextPieceProps) {
                   return (
                     <div
                       key={`${r}-${c}`}
-                      style={{ width: 18, height: 18 }}
+                      style={{ width: 20, height: 20 }}
                     />
                   );
                 }
@@ -49,8 +49,8 @@ export const NextPiece = memo(function NextPiece({ piece }: NextPieceProps) {
                   <div
                     key={`${r}-${c}`}
                     style={{
-                      width: 18,
-                      height: 18,
+                      width: 20,
+                      height: 20,
                       borderRadius: 3,
                       background: colors.bg,
                       boxShadow: `inset 2px 2px 0 ${colors.light}, inset -2px -2px 0 ${colors.dark}`,

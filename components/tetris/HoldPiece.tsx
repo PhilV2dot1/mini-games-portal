@@ -43,7 +43,7 @@ export const HoldPiece = memo(function HoldPiece({ piece, canHold }: HoldPiecePr
                   return (
                     <div
                       key={`${r}-${c}`}
-                      style={{ width: 18, height: 18 }}
+                      style={{ width: 20, height: 20 }}
                     />
                   );
                 }
@@ -52,8 +52,8 @@ export const HoldPiece = memo(function HoldPiece({ piece, canHold }: HoldPiecePr
                   <div
                     key={`${r}-${c}`}
                     style={{
-                      width: 18,
-                      height: 18,
+                      width: 20,
+                      height: 20,
                       borderRadius: 3,
                       background: colors.bg,
                       boxShadow: `inset 2px 2px 0 ${colors.light}, inset -2px -2px 0 ${colors.dark}`,
