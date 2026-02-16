@@ -1,16 +1,18 @@
-# 🎮 Celo Games Portal
+# 🎮 Mini Games Portal
 
-A comprehensive gaming platform built on Celo blockchain featuring multiple games, user profiles, badges, and leaderboards.
+A comprehensive multi-chain gaming platform featuring 15 mini-games on Celo, Base & MegaETH blockchains, with user profiles, badges, and leaderboards.
 
 ## 🌟 Features
 
-- **15 Blockchain Games**: Blackjack, Rock-Paper-Scissors, TicTacToe, Jackpot, 2048, Mastermind, Connect 4, Snake, Solitaire, démineur, Sudoku, Yahtzee, Memoire, Labyrinthe et Tetris
-- **Dual Mode Gaming**: Free play (off-chain) and On-chain modes on Celo, Base and MegaETH
+- **15 Blockchain Games**: Blackjack, Rock-Paper-Scissors, TicTacToe, Jackpot, 2048, Mastermind, Connect 4, Snake, Solitaire, Minesweeper, Sudoku, Yahtzee, Memory, Maze & Tetris
+- **Multi-Chain**: Play on Celo, Base and MegaETH (45 smart contracts, 15 per chain)
+- **Dual Mode Gaming**: Free play (off-chain) and On-chain modes
 - **User Profiles**: Customizable profiles with themes, avatars, and social links
 - **Badge System**: Earn badges by playing games and achieving milestones
 - **Leaderboard**: Global and game-specific rankings
 - **Wallet Integration**: RainbowKit + Wagmi for seamless Web3 connectivity
 - **Farcaster Integration**: Sign in with Farcaster, mini-app support
+- **Multilingual**: English and French (1600+ translation keys)
 
 ## 🚀 Quick Start
 
@@ -18,14 +20,14 @@ A comprehensive gaming platform built on Celo blockchain featuring multiple game
 
 - Node.js 18+
 - npm or yarn
-- (Optional) Celo wallet for on-chain features
+- (Optional) Crypto wallet for on-chain features
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/PhilV2dot1/celo-games-portal.git
-cd celo-games-portal
+git clone https://github.com/PhilV2dot1/mini-games-portal.git
+cd mini-games-portal
 
 # Install dependencies
 npm install
@@ -59,55 +61,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-## 🎯 Games
+## 🎯 Supported Chains
 
-### 1. Blackjack (21)
-Classic card game where you try to beat the dealer by getting as close to 21 as possible.
-
-**Contract**: `0x6cb9971850767026feBCb4801c0b8a946F28C9Ec` (Alfajores)
-
-### 2. Rock Paper Scissors
-Play against the computer in this timeless game of chance.
-
-**Contract**: `0xc4f5f0201bf609535ec7a6d88a05b05013ae0c49` (Alfajores)
-
-### 3. TicTacToe
-Strategic game on a 3x3 grid. Get three in a row to win!
-
-**Contract**: `0xa9596b4a5A7F0E10A5666a3a5106c4F2C3838881` (Alfajores)
-
-### 4. Jackpot
-Crypto-themed slot machine with weighted outcomes based on market cap rankings.
-
-**Contract**: `0x07Bc49E8A2BaF7c68519F9a61FCD733490061644` (Alfajores)
-
-### 5. 2048
-Addictive tile-merging puzzle game. Combine tiles to reach 2048!
-
-**Contract**: `0x3a4A909ed31446FFF21119071F4Db0b7DAe36Ed1` (Alfajores)
-
-### 6. Mastermind
-Code-breaking logic game. Guess the secret color combination!
-
-**Contract**: `0x04481EeB5111BDdd2f05A6E20BE51B295b5251C9` (Alfajores)
-
-### 7. Connect 4
-Classic strategy game. Connect four pieces in a row to win! Play against AI with 3 difficulty levels.
-
-**Contract**: `0xd00a6170d83b446314b2e79f9603bc0a72c463e6` (Celo Mainnet)
-**Documentation**: [contracts/ConnectFive.README.md](contracts/ConnectFive.README.md)
-
-### 8. Snake
-Eat food, grow long, and avoid crashing! Classic arcade game with blockchain scoring.
-
-**Contract**: `0x5646fda34aaf8a95b9b0607db5ca02bdee267598` (Celo Mainnet)
-**Documentation**: [contracts/Snake.README.md](contracts/Snake.README.md)
+| Chain | ID | Explorer |
+|-------|-----|---------|
+| Celo | 42220 | [Celoscan](https://celoscan.io) |
+| Base | 8453 | [Basescan](https://basescan.org) |
+| MegaETH | 4326 | [MegaETH Explorer](https://megaexplorer.xyz) |
 
 ## 🧪 Testing
 
 We have comprehensive test coverage across all layers of the application.
-
-### Test Overview
 
 | Type | Count | Coverage | Status |
 |------|-------|----------|--------|
@@ -137,15 +101,6 @@ npm run test:e2e:headed
 RUN_BLOCKCHAIN_TESTS=true npm run test:blockchain
 ```
 
-### Detailed Testing Documentation
-
-For comprehensive testing documentation, see [TESTING.md](TESTING.md).
-
-**Test-specific documentation**:
-- [E2E Tests](tests/e2e/README.md) - End-to-end testing with Playwright
-- [Blockchain Tests](tests/blockchain/README.md) - Smart contract integration tests
-- [Smart Contracts](tests/blockchain/CONTRACTS.md) - Detailed contract documentation
-
 ## 🏗️ Tech Stack
 
 ### Frontend
@@ -157,8 +112,8 @@ For comprehensive testing documentation, see [TESTING.md](TESTING.md).
 
 ### Web3
 - **Wallet**: RainbowKit + Wagmi v2
-- **Blockchain**: Celo (Alfajores Testnet)
-- **Smart Contracts**: Solidity (deployed on Alfajores)
+- **Blockchains**: Celo, Base, MegaETH
+- **Smart Contracts**: Solidity (45 contracts across 3 chains)
 - **RPC**: Viem for blockchain interactions
 
 ### Backend
@@ -175,33 +130,25 @@ For comprehensive testing documentation, see [TESTING.md](TESTING.md).
 ## 📁 Project Structure
 
 ```
-celo-games-portal/
+mini-games-portal/
 ├── app/                      # Next.js app directory
-│   ├── (games)/             # Game pages
+│   ├── blackjack/           # Game pages (older games)
+│   ├── games/               # Game pages (newer games)
 │   ├── api/                 # API routes
 │   ├── leaderboard/         # Leaderboard page
 │   └── profile/             # Profile pages
 ├── components/              # React components
 │   ├── auth/               # Authentication components
 │   ├── badges/             # Badge system
-│   ├── games/              # Game components
-│   ├── profile/            # Profile components
+│   ├── shared/             # Shared components (ChainSelector, etc.)
 │   └── ui/                 # Reusable UI components
 ├── hooks/                   # Custom React hooks
-│   ├── useJackpot.ts       # Jackpot game logic
-│   ├── useTicTacToe.ts     # TicTacToe game logic
-│   └── ...
 ├── lib/                     # Utilities and libraries
-│   ├── contracts/          # Smart contract ABIs
-│   ├── supabase/           # Supabase client
-│   ├── validations/        # Form validations
-│   └── utils/              # Helper functions
+│   ├── contracts/          # Smart contract ABIs & addresses
+│   ├── constants/          # Design tokens, chain themes
+│   ├── i18n/               # Internationalization (EN/FR)
+│   └── theme/              # Dark/light theme system
 ├── tests/                   # Test suites
-│   ├── unit/               # Unit tests (614)
-│   ├── component/          # Component tests (404)
-│   ├── integration/        # API integration tests (92)
-│   ├── e2e/                # End-to-end tests (54)
-│   └── blockchain/         # Blockchain tests (223)
 └── public/                  # Static assets
 ```
 
@@ -220,86 +167,18 @@ npm run lint         # Run ESLint
 npm test             # Run all tests
 npm run test:unit    # Unit tests
 npm run test:watch   # Watch mode
-npm run test:ui      # Interactive test UI
 npm run test:e2e     # E2E tests
-npm run test:e2e:headed  # E2E with browser
-npm run test:e2e:debug   # E2E debug mode
-
-# Blockchain
-npm run test:blockchain  # Blockchain tests (with RUN_BLOCKCHAIN_TESTS=true)
 ```
-
-### Development Workflow
-
-1. Create a feature branch
-2. Make changes
-3. Run tests: `npm test`
-4. Run E2E tests (if UI changes): `npm run test:e2e`
-5. Commit with descriptive message
-6. Create Pull Request
 
 ## 🚢 Deployment
 
 ### Vercel (Recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/PhilV2dot1/celo-games-portal)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/PhilV2dot1/mini-games-portal)
 
 1. Import your repository to Vercel
 2. Configure environment variables
 3. Deploy!
-
-### Manual Deployment
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm run start
-```
-
-### Environment Setup for Production
-
-Ensure all environment variables are configured:
-- Supabase credentials
-- WalletConnect Project ID
-- (Optional) Analytics tokens
-- (Optional) Blockchain test wallet (for automated tests)
-
-## 🎨 Customization
-
-### Themes
-
-Users can choose from 7 color themes:
-- Yellow (Celo default)
-- Blue
-- Purple
-- Green
-- Red
-- Orange
-- Pink
-
-Theme configuration: `lib/utils/themes.ts`
-
-### Adding a New Game
-
-1. Create smart contract and deploy to Alfajores
-2. Add ABI in `lib/contracts/[game]-abi.ts`
-3. Create game component in `components/games/`
-4. Create custom hook in `hooks/use[Game].ts`
-5. Add route in `app/(games)/[game]/`
-6. Add tests in `tests/`
-7. Update leaderboard and stats tracking
-
-## 📊 CI/CD
-
-GitHub Actions workflows are configured for:
-- **Unit & Integration Tests**: Run on every push/PR
-- **E2E Tests**: Chromium & Firefox on every push/PR
-- **Mobile E2E Tests**: On main branch only
-- **Blockchain Tests**: Manual trigger (workflow_dispatch)
-
-Configuration: [.github/workflows/test.yml](.github/workflows/test.yml)
 
 ## 🤝 Contributing
 
@@ -310,17 +189,8 @@ Contributions are welcome! Please follow these steps:
 3. Make your changes
 4. Add/update tests
 5. Ensure all tests pass (`npm test`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-### Code Style
-
-- TypeScript for all code
-- ESLint + Prettier for formatting
-- Meaningful variable names
-- Comments for complex logic
-- Tests for all new features
+6. Commit your changes
+7. Open a Pull Request
 
 ## 📝 License
 
@@ -329,26 +199,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **Celo Foundation** - For the blockchain infrastructure
+- **Base (Coinbase)** - For L2 scaling
+- **MegaETH** - For high-performance chain
 - **Farcaster** - For social authentication
 - **Supabase** - For backend services
 - **RainbowKit** - For wallet connectivity
-- **Playwright** - For E2E testing
-- **Vitest** - For unit testing
 
 ## 📞 Support
 
-- **Documentation**: [TESTING.md](TESTING.md)
-- **Issues**: [GitHub Issues](https://github.com/PhilV2dot1/celo-games-portal/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/PhilV2dot1/celo-games-portal/discussions)
-
-## 🔗 Links
-
-- **Live Demo**: [celo-games-portal.vercel.app](https://celo-games-portal.vercel.app)
-- **Celo Explorer (Alfajores)**: [alfajores.celoscan.io](https://alfajores.celoscan.io)
-- **Celo Faucet**: [faucet.celo.org](https://faucet.celo.org)
+- **Issues**: [GitHub Issues](https://github.com/PhilV2dot1/mini-games-portal/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/PhilV2dot1/mini-games-portal/discussions)
 
 ---
 
-**Built with ❤️ for the Celo community**
+**Built with ❤️ for the multi-chain gaming community**
 
-*Last updated: December 2025*
+*Last updated: February 2026*
