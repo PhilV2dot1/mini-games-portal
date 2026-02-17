@@ -52,65 +52,54 @@ export function Header() {
       transition={{ duration: 0.3 }}
       className="mb-8"
     >
-      {/* Top Bar */}
       <div className="bg-white/90 dark:bg-gray-900/95 rounded-xl shadow-md mb-6 dark:shadow-gray-900/50" style={{ borderBottom: '3px solid var(--chain-primary)' }}>
+        {/* Single top bar: Brand + Actions */}
         <div className="flex items-center justify-between p-4">
-          {/* Logo/Brand */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(to bottom right, var(--chain-primary), var(--chain-dark))' }}>
-              <span className="text-xl sm:text-2xl">🎮</span>
+          {/* Brand */}
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, var(--chain-primary), var(--chain-dark))' }}>
+              <span className="text-2xl sm:text-3xl">🎮</span>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white">
-                Mini Games Portal
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 hidden sm:block">
-                {t('header.subtitle')}
-              </p>
-            </div>
-          </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+              Mini Games Portal
+            </h1>
+          </Link>
 
-          {/* Right side actions */}
-          <div className="flex items-center gap-3">
-            {/* Desktop controls - hidden on mobile (available in MobileMenu) */}
-            <div className="hidden md:flex items-center gap-3">
+          {/* Right side */}
+          <div className="flex items-center gap-2">
+            {/* Desktop controls */}
+            <div className="hidden md:flex items-center gap-2">
+              <ChainSelector />
+              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
               <ThemeToggle size="sm" />
               <AudioControls size="sm" />
               <LanguageSwitcher />
-            </div>
+              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
 
-            {/* Authentication - hidden on mobile (available in MobileMenu) */}
-            <div className="hidden md:flex items-center gap-3">
               {!isAuthenticated ? (
                 <>
                   <button
                     onClick={() => setShowLoginModal(true)}
-                    className="px-4 py-2 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
+                    className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
                   >
                     {t('auth.login')}
                   </button>
                   <button
                     onClick={() => setShowSignupModal(true)}
-                    className="px-4 py-2 font-semibold text-sm rounded-lg transition-colors hover:opacity-90"
+                    className="px-3 py-1.5 font-semibold text-sm rounded-lg transition-colors hover:opacity-90"
                     style={{ backgroundColor: 'var(--chain-primary)', color: 'var(--chain-contrast)' }}
                   >
                     {t('auth.createAccount')}
                   </button>
-                  <ConnectButton
-                    showBalance={false}
-                    chainStatus="icon"
-                  />
+                  <ConnectButton showBalance={false} chainStatus="icon" />
                 </>
               ) : (
                 <>
-                  <ConnectButton
-                    showBalance={true}
-                    chainStatus="icon"
-                  />
+                  <ConnectButton showBalance={false} chainStatus="icon" />
                   <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
+                      className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
                     >
                       <span>{displayName || user?.email?.split('@')[0] || t('nav.profile')}</span>
                       <svg className={`w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +139,7 @@ export function Header() {
               )}
             </div>
 
-            {/* Mobile hamburger button */}
+            {/* Mobile hamburger */}
             <button
               onClick={() => setShowMobileMenu(true)}
               className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -163,43 +152,28 @@ export function Header() {
           </div>
         </div>
 
-        {/* Navigation - hidden on mobile (available in MobileMenu) */}
+        {/* Navigation bar */}
         <nav className="hidden md:block border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <Link
-                href="/"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                {t('nav.home')}
-              </Link>
-              <Link
-                href="/leaderboard"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                {t('nav.leaderboard')}
-              </Link>
-              <Link
-                href="/profile/me"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                {t('nav.profile')}
-              </Link>
-              <Link
-                href="/friends"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                {t('nav.friends')}
-              </Link>
-              <Link
-                href="/tournaments"
-                className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                {t('nav.tournaments')}
-              </Link>
+          <div className="flex items-center px-4 py-2">
+            <div className="flex items-center gap-1">
+              {[
+                { href: "/", label: t('nav.home') },
+                { href: "/leaderboard", label: t('nav.leaderboard') },
+                { href: "/profile/me", label: t('nav.profile') },
+                { href: "/friends", label: t('nav.friends') },
+                { href: "/tournaments", label: t('nav.tournaments') },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="px-3 py-1.5 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
               <Link
                 href="/about"
-                className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
                 style={{ color: 'var(--chain-dark)' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--chain-primary) 12%, transparent)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -208,32 +182,21 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Chain Selector + Stats */}
-            <div className="hidden md:flex items-center gap-4">
-              <ChainSelector />
-              {profile.gamesPlayed > 0 && (
-                <div className="flex items-center gap-4 text-xs">
-                  <div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-gray-600 dark:text-gray-400">Points:</span>
-                    <span className="font-bold text-gray-900 dark:text-white">{profile.totalPoints}</span>
-                  </div>
-                  <div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-gray-600 dark:text-gray-400">Games:</span>
-                    <span className="font-bold text-gray-900 dark:text-white">{profile.gamesPlayed}</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Quick stats */}
+            {profile.gamesPlayed > 0 && (
+              <div className="ml-auto flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                <span><strong className="text-gray-900 dark:text-white">{profile.totalPoints}</strong> pts</span>
+                <span><strong className="text-gray-900 dark:text-white">{profile.gamesPlayed}</strong> games</span>
+              </div>
+            )}
           </div>
         </nav>
       </div>
 
-      {/* Chain Warning (unsupported network) */}
+      {/* Chain Warning */}
       <ChainWarning className="mb-4" />
 
-      {/* Authentication Modals */}
+      {/* Modals */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -242,7 +205,6 @@ export function Header() {
           setShowSignupModal(true);
         }}
       />
-
       <CreateAccountModal
         isOpen={showSignupModal}
         onClose={() => setShowSignupModal(false)}
