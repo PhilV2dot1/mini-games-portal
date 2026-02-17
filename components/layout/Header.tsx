@@ -9,7 +9,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { AudioControls } from "@/components/shared/AudioControls";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
-import { ChainSelector } from "@/components/shared/ChainSelector";
 import { ChainWarning } from "@/components/shared/ChainWarning";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { LoginModal } from "@/components/auth/LoginModal";
@@ -60,7 +59,7 @@ export function Header() {
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, var(--chain-primary), var(--chain-dark))' }}>
               <span className="text-2xl sm:text-3xl">🎮</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
               Mini Games Portal
             </h1>
           </Link>
@@ -101,14 +100,14 @@ export function Header() {
                 <Link
                   key={href}
                   href={href}
-                  className="px-3 py-1.5 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-base font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   {label}
                 </Link>
               ))}
               <Link
                 href="/about"
-                className="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
+                className="px-3 py-1.5 text-base font-semibold rounded-lg transition-colors"
                 style={{ color: 'var(--chain-dark)' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--chain-primary) 12%, transparent)'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -117,10 +116,8 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Right: Chain selector + Auth + Wallet */}
+            {/* Right: Auth + Wallet (chain selector is in the ConnectButton dropdown) */}
             <div className="flex items-center gap-3">
-              <ChainSelector />
-
               {!isAuthenticated ? (
                 <>
                   <button
@@ -129,11 +126,11 @@ export function Header() {
                   >
                     {t('auth.login')}
                   </button>
-                  <ConnectButton showBalance={false} chainStatus="icon" />
+                  <ConnectButton showBalance={false} chainStatus="name" />
                 </>
               ) : (
                 <>
-                  <ConnectButton showBalance={false} chainStatus="icon" />
+                  <ConnectButton showBalance={false} chainStatus="name" />
                   <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
