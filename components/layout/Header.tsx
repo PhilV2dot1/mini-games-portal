@@ -53,28 +53,73 @@ export function Header() {
       className="mb-8"
     >
       <div className="bg-white/90 dark:bg-gray-900/95 rounded-xl shadow-md mb-6 dark:shadow-gray-900/50" style={{ borderBottom: '3px solid var(--chain-primary)' }}>
-        {/* Single top bar: Brand + Actions */}
+        {/* Line 1: Brand + small controls */}
         <div className="flex items-center justify-between p-4">
-          {/* Brand */}
-          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+          {/* Brand — title stays on one line */}
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity shrink-0">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(to bottom right, var(--chain-primary), var(--chain-dark))' }}>
               <span className="text-2xl sm:text-3xl">🎮</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
               Mini Games Portal
             </h1>
           </Link>
 
-          {/* Right side */}
+          {/* Right: only small icon controls */}
           <div className="flex items-center gap-2">
-            {/* Desktop controls */}
             <div className="hidden md:flex items-center gap-2">
-              <ChainSelector />
-              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
               <ThemeToggle size="sm" />
               <AudioControls size="sm" />
               <LanguageSwitcher />
-              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+            </div>
+
+            {/* Mobile hamburger */}
+            <button
+              onClick={() => setShowMobileMenu(true)}
+              className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label={t('nav.menu')}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Line 2: Nav + Chain + Auth */}
+        <nav className="hidden md:block border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between px-4 py-2">
+            {/* Nav links */}
+            <div className="flex items-center gap-1">
+              {[
+                { href: "/", label: t('nav.home') },
+                { href: "/leaderboard", label: t('nav.leaderboard') },
+                { href: "/profile/me", label: t('nav.profile') },
+                { href: "/friends", label: t('nav.friends') },
+                { href: "/tournaments", label: t('nav.tournaments') },
+              ].map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="px-3 py-1.5 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
+              <Link
+                href="/about"
+                className="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
+                style={{ color: 'var(--chain-dark)' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--chain-primary) 12%, transparent)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                {t('nav.guide')}
+              </Link>
+            </div>
+
+            {/* Right: Chain selector + Auth + Wallet */}
+            <div className="flex items-center gap-3">
+              <ChainSelector />
 
               {!isAuthenticated ? (
                 <>
@@ -83,13 +128,6 @@ export function Header() {
                     className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
                   >
                     {t('auth.login')}
-                  </button>
-                  <button
-                    onClick={() => setShowSignupModal(true)}
-                    className="px-3 py-1.5 font-semibold text-sm rounded-lg transition-colors hover:opacity-90"
-                    style={{ backgroundColor: 'var(--chain-primary)', color: 'var(--chain-contrast)' }}
-                  >
-                    {t('auth.createAccount')}
                   </button>
                   <ConnectButton showBalance={false} chainStatus="icon" />
                 </>
@@ -138,57 +176,6 @@ export function Header() {
                 </>
               )}
             </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setShowMobileMenu(true)}
-              className="md:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label={t('nav.menu')}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Navigation bar */}
-        <nav className="hidden md:block border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center px-4 py-2">
-            <div className="flex items-center gap-1">
-              {[
-                { href: "/", label: t('nav.home') },
-                { href: "/leaderboard", label: t('nav.leaderboard') },
-                { href: "/profile/me", label: t('nav.profile') },
-                { href: "/friends", label: t('nav.friends') },
-                { href: "/tournaments", label: t('nav.tournaments') },
-              ].map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="px-3 py-1.5 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
-              <Link
-                href="/about"
-                className="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
-                style={{ color: 'var(--chain-dark)' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--chain-primary) 12%, transparent)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                {t('nav.guide')}
-              </Link>
-            </div>
-
-            {/* Quick stats */}
-            {profile.gamesPlayed > 0 && (
-              <div className="ml-auto flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                <span><strong className="text-gray-900 dark:text-white">{profile.totalPoints}</strong> pts</span>
-                <span><strong className="text-gray-900 dark:text-white">{profile.gamesPlayed}</strong> games</span>
-              </div>
-            )}
           </div>
         </nav>
       </div>
