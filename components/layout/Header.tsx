@@ -10,6 +10,10 @@ import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { AudioControls } from "@/components/shared/AudioControls";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { ChainWarning } from "@/components/shared/ChainWarning";
+import { useChainSelector } from "@/hooks/useChainSelector";
+import { CeloIcon } from "@/components/shared/CeloIcon";
+import { BaseIcon } from "@/components/shared/BaseIcon";
+import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
@@ -19,6 +23,7 @@ export function Header() {
   const { profile } = useLocalStats();
   const { t } = useLanguage();
   const { user, isAuthenticated, signOut } = useAuth();
+  const { isOnCelo, isOnBase, isOnMegaeth, switchToCelo, switchToBase, switchToMegaeth } = useChainSelector();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -64,9 +69,33 @@ export function Header() {
             </h1>
           </Link>
 
-          {/* Right: only small icon controls */}
+          {/* Right: chain logos + small controls */}
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
+              {/* Chain icons — click to switch */}
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                <button
+                  onClick={switchToCelo}
+                  className={`p-1.5 rounded-md transition-all ${isOnCelo ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  title="Celo"
+                >
+                  <CeloIcon size={20} />
+                </button>
+                <button
+                  onClick={switchToBase}
+                  className={`p-1.5 rounded-md transition-all ${isOnBase ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  title="Base"
+                >
+                  <BaseIcon size={20} />
+                </button>
+                <button
+                  onClick={switchToMegaeth}
+                  className={`p-1.5 rounded-md transition-all ${isOnMegaeth ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  title="MegaETH"
+                >
+                  <MegaEthIcon size={20} />
+                </button>
+              </div>
               <ThemeToggle size="sm" />
               <AudioControls size="sm" />
               <LanguageSwitcher />
@@ -126,11 +155,11 @@ export function Header() {
                   >
                     {t('auth.login')}
                   </button>
-                  <ConnectButton showBalance={false} chainStatus="name" />
+                  <ConnectButton showBalance={false} chainStatus="icon" />
                 </>
               ) : (
                 <>
-                  <ConnectButton showBalance={false} chainStatus="name" />
+                  <ConnectButton showBalance={false} chainStatus="icon" />
                   <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
