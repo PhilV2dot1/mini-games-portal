@@ -72,30 +72,34 @@ export function Header() {
           {/* Right: chain logos + small controls */}
           <div className="flex items-center gap-2">
             <div className="hidden md:flex items-center gap-2">
-              {/* Chain icons — click to switch */}
+              {/* Chain toggle — click to switch */}
               <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
                 <button
                   onClick={switchToCelo}
-                  className={`p-1.5 rounded-md transition-all ${isOnCelo ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${isOnCelo ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'opacity-50 hover:opacity-80 text-gray-600 dark:text-gray-400'}`}
                   title="Celo"
                 >
-                  <CeloIcon size={20} />
+                  <CeloIcon size={18} />
+                  <span>Celo</span>
                 </button>
                 <button
                   onClick={switchToBase}
-                  className={`p-1.5 rounded-md transition-all ${isOnBase ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${isOnBase ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'opacity-50 hover:opacity-80 text-gray-600 dark:text-gray-400'}`}
                   title="Base"
                 >
-                  <BaseIcon size={20} />
+                  <BaseIcon size={18} />
+                  <span>Base</span>
                 </button>
                 <button
                   onClick={switchToMegaeth}
-                  className={`p-1.5 rounded-md transition-all ${isOnMegaeth ? 'bg-white dark:bg-gray-700 shadow-sm' : 'opacity-50 hover:opacity-80'}`}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${isOnMegaeth ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'opacity-50 hover:opacity-80 text-gray-600 dark:text-gray-400'}`}
                   title="MegaETH"
                 >
-                  <MegaEthIcon size={20} />
+                  <MegaEthIcon size={18} />
+                  <span>MegaETH</span>
                 </button>
               </div>
+              <ConnectButton showBalance={false} chainStatus="icon" />
               <ThemeToggle size="sm" />
               <AudioControls size="sm" />
               <LanguageSwitcher />
@@ -148,19 +152,14 @@ export function Header() {
             {/* Right: Auth + Wallet (chain selector is in the ConnectButton dropdown) */}
             <div className="flex items-center gap-3">
               {!isAuthenticated ? (
-                <>
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
-                  >
-                    {t('auth.login')}
-                  </button>
-                  <ConnectButton showBalance={false} chainStatus="icon" />
-                </>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-3 py-1.5 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold text-sm rounded-lg transition-colors"
+                >
+                  {t('auth.login')}
+                </button>
               ) : (
-                <>
-                  <ConnectButton showBalance={false} chainStatus="icon" />
-                  <div className="relative">
+                <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
                       className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
@@ -199,7 +198,6 @@ export function Header() {
                       </div>
                     )}
                   </div>
-                </>
               )}
             </div>
           </div>
