@@ -99,10 +99,6 @@ export function Header() {
                   <span>MegaETH</span>
                 </button>
               </div>
-              <ConnectButton showBalance={false} chainStatus="icon" />
-              <ThemeToggle size="sm" />
-              <AudioControls size="sm" />
-              <LanguageSwitcher />
             </div>
 
             {/* Mobile hamburger */}
@@ -149,8 +145,12 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Right: Auth + Wallet (chain selector is in the ConnectButton dropdown) */}
-            <div className="flex items-center gap-3">
+            {/* Right: Controls + Auth */}
+            <div className="flex items-center gap-2">
+              <ThemeToggle size="sm" />
+              <AudioControls size="sm" />
+              <LanguageSwitcher />
+              <ConnectButton showBalance={false} chainStatus="icon" />
               {!isAuthenticated ? (
                 <button
                   onClick={() => setShowLoginModal(true)}
