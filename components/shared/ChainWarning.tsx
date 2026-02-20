@@ -7,14 +7,33 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { CeloIcon } from './CeloIcon';
 import { BaseIcon } from './BaseIcon';
 import { MegaEthIcon } from './MegaEthIcon';
+import { SoneiumIcon } from './SoneiumIcon';
 
 interface ChainWarningProps {
   className?: string;
 }
 
 export function ChainWarning({ className = '' }: ChainWarningProps) {
-  const { isConnected, isSupportedChain: isSupported, currentChain, switchToCelo, switchToBase, switchToMegaeth } = useChainSelector();
+  const { isConnected, isSupportedChain: isSupported, isOnSoneium, currentChain, switchToCelo, switchToBase, switchToMegaeth, switchToSoneium } = useChainSelector();
   const { t } = useLanguage();
+
+  // Show Soneium development info banner
+  if (isOnSoneium) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-300 dark:border-indigo-700 rounded-xl p-3 ${className}`}
+      >
+        <div className="flex items-center gap-2">
+          <SoneiumIcon size={16} />
+          <p className="text-sm text-indigo-700 dark:text-indigo-300">
+            {t('chain.onchainDev')}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
 
   if (!isConnected || isSupported) return null;
 
@@ -51,6 +70,13 @@ export function ChainWarning({ className = '' }: ChainWarningProps) {
         >
           <MegaEthIcon size={16} />
           <span>{CHAIN_CONFIG.megaeth.shortName}</span>
+        </button>
+        <button
+          onClick={switchToSoneium}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-900 hover:bg-indigo-950 text-white rounded-lg text-sm font-medium transition-colors"
+        >
+          <SoneiumIcon size={16} />
+          <span>{CHAIN_CONFIG.soneium.shortName}</span>
         </button>
       </div>
     </motion.div>

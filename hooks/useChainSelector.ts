@@ -3,7 +3,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useAccount, useSwitchChain } from 'wagmi';
 import { celo, base } from 'wagmi/chains';
-import { megaeth } from '@/lib/wagmi';
+import { megaeth, soneium } from '@/lib/wagmi';
 import { isSupportedChain, getChainName, CHAIN_CONFIG } from '@/lib/contracts/addresses';
 
 const PREFERRED_CHAIN_KEY = 'mini_games_preferred_chain';
@@ -14,7 +14,7 @@ function getStoredChainId(): number {
     const saved = localStorage.getItem(PREFERRED_CHAIN_KEY);
     if (saved) {
       const parsed = parseInt(saved, 10);
-      if (parsed === celo.id || parsed === base.id || parsed === megaeth.id) {
+      if (parsed === celo.id || parsed === base.id || parsed === megaeth.id || parsed === soneium.id) {
         return parsed;
       }
     }
@@ -94,6 +94,7 @@ export function useChainSelector() {
   const switchToCelo = useCallback(() => switchToChain(celo.id), [switchToChain]);
   const switchToBase = useCallback(() => switchToChain(base.id), [switchToChain]);
   const switchToMegaeth = useCallback(() => switchToChain(megaeth.id), [switchToChain]);
+  const switchToSoneium = useCallback(() => switchToChain(soneium.id), [switchToChain]);
 
   return {
     currentChain: chain,
@@ -104,10 +105,12 @@ export function useChainSelector() {
     isOnCelo: currentChainId === celo.id,
     isOnBase: currentChainId === base.id,
     isOnMegaeth: currentChainId === megaeth.id,
+    isOnSoneium: currentChainId === soneium.id,
     isConnected,
     switchToChain,
     switchToCelo,
     switchToBase,
     switchToMegaeth,
+    switchToSoneium,
   };
 }

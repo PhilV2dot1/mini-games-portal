@@ -17,6 +17,7 @@ import {
 const celoRpcUrl = "https://forno.celo.org";
 const baseRpcUrl = "https://mainnet.base.org";
 const megaethRpcUrl = "https://mainnet.megaeth.com/rpc";
+const soneiumRpcUrl = "https://rpc.soneium.org";
 
 export const megaeth = defineChain({
   id: 4326,
@@ -29,7 +30,20 @@ export const megaeth = defineChain({
     default: { name: "MegaETH Explorer", url: "https://megaeth.blockscout.com" },
   },
   iconUrl: "/icons/megaeth.png",
-}) as typeof celo;
+}) as unknown as typeof celo;
+
+export const soneium = defineChain({
+  id: 1868,
+  name: "Soneium",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: [soneiumRpcUrl] },
+  },
+  blockExplorers: {
+    default: { name: "Blockscout", url: "https://soneium.blockscout.com" },
+  },
+  iconUrl: "/icons/soneium.png",
+}) as unknown as typeof celo;
 
 function getAppUrl() {
   if (typeof window !== 'undefined') {
@@ -65,14 +79,14 @@ const connectors = connectorsForWallets(
   {
     appName: "Mini Games Portal",
     projectId: walletConnectProjectId,
-    appDescription: "Play 14 mini-games on Celo, Base & MegaETH! Blackjack, RPS, TicTacToe, Solitaire, and more.",
+    appDescription: "Play 15 mini-games on Celo, Base, MegaETH & Soneium! Blackjack, RPS, TicTacToe, Solitaire, and more.",
     appUrl: getAppUrl(),
     appIcon: `${getAppUrl()}/icon.png`,
   }
 );
 
 export const config = createConfig({
-  chains: [celo, base, megaeth],
+  chains: [celo, base, megaeth, soneium],
   connectors: [
     // Farcaster Mini App connector (only active inside Farcaster/Warpcast)
     farcasterMiniApp(),
@@ -92,6 +106,12 @@ export const config = createConfig({
       timeout: 10_000,
     }),
     [megaeth.id]: http(megaethRpcUrl, {
+      batch: true,
+      retryCount: 3,
+      retryDelay: 1000,
+      timeout: 10_000,
+    }),
+    [soneium.id]: http(soneiumRpcUrl, {
       batch: true,
       retryCount: 3,
       retryDelay: 1000,

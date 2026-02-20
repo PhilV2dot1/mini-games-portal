@@ -14,6 +14,7 @@ import { useChainSelector } from "@/hooks/useChainSelector";
 import { CeloIcon } from "@/components/shared/CeloIcon";
 import { BaseIcon } from "@/components/shared/BaseIcon";
 import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
+import { SoneiumIcon } from "@/components/shared/SoneiumIcon";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
@@ -23,7 +24,7 @@ export function Header() {
   const { profile } = useLocalStats();
   const { t } = useLanguage();
   const { user, isAuthenticated, signOut } = useAuth();
-  const { isOnCelo, isOnBase, isOnMegaeth, switchToCelo, switchToBase, switchToMegaeth } = useChainSelector();
+  const { isOnCelo, isOnBase, isOnMegaeth, isOnSoneium, switchToCelo, switchToBase, switchToMegaeth, switchToSoneium } = useChainSelector();
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
@@ -97,6 +98,14 @@ export function Header() {
                 >
                   <MegaEthIcon size={18} />
                   <span>MegaETH</span>
+                </button>
+                <button
+                  onClick={switchToSoneium}
+                  className={`flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-all ${isOnSoneium ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white' : 'opacity-50 hover:opacity-80 text-gray-600 dark:text-gray-400'}`}
+                  title="Soneium"
+                >
+                  <SoneiumIcon size={18} />
+                  <span>Soneium</span>
                 </button>
               </div>
             </div>

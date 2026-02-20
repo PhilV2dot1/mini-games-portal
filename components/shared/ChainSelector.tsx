@@ -6,13 +6,14 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { CeloIcon } from './CeloIcon';
 import { BaseIcon } from './BaseIcon';
 import { MegaEthIcon } from './MegaEthIcon';
+import { SoneiumIcon } from './SoneiumIcon';
 
 interface ChainSelectorProps {
   className?: string;
 }
 
 export function ChainSelector({ className = '' }: ChainSelectorProps) {
-  const { isOnCelo, isOnBase, isOnMegaeth, switchToCelo, switchToBase, switchToMegaeth } = useChainSelector();
+  const { isOnCelo, isOnBase, isOnMegaeth, isOnSoneium, switchToCelo, switchToBase, switchToMegaeth, switchToSoneium } = useChainSelector();
   const { t } = useLanguage();
 
   return (
@@ -52,6 +53,18 @@ export function ChainSelector({ className = '' }: ChainSelectorProps) {
       >
         <MegaEthIcon size={16} />
         <span>{CHAIN_CONFIG.megaeth.shortName}</span>
+      </button>
+      <button
+        onClick={switchToSoneium}
+        className={`flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-md text-sm font-medium transition-all ${
+          isOnSoneium
+            ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white'
+            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+        }`}
+        title={t('chain.switchTo') + ' Soneium'}
+      >
+        <SoneiumIcon size={16} />
+        <span>{CHAIN_CONFIG.soneium.shortName}</span>
       </button>
     </div>
   );

@@ -29,6 +29,12 @@ export const colors = {
   megaethBgNight: '#19191A',   // Night Sky
   megaethMoonWhite: '#ECE8E8', // Moon White
 
+  // Brand Colors - Soneium (Sony L2)
+  soneium: '#1A1A2E',
+  soneiumHover: '#16213E',
+  soneiumLight: '#0F3460',
+  soneiumDark: '#0A0A1A',
+
   // Semantic Colors
   success: '#10b981',
   successHover: '#059669',
@@ -377,7 +383,7 @@ export function getCeloShadow(size: 'sm' | 'md' | 'lg' | 'xl' = 'md'): string {
 // CHAIN THEMES
 // ========================================
 
-export type ChainThemeName = 'celo' | 'base' | 'megaeth';
+export type ChainThemeName = 'celo' | 'base' | 'megaeth' | 'soneium';
 
 export interface ChainTheme {
   primary: string;
@@ -418,6 +424,13 @@ export const chainThemes: Record<ChainThemeName, ChainTheme> = {
     bgDay: colors.megaethBgDay,       // Full Moon #DFD9D9
     bgNight: colors.megaethBgNight,   // Night Sky #19191A
     fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+  },
+  soneium: {
+    primary: colors.soneium,
+    hover: colors.soneiumHover,
+    light: colors.soneiumLight,
+    dark: colors.soneiumDark,
+    contrastText: '#ffffff', // white text on dark navy
   },
 } as const;
 
