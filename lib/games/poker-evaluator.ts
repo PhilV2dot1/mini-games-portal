@@ -70,16 +70,13 @@ function isFlush(cards: Card[]): boolean {
 
 function isStraight(ranks: number[]): boolean {
   const sorted = [...ranks].sort((a, b) => b - a);
-  // Normal straight
+  // Check wheel (A-2-3-4-5) first
+  if (sorted[0] === 14 && sorted[1] === 5 && sorted[2] === 4 && sorted[3] === 3 && sorted[4] === 2) {
+    return true;
+  }
+  // Normal straight: each card is exactly 1 less than the previous
   for (let i = 0; i < sorted.length - 1; i++) {
-    if (sorted[i] - sorted[i + 1] !== 1) {
-      // Check wheel (A-2-3-4-5)
-      if (i === 0 && sorted[0] === 14) {
-        const wheel = [5, 4, 3, 2, 1];
-        return sorted.slice(1).every((r, i) => r === wheel[i]);
-      }
-      return false;
-    }
+    if (sorted[i] - sorted[i + 1] !== 1) return false;
   }
   return true;
 }
@@ -153,7 +150,7 @@ function scoreHand(cards: Card[]): HandResult {
   if (counts[0].length === 2 && counts[1].length === 2) {
     const high = cardRank(counts[0][0]);
     const low = cardRank(counts[1][0]);
-    const kicker = cardRank(counts[2][0]);
+    const kicker = counts[2] ? cardRank(counts[2][0]) : 0;
     return { rank: 'two_pair', score: HAND_SCORES.two_pair + high * 10000 + low * 100 + kicker, label: HAND_LABELS.two_pair, bestCards: cards };
   }
 
@@ -177,7 +174,6 @@ export function evaluateBestHand(holeCards: Card[], communityCards: Card[]): Han
   const all = [...holeCards, ...communityCards];
   if (all.length < 5) {
     // Not enough cards yet — return placeholder
-    const ranks = getRanks(all);
     return { rank: 'high_card', score: 0, label: '—', bestCards: all };
   }
 

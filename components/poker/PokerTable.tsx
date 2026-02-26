@@ -10,7 +10,7 @@ interface PlayerSeat {
   holeCards: Card[];
   stack: number;
   bet: number;
-  status: 'active' | 'folded' | 'all_in';
+  status: 'active' | 'folded' | 'all_in' | 'allin' | 'out';
   isDealer: boolean;
   showCards: boolean;
   handResult?: HandResult | null;
@@ -27,7 +27,6 @@ interface PokerTableProps {
 }
 
 export function PokerTable({ phase, communityCards, pot, currentBet, player, dealer }: PokerTableProps) {
-  const showCommunity = phase !== 'betting' && phase !== 'preflop';
   const communityCount = phase === 'flop' ? 3 : phase === 'turn' ? 4 : phase === 'river' || phase === 'showdown' ? 5 : 0;
 
   return (
@@ -120,7 +119,7 @@ function SeatRow({ seat, align }: { seat: PlayerSeat; align: 'top' | 'bottom' })
         {seat.status === 'folded' && (
           <span className="text-red-400 text-xs font-semibold">FOLDED</span>
         )}
-        {seat.status === 'all_in' && (
+        {(seat.status === 'all_in' || seat.status === 'allin') && (
           <span className="text-orange-400 text-xs font-semibold animate-pulse">ALL IN</span>
         )}
         {seat.handResult && seat.showCards && (
