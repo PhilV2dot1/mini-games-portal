@@ -240,8 +240,36 @@ export interface SolitaireCollaborativeState {
   status: 'playing' | 'won' | 'blocked';
 }
 
+export interface PokerMPState {
+  phase: 'waiting' | 'preflop' | 'flop' | 'turn' | 'river' | 'showdown' | 'finished';
+  currentTurn: 1 | 2; // Which player must act
+  deck: number[]; // Shared shuffled deck indices
+  deckIndex: number;
+  communityCards: number[]; // 0-5 cards
+  pot: number;
+  currentBet: number;
+  // Player stacks & bets
+  player1Stack: number;
+  player2Stack: number;
+  player1Bet: number;
+  player2Bet: number;
+  player1TotalBet: number; // total bet this hand
+  player2TotalBet: number;
+  player1Status: 'active' | 'folded' | 'allin' | 'out';
+  player2Status: 'active' | 'folded' | 'allin' | 'out';
+  // Hole cards (hidden from opponent until showdown)
+  player1HoleCards: number[];
+  player2HoleCards: number[];
+  // Dealer button (1 or 2)
+  dealerButton: 1 | 2;
+  // Result
+  winner: 1 | 2 | 'draw' | null;
+  player1HandRank: string | null;
+  player2HandRank: string | null;
+}
+
 // Union type for all game states
-export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | BlackjackState | MastermindState | SolitaireCollaborativeState | Record<string, unknown>;
+export type GameState = TicTacToeState | RPSState | ConnectFiveState | YahtzeeState | BlackjackState | MastermindState | SolitaireCollaborativeState | PokerMPState | Record<string, unknown>;
 
 // ============================================
 // HOOK TYPES

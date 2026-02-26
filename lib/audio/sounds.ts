@@ -150,6 +150,17 @@ export const GAME_SOUNDS = {
     win: { path: '/audio/jackpot/win.mp3', category: 'win' as const },
     jackpot: { path: '/audio/jackpot/jackpot.mp3', category: 'win' as const },
   },
+
+  // Poker
+  poker: {
+    deal: { path: '/audio/poker/deal.mp3', category: 'action' as const },
+    chip: { path: '/audio/poker/chip.mp3', category: 'action' as const, volume: 0.6 },
+    fold: { path: '/audio/poker/fold.mp3', category: 'action' as const },
+    check: { path: '/audio/poker/check.mp3', category: 'action' as const, volume: 0.5 },
+    win: { path: '/audio/poker/win.mp3', category: 'win' as const },
+    lose: { path: '/audio/poker/lose.mp3', category: 'lose' as const },
+    allIn: { path: '/audio/poker/allin.mp3', category: 'action' as const },
+  },
 } as const;
 
 // Type helpers
