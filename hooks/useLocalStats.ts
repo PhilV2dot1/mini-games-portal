@@ -39,6 +39,7 @@ const DEFAULT_PROFILE: UserProfile = {
     memory: { ...DEFAULT_GAME_STATS },
     maze: { ...DEFAULT_GAME_STATS },
     tetris: { ...DEFAULT_GAME_STATS },
+    poker: { ...DEFAULT_GAME_STATS },
   },
 };
 
@@ -168,7 +169,7 @@ export function useLocalStats() {
     // Calculate points
     let points = 0;
     setProfile((prev) => {
-      const gameStats = prev.games[gameId];
+      const gameStats = prev.games[gameId] ?? DEFAULT_GAME_STATS;
       const streakBonus = getStreakBonus(gameStats.wins);
       points = calculatePoints(mode, result, streakBonus);
 
