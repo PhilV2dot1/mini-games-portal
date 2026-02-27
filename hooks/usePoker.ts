@@ -499,10 +499,13 @@ export function usePoker() {
     });
   }, [contractAddress, isConnected, chain, writeEnd]);
 
-  // endGame confirmed → clear pending, refresh stats, reset to betting
+  // endGame confirmed → clear pending, reset to betting, refresh stats
   useEffect(() => {
     if (endReceipt && mode === 'onchain') {
       setPendingEnd(null);
+      setRoundNumber(prev => prev + 1);
+      setPhase('betting');
+      setMessage('');
       setTimeout(() => refetchStats(), 2000);
     }
   }, [endReceipt, mode, refetchStats]);
@@ -567,13 +570,19 @@ export function usePoker() {
   // ─── New hand / reset ─────────────────────────────────────────────────────────
 
   const newHand = useCallback(() => {
-    // In onchain mode, submit endGame before resetting
     if (mode === 'onchain' && pendingEnd) {
+      // Submit endGame — stay on showdown phase until tx confirms (endReceipt will reset)
       submitOnChainResult(pendingEnd.outcome, pendingEnd.rank);
+      // Rebuy check now so stacks are ready when phase resets
+      if (player.stack < BIG_BLIND) {
+        setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
+        setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
+      }
+      return; // Do NOT change phase yet — wait for endReceipt
     }
 
+    // Free mode: reset immediately
     if (player.stack < BIG_BLIND) {
-      // Rebuy
       setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
       setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
     }
