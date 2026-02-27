@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseEventLogs } from "viem";
 import { Card, createShuffledDeck } from "@/lib/games/poker-cards";
 import { HandResult, evaluateBestHand, determineWinners } from "@/lib/games/poker-evaluator";
 import { POKER_ABI } from "@/lib/contracts/poker-abi";
@@ -30,6 +29,16 @@ export interface PokerStats {
   bestStreak: number;
   bestHand: string;
 }
+
+// Map client outcome string → contract enum value (0=WIN, 1=LOSE, 2=SPLIT)
+const OUTCOME_TO_ENUM: Record<string, number> = { win: 0, lose: 1, split: 2 };
+
+// Map client hand rank string → contract uint8 (0–9)
+const HAND_RANK_TO_UINT8: Record<string, number> = {
+  high_card: 0, one_pair: 1, two_pair: 2, three_of_a_kind: 3,
+  straight: 4, flush: 5, full_house: 6, four_of_a_kind: 7,
+  straight_flush: 8, royal_flush: 9,
+};
 
 const SMALL_BLIND = 50;
 const BIG_BLIND = 100;
@@ -71,13 +80,25 @@ export function usePoker() {
     handsPlayed: 0, handsWon: 0, biggestPot: 0, currentStreak: 0, bestStreak: 0, bestHand: '',
   });
 
-  // Onchain
-  const { writeContract, data: hash, isPending, error: writeError, reset: resetWrite } = useWriteContract();
-  const { data: receipt, error: receiptError, isLoading: isConfirming } = useWaitForTransactionReceipt({
-    hash,
+  // Onchain — two separate write instances: one for startGame, one for endGame
+  const { writeContract: writeStart, data: startHash, isPending: isStartPending, error: startError, reset: resetStart } = useWriteContract();
+  const { writeContract: writeEnd, data: endHash, isPending: isEndPending, error: endError, reset: resetEnd } = useWriteContract();
+
+  const { data: startReceipt, error: startReceiptError, isLoading: isStartConfirming } = useWaitForTransactionReceipt({
+    hash: startHash,
     timeout: 120_000,
     confirmations: 1,
   });
+  const { data: endReceipt, error: endReceiptError, isLoading: isEndConfirming } = useWaitForTransactionReceipt({
+    hash: endHash,
+    timeout: 120_000,
+    confirmations: 1,
+  });
+
+  // Combined helpers for the UI
+  const isPending = isStartPending || isEndPending;
+  const isConfirming = isStartConfirming || isEndConfirming;
+  const hash = endHash ?? startHash;
 
   const contractAddress = getContractAddress('poker', chain?.id);
   const gameAvailable = isGameAvailableOnChain('poker', chain?.id);
@@ -85,9 +106,10 @@ export function usePoker() {
   const { data: onchainStats, refetch: refetchStats } = useReadContract({
     address: contractAddress!,
     abi: POKER_ABI,
-    functionName: 'getStats',
+    functionName: 'getPlayerStats',
+    args: [address!],
     query: {
-      enabled: isConnected && mode === 'onchain' && gameAvailable,
+      enabled: isConnected && mode === 'onchain' && gameAvailable && !!address,
       gcTime: 0, staleTime: 0,
     }
   });
@@ -427,29 +449,73 @@ export function usePoker() {
 
   // ─── Onchain mode ─────────────────────────────────────────────────────────────
 
+  // Step 1 — call startGame() before dealing
   const playOnChain = useCallback(() => {
     if (!contractAddress || !isConnected) return;
-    setPhase('preflop');
     setMessage('⏳ Waiting for wallet confirmation...');
-
-    writeContract({
+    writeStart({
       address: contractAddress,
       abi: POKER_ABI,
-      functionName: 'playHand',
+      functionName: 'startGame',
       chainId: chain!.id,
-      gas: BigInt(600000),
     });
-  }, [contractAddress, isConnected, chain, writeContract]);
+  }, [contractAddress, isConnected, chain, writeStart]);
 
+  // startGame confirmed → deal the hand client-side
   useEffect(() => {
-    if (hash && mode === 'onchain' && isConfirming) {
-      setMessage('⏳ Confirming on blockchain... (this may take 10-30 seconds)');
+    if (startReceipt && mode === 'onchain') {
+      setMessage('✅ Hand registered — playing...');
+      startHand();
     }
-  }, [hash, mode, isConfirming]);
+  }, [startReceipt, mode, startHand]);
 
+  // Auto-submit result when outcome is set in onchain mode
   useEffect(() => {
-    if (writeError) {
-      const msg = writeError.message || '';
+    if (mode !== 'onchain' || !outcome || !startReceipt) return;
+    // playerHand is set after showdown; on fold playerHand is null → rank 0 (high_card)
+    const rank = playerHand?.rank ?? 'high_card';
+    submitOnChainResult(outcome, rank);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outcome]);
+
+  // Step 2 — call endGame(outcome, handRank) once result is known
+  const submitOnChainResult = useCallback((
+    currentOutcome: 'win' | 'lose' | 'split',
+    handRank: string,
+  ) => {
+    if (!contractAddress || !isConnected) return;
+    const outcomeEnum = OUTCOME_TO_ENUM[currentOutcome] ?? 1;
+    const rankUint8 = HAND_RANK_TO_UINT8[handRank] ?? 0;
+    writeEnd({
+      address: contractAddress,
+      abi: POKER_ABI,
+      functionName: 'endGame',
+      args: [outcomeEnum, rankUint8],
+      chainId: chain!.id,
+    });
+  }, [contractAddress, isConnected, chain, writeEnd]);
+
+  // endGame confirmed → refresh stats
+  useEffect(() => {
+    if (endReceipt && mode === 'onchain') {
+      setTimeout(() => refetchStats(), 2000);
+    }
+  }, [endReceipt, mode, refetchStats]);
+
+  // Confirming feedback
+  useEffect(() => {
+    if (startHash && mode === 'onchain' && isStartConfirming) {
+      setMessage('⏳ Confirming on blockchain...');
+    }
+    if (endHash && mode === 'onchain' && isEndConfirming) {
+      setMessage('⏳ Recording result on blockchain...');
+    }
+  }, [startHash, endHash, mode, isStartConfirming, isEndConfirming]);
+
+  // Error handling — start
+  useEffect(() => {
+    if (startError) {
+      const msg = startError.message || '';
       if (msg.includes('User rejected') || msg.includes('User denied')) {
         setMessage('❌ Transaction rejected');
       } else if (msg.includes('insufficient funds')) {
@@ -459,47 +525,34 @@ export function usePoker() {
       }
       setPhase('betting');
     }
-  }, [writeError]);
+  }, [startError]);
 
+  // Error handling — end
   useEffect(() => {
-    if (receiptError && mode === 'onchain') {
-      setMessage(receiptError.message?.includes('timeout')
+    if (endError) {
+      setMessage('⚠️ Failed to record result on-chain');
+    }
+  }, [endError]);
+
+  // Receipt errors
+  useEffect(() => {
+    if (startReceiptError && mode === 'onchain') {
+      setMessage(startReceiptError.message?.includes('timeout')
         ? '⚠️ Transaction timeout — check explorer'
         : '❌ Transaction error — try again');
       setPhase('betting');
-      resetWrite?.();
+      resetStart?.();
     }
-  }, [receiptError, mode, resetWrite]);
+  }, [startReceiptError, mode, resetStart]);
 
   useEffect(() => {
-    if (receipt && mode === 'onchain' && address) {
-      try {
-        const events = parseEventLogs({ abi: POKER_ABI, eventName: ['HandPlayed'], logs: receipt.logs });
-        const ev = events.find(e => (e.args as Record<string, unknown>).player?.toString().toLowerCase() === address.toLowerCase());
-        if (ev) {
-          const args = ev.args as unknown as { holeCards: number[]; communityCards: number[]; handRank: number; outcome: string };
-          const pHoles = (args.holeCards || []).map((v: number) => ({ value: ((v - 1) % 13) + 1, suit: (['♠','♥','♦','♣'] as const)[Math.floor((v - 1) / 13) % 4], display: ['A','2','3','4','5','6','7','8','9','10','J','Q','K'][((v - 1) % 13)], faceUp: true }));
-          const comm = (args.communityCards || []).map((v: number) => ({ value: ((v - 1) % 13) + 1, suit: (['♠','♥','♦','♣'] as const)[Math.floor((v - 1) / 13) % 4], display: ['A','2','3','4','5','6','7','8','9','10','J','Q','K'][((v - 1) % 13)], faceUp: true }));
-          setCommunityCards(comm);
-          setPlayer(prev => ({ ...prev, holeCards: pHoles }));
-          setShowDealerCards(true);
-          const isWin = args.outcome === 'win';
-          setOutcome(isWin ? 'win' : args.outcome === 'split' ? 'split' : 'lose');
-          setMessage(isWin ? '🎉 You WIN!' : args.outcome === 'split' ? '🤝 Split pot!' : '😔 Dealer wins');
-          setPhase('showdown');
-          setStats(prev => { const s = isWin ? prev.currentStreak + 1 : 0; return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: isWin ? prev.handsWon + 1 : prev.handsWon, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) }; });
-          setTimeout(() => refetchStats(), 2000);
-        } else {
-          setMessage('⚠️ Transaction confirmed but no event found');
-          setPhase('betting');
-        }
-      } catch {
-        setMessage('⚠️ Error parsing transaction result');
-        setPhase('betting');
-      }
+    if (endReceiptError && mode === 'onchain') {
+      setMessage('⚠️ Failed to record result on-chain');
+      resetEnd?.();
     }
-  }, [receipt, mode, address, refetchStats]);
+  }, [endReceiptError, mode, resetEnd]);
 
+  // Sync onchain stats
   useEffect(() => {
     if (mode === 'onchain' && onchainStats) {
       const [handsPlayed, handsWon] = onchainStats as unknown as bigint[];
@@ -544,7 +597,7 @@ export function usePoker() {
     // Onchain state
     isPending, isConfirming, hash,
     // Actions
-    startHand, fold, check, call, bet, playOnChain,
+    startHand, fold, check, call, bet, playOnChain, submitOnChainResult,
     newHand, switchMode,
     // Explorer
     explorerTxUrl: hash ? getExplorerTxUrl(chain?.id, hash) : null,
