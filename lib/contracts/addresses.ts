@@ -129,7 +129,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     soneium: null,
   },
   poker: {
-    celo: null,
+    celo: '0xe446ee939ba9f508e4f4fcbf10c10172ac4df267',
     base: null,
     megaeth: null,
     soneium: null,
