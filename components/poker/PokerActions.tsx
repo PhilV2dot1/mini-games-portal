@@ -26,7 +26,7 @@ export function PokerActions({
   const canCheck = toCall === 0;
   const canCall = toCall > 0 && toCall <= playerStack;
   const canBet = playerStack > 0;
-  const minBet = Math.max(currentBet * 2, 100);
+  const minBet = Math.min(Math.max(currentBet * 2, 100), playerStack);
   const maxBet = playerStack;
 
   const isActive = phase !== 'betting' && phase !== 'showdown' && phase !== 'finished';

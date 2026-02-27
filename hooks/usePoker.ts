@@ -238,8 +238,9 @@ export function usePoker() {
     if (winners.length === 2) {
       newOutcome = 'split';
       msg = `🤝 Split pot! Both players have ${pResult.label}`;
-      setPlayer(prev => ({ ...prev, stack: prev.stack + currentPot / 2 }));
-      setDealer(prev => ({ ...prev, stack: prev.stack + currentPot / 2 }));
+      const half = Math.floor(currentPot / 2);
+      setPlayer(prev => ({ ...prev, stack: prev.stack + half }));
+      setDealer(prev => ({ ...prev, stack: prev.stack + currentPot - half }));
     } else if (winners[0] === 0) {
       newOutcome = 'win';
       msg = `🎉 You WIN! ${pResult.label} beats ${dResult.label}`;
@@ -301,7 +302,7 @@ export function usePoker() {
       dealerPotContrib = betAmt;
       setDealer(prev => ({ ...prev, stack: prev.stack - betAmt, bet: prev.bet + betAmt }));
       setPot(prev => prev + betAmt);
-      setCurrentBet(prev => prev + betAmt);
+      setCurrentBet(dealer.bet + betAmt);
       setMessage(`Dealer bets ${betAmt}. Call, Raise, or Fold?`);
       return; // Player must respond
     }
@@ -382,7 +383,7 @@ export function usePoker() {
 
     setPlayer(prev => ({ ...prev, stack: prev.stack - actualBet, bet: prev.bet + actualBet }));
     setPot(prev => prev + actualBet);
-    setCurrentBet(prev => Math.max(prev, prev + actualBet));
+    setCurrentBet(player.bet + actualBet);
 
     const action = dealerAction(dealer.holeCards, communityCards, dealer.stack, currentBet + actualBet, dealer.bet);
     let dealerContrib = 0;
@@ -391,7 +392,7 @@ export function usePoker() {
     if (action === 'fold') {
       nextDealerStatus = 'folded';
     } else if (action === 'call' || action === 'raise') {
-      const toCall = Math.min(actualBet, dealer.stack);
+      const toCall = Math.min(player.bet + actualBet - dealer.bet, dealer.stack);
       dealerContrib = toCall;
       setDealer(prev => ({ ...prev, stack: prev.stack - toCall, bet: prev.bet + toCall }));
       setPot(prev => prev + toCall);
@@ -476,7 +477,7 @@ export function usePoker() {
         const events = parseEventLogs({ abi: POKER_ABI, eventName: ['HandPlayed'], logs: receipt.logs });
         const ev = events.find(e => (e.args as Record<string, unknown>).player?.toString().toLowerCase() === address.toLowerCase());
         if (ev) {
-          const args = ev.args as { holeCards: number[]; communityCards: number[]; handRank: number; outcome: string };
+          const args = ev.args as unknown as { holeCards: number[]; communityCards: number[]; handRank: number; outcome: string };
           const pHoles = (args.holeCards || []).map((v: number) => ({ value: ((v - 1) % 13) + 1, suit: (['♠','♥','♦','♣'] as const)[Math.floor((v - 1) / 13) % 4], display: ['A','2','3','4','5','6','7','8','9','10','J','Q','K'][((v - 1) % 13)], faceUp: true }));
           const comm = (args.communityCards || []).map((v: number) => ({ value: ((v - 1) % 13) + 1, suit: (['♠','♥','♦','♣'] as const)[Math.floor((v - 1) / 13) % 4], display: ['A','2','3','4','5','6','7','8','9','10','J','Q','K'][((v - 1) % 13)], faceUp: true }));
           setCommunityCards(comm);
@@ -501,7 +502,7 @@ export function usePoker() {
 
   useEffect(() => {
     if (mode === 'onchain' && onchainStats) {
-      const [handsPlayed, handsWon, , ] = onchainStats as bigint[];
+      const [handsPlayed, handsWon] = onchainStats as unknown as bigint[];
       setStats(prev => ({ ...prev, handsPlayed: Number(handsPlayed), handsWon: Number(handsWon) }));
     }
   }, [onchainStats, mode]);
