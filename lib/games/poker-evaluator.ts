@@ -114,24 +114,28 @@ function scoreHand(cards: Card[]): HandResult {
     return { rank: 'straight_flush', score: HAND_SCORES.straight_flush + highCard, label: HAND_LABELS.straight_flush, bestCards: cards };
   }
 
+  // Helper: tiebreaker using base-15 positional encoding (max value stays < 1_000_000)
+  // r0 * 15^4 + r1 * 15^3 + r2 * 15^2 + r3 * 15 + r4  (max ≈ 759k)
+  const tb = (r0 = 0, r1 = 0, r2 = 0, r3 = 0, r4 = 0) =>
+    r0 * 50625 + r1 * 3375 + r2 * 225 + r3 * 15 + r4;
+
   // Four of a Kind
   if (counts[0].length === 4) {
     const quad = cardRank(counts[0][0]);
-    const kicker = cardRank(counts[1][0]);
-    return { rank: 'four_of_a_kind', score: HAND_SCORES.four_of_a_kind + quad * 100 + kicker, label: HAND_LABELS.four_of_a_kind, bestCards: cards };
+    const kicker = counts[1] ? cardRank(counts[1][0]) : 0;
+    return { rank: 'four_of_a_kind', score: HAND_SCORES.four_of_a_kind + tb(quad, kicker), label: HAND_LABELS.four_of_a_kind, bestCards: cards };
   }
 
   // Full House
   if (counts[0].length === 3 && counts[1].length === 2) {
     const trips = cardRank(counts[0][0]);
     const pair = cardRank(counts[1][0]);
-    return { rank: 'full_house', score: HAND_SCORES.full_house + trips * 100 + pair, label: HAND_LABELS.full_house, bestCards: cards };
+    return { rank: 'full_house', score: HAND_SCORES.full_house + tb(trips, pair), label: HAND_LABELS.full_house, bestCards: cards };
   }
 
   // Flush
   if (flush) {
-    const tieBreak = ranks.reduce((acc, r, i) => acc + r * Math.pow(15, 4 - i), 0);
-    return { rank: 'flush', score: HAND_SCORES.flush + tieBreak, label: HAND_LABELS.flush, bestCards: cards };
+    return { rank: 'flush', score: HAND_SCORES.flush + tb(ranks[0], ranks[1], ranks[2], ranks[3], ranks[4]), label: HAND_LABELS.flush, bestCards: cards };
   }
 
   // Straight
@@ -142,8 +146,9 @@ function scoreHand(cards: Card[]): HandResult {
   // Three of a Kind
   if (counts[0].length === 3) {
     const trips = cardRank(counts[0][0]);
-    const kickers = counts.slice(1).map(g => cardRank(g[0]));
-    return { rank: 'three_of_a_kind', score: HAND_SCORES.three_of_a_kind + trips * 10000 + kickers[0] * 100 + kickers[1], label: HAND_LABELS.three_of_a_kind, bestCards: cards };
+    const k1 = counts[1] ? cardRank(counts[1][0]) : 0;
+    const k2 = counts[2] ? cardRank(counts[2][0]) : 0;
+    return { rank: 'three_of_a_kind', score: HAND_SCORES.three_of_a_kind + tb(trips, k1, k2), label: HAND_LABELS.three_of_a_kind, bestCards: cards };
   }
 
   // Two Pair
@@ -151,19 +156,20 @@ function scoreHand(cards: Card[]): HandResult {
     const high = cardRank(counts[0][0]);
     const low = cardRank(counts[1][0]);
     const kicker = counts[2] ? cardRank(counts[2][0]) : 0;
-    return { rank: 'two_pair', score: HAND_SCORES.two_pair + high * 10000 + low * 100 + kicker, label: HAND_LABELS.two_pair, bestCards: cards };
+    return { rank: 'two_pair', score: HAND_SCORES.two_pair + tb(high, low, kicker), label: HAND_LABELS.two_pair, bestCards: cards };
   }
 
   // One Pair
   if (counts[0].length === 2) {
     const pair = cardRank(counts[0][0]);
-    const kickers = counts.slice(1).map(g => cardRank(g[0]));
-    return { rank: 'one_pair', score: HAND_SCORES.one_pair + pair * 1000000 + kickers[0] * 10000 + kickers[1] * 100 + kickers[2], label: HAND_LABELS.one_pair, bestCards: cards };
+    const k1 = counts[1] ? cardRank(counts[1][0]) : 0;
+    const k2 = counts[2] ? cardRank(counts[2][0]) : 0;
+    const k3 = counts[3] ? cardRank(counts[3][0]) : 0;
+    return { rank: 'one_pair', score: HAND_SCORES.one_pair + tb(pair, k1, k2, k3), label: HAND_LABELS.one_pair, bestCards: cards };
   }
 
   // High Card
-  const tieBreak = ranks.reduce((acc, r, i) => acc + r * Math.pow(15, 4 - i), 0);
-  return { rank: 'high_card', score: tieBreak, label: HAND_LABELS.high_card, bestCards: cards };
+  return { rank: 'high_card', score: tb(ranks[0], ranks[1], ranks[2], ranks[3], ranks[4]), label: HAND_LABELS.high_card, bestCards: cards };
 }
 
 /**
