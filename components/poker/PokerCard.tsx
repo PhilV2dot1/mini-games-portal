@@ -14,7 +14,7 @@ interface PokerCardProps {
 const SIZE_CLASSES = {
   sm: 'w-10 h-14 text-sm',
   md: 'w-14 h-20 text-base',
-  lg: 'w-16 h-24 text-lg',
+  lg: 'w-[4.5rem] h-[6.5rem] text-lg',
 };
 
 export function PokerCard({ card, faceDown = false, size = 'md', highlight = false, className = '' }: PokerCardProps) {

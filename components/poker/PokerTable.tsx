@@ -47,7 +47,7 @@ export function PokerTable({ phase, communityCards, pot, currentBet, player, dea
               <PokerCard
                 key={i}
                 card={i < communityCount ? communityCards[i] : undefined}
-                size="md"
+                size="lg"
                 faceDown={false}
               />
             ))}
@@ -94,7 +94,7 @@ function SeatRow({ seat, align }: { seat: PlayerSeat; align: 'top' | 'bottom' })
             key={i}
             card={seat.holeCards[i]}
             faceDown={!seat.showCards}
-            size="md"
+            size="lg"
           />
         ))}
       </div>
