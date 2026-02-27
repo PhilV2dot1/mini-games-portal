@@ -7,9 +7,10 @@ import { usePokerMultiplayer } from "@/hooks/usePokerMultiplayer";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { useChainTheme } from "@/hooks/useChainTheme";
 import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
-import { getContractAddress, getExplorerAddressUrl, getExplorerName } from "@/lib/contracts/addresses";
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import { GameModeToggle } from "@/components/shared/GameModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { MatchmakingButton, WaitingRoom, GameResult, RoomCodeInput } from "@/components/multiplayer";
@@ -29,6 +30,7 @@ export default function PokerPage() {
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
   const { chain } = useAccount();
+  const { theme } = useChainTheme();
   const { play } = useGameAudio('poker');
   const contractAddress = getContractAddress('poker', chain?.id);
 
@@ -75,23 +77,34 @@ export default function PokerPage() {
   const mpPlaying = mp.status === 'playing';
   const mpFinished = mp.status === 'finished';
 
-  // My player in multiplayer
   const myPlayer = mp.players?.find(p => p.player_number === mp.myPlayerNumber);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-950 via-gray-950 to-gray-900 p-4 sm:p-6">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto space-y-4">
 
+        {/* Back link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-gray-900 dark:text-white hover:text-chain transition-colors font-bold"
+        >
+          {t('games.backToPortal')}
+        </Link>
+
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-1">
-            <span className="text-4xl">🃏</span>
-            <h1 className="text-3xl font-black text-white">Poker</h1>
-          </div>
-          <p className="text-gray-400 text-sm">{t('games.poker.subtitle')}</p>
-          <Link href="/" className="text-xs text-gray-500 hover:text-gray-300 transition-colors">
-            ← {t('games.backToPortal')}
-          </Link>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 text-center space-y-1"
+          style={{ borderColor: theme.primary }}
+        >
+          <div className="text-5xl mb-2">🃏</div>
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">
+            {t('games.poker.title') || 'Poker'}
+          </h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('games.poker.subtitle')}
+          </p>
         </motion.div>
 
         {/* Mode toggle */}
@@ -110,9 +123,22 @@ export default function PokerPage() {
 
             {/* Game message */}
             {solo.message && (
-              <div className="text-center py-2 px-4 rounded-xl bg-white/5 text-sm text-gray-200">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`text-center py-3 px-4 rounded-xl font-semibold shadow-lg ${
+                  solo.outcome === 'win'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-2 border-green-400'
+                    : solo.outcome === 'lose'
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-2 border-red-400'
+                    : 'bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white border-2'
+                }`}
+                style={!solo.outcome || solo.phase !== 'showdown'
+                  ? { borderColor: theme.primary }
+                  : undefined}
+              >
                 {solo.message}
-              </div>
+              </motion.div>
             )}
 
             {/* Poker table */}
@@ -163,37 +189,19 @@ export default function PokerPage() {
               />
             )}
 
-            {/* Deal / New Hand buttons */}
-            {solo.phase === 'betting' && (
-              <div className="flex justify-center">
-                {mode === 'onchain' ? (
-                  <button
-                    onClick={solo.playOnChain}
-                    disabled={!solo.isConnected || !solo.gameAvailable || solo.isPending || solo.isConfirming}
-                    className="px-8 py-3 bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold rounded-xl text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                  >
-                    {solo.isPending || solo.isConfirming ? '⏳ Confirming...' : '⛓️ Play On-Chain'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={solo.startHand}
-                    className="px-8 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl text-base transition-all active:scale-95"
-                  >
-                    🃏 {t('games.poker.dealCards')}
-                  </button>
-                )}
-              </div>
-            )}
-
             {/* Result banner */}
             {solo.phase === 'showdown' && solo.outcome && (
-              <div className={`text-center py-3 px-4 rounded-xl font-bold text-lg ${
-                solo.outcome === 'win'
-                  ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
-                  : solo.outcome === 'split'
-                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40'
-                  : 'bg-red-600/30 text-red-300 border border-red-500/40'
-              }`}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={`text-center py-3 px-4 rounded-xl font-bold text-lg border-2 ${
+                  solo.outcome === 'win'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-400'
+                    : solo.outcome === 'split'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-400'
+                    : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-400'
+                }`}
+              >
                 {solo.outcome === 'win' ? '🎉 You Win!' : solo.outcome === 'split' ? '🤝 Split Pot' : '😔 Dealer Wins'}
                 {solo.playerHand && (
                   <div className="text-sm font-normal mt-1 opacity-80">
@@ -201,68 +209,112 @@ export default function PokerPage() {
                     {solo.dealerHand && ` · Dealer: ${solo.dealerHand.label}`}
                   </div>
                 )}
-              </div>
+              </motion.div>
             )}
 
-            {/* New Hand after showdown */}
-            {solo.phase === 'showdown' && (
-              <div className="flex justify-center">
-                <button
+            {/* Deal / New Hand buttons */}
+            <div className="flex justify-center">
+              {solo.phase === 'betting' && (
+                mode === 'onchain' ? (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={solo.playOnChain}
+                    disabled={!solo.isConnected || !solo.gameAvailable || solo.isPending || solo.isConfirming}
+                    className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ background: theme.primary, color: theme.contrastText }}
+                  >
+                    {solo.isPending || solo.isConfirming ? '⏳ Confirming...' : '⛓️ Play On-Chain'}
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={solo.startHand}
+                    className="px-8 py-3 rounded-xl font-black shadow-lg transition-all"
+                    style={{ background: theme.primary, color: theme.contrastText }}
+                  >
+                    🃏 {t('games.poker.dealCards')}
+                  </motion.button>
+                )
+              )}
+
+              {solo.phase === 'showdown' && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: solo.isRecording ? 1 : 1.05 }}
                   onClick={solo.newHand}
                   disabled={solo.isRecording}
-                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-base transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  style={{ background: theme.primary, color: theme.contrastText }}
                 >
                   {solo.isRecording
                     ? '⏳ Recording on-chain...'
                     : mode === 'onchain' && solo.pendingEnd
                     ? '⛓️ Record & New Hand →'
                     : `${t('games.poker.newHand')} →`}
-                </button>
-              </div>
-            )}
+                </motion.button>
+              )}
+            </div>
 
             {/* Stats */}
             <GameStats stats={solo.stats} mode={solo.mode} />
 
             {/* How to play */}
-            <details className="bg-white/5 rounded-xl p-4 text-sm text-gray-400 cursor-pointer">
-              <summary className="font-semibold text-gray-300 cursor-pointer">
-                {t('games.poker.howToPlay')}
-              </summary>
-              <ul className="mt-3 space-y-1 list-disc list-inside">
-                <li>{t('games.poker.rule1')}</li>
-                <li>{t('games.poker.rule2')}</li>
-                <li>{t('games.poker.rule3')}</li>
-                <li>{t('games.poker.rule4')}</li>
-              </ul>
-            </details>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-xl p-4 shadow-lg border border-gray-200 dark:border-gray-700"
+            >
+              <details>
+                <summary className="font-bold text-lg cursor-pointer text-gray-900 dark:text-white">
+                  {t('games.poker.howToPlay')}
+                </summary>
+                <ul className="mt-3 text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <li>• {t('games.poker.rule1')}</li>
+                  <li>• {t('games.poker.rule2')}</li>
+                  <li>• {t('games.poker.rule3')}</li>
+                  <li>• {t('games.poker.rule4')}</li>
+                </ul>
+              </details>
+            </motion.div>
 
-            {/* Contract footer */}
-            {contractAddress && (
-              <footer className="text-center text-xs text-gray-500 pt-2">
-                <p>{t('games.contract')}{' '}
+            {/* Footer */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center text-xs text-gray-600 dark:text-gray-400 pt-2 space-y-1"
+            >
+              <p className="font-semibold">{t('games.poker.footer') || 'Texas Hold\'em with blockchain integration'}</p>
+              {isGameAvailableOnChain('poker', chain?.id) && contractAddress ? (
+                <p className="text-gray-500 dark:text-gray-500">
+                  {t('games.contract')}{' '}
                   <a
                     href={getExplorerAddressUrl(chain?.id, contractAddress)}
                     target="_blank" rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 underline"
+                    className="hover:text-chain underline transition-colors"
                   >
-                    {contractAddress.slice(0, 6)}…{contractAddress.slice(-4)}
+                    {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
                   </a>
-                </p>
-                <p className="mt-1">
+                  {' | '}
                   <a
                     href={getExplorerAddressUrl(chain?.id, contractAddress)}
                     target="_blank" rel="noopener noreferrer"
-                    className="hover:text-gray-300 transition-colors"
+                    className="hover:text-chain underline transition-colors"
                   >
-                    {t('games.poker.viewOnExplorer').replace('Explorer', getExplorerName(chain?.id))}
+                    {t('games.tetris.viewOnCeloscan')?.replace('Celoscan', getExplorerName(chain?.id)) || `View on ${getExplorerName(chain?.id)}`}
                   </a>
                 </p>
-              </footer>
-            )}
-            {!contractAddress && mode === 'onchain' && (
-              <p className="text-center text-xs text-gray-500">{t('chain.onchainDev')}</p>
-            )}
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400">{t('chain.comingSoon')}</p>
+              )}
+            </motion.div>
+
           </motion.div>
         )}
 
@@ -270,7 +322,6 @@ export default function PokerPage() {
         {mode === 'multiplayer' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
 
-            {/* Idle — matchmaking */}
             {mpIdle && !showJoinCode && (
               <MatchmakingButton
                 gameId="poker"
@@ -282,7 +333,6 @@ export default function PokerPage() {
               />
             )}
 
-            {/* Idle — join by code */}
             {mpIdle && showJoinCode && (
               <RoomCodeInput
                 onJoin={async (code) => {
@@ -295,7 +345,6 @@ export default function PokerPage() {
               />
             )}
 
-            {/* Waiting room */}
             {mpWaiting && mp.room && (
               <WaitingRoom
                 room={mp.room}
@@ -307,19 +356,16 @@ export default function PokerPage() {
               />
             )}
 
-            {/* Playing — multiplayer table */}
             {mpPlaying && mp.gameState && (
               <div className="space-y-4">
-                {/* Turn indicator */}
-                <div className={`text-center py-2 rounded-xl text-sm font-semibold ${
+                <div className={`text-center py-2 rounded-xl text-sm font-semibold border-2 ${
                   mp.isMyTurn
-                    ? 'bg-emerald-600/30 text-emerald-300 animate-pulse'
-                    : 'bg-gray-800/50 text-gray-400'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-400 animate-pulse'
+                    : 'bg-white/90 dark:bg-gray-800/50 text-gray-700 dark:text-gray-400 border-gray-300 dark:border-gray-600'
                 }`}>
                   {mp.isMyTurn ? '🎯 Your turn!' : '⏳ Waiting for opponent...'}
                 </div>
 
-                {/* Table */}
                 <PokerTable
                   phase={mp.gameState.phase}
                   communityCards={mp.gameState.communityCards}
@@ -347,7 +393,6 @@ export default function PokerPage() {
                   }}
                 />
 
-                {/* Actions */}
                 {mp.isMyTurn && (
                   <PokerActions
                     phase={mp.gameState.phase}
@@ -363,7 +408,6 @@ export default function PokerPage() {
                   />
                 )}
 
-                {/* Surrender */}
                 <div className="flex justify-center">
                   <button
                     onClick={mp.surrender}
@@ -375,7 +419,6 @@ export default function PokerPage() {
               </div>
             )}
 
-            {/* Finished */}
             {mpFinished && (
               <GameResult
                 winner={mp.winner || null}
@@ -398,6 +441,6 @@ export default function PokerPage() {
         )}
 
       </div>
-    </div>
+    </main>
   );
 }
