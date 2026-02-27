@@ -185,14 +185,38 @@ export default function PokerPage() {
               </div>
             )}
 
+            {/* Result banner */}
+            {solo.phase === 'showdown' && solo.outcome && (
+              <div className={`text-center py-3 px-4 rounded-xl font-bold text-lg ${
+                solo.outcome === 'win'
+                  ? 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/40'
+                  : solo.outcome === 'split'
+                  ? 'bg-blue-600/30 text-blue-300 border border-blue-500/40'
+                  : 'bg-red-600/30 text-red-300 border border-red-500/40'
+              }`}>
+                {solo.outcome === 'win' ? '🎉 You Win!' : solo.outcome === 'split' ? '🤝 Split Pot' : '😔 Dealer Wins'}
+                {solo.playerHand && (
+                  <div className="text-sm font-normal mt-1 opacity-80">
+                    Your hand: {solo.playerHand.label}
+                    {solo.dealerHand && ` · Dealer: ${solo.dealerHand.label}`}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* New Hand after showdown */}
             {solo.phase === 'showdown' && (
               <div className="flex justify-center">
                 <button
                   onClick={solo.newHand}
-                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-base transition-all active:scale-95"
+                  disabled={solo.isRecording}
+                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-base transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {t('games.poker.newHand')} →
+                  {solo.isRecording
+                    ? '⏳ Recording on-chain...'
+                    : mode === 'onchain' && solo.pendingEnd
+                    ? '⛓️ Record & New Hand →'
+                    : `${t('games.poker.newHand')} →`}
                 </button>
               </div>
             )}

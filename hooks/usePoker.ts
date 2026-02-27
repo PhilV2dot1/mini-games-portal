@@ -95,10 +95,16 @@ export function usePoker() {
     confirmations: 1,
   });
 
-  // Combined helpers for the UI
-  const isPending = isStartPending || isEndPending;
-  const isConfirming = isStartConfirming || isEndConfirming;
+  // Pending endGame result to submit (set when outcome is known, cleared after tx)
+  const [pendingEnd, setPendingEnd] = useState<{ outcome: 'win'|'lose'|'split'; rank: string } | null>(null);
+
+  // Only block game actions during startGame tx — endGame tx happens after showdown
+  const isPending = isStartPending;
+  const isConfirming = isStartConfirming;
+  // For explorer link: prefer endHash once available
   const hash = endHash ?? startHash;
+  // Separate flag for recording tx in progress (shown in New Hand button)
+  const isRecording = isEndPending || isEndConfirming;
 
   const contractAddress = getContractAddress('poker', chain?.id);
   const gameAvailable = isGameAvailableOnChain('poker', chain?.id);
@@ -464,21 +470,19 @@ export function usePoker() {
   // startGame confirmed → deal the hand client-side
   useEffect(() => {
     if (startReceipt && mode === 'onchain') {
-      setMessage('✅ Hand registered — playing...');
       startHand();
     }
   }, [startReceipt, mode, startHand]);
 
-  // Auto-submit result when outcome is set in onchain mode
+  // When outcome is set in onchain mode, stash it for submission (don't submit yet)
   useEffect(() => {
     if (mode !== 'onchain' || !outcome || !startReceipt) return;
-    // playerHand is set after showdown; on fold playerHand is null → rank 0 (high_card)
     const rank = playerHand?.rank ?? 'high_card';
-    submitOnChainResult(outcome, rank);
+    setPendingEnd({ outcome, rank });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [outcome]);
 
-  // Step 2 — call endGame(outcome, handRank) once result is known
+  // Step 2 — submit endGame when player clicks "New Hand" (called from newHand)
   const submitOnChainResult = useCallback((
     currentOutcome: 'win' | 'lose' | 'split',
     handRank: string,
@@ -495,22 +499,20 @@ export function usePoker() {
     });
   }, [contractAddress, isConnected, chain, writeEnd]);
 
-  // endGame confirmed → refresh stats
+  // endGame confirmed → clear pending, refresh stats, reset to betting
   useEffect(() => {
     if (endReceipt && mode === 'onchain') {
+      setPendingEnd(null);
       setTimeout(() => refetchStats(), 2000);
     }
   }, [endReceipt, mode, refetchStats]);
 
-  // Confirming feedback
+  // Confirming feedback — only during startGame (don't overwrite result message)
   useEffect(() => {
     if (startHash && mode === 'onchain' && isStartConfirming) {
       setMessage('⏳ Confirming on blockchain...');
     }
-    if (endHash && mode === 'onchain' && isEndConfirming) {
-      setMessage('⏳ Recording result on blockchain...');
-    }
-  }, [startHash, endHash, mode, isStartConfirming, isEndConfirming]);
+  }, [startHash, mode, isStartConfirming]);
 
   // Error handling — start
   useEffect(() => {
@@ -527,14 +529,15 @@ export function usePoker() {
     }
   }, [startError]);
 
-  // Error handling — end
+  // Error handling — end (don't reset phase — result is already shown)
   useEffect(() => {
     if (endError) {
-      setMessage('⚠️ Failed to record result on-chain');
+      setPendingEnd(prev => prev); // keep pending so player can retry
+      setMessage('⚠️ Failed to record result on-chain — retry with New Hand');
     }
   }, [endError]);
 
-  // Receipt errors
+  // Receipt errors — start
   useEffect(() => {
     if (startReceiptError && mode === 'onchain') {
       setMessage(startReceiptError.message?.includes('timeout')
@@ -545,9 +548,10 @@ export function usePoker() {
     }
   }, [startReceiptError, mode, resetStart]);
 
+  // Receipt errors — end (non-blocking)
   useEffect(() => {
     if (endReceiptError && mode === 'onchain') {
-      setMessage('⚠️ Failed to record result on-chain');
+      setMessage('⚠️ Failed to record result on-chain — retry with New Hand');
       resetEnd?.();
     }
   }, [endReceiptError, mode, resetEnd]);
@@ -563,6 +567,11 @@ export function usePoker() {
   // ─── New hand / reset ─────────────────────────────────────────────────────────
 
   const newHand = useCallback(() => {
+    // In onchain mode, submit endGame before resetting
+    if (mode === 'onchain' && pendingEnd) {
+      submitOnChainResult(pendingEnd.outcome, pendingEnd.rank);
+    }
+
     if (player.stack < BIG_BLIND) {
       // Rebuy
       setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
@@ -571,7 +580,7 @@ export function usePoker() {
     setRoundNumber(prev => prev + 1);
     setPhase('betting');
     setMessage('');
-  }, [player.stack]);
+  }, [mode, pendingEnd, player.stack, submitOnChainResult]);
 
   const switchMode = useCallback((newMode: 'free' | 'onchain') => {
     setMode(newMode);
@@ -595,7 +604,7 @@ export function usePoker() {
     // Wallet
     address, isConnected, chain, contractAddress, gameAvailable,
     // Onchain state
-    isPending, isConfirming, hash,
+    isPending, isConfirming, isRecording, hash, pendingEnd,
     // Actions
     startHand, fold, check, call, bet, playOnChain, submitOnChainResult,
     newHand, switchMode,
