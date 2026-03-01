@@ -27,7 +27,7 @@ interface PokerTableProps {
 }
 
 export function PokerTable({ phase, communityCards, pot, currentBet, player, dealer }: PokerTableProps) {
-  const communityCount = phase === 'flop' ? 3 : phase === 'turn' ? 4 : phase === 'river' || phase === 'showdown' ? 5 : 0;
+  const communityCount = phase === 'flop' ? 3 : phase === 'turn' ? 4 : phase === 'river' || phase === 'showdown' ? communityCards.length : 0;
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden shadow-xl"
