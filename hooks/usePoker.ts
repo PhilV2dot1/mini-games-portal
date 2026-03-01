@@ -482,14 +482,16 @@ export function usePoker() {
   // Step 1 — call startGame() before dealing
   const playOnChain = useCallback(() => {
     if (!contractAddress || !isConnected) return;
+    resetStart?.();
     setMessage('⏳ Waiting for wallet confirmation...');
     writeStart({
       address: contractAddress,
       abi: POKER_ABI,
       functionName: 'startGame',
       chainId: chain!.id,
+      gas: BigInt(300000),
     });
-  }, [contractAddress, isConnected, chain, writeStart]);
+  }, [contractAddress, isConnected, chain, writeStart, resetStart]);
 
   // startGame confirmed → deal the hand client-side
   useEffect(() => {
@@ -510,14 +512,16 @@ export function usePoker() {
   // Abandon active on-chain game (e.g. after page reload with unfinished game)
   const abandonGame = useCallback(() => {
     if (!contractAddress || !isConnected) return;
+    resetAbandon?.();
     setMessage('⏳ Abandoning active game...');
     writeAbandon({
       address: contractAddress,
       abi: POKER_ABI,
       functionName: 'abandonGame',
       chainId: chain!.id,
+      gas: BigInt(200000),
     });
-  }, [contractAddress, isConnected, chain, writeAbandon]);
+  }, [contractAddress, isConnected, chain, writeAbandon, resetAbandon]);
 
   // abandonGame confirmed → refresh isGameActive and stats
   useEffect(() => {
@@ -554,6 +558,7 @@ export function usePoker() {
     handRank: string,
   ) => {
     if (!contractAddress || !isConnected) return;
+    resetEnd?.();
     const outcomeEnum = OUTCOME_TO_ENUM[currentOutcome] ?? 1;
     const rankUint8 = HAND_RANK_TO_UINT8[handRank] ?? 0;
     writeEnd({
@@ -562,8 +567,9 @@ export function usePoker() {
       functionName: 'endGame',
       args: [outcomeEnum, rankUint8],
       chainId: chain!.id,
+      gas: BigInt(300000),
     });
-  }, [contractAddress, isConnected, chain, writeEnd]);
+  }, [contractAddress, isConnected, chain, writeEnd, resetEnd]);
 
   // endGame confirmed → clear pending, reset to betting, refresh stats + active flag
   useEffect(() => {
@@ -627,11 +633,18 @@ export function usePoker() {
     }
   }, [endReceiptError, mode, resetEnd]);
 
-  // Sync onchain stats
+  // Sync onchain stats — contract returns (handsPlayed, handsWon, handsSplit, bestHandRank, winRate)
   useEffect(() => {
     if (mode === 'onchain' && onchainStats) {
-      const [handsPlayed, handsWon] = onchainStats as unknown as bigint[];
-      setStats(prev => ({ ...prev, handsPlayed: Number(handsPlayed), handsWon: Number(handsWon) }));
+      const [handsPlayed, handsWon, , bestHandRank] = onchainStats as unknown as bigint[];
+      const handsPlayedNum = Number(handsPlayed);
+      const bestHandIdx = 9 - Number(bestHandRank); // contract 0=high_card→RANK_ORDER index 9
+      setStats(prev => ({
+        ...prev,
+        handsPlayed: handsPlayedNum,
+        handsWon: Number(handsWon),
+        bestHand: handsPlayedNum > 0 ? (HAND_RANK_ORDER[bestHandIdx] ?? prev.bestHand) : prev.bestHand,
+      }));
     }
   }, [onchainStats, mode]);
 
