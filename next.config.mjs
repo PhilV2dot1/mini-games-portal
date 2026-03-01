@@ -6,6 +6,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
   webpack: (config, { isServer }) => {
     // Ignore optional pino dependencies that cause build errors
     config.externals.push('pino-pretty', 'lokijs', 'encoding');

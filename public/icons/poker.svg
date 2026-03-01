@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <rect width="80" height="80" rx="14" fill="#1a3a5c"/>
+  <!-- Card back left -->
+  <rect x="8" y="18" width="32" height="44" rx="5" fill="white" transform="rotate(-8 24 40)"/>
+  <rect x="10" y="20" width="28" height="40" rx="4" fill="#c0392b" transform="rotate(-8 24 40)"/>
+  <!-- Card front right -->
+  <rect x="18" y="18" width="32" height="44" rx="5" fill="white" transform="rotate(8 50 40)"/>
+  <!-- Spade -->
+  <text x="34" y="47" font-size="22" text-anchor="middle" font-family="serif" fill="#1a1a1a" transform="rotate(8 50 40)">♠</text>
+  <text x="19" y="26" font-size="9" text-anchor="middle" font-family="serif" fill="white" font-weight="bold" transform="rotate(8 50 40)">A</text>
+</svg>
