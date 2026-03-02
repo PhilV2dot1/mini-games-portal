@@ -42,7 +42,7 @@ export const soneium = defineChain({
   blockExplorers: {
     default: { name: "Blockscout", url: "https://soneium.blockscout.com" },
   },
-  iconUrl: "/icons/soneium.svg",
+  iconUrl: "/icons/Soneium.png",
 }) as Chain;
 
 function getAppUrl() {
