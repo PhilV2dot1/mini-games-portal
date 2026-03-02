@@ -55,7 +55,8 @@ export default function MazePage() {
   // Record game when finished
   useEffect(() => {
     if (game.status === "finished" && game.result) {
-      recordGame("maze", game.mode, game.result, undefined, game.difficulty);
+      const mappedResult = game.result === "timeout" ? "lose" : game.result;
+      recordGame("maze", game.mode, mappedResult, undefined, game.difficulty);
     }
   }, [game.status, game.result, game.mode, game.difficulty, recordGame]);
 

@@ -22,17 +22,17 @@ export function GameControls({
 }: GameControlsProps) {
   const { t } = useLanguage();
 
-  // Show play buttons when in playing phase (free mode only)
-  const showPlayButtons = gamePhase === 'playing' && mode === 'free';
+  // Show play buttons when in playing phase (both modes)
+  const showPlayButtons = gamePhase === 'playing';
 
-  // Show new game button when finished or in betting phase
-  const showNewGameButton = (gamePhase === 'finished' || gamePhase === 'betting') && mode === 'free';
+  // Show new game button when finished or in betting phase (both modes)
+  const showNewGameButton = gamePhase === 'finished' || gamePhase === 'betting';
 
-  // Show play on-chain button when in betting phase and on-chain mode
-  const showOnChainButton = gamePhase === 'betting' && mode === 'onchain';
+  // Show play on-chain button label when in betting phase and on-chain mode
+  const showOnChainButton = false; // Replaced by unified newGame button
 
   // Show play again button when finished in on-chain mode
-  const showPlayAgainButton = gamePhase === 'finished' && mode === 'onchain';
+  const showPlayAgainButton = false; // Replaced by unified newGame button
 
   return (
     <div className="flex flex-wrap gap-2 sm:gap-3 justify-center mt-3 sm:mt-6">
@@ -57,30 +57,13 @@ export function GameControls({
 
       {showNewGameButton && (
         <button
-          onClick={onNewGame}
-          className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg transition-all transform hover:scale-105 active:scale-95 min-w-[120px] sm:min-w-[140px]"
-        >
-          {t('games.blackjack.newGame')}
-        </button>
-      )}
-
-      {showOnChainButton && (
-        <button
-          onClick={onPlayOnChain}
-          disabled={disabled}
-          className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[140px] sm:min-w-[160px]"
-        >
-          {t('games.blackjack.playOnChain')}
-        </button>
-      )}
-
-      {showPlayAgainButton && (
-        <button
-          onClick={onPlayOnChain}
+          onClick={mode === 'onchain' ? onPlayOnChain : onNewGame}
           disabled={disabled}
           className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[120px] sm:min-w-[140px]"
         >
-          {t('games.blackjack.playAgain')}
+          {mode === 'onchain'
+            ? (gamePhase === 'finished' ? t('games.blackjack.playAgain') : t('games.blackjack.playOnChain'))
+            : t('games.blackjack.newGame')}
         </button>
       )}
     </div>

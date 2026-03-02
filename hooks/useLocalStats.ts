@@ -169,7 +169,7 @@ export function useLocalStats() {
     // Calculate points
     let points = 0;
     setProfile((prev) => {
-      const gameStats = prev.games[gameId] ?? DEFAULT_GAME_STATS;
+      const gameStats = prev.games[gameId];
       const streakBonus = getStreakBonus(gameStats.wins);
       points = calculatePoints(mode, result, streakBonus);
 

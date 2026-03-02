@@ -194,7 +194,7 @@ export default function SudokuPage() {
         )}
 
         {/* Game Status */}
-        <GameStatus status={status} result={result} message={translatedMessage} />
+        <GameStatus status={status} result={result} message={translatedMessage ?? ''} />
 
         {/* Main Game Area */}
         <div className="flex flex-col lg:flex-row gap-4 items-start justify-center">

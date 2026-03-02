@@ -14,27 +14,6 @@ export const colors = {
   celoLight: '#feff7a',
   celoDark: '#d4d600',
 
-  // Brand Colors - Base
-  base: '#0052FF',
-  baseHover: '#0040CC',
-  baseLight: '#3378FF',
-  baseDark: '#003DB8',
-
-  // Brand Colors - MegaETH (official brand kit)
-  megaeth: '#FF8AA8',
-  megaethHover: '#F5949D',
-  megaethLight: '#F786C6',
-  megaethDark: '#F5AF94',
-  megaethBgDay: '#DFD9D9',     // Full Moon
-  megaethBgNight: '#19191A',   // Night Sky
-  megaethMoonWhite: '#ECE8E8', // Moon White
-
-  // Brand Colors - Soneium (Sony L2)
-  soneium: '#1A1A2E',
-  soneiumHover: '#16213E',
-  soneiumLight: '#0F3460',
-  soneiumDark: '#0A0A1A',
-
   // Semantic Colors
   success: '#10b981',
   successHover: '#059669',
@@ -383,7 +362,7 @@ export function getCeloShadow(size: 'sm' | 'md' | 'lg' | 'xl' = 'md'): string {
 // CHAIN THEMES
 // ========================================
 
-export type ChainThemeName = 'celo' | 'base' | 'megaeth' | 'soneium';
+export type ChainThemeName = 'celo';
 
 export interface ChainTheme {
   primary: string;
@@ -392,9 +371,9 @@ export interface ChainTheme {
   dark: string;
   /** Text color that contrasts with the primary color */
   contrastText: string;
-  /** Optional background color override for light mode */
+  /** Optional background color for light mode */
   bgDay?: string;
-  /** Optional background color override for dark mode */
+  /** Optional background color for dark mode */
   bgNight?: string;
   /** Optional font family override */
   fontFamily?: string;
@@ -407,30 +386,6 @@ export const chainThemes: Record<ChainThemeName, ChainTheme> = {
     light: colors.celoLight,
     dark: colors.celoDark,
     contrastText: '#111827', // dark text on yellow
-  },
-  base: {
-    primary: colors.base,
-    hover: colors.baseHover,
-    light: colors.baseLight,
-    dark: colors.baseDark,
-    contrastText: '#ffffff', // white text on blue
-  },
-  megaeth: {
-    primary: colors.megaeth,
-    hover: colors.megaethHover,
-    light: colors.megaethLight,
-    dark: colors.megaethDark,
-    contrastText: '#19191A', // Night Sky - dark text on rose
-    bgDay: colors.megaethBgDay,       // Full Moon #DFD9D9
-    bgNight: colors.megaethBgNight,   // Night Sky #19191A
-    fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-  },
-  soneium: {
-    primary: colors.soneium,
-    hover: colors.soneiumHover,
-    light: colors.soneiumLight,
-    dark: colors.soneiumDark,
-    contrastText: '#ffffff', // white text on dark navy
   },
 } as const;
 

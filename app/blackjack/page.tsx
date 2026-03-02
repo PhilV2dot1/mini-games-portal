@@ -48,6 +48,7 @@ export default function BlackjackPage() {
     const messageMap: Record<string, string> = {
       'Click "NEW GAME" to start': t('games.blackjack.clickNewGame'),
       'Click "PLAY ON-CHAIN" to start': t('games.blackjack.clickPlayOnChain'),
+      'Click "DEAL CARDS" to start': t('games.blackjack.clickPlayOnChain'),
       '✅ You WIN!': '✅ ' + t('games.blackjack.youWin'),
       'You WIN!': t('games.blackjack.youWin'),
       'Dealer wins': t('games.blackjack.dealerWins'),
@@ -61,6 +62,8 @@ export default function BlackjackPage() {
     };
     // Check for prefix matches (messages with dynamic content)
     if (message.startsWith('🎲 Preparing your game')) return '🎲 ' + t('games.blackjack.preparingGame');
+    if (message.startsWith('⏳ Recording result')) return '⏳ ' + t('games.blackjack.confirmingBlockchain');
+    if (message.startsWith('✅ Result recorded')) return '✅ ' + t('games.blackjack.txSent');
     if (message.startsWith('⏳ Confirming on blockchain')) return '⏳ ' + t('games.blackjack.confirmingBlockchain');
     if (message.startsWith('✅ Transaction sent')) return '✅ ' + t('games.blackjack.txSent');
     if (message.startsWith('❌ Transaction rejected')) return '❌ ' + t('games.blackjack.txRejected');

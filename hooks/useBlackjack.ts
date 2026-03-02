@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from "wagmi";
-import { parseEventLogs } from "viem";
-import { Card, createShuffledDeck, convertToCard, determineWinner, Outcome } from "@/lib/games/blackjack-cards";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { Card, createShuffledDeck, determineWinner, Outcome } from "@/lib/games/blackjack-cards";
 import { CONTRACT_ABI } from "@/lib/contracts/blackjack-abi";
 import { getContractAddress, isGameAvailableOnChain, getExplorerTxUrl } from "@/lib/contracts/addresses";
 
@@ -45,7 +44,6 @@ export function useBlackjack() {
     timeout: 120_000, // 2 minute timeout for better reliability on Celo
     confirmations: 1, // Wait for 1 confirmation
   });
-  const { switchChain } = useSwitchChain();
 
   const contractAddress = getContractAddress('blackjack', chain?.id);
   const gameAvailable = isGameAvailableOnChain('blackjack', chain?.id);
@@ -133,7 +131,8 @@ export function useBlackjack() {
         setMessage('❌ Transaction failed: ' + errorMessage.substring(0, 50));
       }
 
-      setGamePhase('betting');
+      // Only reset to betting if the game hasn't been played yet (not in finished state)
+      setGamePhase(prev => prev === 'finished' ? 'finished' : 'betting');
     }
   }, [writeError]);
 
@@ -149,54 +148,26 @@ export function useBlackjack() {
         setMessage('❌ Transaction error - Please try again');
       }
 
-      setGamePhase('betting');
-      // Reset write state for clean retry
+      // Only reset to betting if game not yet finished
+      setGamePhase(prev => prev === 'finished' ? 'finished' : 'betting');
       resetWrite?.();
     }
   }, [receiptError, mode, resetWrite]);
 
-  // Parse transaction receipt for instant results (on-chain mode)
+  // Handle transaction receipt (on-chain mode) — result already shown, just refresh stats
   useEffect(() => {
     if (receipt && mode === 'onchain' && address) {
-      const events = parseEventLogs({
-        abi: CONTRACT_ABI,
-        eventName: ['GamePlayed'],
-        logs: receipt.logs,
+      console.log('✅ On-chain game recorded:', receipt.transactionHash);
+      // Restore the outcome message (was overwritten by "Recording result...")
+      setMessage(prev => {
+        if (prev.startsWith('⏳ Recording') || prev.startsWith('✅ Transaction') || prev.startsWith('⏳ Confirming')) {
+          return '✅ Result recorded on blockchain!';
+        }
+        return prev;
       });
-
-      const userEvent = events.find(e =>
-        e.args.player?.toLowerCase() === address.toLowerCase()
-      );
-
-      if (userEvent) {
-        const { playerCards, dealerCards, playerTotal, dealerTotal, outcome } = userEvent.args;
-
-        setPlayerHand((playerCards as number[]).map(convertToCard));
-        setDealerHand((dealerCards as number[]).map(convertToCard));
-        setPlayerTotal(Number(playerTotal));
-        setDealerTotal(Number(dealerTotal));
-        setOutcome(outcome as Outcome);
-        setGamePhase('finished');
-        setShowDealerCard(true);
-
-        const messages = {
-          win: '✅ You WIN!',
-          lose: 'Dealer wins',
-          push: "It's a PUSH",
-          blackjack: '🎉 BLACKJACK!'
-        };
-        setMessage(messages[outcome as Outcome]);
-
-        updateStatsForOutcome(outcome as Outcome);
-        setTimeout(() => refetchStats(), 2000);
-      } else {
-        // No game event found in receipt
-        console.warn('No GamePlayed event found in receipt');
-        setMessage('⚠️ Transaction successful but no game data received');
-        setGamePhase('betting');
-      }
+      setTimeout(() => refetchStats(), 2000);
     }
-  }, [receipt, address, mode, updateStatsForOutcome, refetchStats]);
+  }, [receipt, address, mode, refetchStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update stats from on-chain
   useEffect(() => {
@@ -213,7 +184,7 @@ export function useBlackjack() {
     }
   }, [onchainStats, mode]);
 
-  // Deal initial cards (free mode)
+  // Deal initial cards (free and on-chain modes)
   const dealInitialCards = useCallback(() => {
     const deck = createShuffledDeck();
     const pHand = [deck[0], deck[1]];
@@ -246,15 +217,15 @@ export function useBlackjack() {
 
       updateStatsForOutcome(result);
 
-      if (result === 'blackjack') {
+      if (mode === 'free' && result === 'blackjack') {
         setCredits(prev => prev + 15);
       }
     }
-  }, [calculateHandTotal, updateStatsForOutcome]);
+  }, [calculateHandTotal, updateStatsForOutcome, mode]);
 
-  // Hit (free mode)
+  // Hit (free and on-chain modes)
   const hit = useCallback(() => {
-    if (gamePhase !== 'playing' || mode === 'onchain') return;
+    if (gamePhase !== 'playing') return;
 
     const deck = createShuffledDeck();
     const newCard = deck[playerHand.length + dealerHand.length];
@@ -271,13 +242,15 @@ export function useBlackjack() {
       setOutcome('lose');
       setMessage('BUST! You lose.');
       updateStatsForOutcome('lose');
-      setCredits(prev => Math.max(0, prev - 10));
+      if (mode === 'free') {
+        setCredits(prev => Math.max(0, prev - 10));
+      }
     }
   }, [gamePhase, mode, playerHand, dealerHand, calculateHandTotal, updateStatsForOutcome]);
 
-  // Stand (free mode)
+  // Stand (free and on-chain modes)
   const stand = useCallback(() => {
-    if (gamePhase !== 'playing' || mode === 'onchain') return;
+    if (gamePhase !== 'playing') return;
 
     setGamePhase('dealer');
     setShowDealerCard(true);
@@ -313,18 +286,30 @@ export function useBlackjack() {
 
     updateStatsForOutcome(result);
 
-    // Update credits
-    if (result === 'win') {
-      setCredits(prev => prev + 10);
-    } else if (result === 'blackjack') {
-      setCredits(prev => prev + 15);
-    } else if (result === 'lose') {
-      setCredits(prev => Math.max(0, prev - 10));
+    if (mode === 'free') {
+      // Update credits in free mode
+      if (result === 'win') {
+        setCredits(prev => prev + 10);
+      } else if (result === 'blackjack') {
+        setCredits(prev => prev + 15);
+      } else if (result === 'lose') {
+        setCredits(prev => Math.max(0, prev - 10));
+      }
+    } else if (mode === 'onchain' && contractAddress && gameAvailable) {
+      // Record result on-chain after interactive gameplay
+      setMessage('⏳ Recording result on blockchain...');
+      resetWrite?.();
+      writeContract({
+        address: contractAddress,
+        abi: CONTRACT_ABI,
+        functionName: 'playGame',
+        chainId: chain!.id,
+        gas: BigInt(500000),
+      });
     }
-    // Push: no change to credits
-  }, [gamePhase, mode, dealerHand, playerHand, playerTotal, calculateHandTotal, updateStatsForOutcome]);
+  }, [gamePhase, mode, dealerHand, playerHand, playerTotal, calculateHandTotal, updateStatsForOutcome, contractAddress, gameAvailable, chain, writeContract, resetWrite]);
 
-  // Play on-chain with improved reliability
+  // Play on-chain — deals cards and starts interactive game
   const playOnChain = useCallback(async () => {
     if (!isConnected) {
       setMessage('❌ Please connect your wallet first');
@@ -336,37 +321,14 @@ export function useBlackjack() {
       return;
     }
 
-    try {
-      // Reset previous transaction state
-      resetWrite?.();
-
-      // Check if game is available on current chain
-      if (!contractAddress || !gameAvailable) {
-        setMessage('❌ Blackjack not available on this network');
-        return;
-      }
-
-      // Show immediate feedback
-      setMessage('🎲 Preparing your game...');
-      setGamePhase('playing');
-
-      console.log('📤 Sending playGame transaction...');
-
-      // Send transaction with explicit gas settings for reliability
-      writeContract({
-        address: contractAddress,
-        abi: CONTRACT_ABI,
-        functionName: 'playGame',
-        chainId: chain!.id,
-        gas: BigInt(500000),
-      });
-
-    } catch (error) {
-      console.error('❌ Transaction error:', error);
-      setMessage('❌ Transaction failed - Please try again');
-      setGamePhase('betting');
+    if (!contractAddress || !gameAvailable) {
+      setMessage('❌ Blackjack not available on this network');
+      return;
     }
-  }, [isConnected, address, chain, switchChain, writeContract, resetWrite]);
+
+    // Deal cards for interactive gameplay (same as free mode)
+    dealInitialCards();
+  }, [isConnected, address, contractAddress, gameAvailable, dealInitialCards]);
 
   // New game
   const newGame = useCallback(() => {
@@ -375,18 +337,8 @@ export function useBlackjack() {
         setMessage('❌ Not enough credits! (Need 10 credits)');
         return;
       }
-      dealInitialCards();
-    } else {
-      // On-chain mode
-      setGamePhase('betting');
-      setPlayerHand([]);
-      setDealerHand([]);
-      setPlayerTotal(0);
-      setDealerTotal(0);
-      setOutcome(null);
-      setMessage('Click "PLAY ON-CHAIN" to start');
-      setShowDealerCard(false);
     }
+    dealInitialCards();
   }, [mode, credits, dealInitialCards]);
 
   // Switch mode
@@ -398,7 +350,7 @@ export function useBlackjack() {
     setPlayerTotal(0);
     setDealerTotal(0);
     setOutcome(null);
-    setMessage(newMode === 'free' ? 'Click "NEW GAME" to start' : 'Click "PLAY ON-CHAIN" to start');
+    setMessage(newMode === 'free' ? 'Click "NEW GAME" to start' : 'Click "DEAL CARDS" to start');
     setShowDealerCard(false);
 
     if (newMode === 'free') {
