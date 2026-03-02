@@ -4,15 +4,16 @@
   <!-- Full black outer circle -->
   <circle cx="50" cy="50" r="44" fill="black"/>
   <!-- Inner white circle (donut hole) -->
-  <circle cx="50" cy="50" r="20" fill="white"/>
+  <circle cx="50" cy="50" r="21" fill="white"/>
   <!--
-    Diagonal band: two parallel white strips at ~135deg (upper-right to lower-left).
-    Each strip is ~11px wide. They pass through the ring creating the cut effect.
-    Upper strip: from top edge going upper-right to lower-left across the ring top
-    Lower strip: from lower-left edge going upper-right to lower-left across the ring bottom
+    Two thin diagonal white cuts — each ~5px wide — running from upper-right
+    to lower-left at ~45°, one through the top arc of the ring and one
+    through the bottom arc.
+    Upper cut: top-right quadrant, from (56,6)→(94,44) along the outer edge
+    Lower cut: bottom-left quadrant, from (6,56)→(44,94) along the outer edge
   -->
-  <!-- Upper-right diagonal strip (clips top-right of ring) -->
-  <polygon points="45,6 56,6 100,50 100,61" fill="white"/>
-  <!-- Lower-left diagonal strip (clips bottom-left of ring) -->
-  <polygon points="0,39 0,50 55,100 44,100" fill="white"/>
+  <!-- Upper diagonal cut (top-right arc) -->
+  <polygon points="53,6 58,6 94,42 94,47" fill="white"/>
+  <!-- Lower diagonal cut (bottom-left arc) -->
+  <polygon points="6,53 6,58 47,94 42,94" fill="white"/>
 </svg>
