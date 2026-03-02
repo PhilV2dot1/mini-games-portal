@@ -2,7 +2,7 @@ import { createConfig, http, cookieStorage, createStorage } from "wagmi";
 import { celo, base } from "wagmi/chains";
 import { defineChain, type Chain } from "viem";
 
-type ChainWithIcon = Chain & { iconUrl?: string };
+type ChainWithIcon = Chain & { iconUrl?: string; iconBackground?: string };
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
@@ -45,6 +45,7 @@ export const soneium: ChainWithIcon = {
     },
   }),
   iconUrl: "/icons/Soneium.png",
+  iconBackground: "#ffffff",
 };
 
 function getAppUrl() {
