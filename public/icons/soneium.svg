@@ -1,14 +1,18 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- White background square -->
+  <!-- White background -->
   <rect width="100" height="100" fill="white"/>
   <!-- Full black outer circle -->
   <circle cx="50" cy="50" r="44" fill="black"/>
-  <!-- Inner white circle (creates the donut/ring) -->
-  <circle cx="50" cy="50" r="21" fill="white"/>
-  <!-- Diagonal cut: thin white band from top-right to bottom-left -->
-  <!-- The band runs at ~45 degrees. Width ~8px.
-       Top-right corner clip: eliminates the top-right portion of the ring -->
-  <polygon points="60,6 94,6 94,40" fill="white"/>
-  <!-- Bottom-left corner clip: eliminates the bottom-left portion of the ring -->
-  <polygon points="6,60 6,94 40,94" fill="white"/>
+  <!-- Inner white circle (donut hole) -->
+  <circle cx="50" cy="50" r="20" fill="white"/>
+  <!--
+    Diagonal band: two parallel white strips at ~135deg (upper-right to lower-left).
+    Each strip is ~11px wide. They pass through the ring creating the cut effect.
+    Upper strip: from top edge going upper-right to lower-left across the ring top
+    Lower strip: from lower-left edge going upper-right to lower-left across the ring bottom
+  -->
+  <!-- Upper-right diagonal strip (clips top-right of ring) -->
+  <polygon points="45,6 56,6 100,50 100,61" fill="white"/>
+  <!-- Lower-left diagonal strip (clips bottom-left of ring) -->
+  <polygon points="0,39 0,50 55,100 44,100" fill="white"/>
 </svg>
