@@ -14,6 +14,24 @@ export const colors = {
   celoLight: '#feff7a',
   celoDark: '#d4d600',
 
+  // Brand Colors - Base
+  base: '#0052FF',
+  baseHover: '#003ecc',
+  baseLight: '#3373ff',
+  baseDark: '#0040cc',
+
+  // Brand Colors - MegaETH
+  megaeth: '#00D4AA',
+  megaethHover: '#00b893',
+  megaethLight: '#33ddb8',
+  megaethDark: '#00a882',
+
+  // Brand Colors - Soneium
+  soneium: '#000000',
+  soneiumHover: '#222222',
+  soneiumLight: '#444444',
+  soneiumDark: '#000000',
+
   // Semantic Colors
   success: '#10b981',
   successHover: '#059669',
@@ -362,7 +380,7 @@ export function getCeloShadow(size: 'sm' | 'md' | 'lg' | 'xl' = 'md'): string {
 // CHAIN THEMES
 // ========================================
 
-export type ChainThemeName = 'celo';
+export type ChainThemeName = 'celo' | 'base' | 'megaeth' | 'soneium';
 
 export interface ChainTheme {
   primary: string;
@@ -386,6 +404,27 @@ export const chainThemes: Record<ChainThemeName, ChainTheme> = {
     light: colors.celoLight,
     dark: colors.celoDark,
     contrastText: '#111827', // dark text on yellow
+  },
+  base: {
+    primary: colors.base,
+    hover: colors.baseHover,
+    light: colors.baseLight,
+    dark: colors.baseDark,
+    contrastText: '#ffffff', // white text on blue
+  },
+  megaeth: {
+    primary: colors.megaeth,
+    hover: colors.megaethHover,
+    light: colors.megaethLight,
+    dark: colors.megaethDark,
+    contrastText: '#111827', // dark text on teal
+  },
+  soneium: {
+    primary: colors.soneium,
+    hover: colors.soneiumHover,
+    light: colors.soneiumLight,
+    dark: colors.soneiumDark,
+    contrastText: '#ffffff', // white text on black
   },
 } as const;
 

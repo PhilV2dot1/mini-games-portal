@@ -1,6 +1,6 @@
 import { createConfig, http, cookieStorage, createStorage } from "wagmi";
 import { celo, base } from "wagmi/chains";
-import { defineChain } from "viem";
+import { defineChain, type Chain } from "viem";
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
@@ -30,7 +30,7 @@ export const megaeth = defineChain({
     default: { name: "MegaETH Explorer", url: "https://megaeth.blockscout.com" },
   },
   iconUrl: "/icons/megaeth.png",
-}) as unknown as typeof celo;
+}) as Chain;
 
 export const soneium = defineChain({
   id: 1868,
@@ -43,7 +43,7 @@ export const soneium = defineChain({
     default: { name: "Blockscout", url: "https://soneium.blockscout.com" },
   },
   iconUrl: "/icons/soneium.svg",
-}) as unknown as typeof celo;
+}) as Chain;
 
 function getAppUrl() {
   if (typeof window !== 'undefined') {
