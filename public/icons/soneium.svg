@@ -1,7 +1,14 @@
 <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle -->
-  <circle cx="50" cy="50" r="50" fill="#000000"/>
-  <!-- Soneium "S" lettermark in white -->
-  <path d="M65.5 32C65.5 32 58.5 28 50 28C38.954 28 30 36.954 30 48C30 55.732 34.268 62.464 40.5 66C44.5 68.268 49 69.5 50 69.5C54 69.5 57.5 70.5 60 72C62.5 73.5 64 76 64 78.5C64 81.5 61.5 84 57.5 84C53.5 84 49.5 82.5 46 80C43.5 78.268 41.5 76 40 74" stroke="white" stroke-width="5.5" stroke-linecap="round"/>
-  <path d="M34.5 68C34.5 68 41.5 72 50 72C61.046 72 70 63.046 70 52C70 44.268 65.732 37.536 59.5 34C55.5 31.732 51 30.5 50 30.5C46 30.5 42.5 29.5 40 28C37.5 26.5 36 24 36 21.5C36 18.5 38.5 16 42.5 16C46.5 16 50.5 17.5 54 20C56.5 21.732 58.5 24 60 26" stroke="white" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- White background square -->
+  <rect width="100" height="100" fill="white"/>
+  <!-- Full black outer circle -->
+  <circle cx="50" cy="50" r="44" fill="black"/>
+  <!-- Inner white circle (creates the donut/ring) -->
+  <circle cx="50" cy="50" r="21" fill="white"/>
+  <!-- Diagonal cut: thin white band from top-right to bottom-left -->
+  <!-- The band runs at ~45 degrees. Width ~8px.
+       Top-right corner clip: eliminates the top-right portion of the ring -->
+  <polygon points="60,6 94,6 94,40" fill="white"/>
+  <!-- Bottom-left corner clip: eliminates the bottom-left portion of the ring -->
+  <polygon points="6,60 6,94 40,94" fill="white"/>
 </svg>
