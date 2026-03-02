@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { Card, createShuffledDeck } from "@/lib/games/poker-cards";
 import { HandResult, evaluateBestHand, determineWinners } from "@/lib/games/poker-evaluator";
@@ -64,7 +64,7 @@ export function usePoker() {
   // Community cards
   const [communityCards, setCommunityCards] = useState<Card[]>([]);
   const [pot, setPot] = useState(0);
-  const [currentBet, setCurrentBet] = useState(0);  // current bet to call
+  const [currentBet, setCurrentBet] = useState(0);
   const [betAmount, setBetAmount] = useState(BIG_BLIND);
 
   // Results
@@ -86,32 +86,31 @@ export function usePoker() {
   const { writeContract: writeAbandon, data: abandonHash, isPending: isAbandonPending, error: abandonError, reset: resetAbandon } = useWriteContract();
 
   const { data: startReceipt, error: startReceiptError, isLoading: isStartConfirming } = useWaitForTransactionReceipt({
-    hash: startHash,
-    timeout: 120_000,
-    confirmations: 1,
+    hash: startHash, timeout: 120_000, confirmations: 1,
   });
   const { data: endReceipt, error: endReceiptError, isLoading: isEndConfirming } = useWaitForTransactionReceipt({
-    hash: endHash,
-    timeout: 120_000,
-    confirmations: 1,
+    hash: endHash, timeout: 120_000, confirmations: 1,
   });
   const { data: abandonReceipt, error: abandonReceiptError, isLoading: isAbandonConfirming } = useWaitForTransactionReceipt({
-    hash: abandonHash,
-    timeout: 120_000,
-    confirmations: 1,
+    hash: abandonHash, timeout: 120_000, confirmations: 1,
   });
 
-  // Pending endGame result to submit (set when outcome is known, cleared after tx)
+  // Pending endGame result — set synchronously when outcome is determined, cleared after tx
   const [pendingEnd, setPendingEnd] = useState<{ outcome: 'win'|'lose'|'split'; rank: string } | null>(null);
-  // Flag: true after startGame confirms, false after endGame confirms or mode reset
-  const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
 
-  // Only block game actions during startGame tx — endGame tx happens after showdown
+  // Use a ref for gameStartedOnChain so game actions don't need it as a dep
+  // (avoids stale closure bugs from useCallback dependency arrays)
+  const gameStartedOnChainRef = useRef(false);
+  const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
+  const setOnChainStarted = (val: boolean) => {
+    gameStartedOnChainRef.current = val;
+    setGameStartedOnChain(val);
+  };
+
+  // Block actions only during startGame wallet prompt / confirmation
   const isPending = isStartPending || isAbandonPending;
   const isConfirming = isStartConfirming || isAbandonConfirming;
-  // For explorer link: prefer endHash once available
   const hash = endHash ?? startHash;
-  // Separate flag for recording tx in progress (shown in New Hand button)
   const isRecording = isEndPending || isEndConfirming;
 
   const contractAddress = getContractAddress('poker', chain?.id);
@@ -122,34 +121,27 @@ export function usePoker() {
     abi: POKER_ABI,
     functionName: 'getPlayerStats',
     args: [address!],
-    query: {
-      enabled: isConnected && mode === 'onchain' && gameAvailable && !!address,
-      gcTime: 0, staleTime: 0,
-    }
+    query: { enabled: isConnected && mode === 'onchain' && gameAvailable && !!address, gcTime: 0, staleTime: 0 }
   });
 
-  // Check if the player already has an active game on-chain (e.g. after page reload)
   const { data: isGameActiveOnChain, refetch: refetchIsActive } = useReadContract({
     address: contractAddress!,
     abi: POKER_ABI,
     functionName: 'isGameActive',
     args: [address!],
-    query: {
-      enabled: isConnected && mode === 'onchain' && gameAvailable && !!address,
-      gcTime: 0, staleTime: 0,
-    }
+    query: { enabled: isConnected && mode === 'onchain' && gameAvailable && !!address, gcTime: 0, staleTime: 0 }
   });
 
   const hasActiveOnChainGame = !!isGameActiveOnChain;
 
-  // ─── Deck helpers ────────────────────────────────────────────────────────────
+  // ─── Deck helpers ─────────────────────────────────────────────────────────────
 
   const drawCard = useCallback((currentDeck: Card[], currentIndex: number): [Card, number] => {
     const card = currentDeck[currentIndex % currentDeck.length];
     return [card, currentIndex + 1];
   }, []);
 
-  // ─── AI Dealer logic ─────────────────────────────────────────────────────────
+  // ─── AI Dealer logic ──────────────────────────────────────────────────────────
 
   const dealerAction = useCallback((
     dealerCards: Card[], community: Card[], dealerStack: number, currentPotBet: number, dealerBet: number
@@ -157,27 +149,23 @@ export function usePoker() {
     const hand = evaluateBestHand(dealerCards, community);
     const toCall = currentPotBet - dealerBet;
 
-    // Strong hands: raise
     const strongHands = ['royal_flush', 'straight_flush', 'four_of_a_kind', 'full_house', 'flush'];
     if (strongHands.includes(hand.rank)) return toCall > 0 ? 'call' : 'bet';
 
-    // Medium hands: call or check
     const mediumHands = ['straight', 'three_of_a_kind', 'two_pair'];
     if (mediumHands.includes(hand.rank)) return toCall > 0 ? 'call' : 'check';
 
-    // Weak but something: call small bets, fold big
     if (hand.rank === 'one_pair') {
       if (toCall > dealerStack * 0.25) return 'fold';
       return toCall > 0 ? 'call' : 'check';
     }
 
-    // High card: bluff 20% of the time
     if (Math.random() < 0.2) return toCall > 0 ? 'call' : 'bet';
     if (toCall > BIG_BLIND * 2) return 'fold';
     return toCall > 0 ? 'call' : 'check';
   }, []);
 
-  // ─── Start a new hand ────────────────────────────────────────────────────────
+  // ─── Start a new hand ─────────────────────────────────────────────────────────
 
   const startHand = useCallback(() => {
     if (player.stack < BIG_BLIND) {
@@ -188,44 +176,34 @@ export function usePoker() {
 
     const newDeck = createShuffledDeck();
     let idx = 0;
-
-    // Deal hole cards
     const [p1, i1] = drawCard(newDeck, idx); idx = i1;
     const [p2, i2] = drawCard(newDeck, idx); idx = i2;
     const [d1, i3] = drawCard(newDeck, idx); idx = i3;
     const [d2, i4] = drawCard(newDeck, idx); idx = i4;
 
     const playerHoleCards = [p1, p2];
-    const dealerHoleCards = [
-      { ...d1, faceUp: false },
-      { ...d2, faceUp: false },
-    ];
+    const dealerHoleCards = [{ ...d1, faceUp: false }, { ...d2, faceUp: false }];
 
-    // Dealer posts small blind, player posts big blind (simplified)
     const sb = Math.min(SMALL_BLIND, dealer.stack);
     const bb = Math.min(BIG_BLIND, player.stack);
-
-    const newPot = sb + bb;
 
     setDeck(newDeck);
     setDeckIndex(idx);
     setCommunityCards([]);
-    setPot(newPot);
+    setPot(sb + bb);
     setCurrentBet(bb);
     setBetAmount(bb);
     setOutcome(null);
     setMessage('Your turn — Check, Bet, or Fold');
     setShowDealerCards(false);
-
     setPlayer(prev => ({ ...prev, holeCards: playerHoleCards, bet: bb, status: 'active' }));
     setDealer(prev => ({ ...prev, holeCards: dealerHoleCards, bet: sb, status: 'active' }));
-
     setPlayerHand(null);
     setDealerHand(null);
     setPhase('preflop');
   }, [player.stack, dealer.stack, drawCard]);
 
-  // ─── Deal community cards ────────────────────────────────────────────────────
+  // ─── Deal community cards ─────────────────────────────────────────────────────
 
   const dealFlop = useCallback((currentDeck: Card[], idx: number) => {
     let newIdx = idx;
@@ -240,7 +218,7 @@ export function usePoker() {
     return { card, newIdx };
   }, [drawCard]);
 
-  // ─── Advance to next street or showdown ──────────────────────────────────────
+  // ─── Advance to next street ───────────────────────────────────────────────────
 
   const advanceStreet = useCallback((
     currentPhase: PokerPhase,
@@ -248,10 +226,8 @@ export function usePoker() {
     dealerStatus: 'active' | 'folded' | 'all_in'
   ) => {
     if (dealerStatus === 'folded') {
-      // Player wins immediately
       return { nextPhase: 'showdown' as PokerPhase, newCommunity: currentCommunity, newIdx: currentIdx };
     }
-
     if (currentPhase === 'preflop') {
       const { cards, newIdx } = dealFlop(currentDeck, currentIdx);
       return { nextPhase: 'flop' as PokerPhase, newCommunity: [...currentCommunity, ...cards], newIdx };
@@ -267,9 +243,8 @@ export function usePoker() {
     return { nextPhase: 'showdown' as PokerPhase, newCommunity: currentCommunity, newIdx: currentIdx };
   }, [dealFlop, dealOneCard]);
 
-  // ─── Showdown evaluation ─────────────────────────────────────────────────────
-  // Returns { outcome, rank } so callers can immediately set pendingEnd for onchain mode
-  // without relying on a stale-closure useEffect on [outcome].
+  // ─── Showdown evaluation ──────────────────────────────────────────────────────
+  // Returns { outcome, rank } — callers use this to setPendingEnd directly (no useEffect)
 
   const runShowdown = useCallback((
     playerHoles: Card[], dealerHoles: Card[], community: Card[], currentPot: number
@@ -277,8 +252,7 @@ export function usePoker() {
     const pResult = evaluateBestHand(playerHoles, community);
     const dResult = evaluateBestHand(dealerHoles, community);
 
-    const revealed = dealerHoles.map(c => ({ ...c, faceUp: true }));
-    setDealer(prev => ({ ...prev, holeCards: revealed }));
+    setDealer(prev => ({ ...prev, holeCards: dealerHoles.map(c => ({ ...c, faceUp: true })) }));
     setShowDealerCards(true);
     setPlayerHand(pResult);
     setDealerHand(dResult);
@@ -327,9 +301,26 @@ export function usePoker() {
     return { outcome: newOutcome, rank: pResult.rank };
   }, []);
 
+  // ─── Helpers for showdown from a win-by-fold ──────────────────────────────────
+  // Extracted to avoid repetition in fold/check/call/bet
+
+  const resolveWinByFold = useCallback((winPot: number) => {
+    setPlayer(prev => ({ ...prev, stack: prev.stack + winPot }));
+    setOutcome('win');
+    setMessage('🎉 Dealer folded — you win!');
+    setShowDealerCards(true);
+    setPhase('showdown');
+    setPot(0);
+    setStats(prev => {
+      const s = prev.currentStreak + 1;
+      return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) };
+    });
+    if (gameStartedOnChainRef.current) setPendingEnd({ outcome: 'win', rank: 'high_card' });
+  }, []);
+
   // ─── Player actions ───────────────────────────────────────────────────────────
-  // All values are computed locally before calling setters to avoid stale-closure bugs.
-  // runShowdown returns { outcome, rank } so we can set pendingEnd immediately.
+  // gameStartedOnChain is read from a ref — no dependency, no stale closure.
+  // All numeric values are computed locally before any setState call.
 
   const fold = useCallback(() => {
     if (phase === 'betting' || phase === 'showdown' || phase === 'finished') return;
@@ -341,10 +332,8 @@ export function usePoker() {
     setPhase('showdown');
     setPot(0);
     setStats(prev => ({ ...prev, handsPlayed: prev.handsPlayed + 1, currentStreak: 0 }));
-    if (gameStartedOnChain) {
-      setPendingEnd({ outcome: 'lose', rank: 'high_card' });
-    }
-  }, [phase, pot, gameStartedOnChain]);
+    if (gameStartedOnChainRef.current) setPendingEnd({ outcome: 'lose', rank: 'high_card' });
+  }, [phase, pot]);
 
   const check = useCallback(() => {
     if (phase === 'betting' || phase === 'showdown' || phase === 'finished') return;
@@ -353,23 +342,19 @@ export function usePoker() {
       return;
     }
 
-    // Dealer acts — compute all values locally
     const action = dealerAction(dealer.holeCards, communityCards, dealer.stack, currentBet, dealer.bet);
     let nextDealerStatus = dealer.status;
 
     if (action === 'bet') {
       const betAmt = Math.min(BIG_BLIND * 2, dealer.stack);
       const newDealerBet = dealer.bet + betAmt;
-      const newCurrentBet = newDealerBet;
       setDealer(prev => ({ ...prev, stack: prev.stack - betAmt, bet: newDealerBet }));
       setPot(prev => prev + betAmt);
-      setCurrentBet(newCurrentBet);
+      setCurrentBet(newDealerBet);
       setMessage(`Dealer bets ${betAmt}. Call, Raise, or Fold?`);
-      return; // Player must respond
+      return;
     }
-    if (action === 'fold') {
-      nextDealerStatus = 'folded';
-    }
+    if (action === 'fold') nextDealerStatus = 'folded';
 
     const { nextPhase, newCommunity, newIdx } = advanceStreet(phase, deck, deckIndex, communityCards, nextDealerStatus);
     setCommunityCards(newCommunity);
@@ -377,17 +362,10 @@ export function usePoker() {
 
     if (nextPhase === 'showdown') {
       if (nextDealerStatus === 'folded') {
-        setPlayer(prev => ({ ...prev, stack: prev.stack + pot }));
-        setOutcome('win');
-        setMessage('🎉 Dealer folded — you win!');
-        setShowDealerCards(true);
-        setPhase('showdown');
-        setPot(0);
-        setStats(prev => { const s = prev.currentStreak + 1; return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) }; });
-        if (gameStartedOnChain) setPendingEnd({ outcome: 'win', rank: 'high_card' });
+        resolveWinByFold(pot);
       } else {
         const result = runShowdown(player.holeCards, dealer.holeCards, newCommunity, pot);
-        if (gameStartedOnChain) setPendingEnd(result);
+        if (gameStartedOnChainRef.current) setPendingEnd(result);
       }
     } else {
       setPhase(nextPhase);
@@ -397,14 +375,13 @@ export function usePoker() {
       setCurrentBet(0);
       setBetAmount(BIG_BLIND);
     }
-  }, [phase, currentBet, player, dealer, communityCards, deck, deckIndex, pot, gameStartedOnChain, dealerAction, advanceStreet, runShowdown]);
+  }, [phase, currentBet, player, dealer, communityCards, deck, deckIndex, pot, dealerAction, advanceStreet, runShowdown, resolveWinByFold]);
 
   const call = useCallback(() => {
     if (phase === 'betting' || phase === 'showdown' || phase === 'finished') return;
     const toCall = Math.min(currentBet - player.bet, player.stack);
     if (toCall <= 0) { check(); return; }
 
-    // Compute new pot locally before setters
     const newPot = pot + toCall;
     setPlayer(prev => ({ ...prev, stack: prev.stack - toCall, bet: prev.bet + toCall }));
     setPot(newPot);
@@ -420,17 +397,10 @@ export function usePoker() {
 
     if (nextPhase === 'showdown') {
       if (nextDealerStatus === 'folded') {
-        setPlayer(prev => ({ ...prev, stack: prev.stack + newPot }));
-        setOutcome('win');
-        setMessage('🎉 Dealer folded — you win!');
-        setShowDealerCards(true);
-        setPhase('showdown');
-        setPot(0);
-        setStats(prev => { const s = prev.currentStreak + 1; return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) }; });
-        if (gameStartedOnChain) setPendingEnd({ outcome: 'win', rank: 'high_card' });
+        resolveWinByFold(newPot);
       } else {
         const result = runShowdown(player.holeCards, dealer.holeCards, newCommunity, newPot);
-        if (gameStartedOnChain) setPendingEnd(result);
+        if (gameStartedOnChainRef.current) setPendingEnd(result);
       }
     } else {
       setPhase(nextPhase);
@@ -440,20 +410,17 @@ export function usePoker() {
       setCurrentBet(0);
       setBetAmount(BIG_BLIND);
     }
-  }, [phase, currentBet, player, dealer, communityCards, deck, deckIndex, pot, gameStartedOnChain, check, dealerAction, advanceStreet, runShowdown]);
+  }, [phase, currentBet, player, dealer, communityCards, deck, deckIndex, pot, check, dealerAction, advanceStreet, runShowdown, resolveWinByFold]);
 
   const bet = useCallback((amount: number) => {
     if (phase === 'betting' || phase === 'showdown' || phase === 'finished') return;
     const actualBet = Math.min(amount, player.stack);
     if (actualBet <= 0) return;
 
-    // Compute new player state locally
     const newPlayerBet = player.bet + actualBet;
     const newPlayerStack = player.stack - actualBet;
-    const newCurrentBet = newPlayerBet;
 
-    // Dealer responds based on the new bet level
-    const action = dealerAction(dealer.holeCards, communityCards, dealer.stack, newCurrentBet, dealer.bet);
+    const action = dealerAction(dealer.holeCards, communityCards, dealer.stack, newPlayerBet, dealer.bet);
     let dealerContrib = 0;
     let nextDealerStatus = dealer.status;
 
@@ -465,10 +432,9 @@ export function usePoker() {
     }
 
     const newPot = pot + actualBet + dealerContrib;
-
     setPlayer(prev => ({ ...prev, stack: newPlayerStack, bet: newPlayerBet }));
     setPot(newPot);
-    setCurrentBet(newCurrentBet);
+    setCurrentBet(newPlayerBet);
 
     const { nextPhase, newCommunity, newIdx } = advanceStreet(phase, deck, deckIndex, communityCards, nextDealerStatus);
     setCommunityCards(newCommunity);
@@ -476,17 +442,10 @@ export function usePoker() {
 
     if (nextPhase === 'showdown') {
       if (nextDealerStatus === 'folded') {
-        setPlayer(prev => ({ ...prev, stack: prev.stack + newPot }));
-        setOutcome('win');
-        setMessage('🎉 Dealer folded — you win!');
-        setShowDealerCards(true);
-        setPhase('showdown');
-        setPot(0);
-        setStats(prev => { const s = prev.currentStreak + 1; return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) }; });
-        if (gameStartedOnChain) setPendingEnd({ outcome: 'win', rank: 'high_card' });
+        resolveWinByFold(newPot);
       } else {
         const result = runShowdown(player.holeCards, dealer.holeCards, newCommunity, newPot);
-        if (gameStartedOnChain) setPendingEnd(result);
+        if (gameStartedOnChainRef.current) setPendingEnd(result);
       }
     } else {
       setPhase(nextPhase);
@@ -496,11 +455,10 @@ export function usePoker() {
       setCurrentBet(0);
       setBetAmount(BIG_BLIND);
     }
-  }, [phase, player, dealer, communityCards, deck, deckIndex, pot, gameStartedOnChain, dealerAction, advanceStreet, runShowdown]);
+  }, [phase, player, dealer, communityCards, deck, deckIndex, pot, dealerAction, advanceStreet, runShowdown, resolveWinByFold]);
 
-  // ─── Onchain mode ─────────────────────────────────────────────────────────────
+  // ─── On-chain mode ────────────────────────────────────────────────────────────
 
-  // Step 1 — call startGame() before dealing
   const playOnChain = useCallback(() => {
     if (!contractAddress || !isConnected) return;
     resetStart?.();
@@ -517,15 +475,11 @@ export function usePoker() {
   // startGame confirmed → deal the hand client-side
   useEffect(() => {
     if (startReceipt && mode === 'onchain') {
-      setGameStartedOnChain(true);
+      setOnChainStarted(true);
       startHand();
     }
-  }, [startReceipt, mode, startHand]);
+  }, [startReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // pendingEnd is now set directly in fold/check/call/bet actions synchronously
-  // (no longer uses a useEffect on [outcome] which had stale-closure issues)
-
-  // Abandon active on-chain game (e.g. after page reload with unfinished game)
   const abandonGame = useCallback(() => {
     if (!contractAddress || !isConnected) return;
     resetAbandon?.();
@@ -539,17 +493,15 @@ export function usePoker() {
     });
   }, [contractAddress, isConnected, chain, writeAbandon, resetAbandon]);
 
-  // abandonGame confirmed → refresh isGameActive and stats
   useEffect(() => {
     if (abandonReceipt && mode === 'onchain') {
       setMessage('');
       setPhase('betting');
-      setGameStartedOnChain(false);
+      setOnChainStarted(false);
       setTimeout(() => { refetchIsActive(); refetchStats(); }, 1500);
     }
-  }, [abandonReceipt, mode, refetchIsActive, refetchStats]);
+  }, [abandonReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // abandonGame error
   useEffect(() => {
     if (abandonError) {
       const msg = abandonError.message || '';
@@ -560,15 +512,13 @@ export function usePoker() {
     }
   }, [abandonError, resetAbandon]);
 
-  // abandonGame receipt error
   useEffect(() => {
     if (abandonReceiptError && mode === 'onchain') {
       setMessage('⚠️ Abandon transaction error — try again');
       resetAbandon?.();
     }
-  }, [abandonReceiptError, mode, resetAbandon]);
+  }, [abandonReceiptError]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Step 2 — submit endGame when player clicks "New Hand" (called from newHand)
   const submitOnChainResult = useCallback((
     currentOutcome: 'win' | 'lose' | 'split',
     handRank: string,
@@ -587,74 +537,66 @@ export function usePoker() {
     });
   }, [contractAddress, isConnected, chain, writeEnd, resetEnd]);
 
-  // endGame confirmed → clear pending, reset to betting, refresh stats + active flag
+  // endGame confirmed → reset for next hand
   useEffect(() => {
     if (endReceipt && mode === 'onchain') {
       setPendingEnd(null);
-      setGameStartedOnChain(false);
+      setOnChainStarted(false);
       setRoundNumber(prev => prev + 1);
       setPhase('betting');
       setMessage('');
       setTimeout(() => { refetchStats(); refetchIsActive(); }, 2000);
     }
-  }, [endReceipt, mode, refetchStats, refetchIsActive]);
+  }, [endReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Confirming feedback — only during startGame (don't overwrite result message)
   useEffect(() => {
     if (startHash && mode === 'onchain' && isStartConfirming) {
       setMessage('⏳ Confirming on blockchain...');
     }
-  }, [startHash, mode, isStartConfirming]);
+  }, [startHash, isStartConfirming]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Error handling — start
   useEffect(() => {
     if (startError) {
       const msg = startError.message || '';
-      if (msg.includes('User rejected') || msg.includes('User denied')) {
-        setMessage('❌ Transaction rejected');
-      } else if (msg.includes('insufficient funds')) {
-        setMessage('❌ Insufficient funds for gas');
-      } else {
-        setMessage('❌ Transaction failed');
-      }
+      setMessage(
+        msg.includes('User rejected') || msg.includes('User denied') ? '❌ Transaction rejected' :
+        msg.includes('insufficient funds') ? '❌ Insufficient funds for gas' :
+        '❌ Transaction failed'
+      );
       setPhase('betting');
     }
   }, [startError]);
 
-  // Error handling — end (don't reset phase — result is already shown)
   useEffect(() => {
     if (endError) {
-      setPendingEnd(prev => prev); // keep pending so player can retry
       setMessage('⚠️ Failed to record result on-chain — retry with New Hand');
     }
   }, [endError]);
 
-  // Receipt errors — start
   useEffect(() => {
     if (startReceiptError && mode === 'onchain') {
       setMessage(startReceiptError.message?.includes('timeout')
         ? '⚠️ Transaction timeout — check explorer'
         : '❌ Transaction error — try again');
       setPhase('betting');
-      setGameStartedOnChain(false);
+      setOnChainStarted(false);
       resetStart?.();
     }
-  }, [startReceiptError, mode, resetStart]);
+  }, [startReceiptError]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Receipt errors — end (non-blocking)
   useEffect(() => {
     if (endReceiptError && mode === 'onchain') {
       setMessage('⚠️ Failed to record result on-chain — retry with New Hand');
       resetEnd?.();
     }
-  }, [endReceiptError, mode, resetEnd]);
+  }, [endReceiptError]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync onchain stats — contract returns (handsPlayed, handsWon, handsSplit, bestHandRank, winRate)
   useEffect(() => {
     if (mode === 'onchain' && onchainStats) {
       const [handsPlayed, handsWon, , bestHandRank] = onchainStats as unknown as bigint[];
       const handsPlayedNum = Number(handsPlayed);
-      const bestHandIdx = 9 - Number(bestHandRank); // contract 0=high_card→RANK_ORDER index 9
+      const bestHandIdx = 9 - Number(bestHandRank);
       setStats(prev => ({
         ...prev,
         handsPlayed: handsPlayedNum,
@@ -668,17 +610,14 @@ export function usePoker() {
 
   const newHand = useCallback(() => {
     if (mode === 'onchain' && pendingEnd) {
-      // Submit endGame — stay on showdown phase until tx confirms (endReceipt will reset)
       submitOnChainResult(pendingEnd.outcome, pendingEnd.rank);
-      // Rebuy check now so stacks are ready when phase resets
       if (player.stack < BIG_BLIND) {
         setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
         setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
       }
-      return; // Do NOT change phase yet — wait for endReceipt
+      return;
     }
 
-    // Free mode: reset immediately
     if (player.stack < BIG_BLIND) {
       setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
       setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
@@ -701,23 +640,18 @@ export function usePoker() {
     setPot(0);
     setCurrentBet(0);
     setPendingEnd(null);
-    setGameStartedOnChain(false);
+    setOnChainStarted(false);
   }, []);
 
   return {
-    // State
     mode, phase, player, dealer, communityCards, pot, currentBet, betAmount, setBetAmount,
     outcome, message, showDealerCards, stats, roundNumber,
     playerHand, dealerHand,
-    // Wallet
     address, isConnected, chain, contractAddress, gameAvailable,
-    // Onchain state
     isPending, isConfirming, isRecording, hash, pendingEnd,
     hasActiveOnChainGame,
-    // Actions
     startHand, fold, check, call, bet, playOnChain, submitOnChainResult,
     newHand, switchMode, abandonGame,
-    // Explorer
     explorerTxUrl: hash ? getExplorerTxUrl(chain?.id, hash) : null,
   };
 }
