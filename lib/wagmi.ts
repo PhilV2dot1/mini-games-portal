@@ -1,6 +1,8 @@
 import { createConfig, http, cookieStorage, createStorage } from "wagmi";
 import { celo, base } from "wagmi/chains";
 import { defineChain, type Chain } from "viem";
+
+type ChainWithIcon = Chain & { iconUrl?: string };
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
@@ -19,31 +21,31 @@ const baseRpcUrl = "https://mainnet.base.org";
 const megaethRpcUrl = "https://mainnet.megaeth.com/rpc";
 const soneiumRpcUrl = "https://rpc.soneium.org";
 
-export const megaeth = defineChain({
-  id: 4326,
-  name: "MegaETH",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: { http: [megaethRpcUrl] },
-  },
-  blockExplorers: {
-    default: { name: "MegaETH Explorer", url: "https://megaeth.blockscout.com" },
-  },
+export const megaeth: ChainWithIcon = {
+  ...defineChain({
+    id: 4326,
+    name: "MegaETH",
+    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+    rpcUrls: { default: { http: [megaethRpcUrl] } },
+    blockExplorers: {
+      default: { name: "MegaETH Explorer", url: "https://megaeth.blockscout.com" },
+    },
+  }),
   iconUrl: "/icons/megaeth.png",
-}) as Chain;
+};
 
-export const soneium = defineChain({
-  id: 1868,
-  name: "Soneium",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    default: { http: [soneiumRpcUrl] },
-  },
-  blockExplorers: {
-    default: { name: "Blockscout", url: "https://soneium.blockscout.com" },
-  },
+export const soneium: ChainWithIcon = {
+  ...defineChain({
+    id: 1868,
+    name: "Soneium",
+    nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+    rpcUrls: { default: { http: [soneiumRpcUrl] } },
+    blockExplorers: {
+      default: { name: "Blockscout", url: "https://soneium.blockscout.com" },
+    },
+  }),
   iconUrl: "/icons/Soneium.png",
-}) as Chain;
+};
 
 function getAppUrl() {
   if (typeof window !== 'undefined') {
