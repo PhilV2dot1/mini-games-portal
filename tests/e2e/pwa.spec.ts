@@ -2,46 +2,41 @@ import { test, expect } from '@playwright/test';
 
 test.describe('PWA - Manifest', () => {
   test('manifest.webmanifest is accessible', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    expect(response?.status()).toBe(200);
+    const response = await page.request.get('/manifest.webmanifest');
+    expect(response.status()).toBe(200);
   });
 
   test('manifest has correct name', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    const body = await response?.text();
-    const manifest = JSON.parse(body!);
+    const response = await page.request.get('/manifest.webmanifest');
+    const manifest = await response.json();
     expect(manifest.name).toBe('Mini Games Portal');
     expect(manifest.short_name).toBe('MiniGames');
   });
 
   test('manifest has required icons', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    const body = await response?.text();
-    const manifest = JSON.parse(body!);
+    const response = await page.request.get('/manifest.webmanifest');
+    const manifest = await response.json();
     const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
     expect(sizes).toContain('192x192');
     expect(sizes).toContain('512x512');
   });
 
   test('manifest has correct start_url and display', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    const body = await response?.text();
-    const manifest = JSON.parse(body!);
+    const response = await page.request.get('/manifest.webmanifest');
+    const manifest = await response.json();
     expect(manifest.start_url).toBe('/');
     expect(manifest.display).toBe('standalone');
   });
 
   test('manifest theme_color is Celo yellow', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    const body = await response?.text();
-    const manifest = JSON.parse(body!);
+    const response = await page.request.get('/manifest.webmanifest');
+    const manifest = await response.json();
     expect(manifest.theme_color).toBe('#FCFF52');
   });
 
   test('manifest has shortcuts', async ({ page }) => {
-    const response = await page.goto('/manifest.webmanifest');
-    const body = await response?.text();
-    const manifest = JSON.parse(body!);
+    const response = await page.request.get('/manifest.webmanifest');
+    const manifest = await response.json();
     expect(manifest.shortcuts).toBeDefined();
     expect(manifest.shortcuts.length).toBeGreaterThan(0);
   });
