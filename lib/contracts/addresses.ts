@@ -126,7 +126,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     celo: '0x1d24cca8b0c15fef23b37978a3f696a52c0e9116',
     base: '0x3c0022C1e766D20C3e57D273BdcF243d4B5c73C5',
     megaeth: '0x67a9e20aBCbe387e3e228D970fd4A50928972eAB',
-    soneium: null,
+    soneium: '0xE2B431F45D042C2cA0735D089aD20AB77DC6B319',
   },
   poker: {
     celo: '0xe446ee939ba9f508e4f4fcbf10c10172ac4df267',
