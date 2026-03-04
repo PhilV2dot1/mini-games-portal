@@ -16,6 +16,7 @@ import { BaseIcon } from "@/components/shared/BaseIcon";
 import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
 import { SoneiumIcon } from "@/components/shared/SoneiumIcon";
 import { MobileMenu } from "@/components/layout/MobileMenu";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import Link from "next/link";
@@ -26,6 +27,7 @@ export function Header() {
   const { user, isAuthenticated, signOut } = useAuth();
   const { isOnCelo, isOnBase, isOnMegaeth, isOnSoneium, switchToCelo, switchToBase, switchToMegaeth, switchToSoneium } = useChainSelector();
 
+  const { isInstallable, installApp } = usePWAInstall();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -159,6 +161,19 @@ export function Header() {
               <ThemeToggle size="sm" />
               <AudioControls size="sm" />
               <LanguageSwitcher />
+              {isInstallable && (
+                <button
+                  onClick={installApp}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors"
+                  style={{ backgroundColor: 'var(--chain-primary)', color: 'var(--chain-contrast)' }}
+                  title="Install app"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Install
+                </button>
+              )}
               <ConnectButton showBalance={false} chainStatus="icon" />
               {!isAuthenticated ? (
                 <button
