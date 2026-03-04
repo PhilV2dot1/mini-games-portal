@@ -165,6 +165,7 @@ export default function PokerPage() {
             {/* Result banner */}
             {solo.phase === 'showdown' && solo.outcome && (
               <motion.div
+                data-testid="poker-result"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className={`text-center py-3 px-4 rounded-xl font-bold text-lg border-2 ${
@@ -222,6 +223,7 @@ export default function PokerPage() {
                   </motion.button>
                 ) : (
                   <motion.button
+                    data-testid="poker-deal"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.05 }}
@@ -236,6 +238,7 @@ export default function PokerPage() {
 
               {solo.phase === 'showdown' && (
                 <motion.button
+                  data-testid="poker-new-hand"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   whileHover={{ scale: solo.isRecording ? 1 : 1.05 }}

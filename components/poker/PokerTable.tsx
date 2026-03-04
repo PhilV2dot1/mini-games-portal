@@ -30,7 +30,7 @@ export function PokerTable({ phase, communityCards, pot, currentBet, player, dea
   const communityCount = phase === 'flop' ? 3 : phase === 'turn' ? 4 : phase === 'river' || phase === 'showdown' ? communityCards.length : 0;
 
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden shadow-xl"
+    <div data-testid="poker-table" className="relative w-full rounded-2xl overflow-hidden shadow-xl"
       style={{ background: 'radial-gradient(ellipse at center, #166534 0%, #14532d 60%, #0f3b22 100%)' }}>
 
       {/* Felt texture border */}

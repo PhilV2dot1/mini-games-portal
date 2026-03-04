@@ -3,7 +3,8 @@ import { Page, expect } from '@playwright/test';
 // All game IDs with their route mapping
 type AllGameId =
   | 'blackjack' | 'rps' | 'tictactoe' | 'jackpot' | '2048' | 'mastermind'
-  | 'snake' | 'minesweeper' | 'connect-five' | 'solitaire' | 'yahtzee' | 'sudoku';
+  | 'snake' | 'minesweeper' | 'connect-five' | 'solitaire' | 'yahtzee' | 'sudoku'
+  | 'memory' | 'maze' | 'tetris' | 'poker';
 
 const GAME_ROUTES: Record<AllGameId, string> = {
   blackjack: '/blackjack',
@@ -18,6 +19,10 @@ const GAME_ROUTES: Record<AllGameId, string> = {
   solitaire: '/games/solitaire',
   yahtzee: '/games/yahtzee',
   sudoku: '/games/sudoku',
+  memory: '/games/memory',
+  maze: '/games/maze',
+  tetris: '/games/tetris',
+  poker: '/games/poker',
 };
 
 /**
@@ -418,6 +423,35 @@ export async function playSudokuFree(page: Page) {
       }
     }
   }
+}
+
+/**
+ * Play Poker game (free mode) - deal, fold immediately
+ */
+export async function playPokerFree(page: Page) {
+  await navigateToGame(page, 'poker');
+
+  // Ensure in free mode
+  const freeModeButton = page.locator('[data-testid="mode-free"]');
+  if (await freeModeButton.isVisible()) {
+    await freeModeButton.click();
+  }
+
+  // Deal cards
+  const dealButton = page.locator('[data-testid="poker-deal"]');
+  await dealButton.click();
+
+  // Wait for actions to appear
+  await page.waitForSelector('[data-testid="poker-actions"]', { timeout: 5000 });
+
+  // Fold immediately
+  const foldButton = page.locator('[data-testid="poker-fold"]');
+  if (await foldButton.isVisible()) {
+    await foldButton.click();
+  }
+
+  // Wait for result/new hand
+  await page.waitForSelector('[data-testid="poker-result"], [data-testid="poker-deal"]', { timeout: 10000 });
 }
 
 /**

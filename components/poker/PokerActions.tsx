@@ -73,9 +73,10 @@ export function PokerActions({
       )}
 
       {/* Action buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-2" data-testid="poker-actions">
         {/* Fold */}
         <button
+          data-testid="poker-fold"
           onClick={onFold}
           disabled={disabled}
           className="flex-1 py-3 rounded-xl font-bold text-sm bg-red-600 hover:bg-red-700 active:scale-95 text-white transition-all disabled:opacity-50"
@@ -86,6 +87,7 @@ export function PokerActions({
         {/* Check or Call */}
         {canCheck ? (
           <button
+            data-testid="poker-check"
             onClick={onCheck}
             disabled={disabled}
             className="flex-1 py-3 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 active:scale-95 text-white transition-all disabled:opacity-50"
@@ -94,6 +96,7 @@ export function PokerActions({
           </button>
         ) : (
           <button
+            data-testid="poker-call"
             onClick={onCall}
             disabled={disabled || !canCall}
             className="flex-1 py-3 rounded-xl font-bold text-sm bg-blue-600 hover:bg-blue-700 active:scale-95 text-white transition-all disabled:opacity-50"
@@ -104,6 +107,7 @@ export function PokerActions({
 
         {/* Bet / Raise */}
         <button
+          data-testid="poker-bet"
           onClick={() => onBet(betAmount)}
           disabled={disabled || !canBet}
           className="flex-1 py-3 rounded-xl font-bold text-sm bg-yellow-500 hover:bg-yellow-600 active:scale-95 text-gray-900 transition-all disabled:opacity-50"
@@ -113,6 +117,7 @@ export function PokerActions({
 
         {/* All-In */}
         <button
+          data-testid="poker-allin"
           onClick={() => onBet(playerStack)}
           disabled={disabled || playerStack <= 0}
           className="flex-1 py-3 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-600 active:scale-95 text-white transition-all disabled:opacity-50"
