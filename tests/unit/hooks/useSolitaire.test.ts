@@ -22,19 +22,23 @@ import {
 } from '@/hooks/useSolitaire';
 
 // Mock wagmi hooks
-vi.mock('wagmi', () => ({
-  useAccount: vi.fn(() => ({
-    address: undefined,
-    isConnected: false,
-  })),
-  useWriteContract: vi.fn(() => ({
-    writeContractAsync: vi.fn(),
-  })),
-  useReadContract: vi.fn(() => ({
-    data: undefined,
-    refetch: vi.fn(),
-  })),
-}));
+vi.mock('wagmi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('wagmi')>();
+  return {
+    ...actual,
+    useAccount: vi.fn(() => ({
+      address: undefined,
+      isConnected: false,
+    })),
+    useWriteContract: vi.fn(() => ({
+      writeContractAsync: vi.fn(),
+    })),
+    useReadContract: vi.fn(() => ({
+      data: undefined,
+      refetch: vi.fn(),
+    })),
+  };
+});
 
 describe('useSolitaire', () => {
   beforeEach(() => {

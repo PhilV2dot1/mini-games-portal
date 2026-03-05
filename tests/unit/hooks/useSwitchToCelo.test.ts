@@ -10,6 +10,8 @@ vi.mock('wagmi', () => ({
 
 vi.mock('wagmi/chains', () => ({
   celo: { id: 42220, name: 'Celo' },
+  base: { id: 8453, name: 'Base' },
+  optimism: { id: 10, name: 'Optimism' },
 }));
 
 // Import the mocked functions after the mock is defined
@@ -131,7 +133,7 @@ describe('useSwitchToCelo', () => {
       renderHook(() => useSwitchToCelo());
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        'Wrong network detected: Polygon (137). Switching to Celo...'
+        'Unsupported network detected: Polygon (137). Switching to Celo...'
       );
 
       consoleLogSpy.mockRestore();
@@ -213,8 +215,8 @@ describe('useSwitchToCelo', () => {
 
       expect(result.current.isOnCelo).toBe(false);
       expect(result.current.currentChain).toBeNull();
-      // isSwitching is true because chain?.id !== celo.id when chain is null
-      expect(result.current.isSwitching).toBe(true);
+      // isSwitching is false when chain is null (guard: isConnected && chain ? ... : false)
+      expect(result.current.isSwitching).toBe(false);
       // But switchChain is not called because chain is null (guard in useEffect)
       expect(mockSwitchChain).not.toHaveBeenCalled();
     });

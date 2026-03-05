@@ -8,19 +8,23 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { useSnake, GRID_SIZE, INITIAL_SNAKE_LENGTH } from '@/hooks/useSnake';
 
 // Mock wagmi hooks
-vi.mock('wagmi', () => ({
-  useAccount: vi.fn(() => ({
-    address: undefined,
-    isConnected: false,
-  })),
-  useWriteContract: vi.fn(() => ({
-    writeContractAsync: vi.fn(),
-  })),
-  useReadContract: vi.fn(() => ({
-    data: undefined,
-    refetch: vi.fn(),
-  })),
-}));
+vi.mock('wagmi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('wagmi')>();
+  return {
+    ...actual,
+    useAccount: vi.fn(() => ({
+      address: undefined,
+      isConnected: false,
+    })),
+    useWriteContract: vi.fn(() => ({
+      writeContractAsync: vi.fn(),
+    })),
+    useReadContract: vi.fn(() => ({
+      data: undefined,
+      refetch: vi.fn(),
+    })),
+  };
+});
 
 describe('useSnake', () => {
   beforeEach(() => {

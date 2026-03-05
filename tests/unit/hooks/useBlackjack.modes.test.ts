@@ -19,16 +19,23 @@ vi.mock('@/lib/games/blackjack-cards', () => ({
   convertToCard: vi.fn(),
 }));
 
-vi.mock('wagmi', () => ({
-  useAccount: vi.fn(() => ({ address: '0x1234' as `0x${string}`, isConnected: true, chain: { id: 42220 } })),
-  useReadContract: vi.fn(() => ({ data: [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n] })),
-  useWriteContract: vi.fn(() => ({ writeContract: vi.fn() })),
-  useWaitForTransactionReceipt: vi.fn(() => ({ data: null })),
-  useSwitchChain: vi.fn(() => ({ switchChain: vi.fn() })),
-}));
+vi.mock('wagmi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('wagmi')>();
+  return {
+    ...actual,
+    useAccount: vi.fn(() => ({ address: '0x1234' as `0x${string}`, isConnected: true, chain: { id: 42220 } })),
+    useReadContract: vi.fn(() => ({ data: [0n, 0n, 0n, 0n, 0n, 0n, 0n, 0n] })),
+    useWriteContract: vi.fn(() => ({ writeContract: vi.fn() })),
+    useWaitForTransactionReceipt: vi.fn(() => ({ data: null })),
+    useSwitchChain: vi.fn(() => ({ switchChain: vi.fn() })),
+  };
+});
 
 vi.mock('wagmi/chains', () => ({ celo: { id: 42220 }, base: { id: 8453 } }));
-vi.mock('viem', () => ({ parseEventLogs: vi.fn(() => []) }));
+vi.mock('viem', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('viem')>();
+  return { ...actual, parseEventLogs: vi.fn(() => []) };
+});
 vi.mock('@/lib/contracts/blackjack-abi', () => ({
   CONTRACT_ADDRESS: '0xBLACKJACK' as `0x${string}`,
   CONTRACT_ABI: [],

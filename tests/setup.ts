@@ -26,6 +26,39 @@ vi.mock('@farcaster/miniapp-sdk', () => ({
   },
 }));
 
+// Mock @/lib/wagmi to prevent module-level createConfig() call from failing when wagmi is mocked
+vi.mock('@/lib/wagmi', () => ({
+  config: {},
+  megaeth: { id: 6342, name: 'MegaETH Testnet' },
+  soneium: { id: 1868, name: 'Soneium' },
+}));
+
+// Mock @rainbow-me/rainbowkit to prevent it from calling wagmi's createConnector/createConfig
+// at module evaluation time (which fails when wagmi is mocked in individual tests)
+vi.mock('@rainbow-me/rainbowkit', () => ({
+  RainbowKitProvider: ({ children }: { children: React.ReactNode }) => children,
+  ConnectButton: vi.fn(() => null),
+  getDefaultConfig: vi.fn(() => ({})),
+  getDefaultWallets: vi.fn(() => ({ wallets: [] })),
+  connectorsForWallets: vi.fn(() => []),
+  darkTheme: vi.fn(() => ({})),
+  lightTheme: vi.fn(() => ({})),
+  midnightTheme: vi.fn(() => ({})),
+  useConnectModal: vi.fn(() => ({ openConnectModal: vi.fn() })),
+  useAccountModal: vi.fn(() => ({ openAccountModal: vi.fn() })),
+  useChainModal: vi.fn(() => ({ openChainModal: vi.fn() })),
+}));
+vi.mock('@rainbow-me/rainbowkit/wallets', () => ({
+  coinbaseWallet: vi.fn(() => ({})),
+  walletConnectWallet: vi.fn(() => ({})),
+  injectedWallet: vi.fn(() => ({})),
+  rabbyWallet: vi.fn(() => ({})),
+  braveWallet: vi.fn(() => ({})),
+  metaMaskWallet: vi.fn(() => ({})),
+  phantomWallet: vi.fn(() => ({})),
+  valoraWallet: vi.fn(() => ({})),
+}));
+
 // Mock @vanilla-extract modules to avoid CommonJS issues
 // These are used by @rainbow-me/rainbowkit internally
 vi.mock('@vanilla-extract/sprinkles/createUtils', () => ({

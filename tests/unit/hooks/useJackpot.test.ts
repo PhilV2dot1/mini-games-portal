@@ -2,10 +2,24 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, cleanup } from '@testing-library/react';
 import { useJackpot } from '@/hooks/useJackpot';
 
+// Mock viem decodeEventLog to return PartyStarted event
+vi.mock('viem', () => ({
+  decodeEventLog: vi.fn(() => ({
+    eventName: 'PartyStarted',
+    args: { sessionId: BigInt(12345) },
+  })),
+}));
+
 // Mock wagmi
+const mockWaitForTransactionReceipt = vi.fn().mockResolvedValue({
+  logs: [{ data: '0x', topics: [] }],
+});
 vi.mock('wagmi', () => ({
   useAccount: vi.fn(),
   useWriteContract: vi.fn(),
+  usePublicClient: vi.fn(() => ({
+    waitForTransactionReceipt: mockWaitForTransactionReceipt,
+  })),
 }));
 
 // Mock the JACKPOT contract config
@@ -508,10 +522,7 @@ describe('useJackpot', () => {
       expect(result.current.isSpinning).toBe(true);
     });
 
-    it('should set sessionId as bigint timestamp', async () => {
-      const mockTimestamp = 1700000000000;
-      vi.setSystemTime(new Date(mockTimestamp));
-
+    it('should set sessionId as bigint from contract event', async () => {
       const { result } = renderHook(() => useJackpot());
 
       act(() => {
@@ -526,7 +537,8 @@ describe('useJackpot', () => {
         await vi.advanceTimersByTimeAsync(100);
       });
 
-      expect(result.current.sessionId).toBe(BigInt(mockTimestamp));
+      // sessionId comes from the PartyStarted event (mocked as BigInt(12345))
+      expect(result.current.sessionId).toBe(BigInt(12345));
     });
 
     it('should accumulate score across onchain spins', async () => {
