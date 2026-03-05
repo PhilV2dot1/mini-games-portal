@@ -22,6 +22,7 @@ vi.mock('wagmi', () => ({
     data: null,
     refetch: vi.fn(),
   })),
+  usePublicClient: vi.fn(() => null),
 }));
 
 vi.mock('wagmi/chains', () => ({
