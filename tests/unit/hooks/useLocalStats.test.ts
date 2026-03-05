@@ -89,6 +89,10 @@ describe('useLocalStats', () => {
           minesweeper: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           yahtzee: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           sudoku: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          memory: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          maze: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          tetris: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          poker: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
         },
       });
       expect(result.current.isLoaded).toBe(true);
@@ -546,6 +550,10 @@ describe('useLocalStats', () => {
           minesweeper: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           yahtzee: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           sudoku: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          memory: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          maze: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          tetris: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          poker: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
         },
       };
       localStorage.setItem('celo_games_portal_stats', JSON.stringify(savedStats));
@@ -640,6 +648,10 @@ describe('useLocalStats', () => {
           minesweeper: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           yahtzee: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
           sudoku: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          memory: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          maze: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          tetris: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
+          poker: { played: 0, wins: 0, losses: 0, totalPoints: 0, lastPlayed: 0 },
         },
       };
       localStorage.setItem('celo_games_portal_stats', JSON.stringify(savedStats));

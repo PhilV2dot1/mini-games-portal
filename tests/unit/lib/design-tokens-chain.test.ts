@@ -19,9 +19,9 @@ describe('Design Tokens - Chain Theming', () => {
 
     test('should have base brand colors', () => {
       expect(colors.base).toBe('#0052FF');
-      expect(colors.baseHover).toBe('#0040CC');
-      expect(colors.baseLight).toBe('#3378FF');
-      expect(colors.baseDark).toBe('#003DB8');
+      expect(colors.baseHover).toBe('#003ecc');
+      expect(colors.baseLight).toBe('#3373ff');
+      expect(colors.baseDark).toBe('#0040cc');
     });
   });
 

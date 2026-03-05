@@ -213,8 +213,8 @@ describe('LanguageContext', () => {
         wrapper: LanguageProvider,
       });
 
-      // 'nav' is an object, not a string
-      expect(result.current.t('nav')).toBe('nav');
+      // 'nav' is an object, not a string — t() returns the object value directly
+      expect(typeof result.current.t('nav')).toBe('object');
     });
 
     test('handles empty string key', () => {

@@ -91,6 +91,23 @@ describe('POST /api/badges/check', () => {
       });
 
       // Fifth call: insert user badges
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({
           data: null,
@@ -117,6 +134,22 @@ describe('POST /api/badges/check', () => {
             data: null,
             error: null,
           }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -193,6 +226,22 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       vi.mocked(supabase.from).mockImplementation(fromMock);
 
       const request = new NextRequest('http://localhost/api/badges/check', {
@@ -243,6 +292,22 @@ describe('POST /api/badges/check', () => {
           eq: vi.fn().mockReturnValue({
             maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
           }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -302,6 +367,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -320,6 +402,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -375,6 +473,22 @@ describe('POST /api/badges/check', () => {
           eq: vi.fn().mockReturnValue({
             maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
           }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -437,6 +551,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -455,6 +586,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -513,6 +660,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -531,6 +695,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -592,6 +772,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -610,6 +807,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -673,6 +886,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -691,6 +921,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -756,6 +1002,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -774,6 +1037,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -837,6 +1116,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -855,6 +1151,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -916,6 +1228,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -934,6 +1263,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -992,6 +1337,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -1010,6 +1372,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -1069,6 +1447,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -1087,6 +1482,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -1155,6 +1566,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -1173,6 +1601,22 @@ describe('POST /api/badges/check', () => {
       fromMock.mockReturnValueOnce({
         update: vi.fn().mockReturnValue({
           eq: vi.fn().mockResolvedValue({ data: null, error: null }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -1241,6 +1685,22 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       vi.mocked(supabase.from).mockImplementation(fromMock);
 
       const request = new NextRequest('http://localhost/api/badges/check', {
@@ -1301,6 +1761,22 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       vi.mocked(supabase.from).mockImplementation(fromMock);
 
       const request = new NextRequest('http://localhost/api/badges/check', {
@@ -1357,6 +1833,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -1380,6 +1873,22 @@ describe('POST /api/badges/check', () => {
 
       fromMock.mockReturnValueOnce({
         update: updateMock,
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
       });
 
       vi.mocked(supabase.from).mockImplementation(fromMock);
@@ -1444,6 +1953,23 @@ describe('POST /api/badges/check', () => {
         }),
       });
 
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({ data: null, error: null }),
       });
@@ -1465,6 +1991,22 @@ describe('POST /api/badges/check', () => {
 
       fromMock.mockReturnValueOnce({
         update: updateMock,
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
       });
 
       vi.mocked(supabase.from).mockImplementation(fromMock);
@@ -1548,10 +2090,43 @@ describe('POST /api/badges/check', () => {
       });
 
       // Badge insertion fails
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      });
+
       fromMock.mockReturnValueOnce({
         insert: vi.fn().mockResolvedValue({
           data: null,
           error: { message: 'Insert failed' },
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
@@ -1601,6 +2176,22 @@ describe('POST /api/badges/check', () => {
           eq: vi.fn().mockReturnValue({
             maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
           }),
+        }),
+      });
+
+      // Friendships count
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          or: vi.fn().mockReturnValue({
+            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+          }),
+        }),
+      });
+
+      // Tournament participations
+      fromMock.mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
         }),
       });
 
