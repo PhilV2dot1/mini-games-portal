@@ -2,6 +2,10 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BlackjackTable } from '@/components/blackjack/BlackjackTable';
 import { Card } from '@/lib/games/blackjack-cards';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
+
+const renderWithProviders = (ui: React.ReactElement) =>
+  render(<LanguageProvider>{ui}</LanguageProvider>);
 
 /**
  * BlackjackTable Component Tests
@@ -42,7 +46,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should render the table container', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -57,7 +61,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should have glassmorphic overlay', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -72,7 +76,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should have yellow border styling', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -87,7 +91,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show divider when both player and dealer have cards', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -102,7 +106,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show divider when player has no cards', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -117,7 +121,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show divider when dealer has no cards', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[]}
@@ -136,7 +140,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should render "Dealer" heading', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -150,7 +154,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should render dealer cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -166,7 +170,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show dealer total when showDealerCard is true', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -181,7 +185,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show "?" for dealer total when showDealerCard is false', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -201,7 +205,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should hide dealer first card when showDealerCard is false', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -220,7 +224,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show all dealer cards when showDealerCard is true', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -243,7 +247,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should show "BLACKJACK!" when dealer has 21 with 2 cards and showDealerCard is true', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[aceOfSpades, kingOfHearts]}
@@ -258,7 +262,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show "BLACKJACK!" when dealer has 21 but showDealerCard is false', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[aceOfSpades, kingOfHearts]}
@@ -273,7 +277,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show "BUST!" when dealer total > 21 and showDealerCard is true', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[kingOfHearts, queenOfDiamonds, fiveOfHearts]}
@@ -288,7 +292,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show "BUST!" when dealer busts but showDealerCard is false', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[kingOfHearts, queenOfDiamonds, fiveOfHearts]}
@@ -302,7 +306,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show dealer hand when no dealer cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[]}
@@ -320,7 +324,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should render "Your Hand" heading', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -334,7 +338,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should render player cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds]}
@@ -350,7 +354,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show player total', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts, sixOfSpades]}
         dealerCards={[queenOfDiamonds]}
@@ -364,7 +368,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show player hand when no player cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -382,7 +386,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should show "BLACKJACK!" when player has 21 with 2 cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -396,7 +400,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show "BLACKJACK!" when player has 21 with more than 2 cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts, sixOfSpades, tenOfClubs]}
         dealerCards={[queenOfDiamonds]}
@@ -410,7 +414,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should show "BUST!" when player total > 21', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[kingOfHearts, queenOfDiamonds, fiveOfHearts]}
         dealerCards={[tenOfClubs]}
@@ -424,7 +428,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should not show "BUST!" when player total <= 21', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[kingOfHearts, tenOfClubs]}
         dealerCards={[queenOfDiamonds]}
@@ -442,7 +446,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should render correct number of player cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts, fiveOfHearts]}
         dealerCards={[]}
@@ -457,7 +461,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should render correct number of dealer cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[]}
         dealerCards={[queenOfDiamonds, tenOfClubs, fiveOfHearts]}
@@ -472,7 +476,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should render correct total number of cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs, fiveOfHearts]}
@@ -492,7 +496,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should handle empty card arrays', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[]}
         dealerCards={[]}
@@ -508,7 +512,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should handle single player card', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -523,7 +527,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should handle single dealer card', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds]}
@@ -538,7 +542,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should handle many player cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, aceOfSpades, aceOfSpades, aceOfSpades, aceOfSpades]}
         dealerCards={[queenOfDiamonds]}
@@ -553,7 +557,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should handle many dealer cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[fiveOfHearts, fiveOfHearts, fiveOfHearts, fiveOfHearts]}
@@ -568,7 +572,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should toggle showDealerCard properly', () => {
-    const { rerender } = render(
+    const { rerender } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -584,13 +588,15 @@ describe('BlackjackTable', () => {
 
     // Show dealer card
     rerender(
-      <BlackjackTable
-        playerCards={[aceOfSpades]}
-        dealerCards={[queenOfDiamonds, tenOfClubs]}
-        playerTotal={11}
-        dealerTotal={20}
-        showDealerCard={true}
-      />
+      <LanguageProvider>
+        <BlackjackTable
+          playerCards={[aceOfSpades]}
+          dealerCards={[queenOfDiamonds, tenOfClubs]}
+          playerTotal={11}
+          dealerTotal={20}
+          showDealerCard={true}
+        />
+      </LanguageProvider>
     );
 
     // Now shown
@@ -603,7 +609,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should show BLACKJACK for both player and dealer when both have 21 with 2 cards', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[aceOfSpades, queenOfDiamonds]}
@@ -622,7 +628,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should show BUST for both player and dealer when both bust', () => {
-    render(
+    renderWithProviders(
       <BlackjackTable
         playerCards={[kingOfHearts, queenOfDiamonds, fiveOfHearts]}
         dealerCards={[kingOfHearts, tenOfClubs, sixOfSpades]}
@@ -641,7 +647,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should have relative z-10 on content wrapper', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -656,7 +662,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should have min-height classes', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -671,7 +677,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should have shadow-2xl class', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -686,7 +692,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should have overflow-hidden class', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[aceOfSpades, kingOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -705,7 +711,7 @@ describe('BlackjackTable', () => {
   // ============================================================================
 
   test('should display player total with correct styling', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts, sixOfSpades]}
         dealerCards={[queenOfDiamonds]}
@@ -720,7 +726,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should display dealer total with correct styling when visible', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
@@ -735,7 +741,7 @@ describe('BlackjackTable', () => {
   });
 
   test('should display "?" with correct styling when dealer card hidden', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <BlackjackTable
         playerCards={[fiveOfHearts]}
         dealerCards={[queenOfDiamonds, tenOfClubs]}
