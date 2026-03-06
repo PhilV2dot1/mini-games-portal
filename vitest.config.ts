@@ -25,6 +25,7 @@ export default defineConfig({
     poolOptions: {
       forks: {
         isolate: true,
+        execArgv: ['--max-old-space-size=8192'],
       },
     },
     // Increase memory for CI and prevent heap exhaustion
