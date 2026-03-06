@@ -27,10 +27,10 @@ export const colors = {
   megaethDark: '#00a882',
 
   // Brand Colors - Soneium
-  soneium: '#000000',
-  soneiumHover: '#222222',
-  soneiumLight: '#444444',
-  soneiumDark: '#000000',
+  soneium: '#E8E8F0',
+  soneiumHover: '#D0D0DF',
+  soneiumLight: '#F4F4F8',
+  soneiumDark: '#B8B8CC',
 
   // Semantic Colors
   success: '#10b981',
@@ -424,7 +424,7 @@ export const chainThemes: Record<ChainThemeName, ChainTheme> = {
     hover: colors.soneiumHover,
     light: colors.soneiumLight,
     dark: colors.soneiumDark,
-    contrastText: '#ffffff', // white text on black
+    contrastText: '#111827', // dark text on light silver
   },
 } as const;
 

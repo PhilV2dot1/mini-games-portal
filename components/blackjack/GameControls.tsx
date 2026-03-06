@@ -41,14 +41,14 @@ export function GameControls({
           <button
             onClick={onHit}
             disabled={disabled}
-            className="px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg border-2 border-gray-300 hover:border-chain disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[100px] sm:min-w-[120px]"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg border-2 border-gray-300 dark:border-gray-500 hover:border-chain disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[100px] sm:min-w-[120px]"
           >
             {t('games.blackjack.hit')}
           </button>
           <button
             onClick={onStand}
             disabled={disabled}
-            className="px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg border-2 border-gray-300 hover:border-chain disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[100px] sm:min-w-[120px]"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-white/90 hover:bg-white dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white text-gray-900 rounded-xl font-bold text-base sm:text-lg shadow-lg border-2 border-gray-300 dark:border-gray-500 hover:border-chain disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 min-w-[100px] sm:min-w-[120px]"
           >
             {t('games.blackjack.stand')}
           </button>
