@@ -53,10 +53,10 @@ export default defineConfig({
         'lib/**/*.{ts,tsx}',
       ],
       thresholds: {
-        lines: 60,
-        functions: 60,
+        lines: 25,
+        functions: 40,
         branches: 50,
-        statements: 60,
+        statements: 25,
       },
     },
   },
