@@ -11,13 +11,13 @@ export function PlayerHand({ cards, total }: { cards: Card[]; total: number }) {
 
   return (
     <div className="text-center">
-      <h3 className="text-gray-900 text-lg font-bold mb-3">{t('games.blackjack.yourHand')}</h3>
+      <h3 className="text-gray-900 dark:text-gray-100 text-lg font-bold mb-3">{t('games.blackjack.yourHand')}</h3>
       <div className="flex justify-center gap-2 mb-3">
         {cards.map((card, idx) => (
           <CardDisplay key={idx} card={card} />
         ))}
       </div>
-      <div className="text-3xl font-bold text-gray-900 drop-shadow-sm">
+      <div className="text-3xl font-bold text-gray-900 dark:text-white drop-shadow-sm">
         {total}
       </div>
       {total === 21 && cards.length === 2 && (
@@ -39,7 +39,7 @@ export function DealerHand({ cards, total, hideFirstCard }: { cards: Card[]; tot
 
   return (
     <div className="text-center">
-      <h3 className="text-gray-900 text-lg font-bold mb-3">{t('games.blackjack.dealer')}</h3>
+      <h3 className="text-gray-900 dark:text-gray-100 text-lg font-bold mb-3">{t('games.blackjack.dealer')}</h3>
       <div className="flex justify-center gap-2 mb-3">
         {cards.map((card, idx) => (
           <CardDisplay
@@ -49,7 +49,7 @@ export function DealerHand({ cards, total, hideFirstCard }: { cards: Card[]; tot
           />
         ))}
       </div>
-      <div className="text-3xl font-bold text-gray-900 drop-shadow-sm">
+      <div className="text-3xl font-bold text-gray-900 dark:text-white drop-shadow-sm">
         {hideFirstCard ? '?' : total}
       </div>
       {!hideFirstCard && total === 21 && cards.length === 2 && (

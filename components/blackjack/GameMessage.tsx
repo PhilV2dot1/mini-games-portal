@@ -13,12 +13,12 @@ export function GameMessage({ message }: GameMessageProps) {
   const isProcessing = message.includes('⏳') || message.includes('🎲') || message.includes('⚠️');
 
   const bgColor = isError
-    ? 'bg-red-100 border-red-400 text-red-800'
+    ? 'bg-red-100 dark:bg-red-900/40 border-red-400 text-red-800 dark:text-red-200'
     : isSuccess
-    ? 'bg-green-100 border-green-400 text-green-800'
+    ? 'bg-green-100 dark:bg-green-900/40 border-green-400 text-green-800 dark:text-green-200'
     : isProcessing
-    ? 'bg-blue-100 border-blue-400 text-blue-800'
-    : 'bg-gray-100 border-gray-400 text-gray-800';
+    ? 'bg-blue-100 dark:bg-blue-900/40 border-blue-400 text-blue-800 dark:text-blue-200'
+    : 'bg-gray-100 dark:bg-gray-800 border-gray-400 dark:border-gray-600 text-gray-800 dark:text-gray-200';
 
   return (
     <AnimatePresence>
