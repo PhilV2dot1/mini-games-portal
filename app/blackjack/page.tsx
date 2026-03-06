@@ -21,7 +21,7 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, getExplorerTxUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
 
@@ -187,6 +187,32 @@ export default function BlackjackPage() {
               <WalletConnect />
             )}
             {soloGame.message && <GameMessage message={translateMessage(soloGame.message)} />}
+
+            {/* Recovery banner: tx confirmed on-chain but receipt not received */}
+            {soloGame.txHash && soloGame.isConfirming && (
+              <div className="flex flex-col items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-400 rounded-xl text-sm">
+                <span className="text-amber-800 dark:text-amber-300 font-semibold">
+                  Transaction envoyée — si elle est confirmée dans l&apos;exploreur, cliquez ci-dessous.
+                </span>
+                <div className="flex gap-3">
+                  <a
+                    href={getExplorerTxUrl(chain?.id, soloGame.txHash)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded-lg font-medium hover:brightness-95 transition-all"
+                  >
+                    Voir la tx ↗
+                  </a>
+                  <button
+                    onClick={soloGame.forceComplete}
+                    className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all"
+                  >
+                    Tx confirmée → Continuer
+                  </button>
+                </div>
+              </div>
+            )}
+
             <BlackjackTable
               playerCards={soloGame.playerHand}
               dealerCards={soloGame.dealerHand}

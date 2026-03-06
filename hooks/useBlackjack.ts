@@ -41,8 +41,8 @@ export function useBlackjack() {
   const { writeContract, data: hash, isPending, error: writeError, reset: resetWrite } = useWriteContract();
   const { data: receipt, error: receiptError, isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash,
-    timeout: 120_000, // 2 minute timeout for better reliability on Celo
-    confirmations: 1, // Wait for 1 confirmation
+    timeout: 60_000, // 1 minute — after that receiptError fires and recovery kicks in
+    confirmations: 1,
   });
 
   const contractAddress = getContractAddress('blackjack', chain?.id);
@@ -368,6 +368,14 @@ export function useBlackjack() {
     }
   }, [mode]);
 
+  // Force-complete a stuck transaction (tx confirmed on explorer but receipt not received)
+  const forceComplete = useCallback(() => {
+    setMessage('✅ Transaction confirmed — result accepted');
+    setGamePhase('betting');
+    resetWrite?.();
+    setTimeout(() => refetchStats(), 1000);
+  }, [resetWrite, refetchStats]);
+
   return {
     mode,
     gamePhase,
@@ -380,6 +388,8 @@ export function useBlackjack() {
     stats,
     credits,
     isPending,
+    isConfirming,
+    txHash: hash,
     showDealerCard,
     isConnected,
     address,
@@ -389,5 +399,6 @@ export function useBlackjack() {
     playOnChain,
     switchMode,
     resetCredits,
+    forceComplete,
   };
 }
