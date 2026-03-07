@@ -24,6 +24,7 @@ export default function SnakePage() {
     score,
     stats,
     message,
+    countdown,
     isConnected,
     gridSize,
     startGame,
@@ -87,6 +88,7 @@ export default function SnakePage() {
 
   const isPlaying = status === "playing";
   const isProcessing = status === "processing";
+  const isCountdown = status === "countdown";
   const isGameOver = status === "gameover";
 
   return (
@@ -143,10 +145,38 @@ export default function SnakePage() {
         <GameStatus message={translateMessage(message)} status={status} score={score} />
 
         {/* Game Board */}
-        <SnakeBoard snake={snake} food={food} gridSize={gridSize} />
+        <div className="relative">
+          <SnakeBoard snake={snake} food={food} gridSize={gridSize} />
+          {/* Countdown Overlay */}
+          {isCountdown && countdown !== null && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-10">
+              {countdown > 0 ? (
+                <motion.div
+                  key={countdown}
+                  initial={{ scale: 2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="text-9xl font-black text-chain drop-shadow-[0_0_20px_rgba(252,255,82,0.8)]"
+                >
+                  {countdown}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="go"
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1.2, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-7xl font-black text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]"
+                >
+                  GO!
+                </motion.div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Controls Info */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -159,7 +189,7 @@ export default function SnakePage() {
         )}
 
         {/* Direction Buttons (Mobile) */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <div className="sm:hidden">
             <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
               <div />
@@ -210,7 +240,7 @@ export default function SnakePage() {
             >
               {isProcessing ? t('games.starting') : t('games.startGame')}
             </motion.button>
-          ) : (
+          ) : isCountdown ? null : (
             <motion.button
               data-testid="reset-game"
               initial={{ opacity: 0, scale: 0.9 }}

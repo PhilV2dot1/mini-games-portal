@@ -9,7 +9,7 @@ import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addr
 export type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 export type Position = { x: number; y: number };
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "gameover";
+export type GameStatus = "idle" | "playing" | "processing" | "countdown" | "gameover";
 
 export interface PlayerStats {
   games: number;
@@ -138,6 +138,7 @@ export function useSnake() {
   });
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
   const [message, setMessage] = useState("Press Start to begin!");
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -337,6 +338,26 @@ export function useSnake() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [status, changeDirection]);
 
+  // Countdown helper: 3 → 2 → 1 → Go! → playing
+  const startCountdown = useCallback(() => {
+    setStatus("countdown");
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        setStatus("playing");
+        setMessage("Use arrow keys or WASD to move!");
+      }
+    }, 1000);
+  }, []);
+
   // Start game
   const startGame = useCallback(async () => {
     const initialSnake = createInitialSnake();
@@ -365,17 +386,16 @@ export function useSnake() {
         });
 
         setGameStartedOnChain(true);
-        setStatus("playing");
-        setMessage("Game started! Use arrow keys or WASD to move");
+        startCountdown();
       } catch (error) {
         console.error("Failed to start on-chain game:", error);
         setMessage("⚠️ Failed to start on-chain game");
         setStatus("idle");
       }
     } else {
-      setStatus("playing");
+      startCountdown();
     }
-  }, [mode, isConnected, address, writeContractAsync]);
+  }, [mode, isConnected, address, writeContractAsync, startCountdown]);
 
   // Reset game
   const resetGame = useCallback(() => {
@@ -389,6 +409,7 @@ export function useSnake() {
     setStatus("idle");
     setMessage("Press Start to begin!");
     setGameStartedOnChain(false);
+    setCountdown(null);
 
     if (gameLoopRef.current) {
       clearInterval(gameLoopRef.current);
@@ -413,6 +434,7 @@ export function useSnake() {
     score,
     stats,
     message,
+    countdown,
     isConnected,
     gridSize: GRID_SIZE,
     startGame,
