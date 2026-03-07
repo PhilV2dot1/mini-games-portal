@@ -21,10 +21,10 @@ export const colors = {
   baseDark: '#0040cc',
 
   // Brand Colors - MegaETH
-  megaeth: '#00D4AA',
-  megaethHover: '#00b893',
-  megaethLight: '#33ddb8',
-  megaethDark: '#00a882',
+  megaeth: '#FF8AA8',
+  megaethHover: '#e6708e',
+  megaethLight: '#ffaabf',
+  megaethDark: '#cc6f87',
 
   // Brand Colors - Soneium
   soneium: '#E8E8F0',
