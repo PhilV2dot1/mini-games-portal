@@ -188,28 +188,20 @@ export default function BlackjackPage() {
             )}
             {soloGame.message && <GameMessage message={translateMessage(soloGame.message)} />}
 
-            {/* Recovery banner: tx confirmed on-chain but receipt not received */}
-            {soloGame.txHash && soloGame.isConfirming && (
-              <div className="flex flex-col items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-400 rounded-xl text-sm">
-                <span className="text-amber-800 dark:text-amber-300 font-semibold">
-                  Transaction envoyée — si elle est confirmée dans l&apos;exploreur, cliquez ci-dessous.
+            {/* Recording indicator: tx in progress after local result */}
+            {soloGame.isRecording && soloGame.txHash && (
+              <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-400 rounded-xl text-sm">
+                <span className="text-blue-800 dark:text-blue-200 font-semibold">
+                  ⏳ Recording result on-chain...
                 </span>
-                <div className="flex gap-3">
-                  <a
-                    href={getExplorerTxUrl(chain?.id, soloGame.txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1 bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100 rounded-lg font-medium hover:brightness-95 transition-all"
-                  >
-                    Voir la tx ↗
-                  </a>
-                  <button
-                    onClick={soloGame.forceComplete}
-                    className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all"
-                  >
-                    Tx confirmée → Continuer
-                  </button>
-                </div>
+                <a
+                  href={getExplorerTxUrl(chain?.id, soloGame.txHash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 rounded-lg font-medium hover:brightness-95 transition-all"
+                >
+                  View tx ↗
+                </a>
               </div>
             )}
 

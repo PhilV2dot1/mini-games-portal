@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { Card, createShuffledDeck, determineWinner, Outcome } from "@/lib/games/blackjack-cards";
 import { CONTRACT_ABI } from "@/lib/contracts/blackjack-abi";
-import { getContractAddress, isGameAvailableOnChain, getExplorerTxUrl } from "@/lib/contracts/addresses";
+import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 export type GamePhase = 'betting' | 'playing' | 'dealer' | 'finished';
 
@@ -36,12 +36,17 @@ export function useBlackjack() {
 
   const [credits, setCredits] = useState(1000);
   const [showDealerCard, setShowDealerCard] = useState(false);
+  // On-chain: true after the game finishes locally, while tx is being confirmed
+  const [isRecording, setIsRecording] = useState(false);
+
+  const isTxInProgress = useRef(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
   // Wagmi hooks
   const { writeContract, data: hash, isPending, error: writeError, reset: resetWrite } = useWriteContract();
   const { data: receipt, error: receiptError, isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash,
-    timeout: 60_000, // 1 minute — after that receiptError fires and recovery kicks in
+    timeout: 60_000,
     confirmations: 1,
   });
 
@@ -53,46 +58,32 @@ export function useBlackjack() {
     abi: CONTRACT_ABI,
     functionName: 'getStats',
     query: {
-      enabled: isConnected && mode === 'onchain' && gameAvailable,
+      enabled: isConnected && !!address && mode === 'onchain' && gameAvailable,
       gcTime: 0,
       staleTime: 0,
     }
   });
 
-  // CRITICAL: Ace calculation algorithm
+  // ─── Ace calculation ────────────────────────────────────────────────────────
   const calculateHandTotal = useCallback((cards: Card[]): number => {
     let total = 0;
     let aces = 0;
-
-    // First pass: sum all cards, aces as 11
     for (const card of cards) {
-      if (card.value === 1) {
-        aces++;
-        total += 11;
-      } else if (card.value > 10) {
-        total += 10; // Face cards
-      } else {
-        total += card.value;
-      }
+      if (card.value === 1) { aces++; total += 11; }
+      else if (card.value > 10) { total += 10; }
+      else { total += card.value; }
     }
-
-    // Second pass: convert aces from 11 to 1 while busting
-    while (total > 21 && aces > 0) {
-      total -= 10; // Convert one ace from 11 to 1
-      aces--;
-    }
-
+    while (total > 21 && aces > 0) { total -= 10; aces--; }
     return total;
   }, []);
 
-  // Update stats helper
+  // ─── Stats helper (free + onchain local update) ───────────────────────────
   const updateStatsForOutcome = useCallback((result: Outcome) => {
     setStats(prev => {
       const isWin = result === 'win' || result === 'blackjack';
       const newStreak = isWin ? prev.currentStreak + 1 : 0;
-
       return {
-        wins: result === 'win' ? prev.wins + 1 : result === 'blackjack' ? prev.wins + 1 : prev.wins,
+        wins: isWin ? prev.wins + 1 : prev.wins,
         losses: result === 'lose' ? prev.losses + 1 : prev.losses,
         pushes: result === 'push' ? prev.pushes + 1 : prev.pushes,
         blackjacks: result === 'blackjack' ? prev.blackjacks + 1 : prev.blackjacks,
@@ -102,128 +93,109 @@ export function useBlackjack() {
     });
   }, []);
 
-  // Log transaction hash and update message
-  useEffect(() => {
-    if (hash && mode === 'onchain') {
-      console.log('✅ Transaction sent:', hash);
-      console.log('🔍 View on explorer:', getExplorerTxUrl(chain?.id, hash));
-
-      // Show confirming status
-      if (isConfirming) {
-        setMessage('⏳ Confirming on blockchain... (this may take 10-30 seconds)');
-      } else {
-        setMessage('✅ Transaction sent! Waiting for blockchain confirmation...');
-      }
-    }
-  }, [hash, mode, isConfirming]);
-
-  // Handle write errors
-  useEffect(() => {
-    if (writeError) {
-      console.error('Write contract error:', writeError);
-      const errorMessage = writeError.message || 'Transaction failed';
-
-      if (errorMessage.includes('User rejected') || errorMessage.includes('User denied')) {
-        setMessage('❌ Transaction rejected by user');
-      } else if (errorMessage.includes('insufficient funds')) {
-        setMessage('❌ Insufficient funds for gas');
-      } else {
-        setMessage('❌ Transaction failed: ' + errorMessage.substring(0, 50));
-      }
-
-      // Only reset to betting if the game hasn't been played yet (not in finished state)
-      setGamePhase(prev => prev === 'finished' ? 'finished' : 'betting');
-    }
-  }, [writeError]);
-
-  // Handle receipt errors (timeout, etc.)
-  useEffect(() => {
-    if (receiptError && mode === 'onchain') {
-      console.error('Receipt error:', receiptError);
-      const errorMsg = receiptError.message || '';
-
-      if (errorMsg.includes('timeout')) {
-        setMessage('⚠️ Transaction taking longer than expected. Check explorer for status.');
-      } else {
-        setMessage('❌ Transaction error - Please try again');
-      }
-
-      // Only reset to betting if game not yet finished
-      setGamePhase(prev => prev === 'finished' ? 'finished' : 'betting');
-      resetWrite?.();
-    }
-  }, [receiptError, mode, resetWrite]);
-
-  // Handle transaction receipt (on-chain mode) — result already shown, just refresh stats
-  useEffect(() => {
-    if (receipt && mode === 'onchain' && address) {
-      console.log('✅ On-chain game recorded:', receipt.transactionHash);
-      // Restore the outcome message (was overwritten by "Recording result...")
-      setMessage(prev => {
-        if (prev.startsWith('⏳ Recording') || prev.startsWith('✅ Transaction') || prev.startsWith('⏳ Confirming')) {
-          return '✅ Result recorded on blockchain!';
-        }
-        return prev;
-      });
-      setTimeout(() => refetchStats(), 2000);
-    }
-  }, [receipt, address, mode, refetchStats]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Update stats from on-chain
+  // ─── Sync on-chain stats ─────────────────────────────────────────────────
   useEffect(() => {
     if (mode === 'onchain' && onchainStats) {
       const [wins, losses, pushes, blackjacks, , , currentStreak, bestStreak] = onchainStats;
       setStats({
-        wins: Number(wins),
-        losses: Number(losses),
-        pushes: Number(pushes),
-        blackjacks: Number(blackjacks),
-        currentStreak: Number(currentStreak),
-        bestStreak: Number(bestStreak),
+        wins: Number(wins), losses: Number(losses),
+        pushes: Number(pushes), blackjacks: Number(blackjacks),
+        currentStreak: Number(currentStreak), bestStreak: Number(bestStreak),
       });
     }
   }, [onchainStats, mode]);
 
-  // Deal initial cards (free and on-chain modes)
+  // ─── On-chain receipt: confirm recording ─────────────────────────────────
+  useEffect(() => {
+    if (!receipt || mode !== 'onchain') return;
+    setIsRecording(false);
+    isTxInProgress.current = false;
+    setMessage(prev =>
+      prev.startsWith('⏳') ? '✅ Result recorded on blockchain!' : prev
+    );
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => refetchStats(), 2000);
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [receipt, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Write errors ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!writeError) return;
+    const msg = writeError.message || '';
+    if (msg.includes('User rejected') || msg.includes('User denied')) {
+      setMessage('❌ Transaction rejected — result not recorded on-chain');
+    } else if (msg.includes('insufficient funds')) {
+      setMessage('❌ Insufficient funds for gas');
+    } else {
+      setMessage('❌ Recording failed: ' + msg.substring(0, 60));
+    }
+    setIsRecording(false);
+    isTxInProgress.current = false;
+  }, [writeError]);
+
+  // ─── Receipt timeout ──────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!receiptError || mode !== 'onchain') return;
+    const msg = receiptError.message || '';
+    setMessage(msg.includes('timeout')
+      ? '⚠️ Transaction taking longer than expected. Check explorer for status.'
+      : '❌ Transaction error — result may not be recorded');
+    setIsRecording(false);
+    isTxInProgress.current = false;
+    resetWrite?.();
+  }, [receiptError, mode, resetWrite]);
+
+  // ─── Internal: send playGame tx after local result ───────────────────────
+  const recordOnChain = useCallback(() => {
+    if (!contractAddress || !gameAvailable || isTxInProgress.current) return;
+    isTxInProgress.current = true;
+    setIsRecording(true);
+    resetWrite?.();
+    writeContract({
+      address: contractAddress,
+      abi: CONTRACT_ABI,
+      functionName: 'playGame',
+      chainId: chain!.id,
+      gas: BigInt(500000),
+    });
+  }, [contractAddress, gameAvailable, chain, writeContract, resetWrite]);
+
+  // ─── Deal cards (free + onchain: identical gameplay) ─────────────────────
   const dealInitialCards = useCallback(() => {
     const deck = createShuffledDeck();
     const pHand = [deck[0], deck[1]];
     const dHand = [deck[2], deck[3]];
+    const pTotal = calculateHandTotal(pHand);
+    const dTotal = calculateHandTotal(dHand);
 
     setPlayerHand(pHand);
     setDealerHand(dHand);
-    setPlayerTotal(calculateHandTotal(pHand));
-    setDealerTotal(calculateHandTotal(dHand));
+    setPlayerTotal(pTotal);
+    setDealerTotal(dTotal);
     setGamePhase('playing');
     setShowDealerCard(false);
     setOutcome(null);
     setMessage('');
 
-    // Check for immediate blackjack
-    const pTotal = calculateHandTotal(pHand);
+    // Immediate blackjack
     if (pTotal === 21) {
-      // Player has blackjack, reveal dealer and determine winner
+      const result: Outcome = dTotal === 21 ? 'push' : 'blackjack';
       setShowDealerCard(true);
-      const dTotal = calculateHandTotal(dHand);
-      const result = dTotal === 21 ? 'push' : 'blackjack';
       setOutcome(result);
       setGamePhase('finished');
-
-      const messages = {
-        push: "Both Blackjack - PUSH!",
-        blackjack: 'BLACKJACK! You win!'
-      };
-      setMessage(messages[result]);
-
+      setMessage(result === 'blackjack' ? '🎉 BLACKJACK! You win!' : 'Both Blackjack - PUSH!');
       updateStatsForOutcome(result);
-
-      if (mode === 'free' && result === 'blackjack') {
-        setCredits(prev => prev + 15);
+      if (mode === 'free') {
+        if (result === 'blackjack') setCredits(prev => prev + 15);
+      } else {
+        // Record blackjack on-chain immediately
+        setMessage('🎉 BLACKJACK! You win! ⏳ Recording...');
+        recordOnChain();
       }
     }
-  }, [calculateHandTotal, updateStatsForOutcome, mode]);
+  }, [calculateHandTotal, updateStatsForOutcome, mode, recordOnChain]);
 
-  // Hit (free and on-chain modes)
+  // ─── HIT (free + onchain identical) ──────────────────────────────────────
   const hit = useCallback(() => {
     if (gamePhase !== 'playing') return;
 
@@ -235,113 +207,83 @@ export function useBlackjack() {
     setPlayerHand(newHand);
     setPlayerTotal(newTotal);
 
-    // Bust check
     if (newTotal > 21) {
       setGamePhase('finished');
       setShowDealerCard(true);
       setOutcome('lose');
-      setMessage('BUST! You lose.');
       updateStatsForOutcome('lose');
       if (mode === 'free') {
+        setMessage('BUST! You lose.');
         setCredits(prev => Math.max(0, prev - 10));
+      } else {
+        setMessage('BUST! You lose. ⏳ Recording...');
+        recordOnChain();
       }
     }
-  }, [gamePhase, mode, playerHand, dealerHand, calculateHandTotal, updateStatsForOutcome]);
+  }, [gamePhase, mode, playerHand, dealerHand, calculateHandTotal, updateStatsForOutcome, recordOnChain]);
 
-  // Stand (free and on-chain modes)
+  // ─── STAND (free + onchain identical) ────────────────────────────────────
   const stand = useCallback(() => {
     if (gamePhase !== 'playing') return;
 
-    setGamePhase('dealer');
     setShowDealerCard(true);
 
-    // Dealer plays
     let dHand = [...dealerHand];
     let dTotal = calculateHandTotal(dHand);
     const deck = createShuffledDeck();
-    let cardIndex = playerHand.length + dealerHand.length;
-
-    // Dealer hits until 17+
+    let idx = playerHand.length + dealerHand.length;
     while (dTotal < 17) {
-      const newCard = deck[cardIndex++];
-      dHand = [...dHand, newCard];
+      dHand = [...dHand, deck[idx++]];
       dTotal = calculateHandTotal(dHand);
     }
 
     setDealerHand(dHand);
     setDealerTotal(dTotal);
 
-    // Determine winner
     const result = determineWinner(playerTotal, dTotal, playerHand.length === 2);
     setOutcome(result);
     setGamePhase('finished');
-
-    const messages = {
-      win: 'You WIN!',
-      lose: 'Dealer wins',
-      push: "It's a PUSH",
-      blackjack: 'BLACKJACK!'
-    };
-    setMessage(messages[result]);
-
     updateStatsForOutcome(result);
 
-    if (mode === 'free') {
-      // Update credits in free mode
-      if (result === 'win') {
-        setCredits(prev => prev + 10);
-      } else if (result === 'blackjack') {
-        setCredits(prev => prev + 15);
-      } else if (result === 'lose') {
-        setCredits(prev => Math.max(0, prev - 10));
-      }
-    } else if (mode === 'onchain' && contractAddress && gameAvailable) {
-      // Record result on-chain after interactive gameplay
-      setMessage('⏳ Recording result on blockchain...');
-      resetWrite?.();
-      writeContract({
-        address: contractAddress,
-        abi: CONTRACT_ABI,
-        functionName: 'playGame',
-        chainId: chain!.id,
-        gas: BigInt(500000),
-      });
-    }
-  }, [gamePhase, mode, dealerHand, playerHand, playerTotal, calculateHandTotal, updateStatsForOutcome, contractAddress, gameAvailable, chain, writeContract, resetWrite]);
+    const msgs: Record<Outcome, string> = {
+      win: '✅ You WIN!',
+      lose: 'Dealer wins',
+      push: "It's a PUSH",
+      blackjack: '🎉 BLACKJACK!',
+    };
 
-  // Play on-chain — deals cards and starts interactive game
-  const playOnChain = useCallback(async () => {
-    if (!isConnected) {
+    if (mode === 'free') {
+      setMessage(msgs[result]);
+      if (result === 'win') setCredits(prev => prev + 10);
+      else if (result === 'blackjack') setCredits(prev => prev + 15);
+      else if (result === 'lose') setCredits(prev => Math.max(0, prev - 10));
+    } else {
+      setMessage(msgs[result] + ' ⏳ Recording...');
+      recordOnChain();
+    }
+  }, [gamePhase, mode, dealerHand, playerHand, playerTotal, calculateHandTotal, updateStatsForOutcome, recordOnChain]);
+
+  // ─── New game ─────────────────────────────────────────────────────────────
+  const newGame = useCallback(() => {
+    if (mode === 'free' && credits < 10) {
+      setMessage('❌ Not enough credits! (Need 10 credits)');
+      return;
+    }
+    if (!isConnected && mode === 'onchain') {
       setMessage('❌ Please connect your wallet first');
       return;
     }
-
-    if (!address) {
-      setMessage('❌ Wallet address not found');
-      return;
-    }
-
-    if (!contractAddress || !gameAvailable) {
+    if (mode === 'onchain' && (!contractAddress || !gameAvailable)) {
       setMessage('❌ Blackjack not available on this network');
       return;
     }
-
-    // Deal cards for interactive gameplay (same as free mode)
     dealInitialCards();
-  }, [isConnected, address, contractAddress, gameAvailable, dealInitialCards]);
+  }, [mode, credits, isConnected, contractAddress, gameAvailable, dealInitialCards]);
 
-  // New game
-  const newGame = useCallback(() => {
-    if (mode === 'free') {
-      if (credits < 10) {
-        setMessage('❌ Not enough credits! (Need 10 credits)');
-        return;
-      }
-    }
-    dealInitialCards();
-  }, [mode, credits, dealInitialCards]);
+  // playOnChain alias kept for the page button label logic
+  const playOnChain = newGame;
 
-  // Switch mode
+  // ─── Switch mode ──────────────────────────────────────────────────────────
   const switchMode = useCallback((newMode: 'free' | 'onchain') => {
     setMode(newMode);
     setGamePhase('betting');
@@ -350,31 +292,23 @@ export function useBlackjack() {
     setPlayerTotal(0);
     setDealerTotal(0);
     setOutcome(null);
-    setMessage(newMode === 'free' ? 'Click "NEW GAME" to start' : 'Click "DEAL CARDS" to start');
+    setMessage('');
     setShowDealerCard(false);
-
+    setIsRecording(false);
+    isTxInProgress.current = false;
     if (newMode === 'free') {
       setStats({ wins: 0, losses: 0, pushes: 0, blackjacks: 0, currentStreak: 0, bestStreak: 0 });
       setCredits(1000);
     }
   }, []);
 
-  // Reset credits (free mode only)
+  // ─── Reset credits (free only) ────────────────────────────────────────────
   const resetCredits = useCallback(() => {
-    if (mode === 'free') {
-      setCredits(1000);
-      setStats({ wins: 0, losses: 0, pushes: 0, blackjacks: 0, currentStreak: 0, bestStreak: 0 });
-      setMessage('Credits reset to 1000');
-    }
+    if (mode !== 'free') return;
+    setCredits(1000);
+    setStats({ wins: 0, losses: 0, pushes: 0, blackjacks: 0, currentStreak: 0, bestStreak: 0 });
+    setMessage('Credits reset to 1000');
   }, [mode]);
-
-  // Force-complete a stuck transaction (tx confirmed on explorer but receipt not received)
-  const forceComplete = useCallback(() => {
-    setMessage('✅ Transaction confirmed — result accepted');
-    setGamePhase('betting');
-    resetWrite?.();
-    setTimeout(() => refetchStats(), 1000);
-  }, [resetWrite, refetchStats]);
 
   return {
     mode,
@@ -387,8 +321,9 @@ export function useBlackjack() {
     message,
     stats,
     credits,
-    isPending,
-    isConfirming,
+    // isPending = wallet signing; isRecording = tx sent, waiting for receipt
+    isPending: isPending || isConfirming,
+    isRecording,
     txHash: hash,
     showDealerCard,
     isConnected,
@@ -399,6 +334,5 @@ export function useBlackjack() {
     playOnChain,
     switchMode,
     resetCredits,
-    forceComplete,
   };
 }
