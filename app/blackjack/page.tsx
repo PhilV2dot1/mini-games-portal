@@ -315,10 +315,10 @@ export default function BlackjackPage() {
                       {t('multiplayer.you') || 'You'} ({mp.myTotal})
                     </h3>
                     <span className={`text-sm font-semibold px-2 py-1 rounded ${
-                      mp.myStatus === 'bust' ? 'bg-red-200 text-red-700' :
-                      mp.myStatus === 'blackjack' ? 'bg-yellow-200 text-yellow-700' :
-                      mp.myStatus === 'standing' ? 'bg-blue-200 text-blue-700' :
-                      'bg-green-200 text-green-700'
+                      mp.myStatus === 'bust' ? 'bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-300' :
+                      mp.myStatus === 'blackjack' ? 'bg-yellow-200 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' :
+                      mp.myStatus === 'standing' ? 'bg-blue-200 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' :
+                      'bg-green-200 dark:bg-green-900/50 text-green-700 dark:text-green-300'
                     }`}>
                       {mp.myStatus === 'bust' ? 'BUST' :
                        mp.myStatus === 'blackjack' ? 'BLACKJACK' :
@@ -327,7 +327,7 @@ export default function BlackjackPage() {
                   </div>
                   <div className="flex gap-2 justify-center">
                     {mp.myHand.map((card, i) => (
-                      <div key={i} className="w-16 h-24 bg-white rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
+                      <div key={i} className="w-16 h-24 bg-white dark:bg-gray-100 rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
                         <span className={`text-lg font-bold ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
                           {card.display}
                         </span>
@@ -346,10 +346,10 @@ export default function BlackjackPage() {
                       {t('multiplayer.opponent') || 'Opponent'} ({mp.opponentTotal})
                     </h3>
                     <span className={`text-sm font-semibold px-2 py-1 rounded ${
-                      mp.opponentStatus === 'bust' ? 'bg-red-200 text-red-700' :
-                      mp.opponentStatus === 'blackjack' ? 'bg-yellow-200 text-yellow-700' :
-                      mp.opponentStatus === 'standing' ? 'bg-blue-200 text-blue-700' :
-                      'bg-green-200 text-green-700'
+                      mp.opponentStatus === 'bust' ? 'bg-red-200 dark:bg-red-900/50 text-red-700 dark:text-red-300' :
+                      mp.opponentStatus === 'blackjack' ? 'bg-yellow-200 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' :
+                      mp.opponentStatus === 'standing' ? 'bg-blue-200 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' :
+                      'bg-green-200 dark:bg-green-900/50 text-green-700 dark:text-green-300'
                     }`}>
                       {mp.opponentStatus === 'bust' ? 'BUST' :
                        mp.opponentStatus === 'blackjack' ? 'BLACKJACK' :
@@ -358,7 +358,7 @@ export default function BlackjackPage() {
                   </div>
                   <div className="flex gap-2 justify-center">
                     {mp.opponentHand.map((card, i) => (
-                      <div key={i} className="w-16 h-24 bg-white rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
+                      <div key={i} className="w-16 h-24 bg-white dark:bg-gray-100 rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
                         <span className={`text-lg font-bold ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
                           {card.display}
                         </span>
@@ -418,7 +418,7 @@ export default function BlackjackPage() {
                     <h3 className="text-center text-xl font-black text-gray-900 dark:text-white mb-4">{t('multiplayer.results') || 'Results'}</h3>
                     <div className="grid grid-cols-2 gap-4 text-center mb-4">
                       <div>
-                        <div className="text-sm text-gray-500">{t('multiplayer.you') || 'You'}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('multiplayer.you') || 'You'}</div>
                         <div className="text-2xl font-black text-gray-900 dark:text-white">{mp.myTotal}</div>
                         <div className={`text-sm font-bold ${
                           mp.myResult === 'win' || mp.myResult === 'blackjack' ? 'text-green-600' :
@@ -428,7 +428,7 @@ export default function BlackjackPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm text-gray-500">{t('multiplayer.opponent') || 'Opponent'}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('multiplayer.opponent') || 'Opponent'}</div>
                         <div className="text-2xl font-black text-gray-900 dark:text-white">{mp.opponentTotal}</div>
                         <div className={`text-sm font-bold ${
                           mp.opponentResult === 'win' || mp.opponentResult === 'blackjack' ? 'text-green-600' :
@@ -438,7 +438,7 @@ export default function BlackjackPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-center text-sm text-gray-500">
+                    <div className="text-center text-sm text-gray-500 dark:text-gray-400">
                       {t('games.blackjack.dealer')}: {mp.dealerTotal}
                     </div>
                   </motion.div>
@@ -466,7 +466,7 @@ export default function BlackjackPage() {
 
         {/* Footer (solo modes only) */}
         {!isMultiplayer && (
-          <footer className="text-center text-gray-600 text-sm">
+          <footer className="text-center text-gray-600 dark:text-gray-400 text-sm">
             {isGameAvailableOnChain('blackjack', chain?.id) && contractAddress ? (
               <>
                 <p>Contract: {contractAddress}</p>
@@ -475,7 +475,7 @@ export default function BlackjackPage() {
                     href={getExplorerAddressUrl(chain?.id, contractAddress)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
+                    className="text-gray-900 dark:text-gray-200 hover:text-chain font-semibold transition-colors underline decoration-chain"
                   >
                     {t('games.blackjack.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                   </a>

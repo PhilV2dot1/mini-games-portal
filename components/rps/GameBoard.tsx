@@ -31,7 +31,7 @@ export const GameBoard = memo(function GameBoard({ onChoice, disabled }: GameBoa
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-900">
+      <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-900 dark:text-gray-100">
         {t('games.chooseYourMove')}
       </h2>
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -41,7 +41,7 @@ export const GameBoard = memo(function GameBoard({ onChoice, disabled }: GameBoa
             onClick={() => onChoice(choice.index)}
             disabled={disabled}
             whileTap={!disabled && shouldAnimate ? { scale: 0.95 } : {}}
-            className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-4 sm:p-6 min-h-[100px] sm:min-h-[120px] bg-white/80 backdrop-blur-lg rounded-2xl border-2 border-gray-700 shadow-lg active:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:bg-white/90"
+            className="flex flex-col items-center justify-center gap-1 sm:gap-2 p-4 sm:p-6 min-h-[100px] sm:min-h-[120px] bg-white/80 dark:bg-gray-700/80 backdrop-blur-lg rounded-2xl border-2 border-gray-700 dark:border-gray-500 shadow-lg active:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:bg-white/90 dark:active:bg-gray-700/90"
             style={{
               boxShadow: !disabled
                 ? "0 0 0 3px var(--chain-primary), 0 10px 25px -5px rgba(0, 0, 0, 0.1)"
@@ -56,7 +56,7 @@ export const GameBoard = memo(function GameBoard({ onChoice, disabled }: GameBoa
             >
               {choice.emoji}
             </span>
-            <span className="text-xs sm:text-sm font-bold text-gray-900">
+            <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100">
               {choice.name}
             </span>
           </motion.button>

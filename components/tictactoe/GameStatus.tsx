@@ -22,7 +22,7 @@ export function GameStatus({ message, result }: GameStatusProps) {
           result === "win" && "bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 border-[var(--chain-primary)] text-white",
           result === "lose" && "bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800 border-gray-500 text-white",
           result === "draw" && "bg-gradient-to-br from-gray-700 to-gray-800 border-[var(--chain-primary)] text-white",
-          !result && "bg-white/90 border-gray-700 text-gray-900"
+          !result && "bg-white/90 dark:bg-gray-800/90 border-gray-700 dark:border-gray-500 text-gray-900 dark:text-gray-100"
         )}
       >
         {message}

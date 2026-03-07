@@ -123,7 +123,7 @@ export function JackpotMachine({ isSpinning, finalValue, onSpinComplete }: Jackp
   return (
     <div className="relative">
       {/* Machine Frame */}
-      <div className="bg-gradient-to-b from-gray-100 to-gray-200 rounded-2xl p-4 shadow-2xl border-2 border-gray-700" style={{ boxShadow: '0 0 0 6px var(--chain-primary), 0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+      <div className="bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl p-4 shadow-2xl border-2 border-gray-700 dark:border-gray-600" style={{ boxShadow: '0 0 0 6px var(--chain-primary), 0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
         {/* Reels Container */}
         <div className="bg-gradient-to-b from-gray-700 to-gray-800 rounded-xl p-4 shadow-inner border border-gray-600">
           <div className="grid grid-cols-3 gap-4">
@@ -169,7 +169,7 @@ function CryptoReel({ symbol, isSpinning, delay }: CryptoReelProps) {
   const targetIndex = CRYPTO_SYMBOLS.findIndex(s => s.value === symbol.value);
 
   return (
-    <div className="relative bg-gradient-to-b from-gray-50 to-white rounded-xl shadow-lg overflow-hidden border-2 border-chain h-32">
+    <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg overflow-hidden border-2 border-chain h-32">
       {/* Visible window shows middle symbol clearly */}
       <div className="absolute inset-0 pointer-events-none z-10">
         <div className="h-full flex items-center justify-center">

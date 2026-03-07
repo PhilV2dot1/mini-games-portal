@@ -26,29 +26,29 @@ export const GameStatus = memo(function GameStatus({ result, message }: GameStat
         className="space-y-3"
       >
         {result && (
-          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-4 border-2 border-gray-700 shadow-xl">
+          <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl p-4 border-2 border-gray-700 dark:border-gray-500 shadow-xl">
             <div className="flex items-center justify-center gap-4 mb-3">
               <div className="text-center">
                 <div className="text-5xl mb-1">
                   {CHOICES_EMOJI[result.playerChoice]}
                 </div>
-                <div className="text-xs font-semibold text-gray-600">{t('games.msg.you')}</div>
+                <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">{t('games.msg.you')}</div>
               </div>
               <div className="text-2xl font-bold text-gray-400">vs</div>
               <div className="text-center">
                 <div className="text-5xl mb-1">
                   {CHOICES_EMOJI[result.computerChoice]}
                 </div>
-                <div className="text-xs font-semibold text-gray-600">{t('games.msg.cpu')}</div>
+                <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">{t('games.msg.cpu')}</div>
               </div>
             </div>
             <div
               className={`text-center text-lg font-bold py-2 px-4 rounded-xl ${
                 result.result === "win"
-                  ? "bg-green-100 text-green-800"
+                  ? "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300"
                   : result.result === "lose"
-                  ? "bg-red-100 text-red-800"
-                  : "bg-chain/10 text-yellow-800"
+                  ? "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300"
+                  : "bg-chain/10 text-yellow-800 dark:text-yellow-300"
               }`}
             >
               {message}

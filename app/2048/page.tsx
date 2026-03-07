@@ -121,7 +121,7 @@ export default function Game2048Page() {
 
         {/* Controls */}
         <div className="text-center space-y-3">
-          <p className="text-gray-700 text-sm font-medium">
+          <p className="text-gray-700 dark:text-gray-300 text-sm font-medium">
             {t('games.2048.instructions')}
           </p>
 
@@ -157,7 +157,7 @@ export default function Game2048Page() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="text-center text-xs text-gray-600 pt-2 space-y-1"
+          className="text-center text-xs text-gray-600 dark:text-gray-400 pt-2 space-y-1"
         >
           {isGameAvailableOnChain('2048', chain?.id) ? (
             <>
@@ -167,7 +167,7 @@ export default function Game2048Page() {
                   href={getExplorerAddressUrl(chain?.id, contractAddress)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
+                  className="text-gray-900 dark:text-gray-200 hover:text-chain font-semibold transition-colors underline decoration-chain"
                 >
                   {t('games.2048.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                 </a>

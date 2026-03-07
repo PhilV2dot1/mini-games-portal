@@ -205,22 +205,22 @@ export default function MastermindPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="bg-white/90 backdrop-blur-lg rounded-xl p-4 grid grid-cols-3 gap-4 shadow-lg"
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 grid grid-cols-3 gap-4 shadow-lg"
               style={{ border: '4px solid var(--chain-primary)' }}
             >
               <div className="text-center">
-                <div className="text-sm text-gray-600 font-medium">{t('games.mastermind.attempts')}</div>
-                <div className="text-3xl font-black text-gray-900">
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('games.mastermind.attempts')}</div>
+                <div className="text-3xl font-black text-gray-900 dark:text-white">
                   {soloGame.attempts}/{MAX_ATTEMPTS}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-gray-600 font-medium">{t('games.mastermind.wins')}</div>
-                <div className="text-2xl font-bold text-gray-900">{soloGame.stats.wins}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('games.mastermind.wins')}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{soloGame.stats.wins}</div>
               </div>
               <div className="text-center">
-                <div className="text-sm text-gray-600 font-medium">{t('games.mastermind.bestScore')}</div>
-                <div className="text-2xl font-bold text-gray-900">{soloGame.stats.bestScore}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{t('games.mastermind.bestScore')}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{soloGame.stats.bestScore}</div>
               </div>
             </motion.div>
 
@@ -271,7 +271,7 @@ export default function MastermindPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/90 backdrop-blur-lg rounded-lg p-3 text-center text-gray-900 font-semibold shadow-lg"
+                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-lg p-3 text-center text-gray-900 dark:text-gray-100 font-semibold shadow-lg"
                 style={{ border: '3px solid var(--chain-primary)' }}
               >
                 {translateMessage(soloGame.message)}
@@ -554,7 +554,7 @@ export default function MastermindPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="text-center text-xs text-gray-600 pt-2 space-y-1"
+            className="text-center text-xs text-gray-600 dark:text-gray-400 pt-2 space-y-1"
           >
             {isGameAvailableOnChain('mastermind', chain?.id) ? (
               <>
@@ -564,7 +564,7 @@ export default function MastermindPage() {
                     href={getExplorerAddressUrl(chain?.id, contractAddress)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
+                    className="text-gray-900 dark:text-gray-200 hover:text-chain font-semibold transition-colors underline decoration-chain"
                   >
                     {t('games.mastermind.viewOnCeloscan')?.replace('Celoscan', getExplorerName(chain?.id)) || 'View on Explorer'}
                   </a>

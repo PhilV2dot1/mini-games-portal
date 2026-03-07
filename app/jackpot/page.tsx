@@ -140,7 +140,7 @@ export default function JackpotPage() {
         </motion.div>
 
         {/* Jackpot Machine */}
-        <div className="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl" style={{ border: '4px solid var(--chain-primary)' }}>
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl" style={{ border: '4px solid var(--chain-primary)' }}>
           <JackpotMachine
             isSpinning={localSpinning}
             finalValue={lastResult?.score}
@@ -168,15 +168,15 @@ export default function JackpotPage() {
                 {lastResult.score > 0 ? "✨" : "😞"}
               </div>
               <div className={`text-4xl font-black mb-1 ${
-                lastResult.score > 0 ? "text-chain" : "text-gray-500"
+                lastResult.score > 0 ? "text-chain" : "text-gray-500 dark:text-gray-400"
               }`}>
                 {lastResult.score}
               </div>
-              <div className="text-gray-700 font-semibold">
+              <div className="text-gray-700 dark:text-gray-300 font-semibold">
                 {lastResult.score > 0 ? t('games.jackpot.points') : t('games.jackpot.tryAgain')}
               </div>
               {lastResult.badge && (
-                <div className="mt-2 text-sm text-gray-900 font-bold">
+                <div className="mt-2 text-sm text-gray-900 dark:text-gray-100 font-bold">
                   {lastResult.badge} {t('games.jackpot.badge')}
                 </div>
               )}
@@ -207,7 +207,7 @@ export default function JackpotPage() {
               transition={{ duration: 0.15 }}
               onClick={submitScore}
               disabled={isSpinning}
-              className="px-8 py-3 bg-white bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-8 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {isSpinning ? t('games.jackpot.submitting') : t('games.jackpot.submitScore')}
             </motion.button>
@@ -219,7 +219,7 @@ export default function JackpotPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="text-center text-xs text-gray-600 pt-2 space-y-1"
+          className="text-center text-xs text-gray-600 dark:text-gray-400 pt-2 space-y-1"
         >
           {isGameAvailableOnChain('jackpot', chain?.id) ? (
             <>
@@ -229,7 +229,7 @@ export default function JackpotPage() {
                   href={getExplorerAddressUrl(chain?.id, contractAddress)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-900 hover:text-chain font-semibold transition-colors underline decoration-chain"
+                  className="text-gray-900 dark:text-gray-200 hover:text-chain font-semibold transition-colors underline decoration-chain"
                 >
                   {t('games.jackpot.viewOnCeloscan').replace('Celoscan', getExplorerName(chain?.id))}
                 </a>

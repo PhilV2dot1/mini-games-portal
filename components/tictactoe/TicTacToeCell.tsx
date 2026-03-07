@@ -24,14 +24,14 @@ export const TicTacToeCell = memo(function TicTacToeCell({ value, onClick, disab
       whileTap={!disabled && value === 0 ? { scale: 0.95 } : {}}
       className={cn(
         "aspect-square flex items-center justify-center",
-        "bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-md",
+        "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl shadow-md",
         "text-4xl sm:text-5xl font-black",
         "transition-all duration-200",
         "border-2",
         value === 0 && !disabled
           ? "border-gray-300 hover:border-[var(--chain-primary)] hover:shadow-lg cursor-pointer"
           : "border-gray-200 cursor-not-allowed",
-        "text-gray-800"
+        "text-gray-800 dark:text-gray-100"
       )}
     >
       {value === 1 && (

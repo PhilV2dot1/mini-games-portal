@@ -22,7 +22,7 @@ export function TicTacToeBoard({
       className="w-full mx-auto"
     >
       <div
-        className="grid grid-cols-3 gap-3 p-4 bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl border-2 border-gray-700"
+        className="grid grid-cols-3 gap-3 p-4 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-xl border-2 border-gray-700 dark:border-gray-500"
         style={{ boxShadow: '0 0 0 6px var(--chain-primary), 0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
       >
         {board.map((value, index) => (
