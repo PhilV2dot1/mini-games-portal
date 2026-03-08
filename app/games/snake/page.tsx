@@ -10,6 +10,7 @@ import { GameStatus } from "@/components/snake/GameStatus";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { PlayerStats } from "@/components/snake/PlayerStats";
+import { FarcasterShare } from "@/components/shared/FarcasterShare";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
@@ -35,7 +36,7 @@ export default function SnakePage() {
 
   const { chain } = useAccount();
   const contractAddress = getContractAddress('snake', chain?.id);
-  const { recordGame } = useLocalStats();
+  const { recordGame, getStats } = useLocalStats();
   const { t } = useLanguage();
   const { play } = useGameAudio('snake');
 
@@ -254,6 +255,15 @@ export default function SnakePage() {
             </motion.button>
           )}
         </div>
+
+        {/* Share on Farcaster (game over) */}
+        {isGameOver && (
+          <FarcasterShare
+            gameName="Snake"
+            outcome={score >= 100 ? 'win' : 'lose'}
+            stats={getStats('snake') as { played: number; wins: number }}
+          />
+        )}
 
         {/* Player Stats */}
         <PlayerStats stats={stats} />

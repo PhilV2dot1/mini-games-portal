@@ -12,6 +12,7 @@ import { GameStats } from "@/components/blackjack/GameStats";
 import { GameMessage } from "@/components/blackjack/GameMessage";
 import { GameModeToggle } from "@/components/shared/GameModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
+import { FarcasterShare } from "@/components/shared/FarcasterShare";
 import {
   MatchmakingButton,
   WaitingRoom,
@@ -36,7 +37,7 @@ export default function BlackjackPage() {
   // Multiplayer hook
   const mp = useBlackjackMultiplayer();
 
-  const { recordGame } = useLocalStats();
+  const { recordGame, getStats } = useLocalStats();
   const { t } = useLanguage();
   const { chain } = useAccount();
   const contractAddress = getContractAddress('blackjack', chain?.id);
@@ -227,6 +228,13 @@ export default function BlackjackPage() {
               credits={soloGame.credits}
               onResetCredits={soloGame.resetCredits}
             />
+            {soloGame.gamePhase === 'finished' && soloGame.outcome && (
+              <FarcasterShare
+                gameName="Blackjack"
+                outcome={soloGame.outcome === 'blackjack' ? 'win' : soloGame.outcome === 'push' ? 'draw' : soloGame.outcome}
+                stats={getStats('blackjack') as { played: number; wins: number }}
+              />
+            )}
           </div>
         )}
 

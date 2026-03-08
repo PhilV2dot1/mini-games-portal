@@ -14,7 +14,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://celo-games-portal.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://mini-games-portal.vercel.app';
 const siteTitle = 'Mini Games Portal - Play Mini-Games on Blockchain';
 const siteDescription = 'Play 15 mini-games on Celo, Base & MegaETH! Blackjack, RPS, Tic-Tac-Toe, Jackpot, 2048, Mastermind, Snake, Minesweeper, Solitaire, Connect Five, Yahtzee, Sudoku, Memory, Maze & Tetris. Free mode, on-chain or multiplayer!';
 
@@ -57,6 +57,22 @@ export const metadata: Metadata = {
     card: 'summary',
     title: siteTitle,
     description: siteDescription,
+  },
+  other: {
+    'fc:frame': JSON.stringify({
+      version: 'next',
+      imageUrl: `${siteUrl}/icon-512.png`,
+      button: {
+        title: '🎮 Play Now',
+        action: {
+          type: 'launch_frame',
+          name: 'Mini Games Portal',
+          url: siteUrl,
+          splashImageUrl: `${siteUrl}/icon-192.png`,
+          splashBackgroundColor: '#FCFF52',
+        },
+      },
+    }),
   },
 };
 

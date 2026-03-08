@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import { GameModeToggle } from "@/components/shared/GameModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
+import { FarcasterShare } from "@/components/shared/FarcasterShare";
 import { MatchmakingButton, WaitingRoom, GameResult, RoomCodeInput } from "@/components/multiplayer";
 import { PokerTable } from "@/components/poker/PokerTable";
 import { PokerActions } from "@/components/poker/PokerActions";
@@ -31,7 +32,7 @@ export default function PokerPage() {
   const { t } = useLanguage();
   const { chain } = useAccount();
   const { theme } = useChainTheme();
-  const { recordGame } = useLocalStats();
+  const { recordGame, getStats } = useLocalStats();
   const contractAddress = getContractAddress('poker', chain?.id);
 
   // Record each completed hand to portal stats
@@ -268,6 +269,15 @@ export default function PokerPage() {
 
             {/* Stats */}
             <GameStats stats={solo.stats} mode={solo.mode} />
+
+            {/* Share on Farcaster after showdown */}
+            {solo.phase === 'showdown' && solo.outcome && (
+              <FarcasterShare
+                gameName="Poker"
+                outcome={solo.outcome === 'split' ? 'draw' : solo.outcome}
+                stats={getStats('poker') as { played: number; wins: number }}
+              />
+            )}
 
             {/* How to play */}
             <motion.div
