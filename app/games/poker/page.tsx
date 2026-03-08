@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePoker } from "@/hooks/usePoker";
 import { usePokerMultiplayer } from "@/hooks/usePokerMultiplayer";
@@ -8,6 +8,7 @@ import type { PokerPhase } from "@/hooks/usePoker";
 import type { Card } from "@/lib/games/poker-cards";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useChainTheme } from "@/hooks/useChainTheme";
+import { useLocalStats } from "@/hooks/useLocalStats";
 import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
 import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from "@/lib/contracts/addresses";
@@ -30,7 +31,16 @@ export default function PokerPage() {
   const { t } = useLanguage();
   const { chain } = useAccount();
   const { theme } = useChainTheme();
+  const { recordGame } = useLocalStats();
   const contractAddress = getContractAddress('poker', chain?.id);
+
+  // Record each completed hand to portal stats
+  useEffect(() => {
+    if (solo.phase === 'showdown' && solo.outcome) {
+      const result = solo.outcome === 'win' ? 'win' : solo.outcome === 'split' ? 'draw' : 'lose';
+      recordGame('poker', solo.mode, result);
+    }
+  }, [solo.phase, solo.outcome, solo.mode, recordGame]);
 
   const handleModeChange = useCallback((newMode: GameMode) => {
     if (newMode === 'multiplayer') {
