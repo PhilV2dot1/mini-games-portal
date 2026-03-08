@@ -73,6 +73,7 @@ export interface Database {
           result: 'win' | 'lose' | 'draw' | 'push'
           points_earned: number
           tx_hash: string | null
+          chain_id: number | null
           played_at: string
         }
         Insert: {
@@ -83,6 +84,7 @@ export interface Database {
           result: 'win' | 'lose' | 'draw' | 'push'
           points_earned: number
           tx_hash?: string | null
+          chain_id?: number | null
           played_at?: string
         }
         Update: {
@@ -93,6 +95,7 @@ export interface Database {
           result?: 'win' | 'lose' | 'draw' | 'push'
           points_earned?: number
           tx_hash?: string | null
+          chain_id?: number | null
           played_at?: string
         }
       }

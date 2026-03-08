@@ -8,13 +8,34 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = parseInt(searchParams.get('offset') || '0');
+    const chainParam = searchParams.get('chain');
+    const chainId = chainParam ? parseInt(chainParam) : null;
 
-    // Fetch from materialized view
-    const { data: leaderboard, error } = await supabase
-      .from('leaderboard')
-      .select('*')
-      .order('rank', { ascending: true })
-      .range(offset, offset + limit - 1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let leaderboard: any[] | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let error: any = null;
+
+    if (chainId !== null) {
+      // Chain-filtered: use the RPC function
+      const result = await supabase.rpc('get_global_leaderboard_by_chain', {
+        p_chain_id: chainId,
+        p_limit: limit,
+        p_offset: offset,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+      leaderboard = result.data;
+      error = result.error;
+    } else {
+      // All chains: use the materialized view
+      const result = await supabase
+        .from('leaderboard')
+        .select('*')
+        .order('rank', { ascending: true })
+        .range(offset, offset + limit - 1);
+      leaderboard = result.data;
+      error = result.error;
+    }
 
     if (error || !leaderboard) {
       return NextResponse.json(

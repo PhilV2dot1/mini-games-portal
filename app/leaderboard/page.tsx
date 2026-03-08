@@ -6,6 +6,10 @@ import { GAMES } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { CeloIcon } from "@/components/shared/CeloIcon";
+import { BaseIcon } from "@/components/shared/BaseIcon";
+import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
+import { SoneiumIcon } from "@/components/shared/SoneiumIcon";
 
 interface LeaderboardEntry {
   rank: number;
@@ -23,9 +27,24 @@ interface LeaderboardEntry {
 
 type GameId = 'all' | string;
 
+interface ChainFilter {
+  id: number | null;
+  label: string;
+  icon: React.ReactNode;
+}
+
+const CHAIN_FILTERS: ChainFilter[] = [
+  { id: null, label: 'All Chains', icon: <span className="text-sm">🌐</span> },
+  { id: 42220, label: 'Celo', icon: <CeloIcon size={16} /> },
+  { id: 8453, label: 'Base', icon: <BaseIcon size={16} /> },
+  { id: 4326, label: 'MegaETH', icon: <MegaEthIcon size={16} /> },
+  { id: 1868, label: 'Soneium', icon: <SoneiumIcon size={16} /> },
+];
+
 export default function LeaderboardPage() {
   const { t } = useLanguage();
   const [selectedGame, setSelectedGame] = useState<GameId>('all');
+  const [selectedChain, setSelectedChain] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,9 +57,10 @@ export default function LeaderboardPage() {
       setError(null);
 
       try {
+        const chainQuery = selectedChain !== null ? `&chain=${selectedChain}` : '';
         const url = selectedGame === 'all'
-          ? '/api/leaderboard/global?limit=50'
-          : `/api/leaderboard/game/${selectedGame}?limit=50`;
+          ? `/api/leaderboard/global?limit=50${chainQuery}`
+          : `/api/leaderboard/game/${selectedGame}?limit=50${chainQuery}`;
 
         const response = await fetch(url);
 
@@ -58,7 +78,9 @@ export default function LeaderboardPage() {
     }
 
     fetchLeaderboard();
-  }, [selectedGame]);
+  }, [selectedGame, selectedChain]);
+
+  const activeChain = CHAIN_FILTERS.find(c => c.id === selectedChain);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -86,8 +108,34 @@ export default function LeaderboardPage() {
           </p>
         </div>
 
+        {/* Chain Filter Tabs */}
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 mb-4 shadow-lg">
+          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+            Filter by Chain
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {CHAIN_FILTERS.map((chain) => (
+              <button
+                key={chain.id ?? 'all'}
+                onClick={() => setSelectedChain(chain.id)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-bold text-sm transition-all ${
+                  selectedChain === chain.id
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg scale-105'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                }`}
+              >
+                {chain.icon}
+                <span>{chain.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Game Filter Tabs */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 mb-6 shadow-lg">
+          <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+            Filter by Game
+          </p>
           <div className="flex flex-wrap gap-2 justify-center">
             <button
               onClick={() => setSelectedGame('all')}
@@ -133,7 +181,11 @@ export default function LeaderboardPage() {
           </div>
         ) : leaderboard.length === 0 ? (
           <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-lg p-12 text-center">
-            <p className="text-gray-600 dark:text-gray-400 text-lg">No players yet. Be the first to play!</p>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              {selectedChain !== null
+                ? `No players yet on ${activeChain?.label}. Be the first to play on-chain!`
+                : 'No players yet. Be the first to play!'}
+            </p>
           </div>
         ) : (
           <>
@@ -145,7 +197,6 @@ export default function LeaderboardPage() {
                   <div className="text-center">
                     <div className="text-6xl mb-2">🥈</div>
                     <div className="text-2xl font-black text-gray-900 dark:text-white mb-3">#{leaderboard[1].rank}</div>
-                    {/* Avatar */}
                     <div className="flex justify-center mb-3">
                       <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-gray-400 dark:border-gray-500 shadow-md">
                         <Image
@@ -179,7 +230,6 @@ export default function LeaderboardPage() {
                   <div className="text-center">
                     <div className="text-7xl mb-2">🥇</div>
                     <div className="text-3xl font-black text-gray-900 dark:text-white mb-3">#{leaderboard[0].rank}</div>
-                    {/* Avatar */}
                     <div className="flex justify-center mb-3">
                       <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-chain shadow-lg">
                         <Image
@@ -213,7 +263,6 @@ export default function LeaderboardPage() {
                   <div className="text-center">
                     <div className="text-5xl mb-2">🥉</div>
                     <div className="text-xl font-black text-gray-900 dark:text-white mb-3">#{leaderboard[2].rank}</div>
-                    {/* Avatar */}
                     <div className="flex justify-center mb-3">
                       <div className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-chain shadow-md">
                         <Image
@@ -319,6 +368,12 @@ export default function LeaderboardPage() {
                                 </div>
                               )}
                             </div>
+                            {/* Active chain badge */}
+                            {selectedChain !== null && activeChain && (
+                              <div className="flex items-center gap-1 px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-full text-xs text-gray-600 dark:text-gray-300">
+                                {activeChain.icon}
+                              </div>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">

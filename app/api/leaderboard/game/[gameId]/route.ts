@@ -26,12 +26,15 @@ export async function GET(
     const gameId = params.gameId;
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '100');
+    const chainParam = searchParams.get('chain');
+    const chainId = chainParam ? parseInt(chainParam) : null;
 
     // Call the get_game_leaderboard function
     const { data: leaderboard, error } = await supabase
       .rpc('get_game_leaderboard', {
         p_game_id: gameId,
         p_limit: limit,
+        p_chain_id: chainId,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
