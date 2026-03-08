@@ -87,6 +87,7 @@ export default function TetrisPage() {
   }, [game.status, game.result, game.mode, recordGame]);
 
   const isPlaying = game.status === "playing";
+  const isCountdown = game.status === "countdown";
   const isProcessing = game.status === "processing";
   const isFinished = game.status === "finished";
 
@@ -145,7 +146,7 @@ export default function TetrisPage() {
         {game.mode === "onchain" && <WalletConnect />}
 
         {/* Game Controls */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <GameControls
             score={game.score}
             level={game.level}
@@ -173,7 +174,7 @@ export default function TetrisPage() {
         )}
 
         {/* Game Board + Side Panels */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -195,11 +196,38 @@ export default function TetrisPage() {
             <div className="absolute right-0 top-0 z-10">
               <NextPiece piece={game.nextPiece} />
             </div>
+
+            {/* Countdown Overlay */}
+            {isCountdown && game.countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-20">
+                {game.countdown > 0 ? (
+                  <motion.div
+                    key={game.countdown}
+                    initial={{ scale: 2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="text-9xl font-black text-chain drop-shadow-[0_0_20px_rgba(252,255,82,0.8)]"
+                  >
+                    {game.countdown}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="go"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1.2, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-7xl font-black text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]"
+                  >
+                    GO!
+                  </motion.div>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
 
         {/* Controls Info */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -212,7 +240,7 @@ export default function TetrisPage() {
         )}
 
         {/* Mobile Direction Buttons */}
-        {isPlaying && (
+        {(isPlaying || isCountdown) && (
           <div className="sm:hidden">
             <div className="grid grid-cols-5 gap-2 max-w-xs mx-auto">
               {/* Row 1: Hold + Rotate + Hard Drop */}
@@ -281,7 +309,7 @@ export default function TetrisPage() {
             >
               {isProcessing ? t("games.starting") : t("games.startGame")}
             </motion.button>
-          ) : (
+          ) : isCountdown ? null : (
             <motion.button
               data-testid="reset-game"
               initial={{ opacity: 0, scale: 0.9 }}

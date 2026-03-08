@@ -17,7 +17,7 @@ import {
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "playing" | "processing" | "finished" | "countdown";
 export type GameResult = "win" | null;
 
 export interface PlayerStats {
@@ -78,6 +78,7 @@ export function useMemory() {
   const [result, setResult] = useState<GameResult>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [message, setMessage] = useState("Click Start to begin!");
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // Game tracking
   const [moves, setMoves] = useState(0);
@@ -216,6 +217,25 @@ export function useMemory() {
     }
   }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, refetchStats, saveStats]);
 
+  // Countdown helper — calls onComplete after 3-2-1-GO
+  const startCountdown = useCallback((onComplete: () => void) => {
+    setStatus("countdown");
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        onComplete();
+      }
+    }, 1000);
+  }, []);
+
   // Start a new game
   const startGame = useCallback(async () => {
     const config = DIFFICULTY_CONFIG[difficulty];
@@ -240,7 +260,6 @@ export function useMemory() {
 
         setGameStartedOnChain(true);
         setBoard(newBoard);
-        setStatus("playing");
         setResult(null);
         setMoves(0);
         setPairsFound(0);
@@ -248,7 +267,10 @@ export function useMemory() {
         setSelectedCards([]);
         setIsChecking(false);
         setMessage("");
-        startTimer();
+        startCountdown(() => {
+          setStatus("playing");
+          startTimer();
+        });
       } catch (error) {
         console.error("Failed to start on-chain game:", error);
         setMessage("⚠️ Failed to start on-chain game");
@@ -256,7 +278,6 @@ export function useMemory() {
       }
     } else {
       setBoard(newBoard);
-      setStatus("playing");
       setResult(null);
       setMoves(0);
       setPairsFound(0);
@@ -264,9 +285,12 @@ export function useMemory() {
       setSelectedCards([]);
       setIsChecking(false);
       setMessage("");
-      startTimer();
+      startCountdown(() => {
+        setStatus("playing");
+        startTimer();
+      });
     }
-  }, [difficulty, mode, isConnected, address, writeContractAsync, contractAddress, startTimer]);
+  }, [difficulty, mode, isConnected, address, writeContractAsync, contractAddress, startCountdown, startTimer]);
 
   // Handle card flip
   const flipCard = useCallback((cardIndex: number) => {
@@ -337,6 +361,7 @@ export function useMemory() {
     setTimer(0);
     setSelectedCards([]);
     setIsChecking(false);
+    setCountdown(null);
     setMessage("Click Start to begin!");
     setGameStartedOnChain(false);
   }, [stopTimer]);
@@ -369,6 +394,7 @@ export function useMemory() {
     result,
     difficulty,
     message,
+    countdown,
     moves,
     pairsFound,
     timer,

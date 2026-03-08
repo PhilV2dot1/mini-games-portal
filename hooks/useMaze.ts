@@ -23,7 +23,7 @@ import {
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "playing" | "processing" | "finished" | "countdown";
 export type GameResult = "win" | "timeout" | null;
 
 export interface PlayerStats {
@@ -84,6 +84,7 @@ export function useMaze() {
   const [result, setResult] = useState<GameResult>(null);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [message, setMessage] = useState("Click Start to begin!");
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // Game tracking
   const [moves, setMoves] = useState(0);
@@ -285,6 +286,25 @@ export function useMaze() {
     }
   }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, refetchStats, saveStats]);
 
+  // Countdown helper — calls onComplete after 3-2-1-GO
+  const startCountdown = useCallback((onComplete: () => void) => {
+    setStatus("countdown");
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        onComplete();
+      }
+    }, 1000);
+  }, []);
+
   // Start a new game
   const startGame = useCallback(async () => {
     const newGrid = generateMaze(config.gridSize);
@@ -311,7 +331,6 @@ export function useMaze() {
         setGameStartedOnChain(true);
         setGrid(newGrid);
         setPlayerPos({ row: 1, col: 1 });
-        setStatus("playing");
         setResult(null);
         setMoves(0);
         setMessage("");
@@ -320,8 +339,11 @@ export function useMaze() {
         const fog = getVisibleCells({ row: 1, col: 1 }, newGrid, config.fogRadius);
         setVisibleCells(fog);
 
-        startTimer();
-        startWallShift();
+        startCountdown(() => {
+          setStatus("playing");
+          startTimer();
+          startWallShift();
+        });
       } catch (error) {
         console.error("Failed to start on-chain game:", error);
         setMessage("Failed to start on-chain game");
@@ -330,7 +352,6 @@ export function useMaze() {
     } else {
       setGrid(newGrid);
       setPlayerPos({ row: 1, col: 1 });
-      setStatus("playing");
       setResult(null);
       setMoves(0);
       setMessage("");
@@ -339,10 +360,13 @@ export function useMaze() {
       const fog = getVisibleCells({ row: 1, col: 1 }, newGrid, config.fogRadius);
       setVisibleCells(fog);
 
-      startTimer();
-      startWallShift();
+      startCountdown(() => {
+        setStatus("playing");
+        startTimer();
+        startWallShift();
+      });
     }
-  }, [difficulty, config, mode, isConnected, address, writeContractAsync, contractAddress, startTimer, startWallShift]);
+  }, [difficulty, config, mode, isConnected, address, writeContractAsync, contractAddress, startCountdown, startTimer, startWallShift]);
 
   // Handle player movement
   const move = useCallback(
@@ -433,6 +457,7 @@ export function useMaze() {
     setResult(null);
     setMoves(0);
     setTimer(0);
+    setCountdown(null);
     setMessage("Click Start to begin!");
     setGameStartedOnChain(false);
     setVisibleCells(null);
@@ -473,6 +498,7 @@ export function useMaze() {
     result,
     difficulty,
     message,
+    countdown,
     moves,
     timer,
     stats,

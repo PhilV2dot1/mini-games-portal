@@ -27,7 +27,7 @@ import {
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "playing" | "processing" | "finished" | "countdown";
 export type GameResult = "win" | "lose" | null;
 
 export interface PlayerStats {
@@ -72,6 +72,7 @@ export function useTetris() {
   const [result, setResult] = useState<GameResult>(null);
   const [message, setMessage] = useState("Click Start to begin!");
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // Timer
   const [timer, setTimer] = useState(0);
@@ -310,6 +311,25 @@ export function useTetris() {
     gameLoopRef.current = requestAnimationFrame(loop);
   }, [stopGameLoop, gameTick]);
 
+  // Countdown helper — calls onComplete after 3-2-1-GO
+  const startCountdown = useCallback((onComplete: () => void) => {
+    setStatus("countdown");
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        onComplete();
+      }
+    }, 1000);
+  }, []);
+
   // Start game
   const startGame = useCallback(async () => {
     resetBag();
@@ -339,7 +359,7 @@ export function useTetris() {
       }
     }
 
-    // Reset state ref
+    // Reset state ref (status will become "playing" after countdown)
     stateRef.current = {
       grid: newGrid,
       currentPiece: first,
@@ -347,7 +367,7 @@ export function useTetris() {
       score: 0,
       lines: 0,
       level: 1,
-      status: "playing",
+      status: "countdown",
     };
 
     setGrid(newGrid);
@@ -358,14 +378,17 @@ export function useTetris() {
     setScore(0);
     setLines(0);
     setLevel(1);
-    setStatus("playing");
     setResult(null);
     setMessage("");
     setTimer(0);
 
-    startTimer();
-    startGameLoop(getSpeed(1));
-  }, [mode, isConnected, address, writeContractAsync, contractAddress, startTimer, startGameLoop]);
+    startCountdown(() => {
+      stateRef.current.status = "playing";
+      setStatus("playing");
+      startTimer();
+      startGameLoop(getSpeed(1));
+    });
+  }, [mode, isConnected, address, writeContractAsync, contractAddress, startCountdown, startTimer, startGameLoop]);
 
   // Player actions — read from stateRef for instant responsiveness
   const moveLeft = useCallback(() => {
@@ -547,6 +570,7 @@ export function useTetris() {
     setStatus("idle");
     setResult(null);
     setTimer(0);
+    setCountdown(null);
     setMessage("Click Start to begin!");
     setGameStartedOnChain(false);
   }, [stopGameLoop, stopTimer]);
@@ -579,6 +603,7 @@ export function useTetris() {
     status,
     result,
     message,
+    countdown,
     timer,
     stats,
     isConnected,

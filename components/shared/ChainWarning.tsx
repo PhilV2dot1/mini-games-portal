@@ -17,25 +17,7 @@ export function ChainWarning({ className = '' }: ChainWarningProps) {
   const { isConnected, isSupportedChain: isSupported, isOnSoneium, currentChain, switchToCelo, switchToBase, switchToMegaeth, switchToSoneium } = useChainSelector();
   const { t } = useLanguage();
 
-  // Show Soneium development info banner
-  if (isOnSoneium) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-300 dark:border-indigo-700 rounded-xl p-3 ${className}`}
-      >
-        <div className="flex items-center gap-2">
-          <SoneiumIcon size={16} />
-          <p className="text-sm text-indigo-700 dark:text-indigo-300">
-            {t('chain.onchainDev')}
-          </p>
-        </div>
-      </motion.div>
-    );
-  }
-
-  if (!isConnected || isSupported) return null;
+  if (isOnSoneium || !isConnected || isSupported) return null;
 
   return (
     <motion.div

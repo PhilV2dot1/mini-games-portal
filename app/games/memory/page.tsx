@@ -77,6 +77,7 @@ export default function MemoryPage() {
 
   const canStart = game.status === "idle" || game.status === "finished";
   const isProcessing = game.status === "processing";
+  const isCountdown = game.status === "countdown";
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -185,10 +186,11 @@ export default function MemoryPage() {
         )}
 
         {/* Memory Board */}
-        {game.status === "playing" && (
+        {(game.status === "playing" || isCountdown) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
+            className="relative"
           >
             <MemoryBoard
               board={game.board}
@@ -196,6 +198,32 @@ export default function MemoryPage() {
               onFlip={handleFlip}
               disabled={game.isChecking || game.status !== "playing"}
             />
+            {/* Countdown Overlay */}
+            {isCountdown && game.countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-10">
+                {game.countdown > 0 ? (
+                  <motion.div
+                    key={game.countdown}
+                    initial={{ scale: 2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="text-9xl font-black text-chain drop-shadow-[0_0_20px_rgba(252,255,82,0.8)]"
+                  >
+                    {game.countdown}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="go"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1.2, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-7xl font-black text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]"
+                  >
+                    GO!
+                  </motion.div>
+                )}
+              </div>
+            )}
           </motion.div>
         )}
 
