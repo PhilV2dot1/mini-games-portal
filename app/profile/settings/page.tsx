@@ -10,12 +10,13 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { SecuritySettings } from '@/components/profile/SecuritySettings';
+import { PushNotificationToggle } from '@/components/shared/PushNotificationToggle';
 import { Header } from '@/components/layout/Header';
 import Link from 'next/link';
 
 export default function ProfileSettingsPage() {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -94,19 +95,20 @@ export default function ProfileSettingsPage() {
               </div>
             </Link>
 
-            <div className="p-4 border-2 border-gray-200 rounded-xl bg-gray-50 cursor-not-allowed opacity-60">
+            <div className="p-4 border-2 border-gray-300 rounded-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">🔔</span>
                   <div>
-                    <h4 className="font-semibold text-gray-700">
-                      Notifications
+                    <h4 className="font-semibold text-gray-900">
+                      Notifications Push
                     </h4>
                     <p className="text-sm text-gray-500">
-                      Gérer les préférences de notification (Bientôt disponible)
+                      Soyez notifié quand un joueur rejoint votre partie
                     </p>
                   </div>
                 </div>
+                <PushNotificationToggle userId={user?.id ?? null} />
               </div>
             </div>
 

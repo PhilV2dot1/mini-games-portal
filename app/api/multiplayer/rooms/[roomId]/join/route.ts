@@ -127,6 +127,38 @@ export async function POST(
       playerNumber: player.player_number,
     });
 
+    // Notify the room host that a player joined (non-blocking)
+    try {
+      const hostUserId = room.created_by;
+      if (hostUserId && hostUserId !== internalUserId) {
+        const { data: joiningUser } = await supabase
+          .from('users')
+          .select('display_name, username')
+          .eq('id', internalUserId)
+          .single();
+
+        const playerName =
+          joiningUser?.display_name || joiningUser?.username || 'A player';
+        const gameLabel = (room.game_id as string)
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+        await fetch(`${process.env.NEXT_PUBLIC_URL}/api/push/notify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: hostUserId,
+            title: `${playerName} joined your game!`,
+            body: `${gameLabel} · Room ${(roomId as string).slice(0, 6).toUpperCase()}`,
+            url: `/games/${room.game_id}?room=${roomId}`,
+            icon: `/icons/${room.game_id}.png`,
+          }),
+        });
+      }
+    } catch (notifyErr) {
+      console.warn('[Multiplayer API] Push notify failed:', notifyErr);
+    }
+
     return NextResponse.json({
       success: true,
       player,
