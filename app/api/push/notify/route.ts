@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
 import webpush from 'web-push';
 
-webpush.setVapidDetails(
-  'mailto:admin@mini-games-portal.vercel.app',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
-
 interface NotifyRequest {
   userId: string;
   title: string;
@@ -18,6 +12,13 @@ interface NotifyRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Set VAPID details lazily (env vars not available at module load on Vercel)
+    webpush.setVapidDetails(
+      'mailto:admin@mini-games-portal.vercel.app',
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+      process.env.VAPID_PRIVATE_KEY!
+    );
+
     const { userId, title, body, url, icon }: NotifyRequest = await request.json();
 
     if (!userId || !title || !body) {
