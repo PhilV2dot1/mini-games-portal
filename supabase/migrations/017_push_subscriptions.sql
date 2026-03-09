@@ -18,8 +18,8 @@ ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users manage own push subscriptions"
   ON push_subscriptions
   FOR ALL
-  USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()))
-  WITH CHECK (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()));
+  USING (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()::text))
+  WITH CHECK (user_id IN (SELECT id FROM users WHERE auth_user_id = auth.uid()::text));
 
 -- Service role can send notifications (bypass RLS)
 CREATE POLICY "Service role full access"
