@@ -21,6 +21,8 @@ export function PushNotificationToggle({ userId }: Props) {
 
   return (
     <button
+      data-testid="push-notification-toggle"
+      data-subscribed={isSubscribed ? 'true' : 'false'}
       onClick={isSubscribed ? unsubscribe : subscribe}
       disabled={isLoading}
       className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border transition-colors
