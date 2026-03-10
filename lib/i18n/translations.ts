@@ -660,6 +660,15 @@ export const translations = {
       performancePerGame: 'Performance in each game',
       game: 'game',
       games: 'games',
+      totalGames: 'Games Played',
+      totalPoints: 'Total Points',
+      bestStreak: 'Best Streak',
+      favoriteGame: 'Favorite Game',
+      daysActive: 'Days Active',
+      streaks: 'Win Streaks',
+      current: 'Current',
+      best: 'Best',
+      viewFullStats: 'View full statistics →',
     },
 
     // Authentication
@@ -1847,6 +1856,15 @@ export const translations = {
       performancePerGame: 'Performance dans chaque jeu',
       game: 'partie',
       games: 'parties',
+      totalGames: 'Parties Jouées',
+      totalPoints: 'Points Totaux',
+      bestStreak: 'Meilleure Série',
+      favoriteGame: 'Jeu Favori',
+      daysActive: 'Jours Actifs',
+      streaks: 'Séries de Victoires',
+      current: 'En cours',
+      best: 'Record',
+      viewFullStats: 'Voir toutes les statistiques →',
     },
 
     // Authentication

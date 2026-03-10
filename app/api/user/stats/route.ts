@@ -2,7 +2,7 @@
  * GET /api/user/stats
  *
  * Get user statistics for charts and analytics
- * Returns win rates, points progress, and activity timeline
+ * Returns win rates, points progress, activity timeline, streaks, and summary
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
     const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
 
-    // Get user ID from query params
     const userId = searchParams.get('userId');
     const days = parseInt(searchParams.get('days') || '30');
 
@@ -26,42 +25,38 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch win rate by game
-    const { data: winRates, error: winRatesError } = await (supabase
-      .rpc('get_user_win_rate_by_game', {
-        p_user_id: userId,
-      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
+    const supabaseAny = supabase as any;
 
-    if (winRatesError) {
-      console.error('Error fetching win rates:', winRatesError);
-    }
+    const [
+      { data: winRates, error: winRatesError },
+      { data: pointsProgress, error: pointsError },
+      { data: activityTimeline, error: activityError },
+      { data: streaks, error: streaksError },
+      { data: summaryRows, error: summaryError },
+    ] = await Promise.all([
+      supabaseAny.rpc('get_user_win_rate_by_game', { p_user_id: userId }),
+      supabaseAny.rpc('get_user_points_progress', { p_user_id: userId, p_days: days }),
+      supabaseAny.rpc('get_user_activity_timeline', { p_user_id: userId, p_limit: 20 }),
+      supabaseAny.rpc('get_user_streaks', { p_user_id: userId }),
+      supabaseAny.rpc('get_user_stats_summary', { p_user_id: userId }),
+    ]);
 
-    // Fetch points progress
-    const { data: pointsProgress, error: pointsError } = await (supabase
-      .rpc('get_user_points_progress', {
-        p_user_id: userId,
-        p_days: days,
-      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
+    if (winRatesError) console.error('Error fetching win rates:', winRatesError);
+    if (pointsError) console.error('Error fetching points progress:', pointsError);
+    if (activityError) console.error('Error fetching activity timeline:', activityError);
+    if (streaksError) console.error('Error fetching streaks:', streaksError);
+    if (summaryError) console.error('Error fetching stats summary:', summaryError);
 
-    if (pointsError) {
-      console.error('Error fetching points progress:', pointsError);
-    }
-
-    // Fetch activity timeline
-    const { data: activityTimeline, error: activityError } = await (supabase
-      .rpc('get_user_activity_timeline', {
-        p_user_id: userId,
-        p_limit: 20,
-      } as never) as unknown as Promise<{ data: unknown; error: unknown }>);
-
-    if (activityError) {
-      console.error('Error fetching activity timeline:', activityError);
-    }
+    const summary = Array.isArray(summaryRows) && summaryRows.length > 0
+      ? summaryRows[0]
+      : null;
 
     return NextResponse.json({
       winRates: winRates || [],
       pointsProgress: pointsProgress || [],
       activityTimeline: activityTimeline || [],
+      streaks: streaks || [],
+      summary,
     });
   } catch (error) {
     console.error('Stats API error:', error);

@@ -61,29 +61,30 @@ export function WinRateChart({ data }: WinRateChartProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border-2 border-gray-300 dark:border-gray-700">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{t('stats.winRateByGame') || 'Win Rate by Game'}</h3>
-        <p className="text-sm text-gray-600">{t('stats.performancePerGame') || 'Performance in each game'}</p>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('stats.winRateByGame') || 'Win Rate by Game'}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{t('stats.performancePerGame') || 'Performance in each game'}</p>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#9ca3af' }}
             stroke="#6b7280"
           />
           <YAxis
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#9ca3af' }}
             stroke="#6b7280"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--tooltip-bg, #1f2937)',
               border: '2px solid var(--chain-primary)',
               borderRadius: '8px',
+              color: '#f9fafb',
             }}
             formatter={(value: number | undefined, name: string | undefined) => {
               if (name === 'winRate' && typeof value === 'number') {
@@ -109,13 +110,13 @@ export function WinRateChart({ data }: WinRateChartProps) {
         {chartData.map((game, index) => (
           <div
             key={index}
-            className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200"
+            className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center border border-gray-200 dark:border-gray-600"
           >
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {game.winRate.toFixed(0)}%
             </div>
-            <div className="text-xs text-gray-600 mt-1">{game.name}</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-gray-600 dark:text-gray-300 mt-1">{game.name}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {game.totalGames} {game.totalGames === 1 ? (t('stats.game') || 'game') : (t('stats.games') || 'games')}
             </div>
           </div>

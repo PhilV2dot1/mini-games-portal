@@ -51,29 +51,30 @@ export function PointsProgressChart({ data }: PointsProgressChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-xl p-6 border-2 border-gray-300">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border-2 border-gray-300 dark:border-gray-700">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{t('stats.pointsProgress') || 'Points Progress'}</h3>
-        <p className="text-sm text-gray-600">{t('stats.pointsProgressSubtitle') || 'Points earned over time (last 30 days)'}</p>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('stats.pointsProgress') || 'Points Progress'}</h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400">{t('stats.pointsProgressSubtitle') || 'Points earned over time (last 30 days)'}</p>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#9ca3af' }}
             stroke="#6b7280"
           />
           <YAxis
-            tick={{ fontSize: 12 }}
+            tick={{ fontSize: 12, fill: '#9ca3af' }}
             stroke="#6b7280"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#fff',
+              backgroundColor: 'var(--tooltip-bg, #1f2937)',
               border: '2px solid var(--chain-primary)',
               borderRadius: '8px',
+              color: '#f9fafb',
             }}
           />
           <Legend />

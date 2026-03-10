@@ -309,6 +309,14 @@ export default function MyProfilePage() {
             className="mb-6"
           >
             <StatsCharts userId={dbProfile.user.id} days={30} />
+            <div className="mt-3 text-center">
+              <Link
+                href="/stats"
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                📊 {t('stats.viewFullStats') || 'View full statistics →'}
+              </Link>
+            </div>
           </motion.div>
         )}
 
