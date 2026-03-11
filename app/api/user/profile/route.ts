@@ -17,19 +17,20 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const fid = searchParams.get('fid');
     const userId = searchParams.get('id');
+    const username = searchParams.get('username');
 
     // Normalize wallet address to lowercase for consistent querying
     const walletAddress = searchParams.get('wallet')?.toLowerCase();
 
-    console.log('[Profile API] Query params:', { fid, walletAddress, userId });
+    console.log('[Profile API] Query params:', { fid, walletAddress, userId, username });
 
     // Get the authenticated user (requester) for privacy checks
     const { data: { user: authUser } } = await supabase.auth.getUser();
     const requesterId = authUser?.id;
 
-    if (!fid && !walletAddress && !userId) {
+    if (!fid && !walletAddress && !userId && !username) {
       return NextResponse.json(
-        { error: 'Either fid, wallet, or id is required' },
+        { error: 'Either fid, wallet, id, or username is required' },
         { status: 400 }
       );
     }
@@ -45,6 +46,9 @@ export async function GET(request: NextRequest) {
     } else if (walletAddress) {
       console.log('[Profile API] Searching by wallet:', walletAddress);
       query = query.eq('wallet_address', walletAddress);
+    } else if (username) {
+      console.log('[Profile API] Searching by username:', username);
+      query = query.eq('username', username);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

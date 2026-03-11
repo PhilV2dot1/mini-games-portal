@@ -234,13 +234,23 @@ export default function MyProfilePage() {
               </div>
             </div>
 
-            {/* Edit Button */}
-            <Link
-              href="/profile/edit"
-              className="px-6 py-3 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 font-bold rounded-xl transition-all shadow-lg"
-            >
-              ✏️ {t('home.edit') || 'Modifier'}
-            </Link>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-2">
+              <Link
+                href="/profile/edit"
+                className="px-6 py-3 bg-gradient-to-r from-chain to-chain hover:brightness-110 text-gray-900 font-bold rounded-xl transition-all shadow-lg text-center"
+              >
+                ✏️ {t('home.edit') || 'Modifier'}
+              </Link>
+              {username && (
+                <Link
+                  href={`/profile/u/${encodeURIComponent(username)}`}
+                  className="px-4 py-2 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl transition-all text-center text-sm hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  🔗 {t('profile.viewPublicProfile') || 'Profil public'}
+                </Link>
+              )}
+            </div>
           </div>
         </motion.div>
 
