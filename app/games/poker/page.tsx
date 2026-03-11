@@ -213,14 +213,14 @@ export default function PokerPage() {
                 className="flex flex-col items-center gap-3 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-400 rounded-xl p-4 text-center"
               >
                 <p className="text-orange-800 dark:text-orange-300 font-semibold text-sm">
-                  ⚠️ You have an unfinished session on-chain. Abandon it to start a new session.
+                  {t('games.poker.unfinishedSession')}
                 </p>
                 <button
                   onClick={solo.abandonGame}
                   disabled={solo.isPending || solo.isConfirming}
                   className="px-6 py-2 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-600 active:scale-95 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {solo.isPending || solo.isConfirming ? '⏳ Abandoning...' : '🗑️ Abandon Session'}
+                  {solo.isPending || solo.isConfirming ? t('games.poker.abandoning') : t('games.poker.abandonSession')}
                 </button>
               </motion.div>
             )}
@@ -233,8 +233,8 @@ export default function PokerPage() {
                 className="flex items-center justify-between bg-gray-800/60 border border-gray-600 rounded-xl px-4 py-2 text-sm"
               >
                 <div className="flex gap-4 text-gray-300">
-                  <span>🃏 <strong className="text-white">{solo.sessionStats.handsPlayed}</strong> hands</span>
-                  <span>🏆 <strong className="text-green-400">{solo.sessionStats.handsWon}</strong> won</span>
+                  <span>🃏 <strong className="text-white">{solo.sessionStats.handsPlayed}</strong> {t('games.poker.handsLabel')}</span>
+                  <span>🏆 <strong className="text-green-400">{solo.sessionStats.handsWon}</strong> {t('games.poker.wonLabel')}</span>
                   <span>💰 <strong className="text-yellow-400">{solo.player.stack}</strong> chips</span>
                 </div>
                 <button
@@ -242,7 +242,7 @@ export default function PokerPage() {
                   disabled={solo.isRecording || solo.sessionStats.handsPlayed === 0}
                   className="px-3 py-1 rounded-lg font-bold text-xs bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {solo.isRecording ? '⏳ Recording...' : '⛓️ End Session'}
+                  {solo.isRecording ? t('games.poker.recording') : t('games.poker.endSession')}
                 </button>
               </motion.div>
             )}
@@ -274,7 +274,7 @@ export default function PokerPage() {
                       className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       style={{ background: theme.primary, color: theme.contrastText }}
                     >
-                      {solo.isPending || solo.isConfirming ? '⏳ Confirming...' : '⛓️ Start Session'}
+                      {solo.isPending || solo.isConfirming ? t('games.poker.confirming') : t('games.poker.startSession')}
                     </motion.button>
                   )
                 ) : (
@@ -468,7 +468,7 @@ export default function PokerPage() {
                     onClick={mp.surrender}
                     className="text-xs text-gray-500 hover:text-red-400 transition-colors px-4 py-2"
                   >
-                    Abandon
+                    {t('multiplayer.surrender')}
                   </button>
                 </div>
               </div>
