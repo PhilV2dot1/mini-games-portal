@@ -666,8 +666,6 @@ export const translations = {
       favoriteGame: 'Favorite Game',
       daysActive: 'Days Active',
       streaks: 'Win Streaks',
-      current: 'Current',
-      best: 'Best',
       viewFullStats: 'View full statistics →',
     },
 
@@ -1862,8 +1860,6 @@ export const translations = {
       favoriteGame: 'Jeu Favori',
       daysActive: 'Jours Actifs',
       streaks: 'Séries de Victoires',
-      current: 'En cours',
-      best: 'Record',
       viewFullStats: 'Voir toutes les statistiques →',
     },
 

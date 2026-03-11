@@ -5,7 +5,17 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { Card, createShuffledDeck } from "@/lib/games/poker-cards";
 import { HandResult, evaluateBestHand, determineWinners } from "@/lib/games/poker-evaluator";
 import { POKER_ABI } from "@/lib/contracts/poker-abi";
+import { POKER_SESSION_ABI } from "@/lib/contracts/poker-session-abi";
 import { getContractAddress, isGameAvailableOnChain, getExplorerTxUrl } from "@/lib/contracts/addresses";
+
+// PokerSession contract address per chain (deploy and replace null)
+// TODO: replace null with deployed addresses after deployment on each chain
+const POKER_SESSION_ADDRESSES: Record<number, `0x${string}` | null> = {
+  42220: null, // Celo mainnet
+  8453:  null, // Base mainnet
+  4326:  null, // MegaETH
+  1868:  null, // Soneium
+};
 
 export type PokerPhase = 'betting' | 'preflop' | 'flop' | 'turn' | 'river' | 'showdown' | 'finished';
 
@@ -80,7 +90,16 @@ export function usePoker() {
     handsPlayed: 0, handsWon: 0, biggestPot: 0, currentStreak: 0, bestStreak: 0, bestHand: '',
   });
 
-  // Onchain — three separate write instances: startGame, endGame, abandonGame
+  // ─── Session stats (accumulated locally, committed on endSession) ─────────────
+  const [sessionStats, setSessionStats] = useState({
+    handsPlayed: 0,
+    handsWon: 0,
+    handsSplit: 0,
+    bestHandRank: 0,
+  });
+  const [sessionActive, setSessionActive] = useState(false);
+
+  // Onchain — three separate write instances: startSession, endSession, abandonSession
   const { writeContract: writeStart, data: startHash, isPending: isStartPending, error: startError, reset: resetStart } = useWriteContract();
   const { writeContract: writeEnd, data: endHash, isPending: isEndPending, error: endError, reset: resetEnd } = useWriteContract();
   const { writeContract: writeAbandon, data: abandonHash, isPending: isAbandonPending, error: abandonError, reset: resetAbandon } = useWriteContract();
@@ -95,19 +114,19 @@ export function usePoker() {
     hash: abandonHash, timeout: 120_000, confirmations: 1,
   });
 
-  // Pending endGame result — set synchronously when outcome is determined, cleared after tx
+  // pendingEnd tracks last hand result for display only (no longer triggers per-hand tx)
   const [pendingEnd, setPendingEnd] = useState<{ outcome: 'win'|'lose'|'split'; rank: string } | null>(null);
 
-  // Use a ref for gameStartedOnChain so game actions don't need it as a dep
-  // (avoids stale closure bugs from useCallback dependency arrays)
-  const gameStartedOnChainRef = useRef(false);
-  const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
-  const setOnChainStarted = (val: boolean) => {
-    gameStartedOnChainRef.current = val;
-    setGameStartedOnChain(val);
+  // Use a ref for sessionActive so game actions don't need it as a dep
+  const sessionActiveRef = useRef(false);
+  const gameStartedOnChainRef = sessionActiveRef;
+  const setSessionActiveSync = (val: boolean) => {
+    sessionActiveRef.current = val;
+    setSessionActive(val);
   };
+  const setOnChainStarted = setSessionActiveSync;
 
-  // Block actions only during startGame wallet prompt / confirmation
+  // Block actions only during startSession wallet prompt / confirmation
   const isPending = isStartPending || isAbandonPending;
   const isConfirming = isStartConfirming || isAbandonConfirming;
   const hash = endHash ?? startHash;
@@ -115,24 +134,26 @@ export function usePoker() {
 
   const contractAddress = getContractAddress('poker', chain?.id);
   const gameAvailable = isGameAvailableOnChain('poker', chain?.id);
+  const sessionContractAddress = chain?.id ? (POKER_SESSION_ADDRESSES[chain.id] ?? null) : null;
+  const sessionContractAvailable = !!sessionContractAddress;
 
   const { data: onchainStats, refetch: refetchStats } = useReadContract({
-    address: contractAddress!,
-    abi: POKER_ABI,
+    address: sessionContractAddress ?? contractAddress!,
+    abi: sessionContractAvailable ? POKER_SESSION_ABI : POKER_ABI,
     functionName: 'getPlayerStats',
     args: [address!],
     query: { enabled: isConnected && mode === 'onchain' && gameAvailable && !!address, gcTime: 0, staleTime: 0 }
   });
 
-  const { data: isGameActiveOnChain, refetch: refetchIsActive } = useReadContract({
-    address: contractAddress!,
-    abi: POKER_ABI,
-    functionName: 'isGameActive',
+  const { data: isSessionActiveOnChain, refetch: refetchIsActive } = useReadContract({
+    address: sessionContractAddress ?? contractAddress!,
+    abi: sessionContractAvailable ? POKER_SESSION_ABI : POKER_ABI,
+    functionName: sessionContractAvailable ? 'isSessionActive' : 'isGameActive',
     args: [address!],
     query: { enabled: isConnected && mode === 'onchain' && gameAvailable && !!address, gcTime: 0, staleTime: 0 }
   });
 
-  const hasActiveOnChainGame = !!isGameActiveOnChain;
+  const hasActiveOnChainGame = !!isSessionActiveOnChain;
 
   // ─── Deck helpers ─────────────────────────────────────────────────────────────
 
@@ -298,11 +319,18 @@ export function usePoker() {
       };
     });
 
+    const handRankUint8 = HAND_RANK_TO_UINT8[pResult.rank] ?? 0;
+    setSessionStats(prev => ({
+      handsPlayed: prev.handsPlayed + 1,
+      handsWon: newOutcome === 'win' ? prev.handsWon + 1 : prev.handsWon,
+      handsSplit: newOutcome === 'split' ? prev.handsSplit + 1 : prev.handsSplit,
+      bestHandRank: Math.max(prev.bestHandRank, handRankUint8),
+    }));
+
     return { outcome: newOutcome, rank: pResult.rank };
   }, []);
 
   // ─── Helpers for showdown from a win-by-fold ──────────────────────────────────
-  // Extracted to avoid repetition in fold/check/call/bet
 
   const resolveWinByFold = useCallback((winPot: number) => {
     setPlayer(prev => ({ ...prev, stack: prev.stack + winPot }));
@@ -315,12 +343,11 @@ export function usePoker() {
       const s = prev.currentStreak + 1;
       return { ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1, currentStreak: s, bestStreak: Math.max(prev.bestStreak, s) };
     });
+    setSessionStats(prev => ({ ...prev, handsPlayed: prev.handsPlayed + 1, handsWon: prev.handsWon + 1 }));
     if (gameStartedOnChainRef.current) setPendingEnd({ outcome: 'win', rank: 'high_card' });
   }, []);
 
   // ─── Player actions ───────────────────────────────────────────────────────────
-  // gameStartedOnChain is read from a ref — no dependency, no stale closure.
-  // All numeric values are computed locally before any setState call.
 
   const fold = useCallback(() => {
     if (phase === 'betting' || phase === 'showdown' || phase === 'finished') return;
@@ -332,6 +359,7 @@ export function usePoker() {
     setPhase('showdown');
     setPot(0);
     setStats(prev => ({ ...prev, handsPlayed: prev.handsPlayed + 1, currentStreak: 0 }));
+    setSessionStats(prev => ({ ...prev, handsPlayed: prev.handsPlayed + 1 }));
     if (gameStartedOnChainRef.current) setPendingEnd({ outcome: 'lose', rank: 'high_card' });
   }, [phase, pot]);
 
@@ -457,47 +485,63 @@ export function usePoker() {
     }
   }, [phase, player, dealer, communityCards, deck, deckIndex, pot, dealerAction, advanceStreet, runShowdown, resolveWinByFold]);
 
-  // ─── On-chain mode ────────────────────────────────────────────────────────────
+  // ─── On-chain session mode ────────────────────────────────────────────────────
 
-  const playOnChain = useCallback(() => {
-    if (!contractAddress || !isConnected) return;
+  const startOnChainSession = useCallback(() => {
+    const addr = sessionContractAvailable ? sessionContractAddress : contractAddress;
+    const abi = sessionContractAvailable ? POKER_SESSION_ABI : POKER_ABI;
+    const fn = sessionContractAvailable ? 'startSession' : 'startGame';
+    if (!addr || !isConnected) return;
     resetStart?.();
     setMessage('⏳ Waiting for wallet confirmation...');
-    writeStart({
-      address: contractAddress,
-      abi: POKER_ABI,
-      functionName: 'startGame',
-      chainId: chain!.id,
-      gas: BigInt(300000),
-    });
-  }, [contractAddress, isConnected, chain, writeStart, resetStart]);
+    writeStart({ address: addr, abi, functionName: fn as never, chainId: chain!.id, gas: BigInt(300000) });
+  }, [sessionContractAvailable, sessionContractAddress, contractAddress, isConnected, chain, writeStart, resetStart]);
 
-  // startGame confirmed → deal the hand client-side
+  const playOnChain = startOnChainSession;
+
+  // startSession confirmed → reset session stats, deal first hand
   useEffect(() => {
     if (startReceipt && mode === 'onchain') {
-      setOnChainStarted(true);
+      setSessionStats({ handsPlayed: 0, handsWon: 0, handsSplit: 0, bestHandRank: 0 });
+      setSessionActiveSync(true);
       startHand();
     }
   }, [startReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const abandonGame = useCallback(() => {
-    if (!contractAddress || !isConnected) return;
-    resetAbandon?.();
-    setMessage('⏳ Abandoning active game...');
-    writeAbandon({
-      address: contractAddress,
-      abi: POKER_ABI,
-      functionName: 'abandonGame',
-      chainId: chain!.id,
-      gas: BigInt(200000),
+  const endOnChainSession = useCallback(() => {
+    const addr = sessionContractAvailable ? sessionContractAddress : contractAddress;
+    const abi = sessionContractAvailable ? POKER_SESSION_ABI : POKER_ABI;
+    if (!addr || !isConnected) return;
+    resetEnd?.();
+    setMessage('⏳ Recording session on blockchain...');
+    setSessionStats(current => {
+      const { handsPlayed, handsWon, handsSplit, bestHandRank } = current;
+      const args = sessionContractAvailable
+        ? [BigInt(handsPlayed), BigInt(handsWon), BigInt(handsSplit), bestHandRank as number]
+        : [OUTCOME_TO_ENUM[handsWon > 0 ? 'win' : 'lose'] ?? 1, bestHandRank as number];
+      writeEnd({ address: addr, abi, functionName: sessionContractAvailable ? 'endSession' as never : 'endGame' as never, args: args as never, chainId: chain!.id, gas: BigInt(300000) });
+      return current;
     });
-  }, [contractAddress, isConnected, chain, writeAbandon, resetAbandon]);
+  }, [sessionContractAvailable, sessionContractAddress, contractAddress, isConnected, chain, writeEnd, resetEnd]);
+
+  const abandonGame = useCallback(() => {
+    const addr = sessionContractAvailable ? sessionContractAddress : contractAddress;
+    const abi = sessionContractAvailable ? POKER_SESSION_ABI : POKER_ABI;
+    const fn = sessionContractAvailable ? 'abandonSession' : 'abandonGame';
+    if (!addr || !isConnected) return;
+    resetAbandon?.();
+    setMessage('⏳ Abandoning session...');
+    writeAbandon({ address: addr, abi, functionName: fn as never, chainId: chain!.id, gas: BigInt(200000) });
+  }, [sessionContractAvailable, sessionContractAddress, contractAddress, isConnected, chain, writeAbandon, resetAbandon]);
 
   useEffect(() => {
     if (abandonReceipt && mode === 'onchain') {
       setMessage('');
       setPhase('betting');
-      setOnChainStarted(false);
+      setSessionActiveSync(false);
+      setSessionStats({ handsPlayed: 0, handsWon: 0, handsSplit: 0, bestHandRank: 0 });
+      setPlayer(prev => ({ ...prev, stack: STARTING_STACK, holeCards: [], bet: 0, status: 'active' }));
+      setDealer(prev => ({ ...prev, stack: STARTING_STACK, holeCards: [], bet: 0, status: 'active' }));
       setTimeout(() => { refetchIsActive(); refetchStats(); }, 1500);
     }
   }, [abandonReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -507,7 +551,7 @@ export function usePoker() {
       const msg = abandonError.message || '';
       setMessage(msg.includes('User rejected') || msg.includes('User denied')
         ? '❌ Transaction rejected'
-        : '❌ Failed to abandon game — try again');
+        : '❌ Failed to abandon session — try again');
       resetAbandon?.();
     }
   }, [abandonError, resetAbandon]);
@@ -519,32 +563,21 @@ export function usePoker() {
     }
   }, [abandonReceiptError]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const submitOnChainResult = useCallback((
-    currentOutcome: 'win' | 'lose' | 'split',
-    handRank: string,
-  ) => {
-    if (!contractAddress || !isConnected) return;
-    resetEnd?.();
-    const outcomeEnum = OUTCOME_TO_ENUM[currentOutcome] ?? 1;
-    const rankUint8 = HAND_RANK_TO_UINT8[handRank] ?? 0;
-    writeEnd({
-      address: contractAddress,
-      abi: POKER_ABI,
-      functionName: 'endGame',
-      args: [outcomeEnum, rankUint8],
-      chainId: chain!.id,
-      gas: BigInt(300000),
-    });
-  }, [contractAddress, isConnected, chain, writeEnd, resetEnd]);
+  const submitOnChainResult = useCallback((_outcome: string, _rank: string) => {
+    // no-op: results are now batched into endSession
+  }, []);
 
-  // endGame confirmed → reset for next hand
+  // endSession confirmed → full reset
   useEffect(() => {
     if (endReceipt && mode === 'onchain') {
       setPendingEnd(null);
-      setOnChainStarted(false);
+      setSessionActiveSync(false);
+      setSessionStats({ handsPlayed: 0, handsWon: 0, handsSplit: 0, bestHandRank: 0 });
+      setPlayer(prev => ({ ...prev, stack: STARTING_STACK, holeCards: [], bet: 0, status: 'active' }));
+      setDealer(prev => ({ ...prev, stack: STARTING_STACK, holeCards: [], bet: 0, status: 'active' }));
       setRoundNumber(prev => prev + 1);
       setPhase('betting');
-      setMessage('');
+      setMessage('✅ Session recorded on-chain!');
       setTimeout(() => { refetchStats(); refetchIsActive(); }, 2000);
     }
   }, [endReceipt]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -609,23 +642,15 @@ export function usePoker() {
   // ─── New hand / reset ─────────────────────────────────────────────────────────
 
   const newHand = useCallback(() => {
-    if (mode === 'onchain' && pendingEnd) {
-      submitOnChainResult(pendingEnd.outcome, pendingEnd.rank);
-      if (player.stack < BIG_BLIND) {
-        setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
-        setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
-      }
-      return;
-    }
-
     if (player.stack < BIG_BLIND) {
-      setPlayer({ id: 'player', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: false });
-      setDealer({ id: 'dealer', holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active', isDealer: true });
+      setPlayer(prev => ({ ...prev, holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active' }));
+      setDealer(prev => ({ ...prev, holeCards: [], stack: STARTING_STACK, bet: 0, status: 'active' }));
     }
+    setPendingEnd(null);
     setRoundNumber(prev => prev + 1);
     setPhase('betting');
     setMessage('');
-  }, [mode, pendingEnd, player.stack, submitOnChainResult]);
+  }, [player.stack]);
 
   const switchMode = useCallback((newMode: 'free' | 'onchain') => {
     setMode(newMode);
@@ -640,7 +665,8 @@ export function usePoker() {
     setPot(0);
     setCurrentBet(0);
     setPendingEnd(null);
-    setOnChainStarted(false);
+    setSessionActiveSync(false);
+    setSessionStats({ handsPlayed: 0, handsWon: 0, handsSplit: 0, bestHandRank: 0 });
   }, []);
 
   return {
@@ -650,7 +676,11 @@ export function usePoker() {
     address, isConnected, chain, contractAddress, gameAvailable,
     isPending, isConfirming, isRecording, hash, pendingEnd,
     hasActiveOnChainGame,
-    startHand, fold, check, call, bet, playOnChain, submitOnChainResult,
+    // Session
+    sessionActive, sessionStats, sessionContractAvailable,
+    startHand, fold, check, call, bet,
+    playOnChain, startOnChainSession, endOnChainSession,
+    submitOnChainResult,
     newHand, switchMode, abandonGame,
     explorerTxUrl: hash ? getExplorerTxUrl(chain?.id, hash) : null,
   };

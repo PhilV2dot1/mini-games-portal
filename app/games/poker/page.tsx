@@ -205,22 +205,44 @@ export default function PokerPage() {
               </motion.div>
             )}
 
-            {/* Unfinished on-chain game warning */}
-            {mode === 'onchain' && solo.phase === 'betting' && solo.hasActiveOnChainGame && (
+            {/* Unfinished on-chain session warning */}
+            {mode === 'onchain' && solo.phase === 'betting' && solo.hasActiveOnChainGame && !solo.sessionActive && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col items-center gap-3 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-400 rounded-xl p-4 text-center"
               >
                 <p className="text-orange-800 dark:text-orange-300 font-semibold text-sm">
-                  ⚠️ You have an unfinished game on-chain. Abandon it to start a new hand.
+                  ⚠️ You have an unfinished session on-chain. Abandon it to start a new session.
                 </p>
                 <button
                   onClick={solo.abandonGame}
                   disabled={solo.isPending || solo.isConfirming}
                   className="px-6 py-2 rounded-xl font-bold text-sm bg-orange-500 hover:bg-orange-600 active:scale-95 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {solo.isPending || solo.isConfirming ? '⏳ Abandoning...' : '🗑️ Abandon & New Game'}
+                  {solo.isPending || solo.isConfirming ? '⏳ Abandoning...' : '🗑️ Abandon Session'}
+                </button>
+              </motion.div>
+            )}
+
+            {/* On-chain session stats bar */}
+            {mode === 'onchain' && solo.sessionActive && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center justify-between bg-gray-800/60 border border-gray-600 rounded-xl px-4 py-2 text-sm"
+              >
+                <div className="flex gap-4 text-gray-300">
+                  <span>🃏 <strong className="text-white">{solo.sessionStats.handsPlayed}</strong> hands</span>
+                  <span>🏆 <strong className="text-green-400">{solo.sessionStats.handsWon}</strong> won</span>
+                  <span>💰 <strong className="text-yellow-400">{solo.player.stack}</strong> chips</span>
+                </div>
+                <button
+                  onClick={solo.endOnChainSession}
+                  disabled={solo.isRecording || solo.sessionStats.handsPlayed === 0}
+                  className="px-3 py-1 rounded-lg font-bold text-xs bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {solo.isRecording ? '⏳ Recording...' : '⛓️ End Session'}
                 </button>
               </motion.div>
             )}
@@ -229,17 +251,32 @@ export default function PokerPage() {
             <div className="flex justify-center">
               {solo.phase === 'betting' && (
                 mode === 'onchain' ? (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: solo.hasActiveOnChainGame ? 1 : 1.05 }}
-                    onClick={solo.playOnChain}
-                    disabled={!solo.isConnected || !solo.gameAvailable || solo.isPending || solo.isConfirming || solo.hasActiveOnChainGame}
-                    className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    style={{ background: theme.primary, color: theme.contrastText }}
-                  >
-                    {solo.isPending || solo.isConfirming ? '⏳ Confirming...' : '⛓️ Play On-Chain'}
-                  </motion.button>
+                  solo.sessionActive ? (
+                    <motion.button
+                      data-testid="poker-deal"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: 1.05 }}
+                      onClick={solo.startHand}
+                      disabled={solo.isPending || solo.isConfirming}
+                      className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ background: theme.primary, color: theme.contrastText }}
+                    >
+                      🃏 {t('games.poker.dealCards')}
+                    </motion.button>
+                  ) : (
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      whileHover={{ scale: solo.hasActiveOnChainGame ? 1 : 1.05 }}
+                      onClick={solo.startOnChainSession}
+                      disabled={!solo.isConnected || !solo.gameAvailable || solo.isPending || solo.isConfirming || solo.hasActiveOnChainGame}
+                      className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{ background: theme.primary, color: theme.contrastText }}
+                    >
+                      {solo.isPending || solo.isConfirming ? '⏳ Confirming...' : '⛓️ Start Session'}
+                    </motion.button>
+                  )
                 ) : (
                   <motion.button
                     data-testid="poker-deal"
@@ -260,17 +297,12 @@ export default function PokerPage() {
                   data-testid="poker-new-hand"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  whileHover={{ scale: solo.isRecording ? 1 : 1.05 }}
+                  whileHover={{ scale: 1.05 }}
                   onClick={solo.newHand}
-                  disabled={solo.isRecording}
-                  className="px-8 py-3 rounded-xl font-black shadow-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="px-8 py-3 rounded-xl font-black shadow-lg transition-all"
                   style={{ background: theme.primary, color: theme.contrastText }}
                 >
-                  {solo.isRecording
-                    ? '⏳ Recording on-chain...'
-                    : mode === 'onchain' && solo.pendingEnd
-                    ? '⛓️ Record & New Hand →'
-                    : `${t('games.poker.newHand')} →`}
+                  {`${t('games.poker.newHand')} →`}
                 </motion.button>
               )}
             </div>
