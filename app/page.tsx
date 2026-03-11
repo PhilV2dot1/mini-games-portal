@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { GameGrid } from "@/components/games/GameGrid";
 import { BadgeGallery } from "@/components/badges/BadgeGallery";
 import { ProfileSetup } from "@/components/profile/ProfileSetup";
+import { DailyChallenge } from "@/components/shared/DailyChallenge";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useLocalStats } from "@/hooks/useLocalStats";
@@ -87,6 +88,16 @@ export default function Home() {
               {t('home.howToPlay')}
             </Link>
           </div>
+        </motion.div>
+
+        {/* Daily Challenge */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05, duration: 0.5 }}
+          className="mb-6"
+        >
+          <DailyChallenge />
         </motion.div>
 
         {/* Game Grid - Primary Focus */}

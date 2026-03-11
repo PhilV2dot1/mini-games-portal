@@ -214,6 +214,20 @@ export function useLocalStats() {
           const data = await response.json();
           console.log('Game session recorded to database:', data);
 
+          // Update daily challenge progress (fire-and-forget, game-event mode)
+          if (data.userId) {
+            fetch('/api/daily-challenge/complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: data.userId,
+                gameId,
+                result,
+                pointsEarned: points,
+              }),
+            }).catch(() => {});
+          }
+
           // Check for new badges
           if (data.userId) {
             try {

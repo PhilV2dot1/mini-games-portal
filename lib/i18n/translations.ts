@@ -1115,6 +1115,16 @@ export const translations = {
       replayFinished: 'Replay finished',
     },
 
+    // Daily Challenges
+    daily: {
+      title: 'Daily Challenge',
+      progress: 'Progress',
+      completed: '✅ Completed',
+      playNow: 'Play Now →',
+      challengeComplete: 'Challenge Complete!',
+      newChallengeTomorrow: 'New challenge tomorrow!',
+    },
+
     // Friends
     friends: {
       title: 'Friends',
@@ -2316,6 +2326,16 @@ export const translations = {
       stepForward: 'Avancer',
       exit: 'Quitter le Replay',
       replayFinished: 'Replay terminé',
+    },
+
+    // Daily Challenges
+    daily: {
+      title: 'Défi du Jour',
+      progress: 'Progression',
+      completed: '✅ Complété',
+      playNow: 'Jouer →',
+      challengeComplete: 'Défi Complété !',
+      newChallengeTomorrow: 'Nouveau défi demain !',
     },
 
     // Friends
