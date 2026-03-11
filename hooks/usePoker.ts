@@ -8,13 +8,11 @@ import { POKER_ABI } from "@/lib/contracts/poker-abi";
 import { POKER_SESSION_ABI } from "@/lib/contracts/poker-session-abi";
 import { getContractAddress, isGameAvailableOnChain, getExplorerTxUrl } from "@/lib/contracts/addresses";
 
-// PokerSession contract address per chain (deploy and replace null)
-// TODO: replace null with deployed addresses after deployment on each chain
 const POKER_SESSION_ADDRESSES: Record<number, `0x${string}` | null> = {
-  42220: null, // Celo mainnet
-  8453:  null, // Base mainnet
-  4326:  null, // MegaETH
-  1868:  null, // Soneium
+  42220: '0x26d77dc1163db63854e481a3893aee3145291dd1', // Celo mainnet
+  8453:  '0x2ef62e878d73edb31ab8f09522d254f6f398223e', // Base mainnet
+  4326:  '0xa5A51F4aBf8c8DeCAe2540CD1eC5C52426b1310A', // MegaETH
+  1868:  '0x37db28469f7E463A3BdBf34718998F5ccF3c8d5e', // Soneium
 };
 
 export type PokerPhase = 'betting' | 'preflop' | 'flop' | 'turn' | 'river' | 'showdown' | 'finished';
