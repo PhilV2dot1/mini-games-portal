@@ -53,6 +53,7 @@ export async function GET(request: NextRequest) {
       displayName: entry.display_name || entry.username || `Player ${entry.fid || 'Unknown'}`,
       fid: entry.fid,
       totalPoints: entry.total_points,
+      xp: entry.xp ?? 0,
       gamesPlayed: entry.games_played,
       wins: entry.wins,
       theme_color: entry.theme_color || 'yellow',

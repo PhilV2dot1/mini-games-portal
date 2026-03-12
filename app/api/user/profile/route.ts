@@ -333,6 +333,7 @@ export async function GET(request: NextRequest) {
         display_name: user.display_name || user.username || `Player ${user.id.slice(0, 8)}`,
         wallet_address: user.wallet_address,
         total_points: showStats ? user.total_points : undefined,
+        xp: user.xp ?? 0,
         created_at: user.created_at,
         // Profile fields
         theme_color: user.theme_color || 'yellow',

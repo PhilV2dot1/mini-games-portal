@@ -58,6 +58,14 @@ export function useLoginStreak(): LoginStreakState {
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data) return;
+        if (data.isNewDay) {
+          // Award XP for logging in on a new day
+          fetch('/api/user/xp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, reason: 'login_streak' }),
+          }).catch(() => {});
+        }
         setState({
           currentStreak: data.currentStreak ?? 0,
           bestStreak: data.bestStreak ?? 0,

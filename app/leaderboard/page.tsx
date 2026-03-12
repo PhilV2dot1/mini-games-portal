@@ -6,6 +6,7 @@ import { GAMES } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { PlayerLevelBadge } from "@/components/shared/PlayerLevelBadge";
 import { CeloIcon } from "@/components/shared/CeloIcon";
 import { BaseIcon } from "@/components/shared/BaseIcon";
 import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
@@ -28,6 +29,7 @@ interface LeaderboardEntry {
   displayName?: string;
   fid: number | null;
   totalPoints?: number;
+  xp?: number;
   gamePoints?: number;
   gamesPlayed: number;
   wins: number;
@@ -501,8 +503,13 @@ export default function LeaderboardPage() {
                             </div>
                             {/* Display Name */}
                             <div>
-                              <div className="text-sm font-bold text-gray-900 dark:text-white">
-                                {entry.displayName || entry.username}
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                  {entry.displayName || entry.username}
+                                </span>
+                                {entry.xp !== undefined && (
+                                  <PlayerLevelBadge xp={entry.xp} variant="compact" />
+                                )}
                               </div>
                               {entry.fid && (
                                 <div className="text-xs text-gray-500 dark:text-gray-400">

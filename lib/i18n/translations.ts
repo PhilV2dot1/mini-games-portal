@@ -40,6 +40,23 @@ export const translations = {
       dAgo: 'd ago',
     },
 
+    levels: {
+      title: 'Player Level',
+      xp: 'XP',
+      bronze1: 'Bronze I',
+      bronze2: 'Bronze II',
+      bronze3: 'Bronze III',
+      silver1: 'Silver I',
+      silver2: 'Silver II',
+      silver3: 'Silver III',
+      gold1: 'Gold I',
+      gold2: 'Gold II',
+      platinum: 'Platinum',
+      diamond: 'Diamond',
+      levelUp: 'Level Up!',
+      xpEarned: '+{amount} XP',
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -1292,6 +1309,23 @@ export const translations = {
       dAgo: 'j',
     },
 
+    levels: {
+      title: 'Niveau Joueur',
+      xp: 'XP',
+      bronze1: 'Bronze I',
+      bronze2: 'Bronze II',
+      bronze3: 'Bronze III',
+      silver1: 'Argent I',
+      silver2: 'Argent II',
+      silver3: 'Argent III',
+      gold1: 'Or I',
+      gold2: 'Or II',
+      platinum: 'Platine',
+      diamond: 'Diamant',
+      levelUp: 'Niveau Supérieur !',
+      xpEarned: '+{amount} XP',
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -2527,6 +2561,7 @@ export const translations = {
     gamesLabel: 'Partidas',
     toast: { badgeUnlocked: '¡Insignia Desbloqueada!', closeNotification: 'Cerrar notificación' },
     notifications: { title: 'Notificaciones', empty: 'Sin notificaciones', clearAll: 'Borrar todo', justNow: 'ahora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
+    levels: { title: 'Nivel Jugador', xp: 'XP', bronze1: 'Bronce I', bronze2: 'Bronce II', bronze3: 'Bronce III', silver1: 'Plata I', silver2: 'Plata II', silver3: 'Plata III', gold1: 'Oro I', gold2: 'Oro II', platinum: 'Platino', diamond: 'Diamante', levelUp: '¡Subiste de Nivel!', xpEarned: '+{amount} XP' },
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
       difficulty: { title: 'Dificultad IA', easy: 'Fácil', medium: 'Medio', hard: 'Difícil' },
@@ -2635,6 +2670,7 @@ export const translations = {
     gamesLabel: 'Partidas',
     toast: { badgeUnlocked: 'Emblema Desbloqueado!', closeNotification: 'Fechar notificação' },
     notifications: { title: 'Notificações', empty: 'Sem notificações', clearAll: 'Limpar tudo', justNow: 'agora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
+    levels: { title: 'Nível do Jogador', xp: 'XP', bronze1: 'Bronze I', bronze2: 'Bronze II', bronze3: 'Bronze III', silver1: 'Prata I', silver2: 'Prata II', silver3: 'Prata III', gold1: 'Ouro I', gold2: 'Ouro II', platinum: 'Platina', diamond: 'Diamante', levelUp: 'Subiu de Nível!', xpEarned: '+{amount} XP' },
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
       difficulty: { title: 'Dificuldade IA', easy: 'Fácil', medium: 'Médio', hard: 'Difícil' },

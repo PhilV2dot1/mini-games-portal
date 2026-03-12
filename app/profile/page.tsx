@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
+import { PlayerLevelBadge } from "@/components/shared/PlayerLevelBadge";
 
 interface Badge {
   id: string;
@@ -36,6 +37,7 @@ interface UserProfile {
     username: string;
     wallet_address: string | null;
     total_points: number;
+    xp: number;
     created_at: string;
   };
   stats: {
@@ -229,6 +231,9 @@ export default function ProfilePage() {
                   {profile.user.fid && (
                     <p className="text-sm text-gray-600">FID: {profile.user.fid}</p>
                   )}
+                  <div className="mt-2">
+                    <PlayerLevelBadge xp={profile.user.xp ?? 0} variant="full" className="max-w-[200px]" />
+                  </div>
                 </div>
                 {profile.rank && (
                   <div className="text-right">

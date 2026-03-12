@@ -106,6 +106,12 @@ export function useDailyChallenge(): UseDailyChallengeReturn {
           setPointsJustAwarded(data.pointsAwarded);
           setChallenge(prev => prev ? { ...prev, rewarded: true } : null);
           setTimeout(() => setPointsJustAwarded(null), 4000);
+          // Award XP for completing the daily challenge
+          fetch('/api/user/xp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, reason: 'daily_challenge', gameId }),
+          }).catch(() => {});
         }
       }
     } catch (err) {
