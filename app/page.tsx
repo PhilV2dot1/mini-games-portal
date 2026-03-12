@@ -8,6 +8,7 @@ import { BadgeGallery } from "@/components/badges/BadgeGallery";
 import { ProfileSetup } from "@/components/profile/ProfileSetup";
 import { DailyChallenge } from "@/components/shared/DailyChallenge";
 import { LoginStreak } from "@/components/shared/LoginStreak";
+import { WeeklyMissions } from "@/components/shared/WeeklyMissions";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useLocalStats } from "@/hooks/useLocalStats";
@@ -96,10 +97,20 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.5 }}
-          className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4"
+          className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <DailyChallenge />
           <LoginStreak />
+        </motion.div>
+
+        {/* Weekly Missions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="mb-6"
+        >
+          <WeeklyMissions />
         </motion.div>
 
         {/* Game Grid - Primary Focus */}

@@ -57,6 +57,21 @@ export const translations = {
       xpEarned: '+{amount} XP',
     },
 
+    missions: {
+      title: 'Weekly Missions',
+      subtitle: 'Reset every Monday',
+      missionComplete: 'Mission Complete!',
+      xpAwarded: '+100 XP',
+      daysLeft: '{days}d left',
+      type: {
+        gamesPlayed: 'Play {target} games',
+        wins: 'Win {target} games',
+        points: 'Earn {target} points',
+        uniqueGames: 'Try {target} different games',
+        dailyChallenges: 'Complete {target} daily challenges',
+      },
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -1326,6 +1341,21 @@ export const translations = {
       xpEarned: '+{amount} XP',
     },
 
+    missions: {
+      title: 'Missions Hebdomadaires',
+      subtitle: 'Réinitialisation chaque lundi',
+      missionComplete: 'Mission accomplie !',
+      xpAwarded: '+100 XP',
+      daysLeft: '{days}j restants',
+      type: {
+        gamesPlayed: 'Jouer {target} parties',
+        wins: 'Gagner {target} parties',
+        points: 'Gagner {target} points',
+        uniqueGames: 'Essayer {target} jeux différents',
+        dailyChallenges: 'Compléter {target} défis quotidiens',
+      },
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -2562,6 +2592,7 @@ export const translations = {
     toast: { badgeUnlocked: '¡Insignia Desbloqueada!', closeNotification: 'Cerrar notificación' },
     notifications: { title: 'Notificaciones', empty: 'Sin notificaciones', clearAll: 'Borrar todo', justNow: 'ahora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nivel Jugador', xp: 'XP', bronze1: 'Bronce I', bronze2: 'Bronce II', bronze3: 'Bronce III', silver1: 'Plata I', silver2: 'Plata II', silver3: 'Plata III', gold1: 'Oro I', gold2: 'Oro II', platinum: 'Platino', diamond: 'Diamante', levelUp: '¡Subiste de Nivel!', xpEarned: '+{amount} XP' },
+    missions: { title: 'Misiones Semanales', subtitle: 'Se reinicia cada lunes', missionComplete: '¡Misión completada!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jugar {target} partidas', wins: 'Ganar {target} partidas', points: 'Ganar {target} puntos', uniqueGames: 'Probar {target} juegos distintos', dailyChallenges: 'Completar {target} desafíos diarios' } },
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
       difficulty: { title: 'Dificultad IA', easy: 'Fácil', medium: 'Medio', hard: 'Difícil' },
@@ -2671,6 +2702,7 @@ export const translations = {
     toast: { badgeUnlocked: 'Emblema Desbloqueado!', closeNotification: 'Fechar notificação' },
     notifications: { title: 'Notificações', empty: 'Sem notificações', clearAll: 'Limpar tudo', justNow: 'agora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nível do Jogador', xp: 'XP', bronze1: 'Bronze I', bronze2: 'Bronze II', bronze3: 'Bronze III', silver1: 'Prata I', silver2: 'Prata II', silver3: 'Prata III', gold1: 'Ouro I', gold2: 'Ouro II', platinum: 'Platina', diamond: 'Diamante', levelUp: 'Subiu de Nível!', xpEarned: '+{amount} XP' },
+    missions: { title: 'Missões Semanais', subtitle: 'Reinicia toda segunda-feira', missionComplete: 'Missão concluída!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jogar {target} partidas', wins: 'Ganhar {target} partidas', points: 'Ganhar {target} pontos', uniqueGames: 'Experimentar {target} jogos diferentes', dailyChallenges: 'Completar {target} desafios diários' } },
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
       difficulty: { title: 'Dificuldade IA', easy: 'Fácil', medium: 'Médio', hard: 'Difícil' },
