@@ -7,6 +7,7 @@ import { GameGrid } from "@/components/games/GameGrid";
 import { BadgeGallery } from "@/components/badges/BadgeGallery";
 import { ProfileSetup } from "@/components/profile/ProfileSetup";
 import { DailyChallenge } from "@/components/shared/DailyChallenge";
+import { LoginStreak } from "@/components/shared/LoginStreak";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useLocalStats } from "@/hooks/useLocalStats";
@@ -90,14 +91,15 @@ export default function Home() {
           </div>
         </motion.div>
 
-        {/* Daily Challenge */}
+        {/* Daily Challenge + Login Streak */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.5 }}
-          className="mb-6"
+          className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <DailyChallenge />
+          <LoginStreak />
         </motion.div>
 
         {/* Game Grid - Primary Focus */}

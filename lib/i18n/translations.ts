@@ -1134,6 +1134,18 @@ export const translations = {
       newChallengeTomorrow: 'New challenge tomorrow!',
     },
 
+    // Login Streak
+    streak: {
+      title: 'Login Streak',
+      day: 'day',
+      days: 'days',
+      loginBonus: 'Daily login bonus',
+      nextReward: 'Next reward',
+      tomorrowReach: 'Tomorrow!',
+      inDays: 'in',
+      best: 'Best',
+    },
+
     // Friends
     friends: {
       title: 'Friends',
@@ -2354,6 +2366,18 @@ export const translations = {
       playNow: 'Jouer →',
       challengeComplete: 'Défi Complété !',
       newChallengeTomorrow: 'Nouveau défi demain !',
+    },
+
+    // Login Streak
+    streak: {
+      title: 'Série de Connexion',
+      day: 'jour',
+      days: 'jours',
+      loginBonus: 'Bonus de connexion quotidien',
+      nextReward: 'Prochain bonus',
+      tomorrowReach: 'Demain !',
+      inDays: 'dans',
+      best: 'Meilleur',
     },
 
     // Friends
