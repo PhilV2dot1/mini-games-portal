@@ -12,6 +12,7 @@ import { AudioProvider } from "@/lib/audio/AudioContext";
 import { ThemeProvider } from "@/lib/theme/ThemeContext";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ChainThemeProvider } from "@/components/shared/ChainThemeProvider";
+import { NotificationProvider } from "@/lib/notifications/NotificationContext";
 
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -106,12 +107,14 @@ export function Providers({ children }: { children: ReactNode }) {
               <AuthProvider>
                 <ChainThemeProvider>
                   <ToastProvider>
-                    {initError && isInFarcaster && (
-                      <div className="bg-chain/5 border-l-4 border-chain p-3 text-xs text-yellow-700">
-                        ⚠️ Farcaster SDK: {initError}
-                      </div>
-                    )}
-                    {children}
+                    <NotificationProvider>
+                      {initError && isInFarcaster && (
+                        <div className="bg-chain/5 border-l-4 border-chain p-3 text-xs text-yellow-700">
+                          ⚠️ Farcaster SDK: {initError}
+                        </div>
+                      )}
+                      {children}
+                    </NotificationProvider>
                   </ToastProvider>
                 </ChainThemeProvider>
               </AuthProvider>

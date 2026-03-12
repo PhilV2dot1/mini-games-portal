@@ -29,6 +29,17 @@ export const translations = {
       closeNotification: 'Close notification',
     },
 
+    // Notifications
+    notifications: {
+      title: 'Notifications',
+      empty: 'No notifications yet',
+      clearAll: 'Clear all',
+      justNow: 'just now',
+      minAgo: 'm ago',
+      hAgo: 'h ago',
+      dAgo: 'd ago',
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -1261,6 +1272,17 @@ export const translations = {
     toast: {
       badgeUnlocked: 'Badge Débloqué !',
       closeNotification: 'Fermer la notification',
+    },
+
+    // Notifications
+    notifications: {
+      title: 'Notifications',
+      empty: 'Aucune notification',
+      clearAll: 'Tout effacer',
+      justNow: 'à l\'instant',
+      minAgo: 'min',
+      hAgo: 'h',
+      dAgo: 'j',
     },
 
     // Game Common

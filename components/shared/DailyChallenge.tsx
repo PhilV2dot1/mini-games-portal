@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDailyChallenge } from '@/hooks/useDailyChallenge';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
+import { useNotifications } from '@/lib/notifications/NotificationContext';
 
 const GAME_ROUTES: Record<string, string> = {
   blackjack:      '/blackjack',
@@ -47,6 +48,21 @@ const GAME_ICONS: Record<string, string> = {
 export function DailyChallenge() {
   const { challenge, loading, pointsJustAwarded } = useDailyChallenge();
   const { t, language } = useLanguage();
+  const { addNotification } = useNotifications();
+  const notifiedRef = useRef(false);
+
+  useEffect(() => {
+    if (pointsJustAwarded && !notifiedRef.current) {
+      notifiedRef.current = true;
+      addNotification({
+        type: 'daily_challenge',
+        title: t('daily.challengeComplete') || 'Challenge Complete!',
+        message: t('daily.newChallengeTomorrow') || 'New challenge tomorrow!',
+        points: pointsJustAwarded,
+        icon: '🎯',
+      });
+    }
+  }, [pointsJustAwarded, addNotification, t]);
 
   if (loading) {
     return (

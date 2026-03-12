@@ -6,6 +6,7 @@ import { useLoginStreak } from '@/hooks/useLoginStreak';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useAccount } from 'wagmi';
+import { useNotifications } from '@/lib/notifications/NotificationContext';
 
 // Milestone thresholds and their icons
 const MILESTONES = [
@@ -41,6 +42,21 @@ export function LoginStreak() {
   const { t } = useLanguage();
   const streak = useLoginStreak();
   const toastShownRef = useRef(false);
+  const notifiedRef = useRef(false);
+  const { addNotification } = useNotifications();
+
+  useEffect(() => {
+    if (streak.bonusPointsEarned && !notifiedRef.current) {
+      notifiedRef.current = true;
+      addNotification({
+        type: 'streak',
+        title: `🔥 ${t('streak.title') || 'Login Streak'} — ${t('streak.day') || 'Day'} ${streak.currentStreak}`,
+        message: t('streak.loginBonus') || 'Daily login bonus',
+        points: streak.bonusPointsEarned,
+        icon: getCurrentIcon(streak.currentStreak),
+      });
+    }
+  }, [streak.bonusPointsEarned, streak.currentStreak, addNotification, t]);
 
   // Only show for authenticated/wallet users
   if (!isAuthenticated && !isConnected) return null;
