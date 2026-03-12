@@ -11,6 +11,16 @@ import { BaseIcon } from "@/components/shared/BaseIcon";
 import { MegaEthIcon } from "@/components/shared/MegaEthIcon";
 import { SoneiumIcon } from "@/components/shared/SoneiumIcon";
 
+interface ChallengeEntry {
+  rank: number;
+  userId: string;
+  username: string;
+  displayName?: string;
+  avatar_type?: string;
+  avatar_url?: string;
+  completed: number;
+}
+
 interface LeaderboardEntry {
   rank: number;
   userId: string;
@@ -43,15 +53,28 @@ const CHAIN_FILTERS: ChainFilter[] = [
 
 export default function LeaderboardPage() {
   const { t } = useLanguage();
+  const [viewMode, setViewMode] = useState<'scores' | 'challenges'>('scores');
   const [selectedGame, setSelectedGame] = useState<GameId>('all');
   const [selectedChain, setSelectedChain] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [challengeBoard, setChallengeBoard] = useState<ChallengeEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const games = Object.values(GAMES);
 
   useEffect(() => {
+    if (viewMode === 'challenges') {
+      setLoading(true);
+      setError(null);
+      fetch('/api/leaderboard/challenges?limit=50')
+        .then(r => r.ok ? r.json() : Promise.reject('Failed'))
+        .then(data => setChallengeBoard(data.leaderboard || []))
+        .catch(err => setError(err instanceof Error ? err.message : 'An error occurred'))
+        .finally(() => setLoading(false));
+      return;
+    }
+
     async function fetchLeaderboard() {
       setLoading(true);
       setError(null);
@@ -78,7 +101,7 @@ export default function LeaderboardPage() {
     }
 
     fetchLeaderboard();
-  }, [selectedGame, selectedChain]);
+  }, [selectedGame, selectedChain, viewMode]);
 
   const activeChain = CHAIN_FILTERS.find(c => c.id === selectedChain);
 
@@ -107,6 +130,125 @@ export default function LeaderboardPage() {
             {t('leaderboard.subtitle') || 'Top players across all games on Mini Games Portal'}
           </p>
         </div>
+
+        {/* View Mode Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setViewMode('scores')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+              viewMode === 'scores'
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg'
+                : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700'
+            }`}
+          >
+            🏆 {t('leaderboard.scores') || 'Scores'}
+          </button>
+          <button
+            onClick={() => setViewMode('challenges')}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${
+              viewMode === 'challenges'
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-lg'
+                : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-700'
+            }`}
+          >
+            🎯 {t('leaderboard.challenges') || 'Daily Challenges'}
+          </button>
+        </div>
+
+        {/* Challenge Leaderboard */}
+        {viewMode === 'challenges' && (
+          <>
+            {loading ? (
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-lg p-12 text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-gray-900 dark:border-t-white" />
+                <p className="mt-4 text-gray-600 dark:text-gray-400">{t('leaderboard.loadingLeaderboard') || 'Loading...'}</p>
+              </div>
+            ) : error ? (
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-lg p-12 text-center">
+                <p className="text-red-600 dark:text-red-400 font-semibold">Error: {error}</p>
+              </div>
+            ) : challengeBoard.length === 0 ? (
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-lg p-12 text-center">
+                <p className="text-gray-600 dark:text-gray-400 text-lg">
+                  {t('leaderboard.noChallenges') || 'No challenge completions yet. Be the first!'}
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl shadow-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                  <h2 className="font-black text-gray-900 dark:text-white text-lg">
+                    🎯 {t('leaderboard.challengeRanking') || 'Challenge Ranking'}
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    {t('leaderboard.challengeRankingDesc') || 'Players ranked by number of daily challenges completed'}
+                  </p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-100 dark:bg-gray-700 border-b-2 border-gray-300 dark:border-gray-600">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          {t('leaderboard.rank') || 'Rank'}
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          {t('leaderboard.player') || 'Player'}
+                        </th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          🎯 {t('leaderboard.completed') || 'Completed'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {challengeBoard.map((entry, index) => (
+                        <tr
+                          key={entry.userId}
+                          className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${index < 3 ? 'bg-yellow-50/30 dark:bg-yellow-900/10' : ''}`}
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {entry.rank === 1 && <span className="text-2xl mr-2">🥇</span>}
+                              {entry.rank === 2 && <span className="text-2xl mr-2">🥈</span>}
+                              {entry.rank === 3 && <span className="text-2xl mr-2">🥉</span>}
+                              <span className="text-lg font-black text-gray-900 dark:text-white">#{entry.rank}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-10 h-10 flex-shrink-0">
+                                <div className="relative w-full h-full rounded-full overflow-hidden border-2 shadow-sm" style={{ borderColor: 'var(--chain-primary)' }}>
+                                  <Image
+                                    src={entry.avatar_url || '/avatars/predefined/default-player.svg'}
+                                    alt={entry.username}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              </div>
+                              <div className="text-sm font-bold text-gray-900 dark:text-white">
+                                {entry.displayName || entry.username}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <span className="text-lg font-black" style={{ color: 'var(--chain-primary)' }}>
+                              {entry.completed}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                              {entry.completed === 1 ? (t('daily.title') || 'challenge') : (t('leaderboard.challengesCount') || 'challenges')}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Scores leaderboard — only show when in scores mode */}
+        {viewMode === 'scores' && <>
 
         {/* Chain Filter Tabs */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-xl p-4 mb-4 shadow-lg">
@@ -410,6 +552,8 @@ export default function LeaderboardPage() {
         <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           <p>Rankings update automatically as players compete across games</p>
         </div>
+
+        </> /* end viewMode === 'scores' */}
       </div>
     </main>
   );

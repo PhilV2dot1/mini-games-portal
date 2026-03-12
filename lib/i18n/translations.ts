@@ -974,6 +974,13 @@ export const translations = {
       wins: 'Wins',
       loadingLeaderboard: 'Loading leaderboard...',
       noPlayers: 'No players yet',
+      scores: 'Scores',
+      challenges: 'Daily Challenges',
+      noChallenges: 'No challenge completions yet. Be the first!',
+      challengeRanking: 'Challenge Ranking',
+      challengeRankingDesc: 'Players ranked by number of daily challenges completed',
+      completed: 'Completed',
+      challengesCount: 'challenges',
     },
 
     // Audio
@@ -2219,6 +2226,13 @@ export const translations = {
       wins: 'Victoires',
       loadingLeaderboard: 'Chargement du classement...',
       noPlayers: 'Aucun joueur pour le moment',
+      scores: 'Scores',
+      challenges: 'Défis Quotidiens',
+      noChallenges: 'Aucun défi complété pour le moment. Soyez le premier !',
+      challengeRanking: 'Classement Défis',
+      challengeRankingDesc: 'Joueurs classés par nombre de défis quotidiens complétés',
+      completed: 'Complétés',
+      challengesCount: 'défis',
     },
 
     // Audio
