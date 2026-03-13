@@ -168,6 +168,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Record score in current season (fire-and-forget)
+    supabase.rpc('record_season_score' as never, {
+      p_user_id: userId,
+      p_points: pointsEarned,
+      p_won: result === 'win',
+    } as never).catch(() => {});
+
     console.log('[Session API] Session created successfully:', { sessionId: session.id, userId, pointsEarned });
 
     return NextResponse.json({

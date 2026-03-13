@@ -9,6 +9,7 @@ import { ProfileSetup } from "@/components/profile/ProfileSetup";
 import { DailyChallenge } from "@/components/shared/DailyChallenge";
 import { LoginStreak } from "@/components/shared/LoginStreak";
 import { WeeklyMissions } from "@/components/shared/WeeklyMissions";
+import { SeasonBanner } from "@/components/shared/SeasonBanner";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useLocalStats } from "@/hooks/useLocalStats";
@@ -101,6 +102,16 @@ export default function Home() {
         >
           <DailyChallenge />
           <LoginStreak />
+        </motion.div>
+
+        {/* Season Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08, duration: 0.5 }}
+          className="mb-4"
+        >
+          <SeasonBanner />
         </motion.div>
 
         {/* Weekly Missions */}

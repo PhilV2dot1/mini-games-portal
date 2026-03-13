@@ -72,6 +72,21 @@ export const translations = {
       },
     },
 
+    seasons: {
+      current: 'Current Season',
+      daysLeft: 'days left',
+      lastDay: 'Last day!',
+      viewRanking: 'View Ranking →',
+      start: 'Start',
+      end: 'End',
+      tab: 'Season',
+      seasonLeaderboard: 'Season Leaderboard',
+      noSeasonData: 'No season data yet.',
+      points: 'Pts',
+      gamesPlayed: 'Games',
+      wins: 'Wins',
+    },
+
     onboarding: {
       welcomeTitle: 'Welcome to Mini Games Portal!',
       xpBonus: '+50 XP bonus when you start!',
@@ -1376,6 +1391,21 @@ export const translations = {
       },
     },
 
+    seasons: {
+      current: 'Saison en cours',
+      daysLeft: 'jours restants',
+      lastDay: 'Dernier jour !',
+      viewRanking: 'Voir le classement →',
+      start: 'Début',
+      end: 'Fin',
+      tab: 'Saison',
+      seasonLeaderboard: 'Classement Saisonnier',
+      noSeasonData: 'Pas encore de données de saison.',
+      points: 'Pts',
+      gamesPlayed: 'Parties',
+      wins: 'Victoires',
+    },
+
     onboarding: {
       welcomeTitle: 'Bienvenue sur Mini Games Portal !',
       xpBonus: '+50 XP bonus au démarrage !',
@@ -2633,6 +2663,7 @@ export const translations = {
     notifications: { title: 'Notificaciones', empty: 'Sin notificaciones', clearAll: 'Borrar todo', justNow: 'ahora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nivel Jugador', xp: 'XP', bronze1: 'Bronce I', bronze2: 'Bronce II', bronze3: 'Bronce III', silver1: 'Plata I', silver2: 'Plata II', silver3: 'Plata III', gold1: 'Oro I', gold2: 'Oro II', platinum: 'Platino', diamond: 'Diamante', levelUp: '¡Subiste de Nivel!', xpEarned: '+{amount} XP' },
     missions: { title: 'Misiones Semanales', subtitle: 'Se reinicia cada lunes', missionComplete: '¡Misión completada!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jugar {target} partidas', wins: 'Ganar {target} partidas', points: 'Ganar {target} puntos', uniqueGames: 'Probar {target} juegos distintos', dailyChallenges: 'Completar {target} desafíos diarios' } },
+    seasons: { current: 'Temporada Actual', daysLeft: 'días restantes', lastDay: '¡Último día!', viewRanking: 'Ver Clasificación →', start: 'Inicio', end: 'Fin', tab: 'Temporada', seasonLeaderboard: 'Clasificación de Temporada', noSeasonData: 'Sin datos de temporada aún.', points: 'Pts', gamesPlayed: 'Partidas', wins: 'Victorias' },
     onboarding: { welcomeTitle: '¡Bienvenido a Mini Games Portal!', xpBonus: '+50 XP de bonus al empezar', skip: 'Omitir', next: 'Siguiente →', start: '¡Vamos! 🚀', step1: { title: 'Juega 16 juegos', desc: 'Del Blackjack al Tetris, en Celo, Base, MegaETH y Soneium. Gana puntos con cada victoria.' }, step2: { title: 'Escala el marcador', desc: 'Compite con jugadores de todo el mundo en todas las cadenas. Desafíos diarios y misiones semanales.' }, step3: { title: 'Sube de nivel y gana XP', desc: '¡Acumula XP con cada acción. Sube de Bronce a Diamante!' } },
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
@@ -2744,6 +2775,7 @@ export const translations = {
     notifications: { title: 'Notificações', empty: 'Sem notificações', clearAll: 'Limpar tudo', justNow: 'agora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nível do Jogador', xp: 'XP', bronze1: 'Bronze I', bronze2: 'Bronze II', bronze3: 'Bronze III', silver1: 'Prata I', silver2: 'Prata II', silver3: 'Prata III', gold1: 'Ouro I', gold2: 'Ouro II', platinum: 'Platina', diamond: 'Diamante', levelUp: 'Subiu de Nível!', xpEarned: '+{amount} XP' },
     missions: { title: 'Missões Semanais', subtitle: 'Reinicia toda segunda-feira', missionComplete: 'Missão concluída!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jogar {target} partidas', wins: 'Ganhar {target} partidas', points: 'Ganhar {target} pontos', uniqueGames: 'Experimentar {target} jogos diferentes', dailyChallenges: 'Completar {target} desafios diários' } },
+    seasons: { current: 'Temporada Atual', daysLeft: 'dias restantes', lastDay: 'Último dia!', viewRanking: 'Ver Classificação →', start: 'Início', end: 'Fim', tab: 'Temporada', seasonLeaderboard: 'Classificação da Temporada', noSeasonData: 'Sem dados de temporada ainda.', points: 'Pts', gamesPlayed: 'Partidas', wins: 'Vitórias' },
     onboarding: { welcomeTitle: 'Bem-vindo ao Mini Games Portal!', xpBonus: '+50 XP de bônus ao começar!', skip: 'Pular', next: 'Próximo →', start: 'Vamos lá! 🚀', step1: { title: 'Jogue 16 jogos', desc: 'Do Blackjack ao Tetris, na Celo, Base, MegaETH e Soneium. Ganhe pontos a cada vitória.' }, step2: { title: 'Suba no placar', desc: 'Compete com jogadores do mundo todo em todas as chains. Desafios diários e missões semanais.' }, step3: { title: 'Suba de nível e ganhe XP', desc: 'Acumule XP a cada ação. Suba de Bronze a Diamante!' } },
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
