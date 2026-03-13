@@ -72,6 +72,26 @@ export const translations = {
       },
     },
 
+    onboarding: {
+      welcomeTitle: 'Welcome to Mini Games Portal!',
+      xpBonus: '+50 XP bonus when you start!',
+      skip: 'Skip',
+      next: 'Next →',
+      start: "Let's Go! 🚀",
+      step1: {
+        title: 'Play 16 Games',
+        desc: 'From Blackjack to Tetris, on Celo, Base, MegaETH and Soneium. Earn points with every win.',
+      },
+      step2: {
+        title: 'Climb the Leaderboard',
+        desc: 'Compete with players worldwide across all chains. Complete daily challenges and weekly missions.',
+      },
+      step3: {
+        title: 'Level Up & Earn XP',
+        desc: 'Gain XP with every action. Rise from Bronze to Diamond and unlock your full potential!',
+      },
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -1356,6 +1376,26 @@ export const translations = {
       },
     },
 
+    onboarding: {
+      welcomeTitle: 'Bienvenue sur Mini Games Portal !',
+      xpBonus: '+50 XP bonus au démarrage !',
+      skip: 'Passer',
+      next: 'Suivant →',
+      start: 'C\'est parti ! 🚀',
+      step1: {
+        title: 'Jouez à 16 jeux',
+        desc: 'Du Blackjack au Tetris, sur Celo, Base, MegaETH et Soneium. Gagnez des points à chaque victoire.',
+      },
+      step2: {
+        title: 'Grimpez au classement',
+        desc: 'Affrontez des joueurs du monde entier sur toutes les chaînes. Défis quotidiens et missions hebdomadaires.',
+      },
+      step3: {
+        title: 'Montez en niveau et gagnez des XP',
+        desc: 'Accumulez des XP à chaque action. Passez de Bronze à Diamant et atteignez votre plein potentiel !',
+      },
+    },
+
     // Game Common
     games: {
       // Game modes
@@ -2593,6 +2633,7 @@ export const translations = {
     notifications: { title: 'Notificaciones', empty: 'Sin notificaciones', clearAll: 'Borrar todo', justNow: 'ahora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nivel Jugador', xp: 'XP', bronze1: 'Bronce I', bronze2: 'Bronce II', bronze3: 'Bronce III', silver1: 'Plata I', silver2: 'Plata II', silver3: 'Plata III', gold1: 'Oro I', gold2: 'Oro II', platinum: 'Platino', diamond: 'Diamante', levelUp: '¡Subiste de Nivel!', xpEarned: '+{amount} XP' },
     missions: { title: 'Misiones Semanales', subtitle: 'Se reinicia cada lunes', missionComplete: '¡Misión completada!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jugar {target} partidas', wins: 'Ganar {target} partidas', points: 'Ganar {target} puntos', uniqueGames: 'Probar {target} juegos distintos', dailyChallenges: 'Completar {target} desafíos diarios' } },
+    onboarding: { welcomeTitle: '¡Bienvenido a Mini Games Portal!', xpBonus: '+50 XP de bonus al empezar', skip: 'Omitir', next: 'Siguiente →', start: '¡Vamos! 🚀', step1: { title: 'Juega 16 juegos', desc: 'Del Blackjack al Tetris, en Celo, Base, MegaETH y Soneium. Gana puntos con cada victoria.' }, step2: { title: 'Escala el marcador', desc: 'Compite con jugadores de todo el mundo en todas las cadenas. Desafíos diarios y misiones semanales.' }, step3: { title: 'Sube de nivel y gana XP', desc: '¡Acumula XP con cada acción. Sube de Bronce a Diamante!' } },
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
       difficulty: { title: 'Dificultad IA', easy: 'Fácil', medium: 'Medio', hard: 'Difícil' },
@@ -2703,6 +2744,7 @@ export const translations = {
     notifications: { title: 'Notificações', empty: 'Sem notificações', clearAll: 'Limpar tudo', justNow: 'agora', minAgo: 'min', hAgo: 'h', dAgo: 'd' },
     levels: { title: 'Nível do Jogador', xp: 'XP', bronze1: 'Bronze I', bronze2: 'Bronze II', bronze3: 'Bronze III', silver1: 'Prata I', silver2: 'Prata II', silver3: 'Prata III', gold1: 'Ouro I', gold2: 'Ouro II', platinum: 'Platina', diamond: 'Diamante', levelUp: 'Subiu de Nível!', xpEarned: '+{amount} XP' },
     missions: { title: 'Missões Semanais', subtitle: 'Reinicia toda segunda-feira', missionComplete: 'Missão concluída!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jogar {target} partidas', wins: 'Ganhar {target} partidas', points: 'Ganhar {target} pontos', uniqueGames: 'Experimentar {target} jogos diferentes', dailyChallenges: 'Completar {target} desafios diários' } },
+    onboarding: { welcomeTitle: 'Bem-vindo ao Mini Games Portal!', xpBonus: '+50 XP de bônus ao começar!', skip: 'Pular', next: 'Próximo →', start: 'Vamos lá! 🚀', step1: { title: 'Jogue 16 jogos', desc: 'Do Blackjack ao Tetris, na Celo, Base, MegaETH e Soneium. Ganhe pontos a cada vitória.' }, step2: { title: 'Suba no placar', desc: 'Compete com jogadores do mundo todo em todas as chains. Desafios diários e missões semanais.' }, step3: { title: 'Suba de nível e ganhe XP', desc: 'Acumule XP a cada ação. Suba de Bronze a Diamante!' } },
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
       difficulty: { title: 'Dificuldade IA', easy: 'Fácil', medium: 'Médio', hard: 'Difícil' },
