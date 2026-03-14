@@ -136,7 +136,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     soneium: '0x96492b9aa802DA6C0922eEa89bEDDB05433D05FF',
   },
   wordle: {
-    celo: null,    // contract to be deployed
+    celo: '0x3Be204FcE03b7ec24e85C1d4320A81Df59cF34f0',
     base: null,
     megaeth: null,
     soneium: null,
