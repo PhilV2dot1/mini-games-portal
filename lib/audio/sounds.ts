@@ -143,6 +143,14 @@ export const GAME_SOUNDS = {
     gameOver: { path: '/audio/tetris/gameover.mp3', category: 'lose' as const },
   },
 
+  // Wordle
+  wordle: {
+    type:  { path: '/audio/wordle/type.mp3',  category: 'action' as const, volume: 0.4 },
+    flip:  { path: '/audio/wordle/flip.mp3',  category: 'action' as const },
+    win:   { path: '/audio/wordle/win.mp3',   category: 'win' as const },
+    lose:  { path: '/audio/wordle/lose.mp3',  category: 'lose' as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },

@@ -40,6 +40,7 @@ const DEFAULT_PROFILE: UserProfile = {
     maze: { ...DEFAULT_GAME_STATS },
     tetris: { ...DEFAULT_GAME_STATS },
     poker: { ...DEFAULT_GAME_STATS },
+    wordle: { ...DEFAULT_GAME_STATS },
   },
 };
 

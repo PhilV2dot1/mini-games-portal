@@ -127,6 +127,7 @@ export const translations = {
 
       // Common game actions
       startGame: 'Start Game',
+      playAgain: 'Play Again',
       starting: 'Starting...',
       reset: 'Reset',
       backToPortal: '← Back to Portal',
@@ -634,6 +635,21 @@ export const translations = {
         unfinishedSession: '⚠️ You have an unfinished session on-chain. Abandon it to start a new session.',
         handsLabel: 'hands',
         wonLabel: 'won',
+      },
+
+      // Wordle specific
+      wordle: {
+        title: 'Wordle',
+        subtitle: 'Guess the 5-letter word in 6 tries!',
+        howToPlay: 'How to Play',
+        rule1: 'Guess a 5-letter word in 6 attempts',
+        rule2: 'Each guess must be a valid English word',
+        rule3: 'The color of tiles changes to show how close your guess was',
+        ruleGreen: 'Correct letter, correct position',
+        ruleYellow: 'Correct letter, wrong position',
+        ruleGray: 'Letter not in the word',
+        footer: '🟩 Classic Wordle with blockchain integration',
+        viewOnCeloscan: 'View on Explorer →',
       },
     },
 
@@ -1446,6 +1462,7 @@ export const translations = {
 
       // Common game actions
       startGame: 'Démarrer',
+      playAgain: 'Rejouer',
       starting: 'Démarrage...',
       reset: 'Réinitialiser',
       backToPortal: '← Retour au Portail',
@@ -1953,6 +1970,21 @@ export const translations = {
         unfinishedSession: '⚠️ Vous avez une session on-chain non terminée. Abandonnez-la pour en démarrer une nouvelle.',
         handsLabel: 'mains',
         wonLabel: 'gagnées',
+      },
+
+      // Wordle FR
+      wordle: {
+        title: 'Wordle',
+        subtitle: 'Devinez le mot en 5 lettres en 6 essais !',
+        howToPlay: 'Comment Jouer',
+        rule1: 'Devinez un mot de 5 lettres en 6 tentatives',
+        rule2: 'Chaque tentative doit être un mot anglais valide',
+        rule3: 'La couleur des tuiles indique la proximité de votre réponse',
+        ruleGreen: 'Bonne lettre, bonne position',
+        ruleYellow: 'Bonne lettre, mauvaise position',
+        ruleGray: 'Lettre absente du mot',
+        footer: '🟩 Wordle classique avec intégration blockchain',
+        viewOnCeloscan: 'Voir sur l\'Explorer →',
       },
     },
 
@@ -2668,7 +2700,7 @@ export const translations = {
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
       difficulty: { title: 'Dificultad IA', easy: 'Fácil', medium: 'Medio', hard: 'Difícil' },
-      startGame: 'Iniciar', starting: 'Iniciando...', reset: 'Reiniciar', backToPortal: '← Volver al Portal',
+      startGame: 'Iniciar', playAgain: 'Jugar de nuevo', starting: 'Iniciando...', reset: 'Reiniciar', backToPortal: '← Volver al Portal',
       contract: 'Contrato:', chooseYourMove: 'Elige tu movimiento', yourStats: 'Tus Estadísticas', playNow: 'Jugar',
       msg: {
         victory: '¡Victoria!', youWin: '¡Ganaste!', youLose: 'Perdiste', aiWins: 'La IA gana', draw: '¡Empate!', itsTie: '¡Empate!',
@@ -2728,6 +2760,7 @@ export const translations = {
       maze: { title: 'Laberinto', subtitle: '¡Navega del inicio al final!', howToPlay: 'Cómo Jugar', rule1: 'Usa las flechas o WASD para navegar por el laberinto', rule2: 'Encuentra el camino desde el inicio verde hasta la salida dorada', rule3: '¡Bate el crono! Menos movimientos y más rápido = mejor puntuación', moves: 'Movimientos', clickToStart: '¡Haz clic en Iniciar para comenzar!', instructions: 'Flechas / WASD para moverse', viewOnCeloscan: 'Ver en Explorer →', timesUp: '¡Tiempo agotado!', fogWarning: 'Visión limitada', wallsMoving: '¡Muros en movimiento!' },
       tetris: { title: 'Tetris', subtitle: '¡Elimina líneas con bloques que caen!', howToPlay: 'Cómo Jugar', rule1: 'Mueve y rota piezas para formar líneas completas', rule2: 'Elimina líneas para puntuar — ¡4 a la vez para un Tetris!', rule3: 'La velocidad aumenta cada nivel (cada 10 líneas)', rule4: 'Usa Reserva (C) para guardar una pieza', level: 'Nivel', lines: 'Líneas', hold: 'Reserva', next: 'Siguiente', instructions: '← → Mover | ↑ Rotar | ↓ Caída suave | Espacio Caída | C Reserva', footer: 'Tetris clásico con integración blockchain', viewOnCeloscan: 'Ver en Explorer →' },
       poker: { title: 'Poker', subtitle: "Texas Hold'em — Solo y Multijugador", dealCards: 'Repartir', newHand: 'Nueva Mano', fold: 'Retirarse', check: 'Pasar', call: 'Igualar', bet: 'Apostar', raise: 'Subir', allIn: 'All-In', pot: 'Bote', yourHand: 'Tu Mano', dealerHand: 'Mano del Crupier', communityCards: 'Cartas Comunitarias', preflop: 'Pre-Flop', flop: 'El Flop', turn: 'El Turn', river: 'El River', showdown: 'Showdown', youWin: '🎉 ¡GANASTE!', dealerWins: '😔 El crupier gana', splitPot: '🤝 ¡Bote dividido!', youFolded: '😔 Te retiraste', dealerFolded: '🎉 ¡El crupier se retiró — ganaste!', handsPlayed: 'Manos', handsWon: 'Ganadas', winRate: 'Tasa de victoria', streak: 'Racha', biggestPot: 'Mayor bote', smallBlind: 'Ciega Pequeña', bigBlind: 'Ciega Grande', stack: 'Fichas', notEnoughChips: '❌ ¡Sin fichas suficientes! Fin del juego.', howToPlay: 'Cómo Jugar', rule1: 'Cada jugador recibe 2 cartas privadas — mantenlas en secreto', rule2: '5 cartas comunitarias se revelan en 3 rondas: Flop, Turn, River', rule3: 'Forma la mejor mano de 5 cartas con tus 2 + 5 cartas comunitarias', rule4: 'Apuesta, Pasa, Sube o Retírate en cada calle', footer: "Texas Hold'em Poker con integración blockchain", viewOnExplorer: 'Ver en Explorer →', startSession: '⛓️ Iniciar Sesión', endSession: '⛓️ Terminar Sesión', abandonSession: '🗑️ Abandonar Sesión', abandoning: '⏳ Abandonando...', recording: '⏳ Registrando...', confirming: '⏳ Confirmando...', unfinishedSession: '⚠️ Tienes una sesión on-chain sin terminar. Abandónala para iniciar una nueva.', handsLabel: 'manos', wonLabel: 'ganadas' },
+      wordle: { title: 'Wordle', subtitle: '¡Adivina la palabra de 5 letras en 6 intentos!', howToPlay: 'Cómo Jugar', rule1: 'Adivina una palabra de 5 letras en 6 intentos', rule2: 'Cada intento debe ser una palabra inglesa válida', rule3: 'El color de las fichas muestra la cercanía de tu respuesta', ruleGreen: 'Letra correcta, posición correcta', ruleYellow: 'Letra correcta, posición incorrecta', ruleGray: 'Letra ausente en la palabra', footer: '🟩 Wordle clásico con integración blockchain', viewOnCeloscan: 'Ver en Explorer →' },
     },
     wallet: { connectPrompt: 'Conecta tu billetera para jugar on-chain', connectFarcaster: 'Conectar con billetera Farcaster', connectWalletConnect: 'Conectar con cualquier billetera móvil', connectMetaMask: 'Conectar con MetaMask', connectCoinbase: 'Conectar con Coinbase / Base Wallet', connectBrowser: 'Conectar con billetera del navegador', connectWith: 'Conectar con', switchingNetwork: 'Cambiando red...', via: 'via', disconnect: 'Desconectar', disconnectLabel: 'Desconectar billetera', farcasterNotReady: 'SDK de Farcaster no listo. Algunas funciones pueden no funcionar.', noConnectors: 'No hay conectores de billetera disponibles' },
     header: { subtitle: 'Juega Mini-Juegos en la Blockchain' },
@@ -2780,7 +2813,7 @@ export const translations = {
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
       difficulty: { title: 'Dificuldade IA', easy: 'Fácil', medium: 'Médio', hard: 'Difícil' },
-      startGame: 'Iniciar', starting: 'Iniciando...', reset: 'Reiniciar', backToPortal: '← Voltar ao Portal',
+      startGame: 'Iniciar', playAgain: 'Jogar novamente', starting: 'Iniciando...', reset: 'Reiniciar', backToPortal: '← Voltar ao Portal',
       contract: 'Contrato:', chooseYourMove: 'Escolha seu movimento', yourStats: 'Suas Estatísticas', playNow: 'Jogar',
       msg: {
         victory: 'Vitória!', youWin: 'Você Venceu!', youLose: 'Você Perdeu', aiWins: 'A IA Vence', draw: 'Empate!', itsTie: 'Empate!',
@@ -2840,6 +2873,7 @@ export const translations = {
       maze: { title: 'Labirinto', subtitle: 'Navegue do início ao fim!', howToPlay: 'Como Jogar', rule1: 'Use as setas ou WASD para navegar pelo labirinto', rule2: 'Encontre o caminho do início verde até a saída dourada', rule3: 'Bata o cronômetro! Menos movimentos e mais rápido = melhor pontuação', moves: 'Movimentos', clickToStart: 'Clique em Iniciar para começar!', instructions: 'Setas / WASD para mover', viewOnCeloscan: 'Ver no Explorer →', timesUp: 'Tempo esgotado!', fogWarning: 'Visão limitada', wallsMoving: 'Paredes se movendo!' },
       tetris: { title: 'Tetris', subtitle: 'Elimine linhas com blocos que caem!', howToPlay: 'Como Jogar', rule1: 'Mova e gire peças para formar linhas completas', rule2: 'Elimine linhas para pontuar — 4 de uma vez para um Tetris!', rule3: 'A velocidade aumenta a cada nível (a cada 10 linhas)', rule4: 'Use Reserva (C) para guardar uma peça', level: 'Nível', lines: 'Linhas', hold: 'Reserva', next: 'Próxima', instructions: '← → Mover | ↑ Girar | ↓ Queda suave | Espaço Queda | C Reserva', footer: 'Tetris clássico com integração blockchain', viewOnCeloscan: 'Ver no Explorer →' },
       poker: { title: 'Poker', subtitle: "Texas Hold'em — Solo e Multijogador", dealCards: 'Distribuir', newHand: 'Nova Mão', fold: 'Desistir', check: 'Passar', call: 'Pagar', bet: 'Apostar', raise: 'Aumentar', allIn: 'All-In', pot: 'Pote', yourHand: 'Sua Mão', dealerHand: 'Mão do Dealer', communityCards: 'Cartas Comunitárias', preflop: 'Pré-Flop', flop: 'O Flop', turn: 'O Turn', river: 'O River', showdown: 'Showdown', youWin: '🎉 VOCÊ VENCEU!', dealerWins: '😔 O dealer vence', splitPot: '🤝 Pote dividido!', youFolded: '😔 Você desistiu', dealerFolded: '🎉 O dealer desistiu — você venceu!', handsPlayed: 'Mãos', handsWon: 'Ganhas', winRate: 'Taxa de vitória', streak: 'Sequência', biggestPot: 'Maior pote', smallBlind: 'Small Blind', bigBlind: 'Big Blind', stack: 'Fichas', notEnoughChips: '❌ Fichas insuficientes! Fim de jogo.', howToPlay: 'Como Jogar', rule1: 'Cada jogador recebe 2 cartas privadas — mantenha-as em segredo', rule2: '5 cartas comunitárias são reveladas em 3 rodadas: Flop, Turn, River', rule3: 'Forme a melhor mão de 5 cartas com suas 2 + 5 cartas comunitárias', rule4: 'Aposte, Passe, Aumente ou Desista em cada rua', footer: "Texas Hold'em Poker com integração blockchain", viewOnExplorer: 'Ver no Explorer →', startSession: '⛓️ Iniciar Sessão', endSession: '⛓️ Encerrar Sessão', abandonSession: '🗑️ Abandonar Sessão', abandoning: '⏳ Abandonando...', recording: '⏳ Registrando...', confirming: '⏳ Confirmando...', unfinishedSession: '⚠️ Você tem uma sessão on-chain incompleta. Abandone-a para iniciar uma nova.', handsLabel: 'mãos', wonLabel: 'ganhas' },
+      wordle: { title: 'Wordle', subtitle: 'Adivinhe a palavra de 5 letras em 6 tentativas!', howToPlay: 'Como Jogar', rule1: 'Adivinhe uma palavra de 5 letras em 6 tentativas', rule2: 'Cada tentativa deve ser uma palavra inglesa válida', rule3: 'A cor dos blocos mostra quão próxima foi sua resposta', ruleGreen: 'Letra correta, posição correta', ruleYellow: 'Letra correta, posição errada', ruleGray: 'Letra ausente na palavra', footer: '🟩 Wordle clássico com integração blockchain', viewOnCeloscan: 'Ver no Explorer →' },
     },
     wallet: { connectPrompt: 'Conecte sua carteira para jogar on-chain', connectFarcaster: 'Conectar com carteira Farcaster', connectWalletConnect: 'Conectar com qualquer carteira móvel', connectMetaMask: 'Conectar com MetaMask', connectCoinbase: 'Conectar com Coinbase / Base Wallet', connectBrowser: 'Conectar com carteira do navegador', connectWith: 'Conectar com', switchingNetwork: 'Trocando rede...', via: 'via', disconnect: 'Desconectar', disconnectLabel: 'Desconectar carteira', farcasterNotReady: 'SDK Farcaster não está pronto. Alguns recursos podem não funcionar.', noConnectors: 'Nenhum conector de carteira disponível' },
     header: { subtitle: 'Jogue Mini-Games na Blockchain' },

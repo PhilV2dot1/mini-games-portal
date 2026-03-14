@@ -1,0 +1,184 @@
+/**
+ * Wordle word bank — 5-letter English words
+ * Target words: common, recognizable words
+ * Valid guesses: wider set including less common words
+ */
+
+export const WORDLE_ANSWERS: string[] = [
+  'ABOUT', 'ABOVE', 'ABUSE', 'ACTOR', 'ACUTE', 'ADMIT', 'ADOPT', 'ADULT',
+  'AFTER', 'AGAIN', 'AGENT', 'AGREE', 'AHEAD', 'ALARM', 'ALBUM', 'ALERT',
+  'ALIEN', 'ALIGN', 'ALIKE', 'ALIVE', 'ALLEY', 'ALLOW', 'ALONE', 'ALONG',
+  'ALTER', 'ANGEL', 'ANGER', 'ANGLE', 'ANGRY', 'ANIME', 'ANKLE', 'ANNEX',
+  'APART', 'APPLE', 'APPLY', 'ARENA', 'ARGUE', 'ARISE', 'ARMOR', 'ARMY',
+  'AROMA', 'ARRAY', 'ARROW', 'ASSET', 'ATLAS', 'ATTIC', 'AUDIO', 'AUDIT',
+  'AVOID', 'AWARD', 'AWARE', 'AWFUL', 'AXIAL', 'AZURE', 'BADGE', 'BASIC',
+  'BASIS', 'BATCH', 'BEACH', 'BEARD', 'BEAST', 'BEGIN', 'BEING', 'BELOW',
+  'BENCH', 'BINGO', 'BIRTH', 'BLADE', 'BLAME', 'BLAND', 'BLANK', 'BLAST',
+  'BLAZE', 'BLEED', 'BLEND', 'BLESS', 'BLIND', 'BLOCK', 'BLOOD', 'BLOOM',
+  'BOARD', 'BONUS', 'BOOST', 'BOOTH', 'BOUND', 'BRAIN', 'BRAND', 'BRAVE',
+  'BREAK', 'BREED', 'BRICK', 'BRIDE', 'BRIEF', 'BRING', 'BROAD', 'BROKE',
+  'BROOK', 'BROWN', 'BRUSH', 'BUILD', 'BUILT', 'BURST', 'BUYER', 'CABIN',
+  'CABLE', 'CAMEL', 'CANDY', 'CARGO', 'CARRY', 'CATCH', 'CAUSE', 'CEASE',
+  'CHAIN', 'CHAIR', 'CHAOS', 'CHARM', 'CHART', 'CHASE', 'CHEAP', 'CHECK',
+  'CHESS', 'CHEST', 'CHIEF', 'CHILD', 'CHILL', 'CHINA', 'CHOIR', 'CHUNK',
+  'CIVIL', 'CLAIM', 'CLASS', 'CLEAN', 'CLEAR', 'CLERK', 'CLICK', 'CLIFF',
+  'CLIMB', 'CLING', 'CLOCK', 'CLONE', 'CLOSE', 'CLOTH', 'CLOUD', 'COACH',
+  'COAST', 'CODEC', 'COMET', 'COMIC', 'COMMA', 'CORAL', 'COURT', 'COVER',
+  'CRAFT', 'CRANE', 'CRASH', 'CRAZY', 'CREAM', 'CREEK', 'CRISP', 'CROSS',
+  'CROWD', 'CRUEL', 'CRUSH', 'CURVE', 'CYCLE', 'DAILY', 'DANCE', 'DATUM',
+  'DEBUT', 'DELTA', 'DEMON', 'DENSE', 'DEPOT', 'DEPTH', 'DERBY', 'DEPOT',
+  'DIGIT', 'DISCO', 'DIVER', 'DODGE', 'DONOR', 'DOUBT', 'DOUGH', 'DRAFT',
+  'DRAIN', 'DRAMA', 'DRANK', 'DRAWN', 'DREAM', 'DRESS', 'DRIFT', 'DRINK',
+  'DRIVE', 'DRONE', 'DROVE', 'DROWN', 'DROWN', 'DRYER', 'EARLY', 'EARTH',
+  'EIGHT', 'ELITE', 'EMAIL', 'EMBER', 'EMOTE', 'EMPTY', 'ENEMY', 'ENJOY',
+  'ENTER', 'ENTRY', 'EQUAL', 'ERROR', 'ESSAY', 'EVENT', 'EVERY', 'EXACT',
+  'EXTRA', 'FABLE', 'FAITH', 'FALLS', 'FALSE', 'FANCY', 'FAULT', 'FEAST',
+  'FENCE', 'FEVER', 'FIBER', 'FIELD', 'FIERY', 'FIFTH', 'FIFTY', 'FIGHT',
+  'FINAL', 'FIRST', 'FIXED', 'FLAME', 'FLASH', 'FLEET', 'FLESH', 'FLOAT',
+  'FLOOD', 'FLOOR', 'FLORA', 'FLOSS', 'FLOUR', 'FLUID', 'FLUSH', 'FOCUS',
+  'FORCE', 'FORGE', 'FORUM', 'FOUND', 'FRAME', 'FRANK', 'FRAUD', 'FRESH',
+  'FRONT', 'FROST', 'FROZE', 'FRUIT', 'FULLY', 'FUNNY', 'GHOST', 'GIANT',
+  'GIVEN', 'GLAND', 'GLASS', 'GLOBE', 'GLOOM', 'GLOVE', 'GRACE', 'GRADE',
+  'GRAIN', 'GRAND', 'GRANT', 'GRAPE', 'GRASP', 'GRASS', 'GRAVEL', 'GREAT',
+  'GREEN', 'GREET', 'GRIEF', 'GRIND', 'GROAN', 'GROIN', 'GROPE', 'GROSS',
+  'GROUP', 'GROVE', 'GUARD', 'GUAVA', 'GUIDE', 'GUILD', 'GUILE', 'GUILT',
+  'GUISE', 'GUSTO', 'HABIT', 'HANDS', 'HAPPY', 'HARDY', 'HARSH', 'HEART',
+  'HEAVY', 'HENCE', 'HERBS', 'HINGE', 'HORSE', 'HOTEL', 'HOTEL', 'HOUSE',
+  'HUMAN', 'HUMOR', 'HURRY', 'HYENA', 'ICING', 'IDEAL', 'IMAGE', 'INCUR',
+  'INDEX', 'INFER', 'INPUT', 'ISSUE', 'IVORY', 'JAPAN', 'JOINT', 'JOKER',
+  'JUDGE', 'JUICE', 'JUMBO', 'JUROR', 'KARMA', 'KNIFE', 'KNOCK', 'KNOWN',
+  'LANCE', 'LASER', 'LATCH', 'LATER', 'LAUGH', 'LAYER', 'LEARN', 'LEASE',
+  'LEAVE', 'LEGAL', 'LEMON', 'LEVEL', 'LIGHT', 'LIMIT', 'LINGO', 'LIVER',
+  'LOCAL', 'LODGE', 'LOGIC', 'LOOSE', 'LOWER', 'LUCKY', 'LUNAR', 'LUNCH',
+  'LUSTY', 'LYRIC', 'MAGIC', 'MAJOR', 'MAKER', 'MANOR', 'MAPLE', 'MARCH',
+  'MATCH', 'MAYOR', 'MEDIA', 'MERCY', 'MERIT', 'METAL', 'METRO', 'MIGHT',
+  'MIXER', 'MODEL', 'MONEY', 'MONTH', 'MOOSE', 'MORAL', 'MOTEL', 'MOTOR',
+  'MOUNT', 'MOUSE', 'MOUTH', 'MOVER', 'MOVIE', 'MUSIC', 'NAIVE', 'NERVE',
+  'NEVER', 'NIGHT', 'NINJA', 'NOBLE', 'NOISE', 'NORTH', 'NOTED', 'NOVEL',
+  'NURSE', 'NYMPH', 'OASIS', 'OCCUR', 'OCEAN', 'OFFER', 'OFTEN', 'OLIVE',
+  'ONSET', 'OPERA', 'ORDER', 'OTHER', 'OUTER', 'OXIDE', 'OZONE', 'PAINT',
+  'PANEL', 'PANIC', 'PAPER', 'PARTY', 'PAUSE', 'PEACE', 'PEARL', 'PENNY',
+  'PHONE', 'PHOTO', 'PIANO', 'PIECE', 'PILOT', 'PIXEL', 'PIZZA', 'PLACE',
+  'PLAIN', 'PLANE', 'PLANT', 'PLATE', 'PLAZA', 'PLEAD', 'POINT', 'POLAR',
+  'POPPY', 'POWER', 'PRANK', 'PRESS', 'PRICE', 'PRIDE', 'PRIME', 'PRINT',
+  'PRIOR', 'PRIZE', 'PROBE', 'PROOF', 'PROSE', 'PROUD', 'PROVE', 'PROXY',
+  'PULSE', 'PUNCH', 'PUPIL', 'PURSE', 'QUEEN', 'QUERY', 'QUEST', 'QUEUE',
+  'QUICK', 'QUIET', 'QUOTA', 'QUOTE', 'RABBI', 'RADAR', 'RADIO', 'RAISE',
+  'RALLY', 'RANCH', 'RANGE', 'RAPID', 'RATIO', 'REACH', 'REACT', 'READY',
+  'REALM', 'REBEL', 'REFER', 'REGAL', 'REIGN', 'RELAY', 'REPAY', 'REPLY',
+  'RESIN', 'RETRY', 'RIDGE', 'RIGHT', 'RIGID', 'RISKY', 'RIVAL', 'RIVER',
+  'ROBIN', 'ROBOT', 'ROCKY', 'ROUGE', 'ROUGH', 'ROUND', 'ROYAL', 'RUGBY',
+  'RULER', 'RUMOR', 'RURAL', 'SAINT', 'SALAD', 'SAUCE', 'SCALE', 'SCENE',
+  'SCOPE', 'SCORE', 'SCOUT', 'SEIZE', 'SENSE', 'SERVE', 'SETUP', 'SEVEN',
+  'SHADE', 'SHAKE', 'SHALL', 'SHAME', 'SHAPE', 'SHARE', 'SHARK', 'SHARP',
+  'SHEER', 'SHEET', 'SHELF', 'SHELL', 'SHIFT', 'SHINE', 'SHIRT', 'SHOCK',
+  'SHORE', 'SHORT', 'SHOUT', 'SIGHT', 'SIGMA', 'SILLY', 'SINCE', 'SIXTH',
+  'SIXTY', 'SKILL', 'SLAVE', 'SLEEP', 'SLIDE', 'SLOPE', 'SMART', 'SMELL',
+  'SMILE', 'SMOKE', 'SNAKE', 'SNEAK', 'SOLAR', 'SOLID', 'SOLVE', 'SORRY',
+  'SOUND', 'SOUTH', 'SPACE', 'SPARE', 'SPARK', 'SPEAK', 'SPELL', 'SPEND',
+  'SPICE', 'SPINE', 'SPITE', 'SPLIT', 'SPOKE', 'SPOON', 'SPORT', 'SPRAY',
+  'SQUAD', 'STACK', 'STAFF', 'STAGE', 'STAIN', 'STAKE', 'STALE', 'STAND',
+  'STARK', 'START', 'STATE', 'STAYS', 'STEAM', 'STEEL', 'STEEP', 'STEER',
+  'STERN', 'STICK', 'STONE', 'STOOD', 'STORE', 'STORM', 'STORY', 'STOVE',
+  'STRAW', 'STRIP', 'STUCK', 'STUDY', 'STYLE', 'SUGAR', 'SUITE', 'SUNNY',
+  'SUPER', 'SURGE', 'SWAMP', 'SWEAR', 'SWEEP', 'SWEET', 'SWEPT', 'SWIFT',
+  'SWORD', 'SWORE', 'SWORN', 'SWUNG', 'TABLE', 'TASTE', 'TEACH', 'TEMPO',
+  'TENSE', 'TERMS', 'THEME', 'THICK', 'THING', 'THINK', 'THIRD', 'THORN',
+  'THOSE', 'THREE', 'THREW', 'THROW', 'TIGER', 'TIGHT', 'TIMER', 'TIRED',
+  'TOAST', 'TOKEN', 'TOTAL', 'TOUCH', 'TOUGH', 'TOWEL', 'TOWER', 'TOXIC',
+  'TRACK', 'TRADE', 'TRAIL', 'TRAIN', 'TRASH', 'TREAT', 'TREND', 'TRIAL',
+  'TRIBE', 'TRICK', 'TRIED', 'TROOP', 'TROUT', 'TRUCE', 'TRUCK', 'TRULY',
+  'TRUMP', 'TRUNK', 'TRUST', 'TRUTH', 'TUMOR', 'TUNER', 'TUTOR', 'TWICE',
+  'TWIST', 'TYPED', 'ULTRA', 'UNCLE', 'UNDER', 'UNION', 'UNITY', 'UNTIL',
+  'UPPER', 'UPSET', 'URBAN', 'USAGE', 'USHER', 'USUAL', 'UTTER', 'VALID',
+  'VALUE', 'VAULT', 'VERSE', 'VIGOR', 'VIRAL', 'VIRUS', 'VISIT', 'VISTA',
+  'VITAL', 'VIVID', 'VOCAL', 'VOTER', 'WAGON', 'WASTE', 'WATCH', 'WATER',
+  'WEIGH', 'WEIRD', 'WHALE', 'WHEAT', 'WHERE', 'WHICH', 'WHILE', 'WHITE',
+  'WHOLE', 'WHOSE', 'WIDER', 'WITCH', 'WOMAN', 'WOMEN', 'WORLD', 'WORTH',
+  'WOULD', 'WOUND', 'WRATH', 'WRITE', 'WROTE', 'YACHT', 'YIELD', 'YOUNG',
+  'YOUTH', 'ZEBRA', 'ZONAL',
+];
+
+// Additional valid guesses (less common but valid 5-letter words)
+export const WORDLE_VALID_EXTRA: string[] = [
+  'ABBOT', 'ABHOR', 'ABIDE', 'ABLER', 'ABODE', 'ACOCK', 'ACORN', 'ACRID',
+  'ADAGE', 'ADEPT', 'ADORE', 'ADORN', 'ADEPT', 'AFFIX', 'AFOOT', 'AGILE',
+  'AGLOW', 'AGONY', 'AHOLD', 'AIDED', 'AISLE', 'ALOFT', 'ALOOF', 'ALOUD',
+  'AMPLE', 'AMUSE', 'ANEW', 'ANNOY', 'AORTA', 'APHID', 'APHIS', 'APTLY',
+  'ARBOR', 'ARDOR', 'ARID', 'AROSE', 'ATONE', 'AVAIL', 'AVIAN', 'AWOKE',
+  'BABOON', 'BADLY', 'BAGEL', 'BAKED', 'BALER', 'BALMY', 'BANAL', 'BARGE',
+  'BARON', 'BASAL', 'BASIL', 'BASTE', 'BATHE', 'BATTY', 'BAWDY', 'BAYOU',
+  'BEEFY', 'BEGUN', 'BERTH', 'BEVEL', 'BIRCH', 'BISON', 'BLATANT', 'BLEAT',
+  'BLIMP', 'BLINK', 'BLISS', 'BLOAT', 'BLUNT', 'BLURB', 'BLURT', 'BLUSH',
+  'BOGGY', 'BOGUS', 'BOLTS', 'BRAID', 'BRASH', 'BRAWN', 'BRINY', 'BROIL',
+  'BROTH', 'BUSHY', 'BUSTY', 'BUTCH', 'BUTTE', 'BYLAW', 'CACHE', 'CADDY',
+  'CAIRN', 'CAPED', 'CAPER', 'CARVE', 'CATTY', 'CHALK', 'CHAMP', 'CHANT',
+  'CHASM', 'CHIDE', 'CHIVE', 'CHOMP', 'CHORE', 'CHOSE', 'CHUMP', 'CLAMP',
+  'CLANG', 'CLANK', 'CLEAT', 'CLEFT', 'CLINK', 'CLOUT', 'CLUCK', 'CLUMP',
+  'CLUNK', 'COILS', 'COLIC', 'CRAMP', 'CRANK', 'CREAK', 'CREEP', 'CREST',
+  'CRICK', 'CRIMP', 'CRISP', 'CROAK', 'CROCK', 'CROOK', 'CROON', 'CULPA',
+  'CURLY', 'CUSHY', 'CUTIE', 'DAFFY', 'DAUNT', 'DAWDLE', 'DEATH', 'DECOY',
+  'DECRY', 'DENSE', 'DERBY', 'DEVIL', 'DICEY', 'DINGY', 'DITTY', 'DITTO',
+  'DIZZY', 'DOLTS', 'DOPEY', 'DROSS', 'DUMPY', 'DUNCE', 'DUSKY', 'DUSTY',
+  'ELFIN', 'EPOXY', 'EVERY', 'EXERT', 'EXILE', 'EXPEL', 'EXUDE', 'FLAIR',
+  'FLAKY', 'FLANK', 'FLAP', 'FLARE', 'FLASK', 'FLAUNT', 'FLAW', 'FLECK',
+  'FLINT', 'FLIPPER', 'FLINCH', 'FLOCK', 'FOGGY', 'FOLLY', 'FOYER', 'FRAIL',
+  'FREAK', 'FROTH', 'FROZY', 'FRUGAL', 'FUROR', 'FUZZY', 'GAUDY', 'GAUZE',
+  'GAVEL', 'GAWKY', 'GIFFY', 'GIRTH', 'GLEAN', 'GLINT', 'GLOAT', 'GLOSS',
+  'GLUM', 'GLYPH', 'GNARL', 'GNASH', 'GRAFT', 'GRUFF', 'GRUNT', 'GUISE',
+  'GULCH', 'GULLY', 'GUMMY', 'GUSTO', 'GUSTY', 'GUTTER', 'GAWKY', 'HAIKU',
+  'HAIRY', 'HASTY', 'HAVEN', 'HAWKISH', 'HEIST', 'HERKY', 'HILLY', 'HITCH',
+  'HOARY', 'HOBBY', 'HOLLY', 'HOMER', 'HORNY', 'HOVEL', 'HUMID', 'HUSKY',
+  'HUTCH', 'HYDRA', 'IMPEL', 'INANE', 'INEPT', 'INERT', 'INLAY', 'INLET',
+  'INTER', 'IRONY', 'ITCHY', 'IVORY', 'JAUNT', 'JAZZY', 'JERKY', 'JINGO',
+  'JIFFY', 'JUMPY', 'JUICY', 'KINKY', 'KNACK', 'KNAVE', 'KNEEL', 'KNELL',
+  'KNELT', 'KNIT', 'LANKY', 'LARVA', 'LEAFY', 'LEAKY', 'LEDGE', 'LEERY',
+  'LIEGE', 'LIMBO', 'LITHE', 'LIVID', 'LOATH', 'LOOPY', 'LOWLY', 'LUMPY',
+  'LUSTY', 'MANGY', 'MANLY', 'MURKY', 'MUSHY', 'MUSTY', 'NASTY', 'NIFTY',
+  'NUTTY', 'OUTDO', 'OUTDO', 'OXIDE', 'PAGAN', 'PARCH', 'PATCHY', 'PERCH',
+  'PERKY', 'PETTY', 'PICKY', 'PINCH', 'PITHY', 'PLUMB', 'PLUME', 'PLUNK',
+  'POUCH', 'POUTY', 'PRIMP', 'PRISM', 'PRIVY', 'PRONE', 'PRUNE', 'PSALM',
+  'PUDGY', 'PUFFY', 'PUGGY', 'PUNY', 'PYGMY', 'QUIRK', 'RABID', 'RASPY',
+  'RATTY', 'RAVIN', 'RAWLY', 'RIPEN', 'RISEN', 'RIVET', 'ROGUE', 'ROOMY',
+  'ROWDY', 'RUEFUL', 'RUGBY', 'RUDDY', 'RUSTY', 'SAFER', 'SAGGY', 'SALTY',
+  'SANDY', 'SAVVY', 'SCAMP', 'SCANT', 'SCARE', 'SCOFF', 'SCOLD', 'SCORN',
+  'SCOUR', 'SCRAP', 'SCREW', 'SCRUB', 'SEEDY', 'SENILE', 'SERUM', 'SHADY',
+  'SHAKY', 'SHEEN', 'SHINY', 'SHIRE', 'SKIMP', 'SKIRP', 'SKNKL', 'SLACK',
+  'SLAIN', 'SLANT', 'SLASH', 'SLEET', 'SLIME', 'SLIMY', 'SLINKY', 'SLUNG',
+  'SLUNK', 'SLURP', 'SNARL', 'SNORT', 'SNOUT', 'SNOWY', 'SOGGY', 'SPANK',
+  'SPASM', 'SPAWN', 'SPECK', 'SPIKY', 'SPILL', 'SPIRE', 'SPOUT', 'SPUNK',
+  'STIFF', 'STING', 'STINK', 'STOMP', 'STOIC', 'STOLE', 'STOMP', 'STOMP',
+  'STOOP', 'STRUT', 'STUMP', 'STUNG', 'STUNK', 'SUNKEN', 'SURLY', 'SWIPE',
+  'SYNTH', 'TACKY', 'TALON', 'TANGY', 'TAPIR', 'TARDY', 'TAUNT', 'TAWNY',
+  'TAXED', 'TEPID', 'THANE', 'THORN', 'TIPSY', 'TITAN', 'TOADY', 'TODDY',
+  'TOFFY', 'TOTEM', 'TRAWL', 'TREAD', 'TROMP', 'TRUSS', 'TURBO', 'TUSKED',
+  'TWANG', 'TWEAK', 'TYPIC', 'UDDER', 'USURP', 'VAGUE', 'VAPID', 'VENOM',
+  'VEXED', 'VIPER', 'VISTA', 'VIVID', 'VIXEN', 'VOMIT', 'WACKY', 'WADER',
+  'WARTY', 'WEEDY', 'WINDY', 'WISPY', 'WITCH', 'WORDY', 'WORMY', 'WRING',
+  'WRIST', 'YUCKY', 'ZESTY', 'ZILCH', 'ZIPPY', 'ZIRCON', 'ZOMBI',
+];
+
+// All valid 5-letter words (answers + extra)
+export const ALL_VALID_WORDS = new Set([...WORDLE_ANSWERS, ...WORDLE_VALID_EXTRA]);
+
+/**
+ * Get a deterministic daily word based on the current date.
+ * Same word for everyone on the same day.
+ */
+export function getDailyWord(): string {
+  const now = new Date();
+  const epoch = new Date(2024, 0, 1); // Jan 1 2024
+  const dayIndex = Math.floor((now.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24));
+  return WORDLE_ANSWERS[dayIndex % WORDLE_ANSWERS.length];
+}
+
+/**
+ * Get a random word for free/onchain play (not daily).
+ */
+export function getRandomWord(): string {
+  return WORDLE_ANSWERS[Math.floor(Math.random() * WORDLE_ANSWERS.length)];
+}
+
+export function isValidWord(word: string): boolean {
+  return ALL_VALID_WORDS.has(word.toUpperCase());
+}
