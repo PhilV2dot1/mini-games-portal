@@ -238,6 +238,7 @@ export default function WordlePage() {
           <div className="text-5xl mb-2" role="img" aria-label={t('games.wordle.title')}>🟩</div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.wordle.title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">{t('games.wordle.subtitle')}</p>
+          <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">{t('games.wordle.wordsInEnglish')}</p>
         </motion.div>
 
         {/* Mode Toggle */}
