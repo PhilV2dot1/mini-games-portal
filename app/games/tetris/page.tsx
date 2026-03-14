@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useCallback, useRef } from "react";
 import { useTetris } from "@/hooks/useTetris";
+import { useSwipe } from "@/hooks/useSwipe";
+import { useHaptic } from "@/hooks/useHaptic";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { TetrisBoard } from "@/components/tetris/TetrisBoard";
@@ -29,6 +31,7 @@ export default function TetrisPage() {
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
   const { play } = useGameAudio("tetris");
+  const { vibrate } = useHaptic();
 
   // Translate messages
   const translateMessage = useCallback(
@@ -58,26 +61,30 @@ export default function TetrisPage() {
       const cleared = game.lines - prevLines.current;
       if (cleared >= 4) {
         play("tetris");
+        vibrate('success');
       } else {
         play("lineClear");
+        vibrate('medium');
       }
     }
     prevLines.current = game.lines;
-  }, [game.lines, game.status, play]);
+  }, [game.lines, game.status, play, vibrate]);
 
   useEffect(() => {
     if (game.level > prevLevel.current && game.status === "playing") {
       play("levelUp");
+      vibrate('warning');
     }
     prevLevel.current = game.level;
-  }, [game.level, game.status, play]);
+  }, [game.level, game.status, play, vibrate]);
 
   useEffect(() => {
     if (game.status === "finished" && prevStatus.current === "playing") {
       play("gameOver");
+      vibrate(game.result === 'win' ? 'success' : 'error');
     }
     prevStatus.current = game.status;
-  }, [game.status, play]);
+  }, [game.status, game.result, play, vibrate]);
 
   // Record game when finished
   useEffect(() => {
@@ -90,6 +97,17 @@ export default function TetrisPage() {
   const isCountdown = game.status === "countdown";
   const isProcessing = game.status === "processing";
   const isFinished = game.status === "finished";
+
+  // Swipe controls for mobile: left/right to move, up to rotate, down to hard drop
+  const swipeRef = useSwipe({
+    onSwipe: (dir) => {
+      if (dir === 'left') game.moveLeft();
+      else if (dir === 'right') game.moveRight();
+      else if (dir === 'up') game.rotate();
+      else if (dir === 'down') game.hardDrop();
+    },
+    enabled: isPlaying,
+  });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -176,6 +194,7 @@ export default function TetrisPage() {
         {/* Game Board + Side Panels */}
         {(isPlaying || isCountdown) && (
           <motion.div
+            ref={swipeRef}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="relative flex justify-center"

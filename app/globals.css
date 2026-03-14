@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Bottom nav safe area */
+@media (max-width: 767px) {
+  .has-bottom-nav {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
 :root {
   /* Base colors */
   --background: #ffffff;

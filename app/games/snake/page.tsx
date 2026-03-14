@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useCallback, useRef } from "react";
 import { useSnake } from "@/hooks/useSnake";
+import { useSwipe } from "@/hooks/useSwipe";
+import { useHaptic } from "@/hooks/useHaptic";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { SnakeBoard } from "@/components/snake/SnakeBoard";
@@ -39,6 +41,7 @@ export default function SnakePage() {
   const { recordGame, getStats } = useLocalStats();
   const { t } = useLanguage();
   const { play } = useGameAudio('snake');
+  const { vibrate } = useHaptic();
 
   // Translate game messages from hook
   const translateMessage = useCallback((msg: string): string => {
@@ -74,9 +77,10 @@ export default function SnakePage() {
     // Game over
     if (status === 'gameover' && prevStatus.current === 'playing') {
       play('crash');
+      vibrate(score >= 100 ? 'success' : 'error');
     }
     prevStatus.current = status;
-  }, [status, play]);
+  }, [status, play, vibrate, score]);
 
   // Record game to portal stats when finished
   useEffect(() => {
@@ -91,6 +95,17 @@ export default function SnakePage() {
   const isProcessing = status === "processing";
   const isCountdown = status === "countdown";
   const isGameOver = status === "gameover";
+
+  // Swipe-to-move on mobile
+  const swipeRef = useSwipe({
+    onSwipe: (dir) => {
+      if (dir === 'up') changeDirection('UP');
+      else if (dir === 'down') changeDirection('DOWN');
+      else if (dir === 'left') changeDirection('LEFT');
+      else if (dir === 'right') changeDirection('RIGHT');
+    },
+    enabled: isPlaying,
+  });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -146,7 +161,7 @@ export default function SnakePage() {
         <GameStatus message={translateMessage(message)} status={status} score={score} />
 
         {/* Game Board */}
-        <div className="relative">
+        <div className="relative" ref={swipeRef}>
           <SnakeBoard snake={snake} food={food} gridSize={gridSize} />
           {/* Countdown Overlay */}
           {isCountdown && countdown !== null && (

@@ -14,6 +14,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { ChainThemeProvider } from "@/components/shared/ChainThemeProvider";
 import { NotificationProvider } from "@/lib/notifications/NotificationContext";
 import { OnboardingModal } from "@/components/shared/OnboardingModal";
+import { BottomNav } from "@/components/layout/BottomNav";
 
 import '@rainbow-me/rainbowkit/styles.css';
 
@@ -116,6 +117,7 @@ export function Providers({ children }: { children: ReactNode }) {
                       )}
                       {children}
                       <OnboardingModal />
+                      <BottomNav />
                     </NotificationProvider>
                   </ToastProvider>
                 </ChainThemeProvider>

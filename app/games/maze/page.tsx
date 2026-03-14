@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useCallback } from "react";
 import { useMaze, DIFFICULTY_CONFIG } from "@/hooks/useMaze";
+import { useSwipe } from "@/hooks/useSwipe";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { MazeBoard } from "@/components/maze/MazeBoard";
@@ -80,6 +81,12 @@ export default function MazePage() {
   const canStart = game.status === "idle" || game.status === "finished";
   const isProcessing = game.status === "processing";
   const isCountdown = game.status === "countdown";
+
+  // Swipe controls for mobile
+  const swipeRef = useSwipe({
+    onSwipe: (dir) => game.move(dir),
+    enabled: game.status === "playing",
+  });
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -193,6 +200,7 @@ export default function MazePage() {
         {/* Maze Board */}
         {(game.status === "playing" || isCountdown) && (
           <motion.div
+            ref={swipeRef}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="relative"
@@ -293,7 +301,7 @@ export default function MazePage() {
             </motion.button>
           )}
 
-          {(game.status === "playing" && !isCountdown) && (
+          {game.status === "playing" && (
             <motion.button
               data-testid="reset-game"
               onClick={game.resetGame}
