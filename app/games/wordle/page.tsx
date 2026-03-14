@@ -56,7 +56,7 @@ function LetterCell({
 const KEYBOARD_ROWS = [
   ['Q','W','E','R','T','Y','U','I','O','P'],
   ['A','S','D','F','G','H','J','K','L'],
-  ['ENTER','Z','X','C','V','B','N','M','⌫'],
+  ['Z','X','C','V','B','N','M','⌫'],
 ];
 
 function Keyboard({
@@ -90,15 +90,12 @@ function Keyboard({
                 key={key}
                 onClick={() => {
                   if (disabled) return;
-                  if (key === 'ENTER') onEnter();
-                  else if (key === '⌫') onDelete();
+                  if (key === '⌫') onDelete();
                   else onLetter(key);
                 }}
                 disabled={disabled}
                 className={
-                  key === 'ENTER'
-                    ? 'px-4 sm:px-6 h-12 sm:h-14 text-sm sm:text-base font-black rounded transition-colors active:scale-95 disabled:opacity-50 bg-green-500 hover:bg-green-400 text-white'
-                    : key === '⌫'
+                  key === '⌫'
                     ? `px-2 sm:px-3 h-12 sm:h-14 text-sm font-bold rounded transition-colors active:scale-95 disabled:opacity-50 ${bgClass(key)}`
                     : `w-8 sm:w-9 h-12 sm:h-14 font-bold rounded transition-colors active:scale-95 disabled:opacity-50 ${bgClass(key)}`
                 }
@@ -109,6 +106,16 @@ function Keyboard({
           })}
         </div>
       ))}
+      {/* ENTER button on its own row */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => { if (!disabled) onEnter(); }}
+          disabled={disabled}
+          className="w-full max-w-xs h-12 sm:h-14 text-base sm:text-lg font-black rounded transition-colors active:scale-95 disabled:opacity-50 bg-green-500 hover:bg-green-400 text-white"
+        >
+          ENTER
+        </button>
+      </div>
     </div>
   );
 }
