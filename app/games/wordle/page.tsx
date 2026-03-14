@@ -85,7 +85,6 @@ function Keyboard({
       {KEYBOARD_ROWS.map((row, ri) => (
         <div key={ri} className="flex justify-center gap-1">
           {row.map((key) => {
-            const isWide = key === 'ENTER' || key === '⌫';
             return (
               <button
                 key={key}
@@ -96,7 +95,13 @@ function Keyboard({
                   else onLetter(key);
                 }}
                 disabled={disabled}
-                className={`${isWide ? 'px-2 sm:px-3 text-xs' : 'w-8 sm:w-9'} h-12 sm:h-14 font-bold rounded transition-colors active:scale-95 disabled:opacity-50 ${bgClass(key)}`}
+                className={
+                  key === 'ENTER'
+                    ? 'px-4 sm:px-6 h-12 sm:h-14 text-sm sm:text-base font-black rounded transition-colors active:scale-95 disabled:opacity-50 bg-green-500 hover:bg-green-400 text-white'
+                    : key === '⌫'
+                    ? `px-2 sm:px-3 h-12 sm:h-14 text-sm font-bold rounded transition-colors active:scale-95 disabled:opacity-50 ${bgClass(key)}`
+                    : `w-8 sm:w-9 h-12 sm:h-14 font-bold rounded transition-colors active:scale-95 disabled:opacity-50 ${bgClass(key)}`
+                }
               >
                 {key}
               </button>
