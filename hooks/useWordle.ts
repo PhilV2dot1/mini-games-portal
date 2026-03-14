@@ -53,15 +53,32 @@ const WORDLE_ABI = [
     outputs: [],
   },
   {
+    name: 'abandonGame',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
     name: 'getPlayerStats',
     type: 'function',
     stateMutability: 'view',
     inputs: [{ name: 'player', type: 'address' }],
     outputs: [
-      { name: 'totalGames', type: 'uint256' },
-      { name: 'totalWins', type: 'uint256' },
+      { name: 'gamesPlayed', type: 'uint256' },
+      { name: 'wins', type: 'uint256' },
+      { name: 'currentStreak', type: 'uint256' },
+      { name: 'bestStreak', type: 'uint256' },
       { name: 'bestAttempts', type: 'uint256' },
+      { name: 'distribution', type: 'uint256[6]' },
     ],
+  },
+  {
+    name: 'isGameActive',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ name: 'player', type: 'address' }],
+    outputs: [{ name: '', type: 'bool' }],
   },
 ] as const;
 
