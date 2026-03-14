@@ -5,6 +5,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { Card, createShuffledDeck, determineWinner, Outcome } from "@/lib/games/blackjack-cards";
 import { CONTRACT_ABI } from "@/lib/contracts/blackjack-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export type GamePhase = 'betting' | 'playing' | 'dealer' | 'finished';
 
@@ -19,6 +20,7 @@ export interface GameStats {
 
 export function useBlackjack() {
   const { address, isConnected, chain } = useAccount();
+  const { t } = useLanguage();
   const [mode, setMode] = useState<'free' | 'onchain'>('free');
   const [gamePhase, setGamePhase] = useState<GamePhase>('betting');
 
@@ -111,7 +113,7 @@ export function useBlackjack() {
     setIsRecording(false);
     isTxInProgress.current = false;
     setMessage(prev =>
-      prev.startsWith('⏳') ? '✅ Result recorded on blockchain!' : prev
+      prev.startsWith('⏳') ? '✅ ' + t('games.blackjack.recorded') : prev
     );
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => refetchStats(), 2000);
@@ -123,11 +125,11 @@ export function useBlackjack() {
     if (!writeError) return;
     const msg = writeError.message || '';
     if (msg.includes('User rejected') || msg.includes('User denied')) {
-      setMessage('❌ Transaction rejected — result not recorded on-chain');
+      setMessage('❌ ' + t('games.blackjack.txRejected'));
     } else if (msg.includes('insufficient funds')) {
-      setMessage('❌ Insufficient funds for gas');
+      setMessage('❌ ' + t('games.blackjack.insufficientFunds'));
     } else {
-      setMessage('❌ Recording failed: ' + msg.substring(0, 60));
+      setMessage('❌ ' + t('games.blackjack.txFailed'));
     }
     setIsRecording(false);
     isTxInProgress.current = false;
@@ -138,8 +140,8 @@ export function useBlackjack() {
     if (!receiptError || mode !== 'onchain') return;
     const msg = receiptError.message || '';
     setMessage(msg.includes('timeout')
-      ? '⚠️ Transaction taking longer than expected. Check explorer for status.'
-      : '❌ Transaction error — result may not be recorded');
+      ? '⚠️ ' + t('games.blackjack.txTimeout')
+      : '❌ ' + t('games.blackjack.txFailed'));
     setIsRecording(false);
     isTxInProgress.current = false;
     resetWrite?.();
@@ -183,13 +185,13 @@ export function useBlackjack() {
       setShowDealerCard(true);
       setOutcome(result);
       setGamePhase('finished');
-      setMessage(result === 'blackjack' ? '🎉 BLACKJACK! You win!' : 'Both Blackjack - PUSH!');
+      setMessage(result === 'blackjack' ? '🎉 ' + t('games.blackjack.blackjackWin') : t('games.blackjack.bothBlackjack'));
       updateStatsForOutcome(result);
       if (mode === 'free') {
         if (result === 'blackjack') setCredits(prev => prev + 15);
       } else {
         // Record blackjack on-chain immediately
-        setMessage('🎉 BLACKJACK! You win! ⏳ Recording...');
+        setMessage('🎉 ' + t('games.blackjack.blackjackWin') + ' ⏳ ' + t('games.blackjack.recording'));
         recordOnChain();
       }
     }
@@ -213,10 +215,10 @@ export function useBlackjack() {
       setOutcome('lose');
       updateStatsForOutcome('lose');
       if (mode === 'free') {
-        setMessage('BUST! You lose.');
+        setMessage(t('games.blackjack.bustLose'));
         setCredits(prev => Math.max(0, prev - 10));
       } else {
-        setMessage('BUST! You lose. ⏳ Recording...');
+        setMessage(t('games.blackjack.bustLose') + ' ⏳ ' + t('games.blackjack.recording'));
         recordOnChain();
       }
     }
@@ -246,10 +248,10 @@ export function useBlackjack() {
     updateStatsForOutcome(result);
 
     const msgs: Record<Outcome, string> = {
-      win: '✅ You WIN!',
-      lose: 'Dealer wins',
-      push: "It's a PUSH",
-      blackjack: '🎉 BLACKJACK!',
+      win: '✅ ' + t('games.blackjack.youWin'),
+      lose: t('games.blackjack.dealerWins'),
+      push: t('games.blackjack.itsPush'),
+      blackjack: '🎉 ' + t('games.blackjack.blackjackLabel'),
     };
 
     if (mode === 'free') {
@@ -258,7 +260,7 @@ export function useBlackjack() {
       else if (result === 'blackjack') setCredits(prev => prev + 15);
       else if (result === 'lose') setCredits(prev => Math.max(0, prev - 10));
     } else {
-      setMessage(msgs[result] + ' ⏳ Recording...');
+      setMessage(msgs[result] + ' ⏳ ' + t('games.blackjack.recording'));
       recordOnChain();
     }
   }, [gamePhase, mode, dealerHand, playerHand, playerTotal, calculateHandTotal, updateStatsForOutcome, recordOnChain]);
@@ -266,15 +268,15 @@ export function useBlackjack() {
   // ─── New game ─────────────────────────────────────────────────────────────
   const newGame = useCallback(() => {
     if (mode === 'free' && credits < 10) {
-      setMessage('❌ Not enough credits! (Need 10 credits)');
+      setMessage('❌ ' + t('games.blackjack.notEnoughCredits'));
       return;
     }
     if (!isConnected && mode === 'onchain') {
-      setMessage('❌ Please connect your wallet first');
+      setMessage('❌ ' + t('games.blackjack.connectWallet'));
       return;
     }
     if (mode === 'onchain' && (!contractAddress || !gameAvailable)) {
-      setMessage('❌ Blackjack not available on this network');
+      setMessage('❌ ' + t('games.blackjack.notAvailable'));
       return;
     }
     dealInitialCards();
