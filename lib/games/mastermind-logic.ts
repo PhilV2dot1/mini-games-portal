@@ -1,8 +1,8 @@
 // Crypto Mastermind Game Logic - Pure TypeScript implementation
 
 // Crypto symbols
-export type Color = 'btc' | 'eth' | 'avax' | 'celo' | 'near' | 'link';
-export const COLORS: Color[] = ['btc', 'eth', 'avax', 'celo', 'near', 'link'];
+export type Color = 'btc' | 'eth' | 'avax' | 'sol' | 'near' | 'link';
+export const COLORS: Color[] = ['btc', 'eth', 'avax', 'sol', 'near', 'link'];
 
 export const COLOR_CONFIG: Record<Color, {
   name: string;
@@ -33,12 +33,12 @@ export const COLOR_CONFIG: Record<Color, {
     shadow: 'rgba(232, 65, 66, 0.5)',
     logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/avax.svg'
   },
-  celo: {
-    name: 'CELO',
-    bg: '#FBCC5C',
-    border: '#F5B800',
-    shadow: 'rgba(251, 204, 92, 0.5)',
-    cfClass: 'cf cf-celo',
+  sol: {
+    name: 'SOL',
+    bg: '#9945FF',
+    border: '#7A2FE0',
+    shadow: 'rgba(153, 69, 255, 0.5)',
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/sol.svg'
   },
   near: {
     name: 'NEAR',
