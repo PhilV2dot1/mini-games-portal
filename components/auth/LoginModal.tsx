@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import { EthosSignInButton } from './EthosSignInButton';
 import { Modal, ModalBody, ModalFooter } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -162,6 +163,13 @@ export function LoginModal({
                   </svg>
                   {t('auth.continueWithDiscord')}
                 </button>
+
+                <EthosSignInButton
+                  label={t('auth.continueWithEthos')}
+                  disabled={loading}
+                  onSuccess={() => { onSuccess?.(); onClose(); }}
+                  onError={(err) => { setError(err); setLoading(false); }}
+                />
               </div>
 
               {/* Divider */}
