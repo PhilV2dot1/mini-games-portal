@@ -142,7 +142,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     megaeth: '0x6b3f81c561E40Ac3F1BAA16cbE456a584F26dB84',
     soneium: '0x7ed323C0d67A190673A62C5d1480284b14FA4E7b',
   },
-  brickbreaker: { celo: '0xde31f2cfcf6b351cb5eefb951889d12206616008', base: '0x5D2F8f9EcA52C51e26D9224eDF61bA72Bac93743', megaeth: null, soneium: null },
+  brickbreaker: { celo: '0xde31f2cfcf6b351cb5eefb951889d12206616008', base: '0x5D2F8f9EcA52C51e26D9224eDF61bA72Bac93743', megaeth: null, soneium: '0x48D1acD1b7d6afD459a109cB4D706979b8883eEC' },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {
