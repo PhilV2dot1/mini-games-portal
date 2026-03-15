@@ -58,9 +58,14 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
     }
   };
 
+  // Use a local proxy to avoid CORS issues when calling the Ethos auth server
+  const authServerUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/ethos-proxy`
+    : 'https://ethos.thebbz.xyz';
+
   return (
     <SignInWithEthosButton
-      authServerUrl="https://ethos.thebbz.xyz"
+      authServerUrl={authServerUrl}
       onSuccess={handleSuccess}
       onError={(err) => onError?.(err?.message || 'Authentication error')}
       disabled={disabled}

@@ -5,6 +5,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/ethos-proxy/:path*',
+        destination: 'https://ethos.thebbz.xyz/:path*',
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
