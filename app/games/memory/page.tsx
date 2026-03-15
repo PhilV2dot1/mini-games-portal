@@ -96,7 +96,7 @@ export default function MemoryPage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
-          <div className="text-5xl mb-2">🧠</div>
+          <div className="text-5xl mb-2">₿</div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t("games.memory.title")}
           </h1>

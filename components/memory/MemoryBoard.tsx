@@ -3,6 +3,7 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import type { Card } from "@/lib/games/memory-logic";
+import "@cryptofonts/cryptofont/cryptofont.css";
 
 interface MemoryBoardProps {
   board: Card[];
@@ -30,7 +31,7 @@ const MemoryCard = memo(function MemoryCard({
       onClick={() => onFlip(index)}
       disabled={disabled || isRevealed}
       className={`
-        aspect-square rounded-xl text-3xl sm:text-4xl font-bold
+        aspect-square rounded-xl font-bold
         flex items-center justify-center cursor-pointer
         transition-all duration-200 border-2
         ${card.isMatched
@@ -48,8 +49,9 @@ const MemoryCard = memo(function MemoryCard({
           initial={{ rotateY: 90, opacity: 0 }}
           animate={{ rotateY: 0, opacity: 1 }}
           transition={{ duration: 0.2 }}
+          className="flex items-center justify-center"
         >
-          {card.emoji}
+          <i className={`cf cf-${card.emoji} text-3xl sm:text-4xl`} />
         </motion.span>
       ) : (
         <span className="text-white/80 text-2xl">?</span>

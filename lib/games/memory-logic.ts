@@ -4,7 +4,7 @@
 
 export interface Card {
   id: number;
-  emoji: string;
+  emoji: string; // crypto ticker symbol (e.g. "btc", "eth")
   isFlipped: boolean;
   isMatched: boolean;
 }
@@ -23,10 +23,11 @@ export const DIFFICULTY_CONFIG: Record<Difficulty, DifficultyConfig> = {
   hard: { pairs: 10, cols: 5, label: "Hard (5×4)" },
 };
 
+// Top 20 cryptocurrencies by market cap (cryptofonts.com tickers)
 const EMOJI_POOL = [
-  "🐶", "🐱", "🐼", "🦊", "🐸", "🐵", "🦁", "🐻",
-  "🐧", "🐢", "🦋", "🐝", "🌸", "🌺", "🍎", "🍊",
-  "🍋", "🍇", "🍒", "🍓",
+  "btc", "eth", "usdt", "bnb", "sol", "xrp", "usdc", "ada",
+  "avax", "doge", "trx", "dot", "link", "matic", "shib",
+  "ltc", "atom", "xlm", "algo", "celo",
 ];
 
 /**
