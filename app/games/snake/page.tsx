@@ -22,6 +22,7 @@ export default function SnakePage() {
   const {
     snake,
     food,
+    foodSymbol,
     mode,
     status,
     score,
@@ -125,7 +126,7 @@ export default function SnakePage() {
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
           <div className="text-5xl mb-2" role="img" aria-label={t('games.snake.title')}>
-            🐍
+            🐍₿
           </div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.snake.title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -162,7 +163,7 @@ export default function SnakePage() {
 
         {/* Game Board */}
         <div className="relative" ref={swipeRef}>
-          <SnakeBoard snake={snake} food={food} gridSize={gridSize} />
+          <SnakeBoard snake={snake} food={food} foodSymbol={foodSymbol} gridSize={gridSize} />
           {/* Countdown Overlay */}
           {isCountdown && countdown !== null && (
             <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-10">

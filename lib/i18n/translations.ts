@@ -318,16 +318,16 @@ export const translations = {
 
       // Snake specific
       snake: {
-        title: 'Snake',
-        subtitle: 'Eat food, grow long, and avoid crashing!',
+        title: 'Crypto Snake',
+        subtitle: 'Eat crypto logos, grow long, and avoid crashing!',
         instructions: '🎮 Use Arrow Keys or WASD to move',
         howToPlay: 'How to Play',
         rule1: 'Use Arrow Keys or WASD to move the snake',
-        rule2: 'Eat food (green dots) to grow longer and score points',
+        rule2: 'Eat crypto logos (BTC, ETH, SOL...) to grow and score points',
         rule3: 'Avoid hitting walls or your own tail',
         rule4: 'Score 100+ points to win the game',
         rule5: 'Speed increases as you grow - stay focused!',
-        footer: '🐍 Classic Snake game with blockchain integration',
+        footer: '🐍 Crypto Snake with blockchain integration',
         viewOnCeloscan: 'View on Explorer →',
       },
 
@@ -1673,16 +1673,16 @@ export const translations = {
 
       // Snake specific
       snake: {
-        title: 'Snake',
-        subtitle: 'Mangez, grandissez et évitez de vous écraser !',
+        title: 'Crypto Snake',
+        subtitle: 'Mangez des logos crypto, grandissez et évitez de vous écraser !',
         instructions: '🎮 Utilisez les flèches ou WASD pour vous déplacer',
         howToPlay: 'Comment Jouer',
         rule1: 'Utilisez les flèches ou WASD pour déplacer le serpent',
-        rule2: 'Mangez la nourriture (points verts) pour grandir et marquer des points',
+        rule2: 'Mangez des logos crypto (BTC, ETH, SOL...) pour grandir et marquer des points',
         rule3: 'Évitez de heurter les murs ou votre propre queue',
         rule4: 'Marquez 100+ points pour gagner la partie',
         rule5: 'La vitesse augmente à mesure que vous grandissez - restez concentré !',
-        footer: '🐍 Jeu Snake classique avec intégration blockchain',
+        footer: '🐍 Crypto Snake avec intégration blockchain',
         viewOnCeloscan: 'Voir sur l\'Explorer →',
       },
 

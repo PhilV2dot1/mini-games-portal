@@ -22,6 +22,16 @@ export interface PlayerStats {
 // CONSTANTS
 // ========================================
 
+// Top crypto tickers for food icons (cryptocurrency-icons via jsDelivr)
+export const CRYPTO_POOL = [
+  "btc", "eth", "sol", "xrp", "bnb", "ada", "avax", "doge",
+  "dot", "link", "matic", "ltc", "atom", "near", "uni", "celo",
+];
+
+function randomCrypto(): string {
+  return CRYPTO_POOL[Math.floor(Math.random() * CRYPTO_POOL.length)];
+}
+
 export const GRID_SIZE = 20; // 20x20 grid
 export const INITIAL_SNAKE_LENGTH = 3;
 export const INITIAL_SPEED = 150; // milliseconds
@@ -124,6 +134,7 @@ function isOppositeDirection(current: Direction, next: Direction): boolean {
 export function useSnake() {
   const [snake, setSnake] = useState<Position[]>(createInitialSnake());
   const [food, setFood] = useState<Position>(() => generateFood(createInitialSnake()));
+  const [foodSymbol, setFoodSymbol] = useState<string>(() => randomCrypto());
   const [direction, setDirection] = useState<Direction>("RIGHT");
   const [nextDirection, setNextDirection] = useState<Direction>("RIGHT");
   const [mode, setMode] = useState<GameMode>("free");
@@ -206,6 +217,7 @@ export function useSnake() {
         newSnake = [newHead, ...currentSnake];
         setScore((s) => s + 10);
         setFood(generateFood([newHead, ...currentSnake]));
+        setFoodSymbol(randomCrypto());
 
         // Increase speed every SPEED_INCREMENT food
         const newScore = score + 10;
@@ -348,6 +360,7 @@ export function useSnake() {
       if (count > 0) {
         setCountdown(count);
       } else if (count === 0) {
+        // Show "Go!" (countdown = 0)
         setCountdown(0);
       } else {
         clearInterval(interval);
@@ -363,6 +376,7 @@ export function useSnake() {
     const initialSnake = createInitialSnake();
     setSnake(initialSnake);
     setFood(generateFood(initialSnake));
+    setFoodSymbol(randomCrypto());
     setDirection("RIGHT");
     setNextDirection("RIGHT");
     setScore(0);
@@ -402,6 +416,7 @@ export function useSnake() {
     const initialSnake = createInitialSnake();
     setSnake(initialSnake);
     setFood(generateFood(initialSnake));
+    setFoodSymbol(randomCrypto());
     setDirection("RIGHT");
     setNextDirection("RIGHT");
     setScore(0);
@@ -428,6 +443,7 @@ export function useSnake() {
   return {
     snake,
     food,
+    foodSymbol,
     direction,
     mode,
     status,

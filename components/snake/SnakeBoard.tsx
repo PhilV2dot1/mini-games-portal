@@ -3,13 +3,17 @@
 import { Position } from "@/hooks/useSnake";
 import { cn } from "@/lib/utils";
 
+const CRYPTO_ICON_URL = (symbol: string) =>
+  `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/${symbol}.svg`;
+
 interface SnakeBoardProps {
   snake: Position[];
   food: Position;
+  foodSymbol: string;
   gridSize: number;
 }
 
-export function SnakeBoard({ snake, food, gridSize }: SnakeBoardProps) {
+export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProps) {
   const isSnakeSegment = (x: number, y: number) => {
     return snake.some((segment) => segment.x === x && segment.y === y);
   };
@@ -30,7 +34,7 @@ export function SnakeBoard({ snake, food, gridSize }: SnakeBoardProps) {
       return "bg-gradient-to-br from-green-400 to-green-500 border-green-600";
     }
     if (isFood(x, y)) {
-      return "bg-gradient-to-br from-red-500 to-red-600 border-red-700 shadow-lg animate-pulse";
+      return "bg-white border-yellow-400 shadow-lg animate-pulse flex items-center justify-center";
     }
     return "bg-gray-100 border-gray-200";
   };
@@ -53,7 +57,16 @@ export function SnakeBoard({ snake, food, gridSize }: SnakeBoardProps) {
                 "aspect-square rounded-sm border transition-all duration-100",
                 getCellClass(x, y)
               )}
-            />
+            >
+              {isFood(x, y) && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={CRYPTO_ICON_URL(foodSymbol)}
+                  alt={foodSymbol.toUpperCase()}
+                  className="w-full h-full object-contain p-px"
+                />
+              )}
+            </div>
           ))
         )}
       </div>
