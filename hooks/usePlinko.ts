@@ -41,7 +41,14 @@ const BUCKET_H = 48;
 const BUCKET_Y = CANVAS_H - BUCKET_H - 5;
 const DROP_ZONE_Y = 35;
 const INITIAL_COINS = 1000;
-const WIN_TARGET = 10000;
+const WIN_TARGET = 10000000; // displayed as "1 BTC" (coins / 10,000,000)
+const BTC_DIVISOR = 10000000; // 1 BTC = 10,000,000 coins
+export function coinsToBTC(coins: number): string {
+  const btc = coins / BTC_DIVISOR;
+  if (btc >= 1) return btc.toFixed(4) + " BTC";
+  if (btc >= 0.001) return btc.toFixed(6) + " BTC";
+  return btc.toFixed(8) + " BTC";
+}
 export const BET_OPTIONS = [10, 25, 50, 100] as const;
 
 // 11 multiplier buckets (symmetric)
@@ -373,7 +380,7 @@ export function usePlinko() {
     ctx.font = "bold 13px Arial";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(`₿ ${s.coins}`, 14, 20);
+    ctx.fillText(`₿ ${coinsToBTC(s.coins)}`, 14, 20);
 
     ctx.fillStyle = "rgba(0,0,0,0.4)";
     ctx.beginPath();
@@ -519,7 +526,7 @@ export function usePlinko() {
 
   const finalizeGame = useCallback(async (won: boolean, finalScore: number) => {
     setResult(won ? "win" : "lose");
-    setMessage(won ? "🏆 You reached 10,000 coins!" : "💸 Broke!");
+    setMessage(won ? "🏆 You reached 1 BTC!" : "💸 Broke!");
 
     const raw = localStorage.getItem(STATS_KEY);
     const prev: PlayerStats = raw ? JSON.parse(raw) : DEFAULT_STATS;

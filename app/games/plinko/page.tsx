@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useCallback } from "react";
-import { usePlinko, CANVAS_W, CANVAS_H, BET_OPTIONS } from "@/hooks/usePlinko";
+import { usePlinko, CANVAS_W, CANVAS_H, BET_OPTIONS, coinsToBTC } from "@/hooks/usePlinko";
 import { useHaptic } from "@/hooks/useHaptic";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -160,7 +160,7 @@ export default function PlinkoPage() {
           >
             <div className="text-center">
               <p className="text-white/60 text-xs font-medium">{t("games.plinko.coins")}</p>
-              <p className="text-yellow-300 font-black text-2xl">₿ {game.coins}</p>
+              <p className="text-yellow-300 font-black text-2xl">{coinsToBTC(game.coins)}</p>
             </div>
             <div className="text-center">
               <p className="text-white/60 text-xs font-medium">{t("games.plinko.bet")}</p>
@@ -273,10 +273,10 @@ export default function PlinkoPage() {
                     : t("games.plinko.lose")}
                 </p>
                 <p className="text-yellow-300 font-bold text-xl">
-                  ₿ {game.coins} {t("games.plinko.coins")}
+                  {coinsToBTC(game.coins)}
                 </p>
                 <p className="text-white/60 text-sm">
-                  {t("games.plinko.best")}: {game.stats.highScore}
+                  {t("games.plinko.best")}: {coinsToBTC(game.stats.highScore)}
                 </p>
               </motion.div>
             </div>
@@ -338,11 +338,11 @@ export default function PlinkoPage() {
             </div>
             <div>
               <p className="text-white/60 text-xs">{t("games.plinko.best")}</p>
-              <p className="text-yellow-300 font-bold text-lg">{game.stats.highScore}</p>
+              <p className="text-yellow-300 font-bold text-lg">{coinsToBTC(game.stats.highScore)}</p>
             </div>
             <div>
               <p className="text-white/60 text-xs">{t("games.plinko.coins")}</p>
-              <p className="text-orange-300 font-bold text-lg">{game.stats.totalScore}</p>
+              <p className="text-orange-300 font-bold text-lg">{coinsToBTC(game.stats.totalScore)}</p>
             </div>
           </div>
         </motion.div>
