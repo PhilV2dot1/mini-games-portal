@@ -20,14 +20,15 @@ export interface DifficultyConfig {
 export const DIFFICULTY_CONFIG: Record<Difficulty, DifficultyConfig> = {
   easy: { pairs: 6, cols: 3, label: "Easy (3×4)" },
   medium: { pairs: 8, cols: 4, label: "Medium (4×4)" },
-  hard: { pairs: 10, cols: 5, label: "Hard (5×4)" },
+  hard: { pairs: 15, cols: 5, label: "Hard (5×6)" },
 };
 
-// Top 20 cryptocurrencies by market cap (cryptofonts.com tickers)
+// Top 25 cryptocurrencies by market cap (cryptocurrency-icons tickers)
 const EMOJI_POOL = [
   "btc", "eth", "usdt", "bnb", "sol", "xrp", "usdc", "ada",
   "avax", "doge", "trx", "dot", "link", "matic", "shib",
   "ltc", "atom", "xlm", "algo", "celo",
+  "near", "uni", "icp", "fil", "hbar",
 ];
 
 /**
