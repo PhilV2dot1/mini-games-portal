@@ -67,7 +67,7 @@ export const PADDLE_W = 80;
 export const PADDLE_H = 12;
 export const PADDLE_Y = CANVAS_H - 30;
 export const BALL_RADIUS = 8;
-export const BALL_SPEED = 3.5;
+export const BALL_SPEED = 3;
 export const BRICK_ROWS = 5;
 export const BRICK_COLS = 8;
 export const BRICK_PADDING = 4;
@@ -182,10 +182,11 @@ function buildBricks(level: number): Brick[] {
   return bricks;
 }
 
-function initialBall(paddleX: number): Ball {
+function initialBall(paddleX: number, level: number = 1): Ball {
+  const speed = BALL_SPEED + (level - 1) * 0.8;
   return {
     pos: { x: paddleX + PADDLE_W / 2, y: PADDLE_Y - BALL_RADIUS - 2 },
-    vel: { x: BALL_SPEED * (Math.random() > 0.5 ? 1 : -1) * 0.6, y: -BALL_SPEED },
+    vel: { x: speed * (Math.random() > 0.5 ? 1 : -1) * 0.6, y: -speed },
     radius: BALL_RADIUS,
   };
 }
@@ -378,10 +379,8 @@ export function useBrickBreaker() {
     const dt = Math.min(timestamp - s.lastTime, 32); // cap at 32ms
     s.lastTime = timestamp;
 
-    // Smooth paddle movement
-    const speed = 0.15;
-    s.paddle.x += (s.paddleTargetX - s.paddle.x) * speed * (dt / 16);
-    s.paddle.x = Math.max(0, Math.min(CANVAS_W - s.paddle.width, s.paddle.x));
+    // Direct paddle movement — no lag
+    s.paddle.x = Math.max(0, Math.min(CANVAS_W - s.paddle.width, s.paddleTargetX));
 
     const scoreGained = { v: 0 };
     const toRemoveBalls: number[] = [];
@@ -481,7 +480,7 @@ export function useBrickBreaker() {
         return;
       }
       // Respawn ball
-      s.balls = [initialBall(s.paddle.x)];
+      s.balls = [initialBall(s.paddle.x, s.level)];
     }
 
     // Update power-ups
@@ -591,7 +590,7 @@ export function useBrickBreaker() {
         s.shooting = false;
         setWideActive(false);
         setLaserActive(false);
-        s.balls = [initialBall(s.paddle.x)];
+        s.balls = [initialBall(s.paddle.x, s.level)];
       }
     }
 
@@ -687,7 +686,7 @@ export function useBrickBreaker() {
     s.lives = MAX_LIVES;
     s.level = 1;
     s.status = "countdown";
-    s.balls = [initialBall(CANVAS_W / 2 - PADDLE_W / 2)];
+    s.balls = [initialBall(CANVAS_W / 2 - PADDLE_W / 2, 1)];
     s.paddle = initialPaddle();
     s.bricks = buildBricks(1);
     s.powerUps = [];
