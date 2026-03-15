@@ -19,11 +19,11 @@ export function GameStatus({ score, moves, elapsedTime, status, message }: GameS
       className={cn(
         "flex items-center justify-between px-6 py-3 rounded-lg border-2",
         "transition-all duration-300",
-        status === "won" && "bg-green-50 border-green-500",
-        status === "playing" && "bg-blue-50 border-blue-500",
-        status === "idle" && "bg-gray-50 border-gray-300",
-        status === "processing" && "bg-yellow-50 border-yellow-500",
-        status === "gameover" && "bg-red-50 border-red-500"
+        status === "won" && "bg-green-50 dark:bg-green-900/30 border-green-500",
+        status === "playing" && "bg-blue-50 dark:bg-blue-900/30 border-blue-500",
+        status === "idle" && "bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-gray-600",
+        status === "processing" && "bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500",
+        status === "gameover" && "bg-red-50 dark:bg-red-900/30 border-red-500"
       )}
     >
       {/* Left: Status message */}
@@ -31,11 +31,11 @@ export function GameStatus({ score, moves, elapsedTime, status, message }: GameS
         <span
           className={cn(
             "font-medium text-base",
-            status === "won" && "text-green-700",
-            status === "playing" && "text-blue-700",
-            status === "idle" && "text-gray-600",
-            status === "processing" && "text-yellow-700",
-            status === "gameover" && "text-red-700"
+            status === "won" && "text-green-700 dark:text-green-300",
+            status === "playing" && "text-blue-700 dark:text-blue-300",
+            status === "idle" && "text-gray-600 dark:text-gray-300",
+            status === "processing" && "text-yellow-700 dark:text-yellow-300",
+            status === "gameover" && "text-red-700 dark:text-red-300"
           )}
         >
           {message}
@@ -45,18 +45,18 @@ export function GameStatus({ score, moves, elapsedTime, status, message }: GameS
       {/* Right: Game stats */}
       <div className="flex gap-6">
         <div className="flex flex-col items-center">
-          <span className="text-xs text-gray-500 font-medium">Score</span>
-          <span className="text-lg font-bold text-gray-900">{score}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Score</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">{score}</span>
         </div>
 
         <div className="flex flex-col items-center">
-          <span className="text-xs text-gray-500 font-medium">Moves</span>
-          <span className="text-lg font-bold text-gray-900">{moves}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Moves</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">{moves}</span>
         </div>
 
         <div className="flex flex-col items-center">
-          <span className="text-xs text-gray-500 font-medium">Time</span>
-          <span className="text-lg font-bold text-gray-900 font-mono">
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Time</span>
+          <span className="text-lg font-bold text-gray-900 dark:text-white font-mono">
             {formatTime(elapsedTime)}
           </span>
         </div>
