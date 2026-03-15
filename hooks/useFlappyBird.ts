@@ -48,8 +48,20 @@ const DEFAULT_STATS: PlayerStats = {
   totalScore: 0,
 };
 
-// Crypto logos to display on pipes (jsDelivr)
-const CRYPTO_LOGOS = ["btc", "eth", "sol", "bnb", "xrp", "ada", "avax", "doge"];
+// Crypto logos on pipes — no BTC (bird is BTC)
+const CRYPTO_LOGOS = ["eth", "sol", "bnb", "xrp", "ada", "avax", "doge", "dot", "matic", "link", "atom", "ltc"];
+
+// Pipe colors per level (body: [dark, mid, light], cap: dark)
+const PIPE_LEVEL_COLORS: Array<{ dark: string; mid: string; light: string; cap: string; stroke: string }> = [
+  { dark: "#1a472a", mid: "#2d6a3f", light: "#3d8a55", cap: "#2d6a3f", stroke: "#1a472a" }, // 1 — green
+  { dark: "#1a2a47", mid: "#2d4a7a", light: "#3d6aaa", cap: "#2d4a7a", stroke: "#1a2a47" }, // 2 — blue
+  { dark: "#47271a", mid: "#7a4a2d", light: "#aa6a3d", cap: "#7a4a2d", stroke: "#47271a" }, // 3 — orange
+  { dark: "#3a1a47", mid: "#6a2d7a", light: "#9a3daa", cap: "#6a2d7a", stroke: "#3a1a47" }, // 4 — purple
+  { dark: "#471a1a", mid: "#7a2d2d", light: "#aa3d3d", cap: "#7a2d2d", stroke: "#471a1a" }, // 5 — red
+  { dark: "#1a4747", mid: "#2d7a7a", light: "#3daaaa", cap: "#2d7a7a", stroke: "#1a4747" }, // 6 — teal
+  { dark: "#474717", mid: "#7a7a2d", light: "#aaaa3d", cap: "#7a7a2d", stroke: "#474717" }, // 7 — yellow
+  { dark: "#2a1a47", mid: "#4a2d7a", light: "#6a3daa", cap: "#4a2d7a", stroke: "#2a1a47" }, // 8 — indigo
+];
 
 // ========================================
 // CONTRACT ABI
@@ -242,6 +254,7 @@ export function useFlappyBird() {
     }
 
     // Pipes
+    const pipeColor = PIPE_LEVEL_COLORS[(s.level - 1) % PIPE_LEVEL_COLORS.length];
     for (const pipe of s.pipes) {
       const topH = pipe.gapY - PIPE_GAP / 2;
       const botY = pipe.gapY + PIPE_GAP / 2;
@@ -249,10 +262,10 @@ export function useFlappyBird() {
 
       // Pipe body gradient
       const pipeGrad = ctx.createLinearGradient(pipe.x, 0, pipe.x + PIPE_WIDTH, 0);
-      pipeGrad.addColorStop(0, "#1a472a");
-      pipeGrad.addColorStop(0.4, "#2d6a3f");
-      pipeGrad.addColorStop(0.6, "#3d8a55");
-      pipeGrad.addColorStop(1, "#1a472a");
+      pipeGrad.addColorStop(0, pipeColor.dark);
+      pipeGrad.addColorStop(0.4, pipeColor.mid);
+      pipeGrad.addColorStop(0.6, pipeColor.light);
+      pipeGrad.addColorStop(1, pipeColor.dark);
 
       // Top pipe
       ctx.fillStyle = pipeGrad;
@@ -260,11 +273,11 @@ export function useFlappyBird() {
 
       // Top pipe cap
       const capW = PIPE_WIDTH + 10;
-      ctx.fillStyle = "#2d6a3f";
+      ctx.fillStyle = pipeColor.cap;
       ctx.beginPath();
       ctx.roundRect(pipe.x - 5, topH - 22, capW, 22, [0, 0, 4, 4]);
       ctx.fill();
-      ctx.strokeStyle = "#1a472a";
+      ctx.strokeStyle = pipeColor.stroke;
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -273,11 +286,11 @@ export function useFlappyBird() {
       ctx.fillRect(pipe.x, botY, PIPE_WIDTH, botH);
 
       // Bottom pipe cap
-      ctx.fillStyle = "#2d6a3f";
+      ctx.fillStyle = pipeColor.cap;
       ctx.beginPath();
       ctx.roundRect(pipe.x - 5, botY, capW, 22, [4, 4, 0, 0]);
       ctx.fill();
-      ctx.strokeStyle = "#1a472a";
+      ctx.strokeStyle = pipeColor.stroke;
       ctx.lineWidth = 2;
       ctx.stroke();
 
