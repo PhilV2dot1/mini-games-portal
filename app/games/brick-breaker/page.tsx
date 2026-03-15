@@ -88,6 +88,7 @@ export default function BrickBreakerPage() {
   }, [game]);
 
   const isPlaying = game.status === "playing";
+  const isCountdown = game.status === "countdown";
   const isFinished = game.status === "finished";
   const isIdle = game.status === "idle";
 
@@ -184,7 +185,34 @@ export default function BrickBreakerPage() {
               onTouchMove={handleTouchMove}
             />
 
-            {/* Overlays */}
+            {/* Countdown overlay */}
+            {isCountdown && game.countdown !== null && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/60 backdrop-blur-sm z-10">
+                {game.countdown > 0 ? (
+                  <motion.div
+                    key={game.countdown}
+                    initial={{ scale: 2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="text-9xl font-black text-sky-400 drop-shadow-[0_0_20px_rgba(56,189,248,0.8)]"
+                  >
+                    {game.countdown}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="go"
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1.2, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-7xl font-black text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]"
+                  >
+                    GO!
+                  </motion.div>
+                )}
+              </div>
+            )}
+
+            {/* Idle / Finished overlay */}
             {(isIdle || isFinished) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/60 backdrop-blur-sm gap-4">
                 {isFinished && (

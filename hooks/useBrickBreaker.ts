@@ -9,7 +9,7 @@ import { getContractAddress } from "@/lib/contracts/addresses";
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "countdown" | "playing" | "processing" | "finished";
 export type GameResult = "win" | "lose" | null;
 
 export interface Vec2 { x: number; y: number; }
@@ -214,6 +214,7 @@ export function useBrickBreaker() {
   const [message, setMessage] = useState("Click Start to begin!");
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
   const [localStats, setLocalStats] = useState<PlayerStats>(DEFAULT_STATS);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   // Power-up timers (UI display)
   const [wideActive, setWideActive] = useState(false);
@@ -371,7 +372,8 @@ export function useBrickBreaker() {
 
   const gameLoop = useCallback((timestamp: number) => {
     const s = stateRef.current;
-    if (s.status !== "playing") return;
+    if (s.status !== "playing" && s.status !== "countdown") return;
+    if (s.status === "countdown") { draw(); s.animId = requestAnimationFrame(gameLoop); return; }
 
     const dt = Math.min(timestamp - s.lastTime, 32); // cap at 32ms
     s.lastTime = timestamp;
@@ -667,12 +669,24 @@ export function useBrickBreaker() {
   // START / STOP
   // ======================================
 
+  // Launch the RAF loop (called after countdown ends)
+  const launchGame = useCallback(() => {
+    const s = stateRef.current;
+    s.status = "playing";
+    s.lastTime = performance.now();
+    setStatus("playing");
+    s.animId = requestAnimationFrame(gameLoop);
+  }, [gameLoop]);
+
   const startGame = useCallback(async () => {
     const s = stateRef.current;
+    if (s.animId) cancelAnimationFrame(s.animId);
+
+    // Reset game state
     s.score = 0;
     s.lives = MAX_LIVES;
     s.level = 1;
-    s.status = "playing";
+    s.status = "countdown";
     s.balls = [initialBall(CANVAS_W / 2 - PADDLE_W / 2)];
     s.paddle = initialPaddle();
     s.bricks = buildBricks(1);
@@ -690,8 +704,9 @@ export function useBrickBreaker() {
     setWideActive(false);
     setLaserActive(false);
     setMessage("");
-    setStatus("playing");
+    setStatus("countdown");
 
+    // On-chain start
     if (mode === "onchain" && address && contractAddress) {
       try {
         await writeContractAsync({
@@ -706,9 +721,26 @@ export function useBrickBreaker() {
       }
     }
 
+    // Draw initial frame while counting down
     s.lastTime = performance.now();
     s.animId = requestAnimationFrame(gameLoop);
-  }, [mode, address, contractAddress, writeContractAsync, gameLoop]);
+
+    // Countdown 3 → 2 → 1 → Go! → play
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0); // "GO!"
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        launchGame();
+      }
+    }, 1000);
+  }, [mode, address, contractAddress, writeContractAsync, launchGame]);
 
   const stopGame = useCallback(() => {
     const s = stateRef.current;
@@ -754,6 +786,7 @@ export function useBrickBreaker() {
     status,
     result,
     message,
+    countdown,
     wideActive,
     laserActive,
     gameStartedOnChain,
