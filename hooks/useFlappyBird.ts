@@ -28,13 +28,13 @@ export const CANVAS_H = 560;
 
 const BIRD_X = 80;
 const BIRD_RADIUS = 18;
-const GRAVITY = 0.45;
-const JUMP_VELOCITY = -8.5;
+const GRAVITY = 0.18;        // gentle gravity — ~1 tap/sec to maintain altitude
+const JUMP_VELOCITY = -6.0;  // jump height ~100px, ~1s arc at 60fps
 const PIPE_WIDTH = 60;
-const PIPE_GAP = 155;
-const PIPE_SPEED_INIT = 2.4;
-const PIPE_SPEED_INCREMENT = 0.15; // speed increase per 5 pipes
-const PIPE_INTERVAL = 1600; // px between pipes (in canvas units)
+const PIPE_GAP = 170;        // slightly wider gap for comfort
+const PIPE_SPEED_INIT = 2.0; // slightly slower start
+const PIPE_SPEED_INCREMENT = 0.12; // speed increase per 5 pipes
+const PIPE_INTERVAL = 1800;  // more space between pipes
 const GROUND_H = 60;
 const WIN_SCORE = 30; // pipes passed to win
 
