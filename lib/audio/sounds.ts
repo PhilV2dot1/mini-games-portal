@@ -151,6 +151,15 @@ export const GAME_SOUNDS = {
     lose:  { path: '/audio/wordle/lose.mp3',  category: 'lose' as const },
   },
 
+  // Flappy Bird
+  flappybird: {
+    flap:  { path: '/audio/flappybird/flap.mp3',  category: 'action' as const, volume: 0.5 },
+    score: { path: '/audio/flappybird/score.mp3', category: 'action' as const, volume: 0.6 },
+    hit:   { path: '/audio/flappybird/hit.mp3',   category: 'lose'   as const },
+    win:   { path: '/audio/flappybird/win.mp3',   category: 'win'    as const },
+    lose:  { path: '/audio/flappybird/lose.mp3',  category: 'lose'   as const },
+  },
+
   // Brick Breaker
   brickbreaker: {
     brickHit:     { path: '/audio/brickbreaker/brickhit.mp3',  category: 'action' as const, volume: 0.5 },
@@ -167,17 +176,6 @@ export const GAME_SOUNDS = {
     stop: { path: '/audio/jackpot/stop.mp3', category: 'action' as const },
     win: { path: '/audio/jackpot/win.mp3', category: 'win' as const },
     jackpot: { path: '/audio/jackpot/jackpot.mp3', category: 'win' as const },
-  },
-
-  // Poker
-  poker: {
-    deal: { path: '/audio/poker/deal.mp3', category: 'action' as const },
-    chip: { path: '/audio/poker/chip.mp3', category: 'action' as const, volume: 0.6 },
-    fold: { path: '/audio/poker/fold.mp3', category: 'action' as const },
-    check: { path: '/audio/poker/check.mp3', category: 'action' as const, volume: 0.5 },
-    win: { path: '/audio/poker/win.mp3', category: 'win' as const },
-    lose: { path: '/audio/poker/lose.mp3', category: 'lose' as const },
-    allIn: { path: '/audio/poker/allin.mp3', category: 'action' as const },
   },
 } as const;
 

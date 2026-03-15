@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird";
 
 export interface GameMetadata {
   id: GameId;
@@ -185,6 +185,15 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/brickbreaker.png",
     route: "/games/brick-breaker",
     color: "from-sky-500 to-indigo-600",
+    hasFee: false,
+  },
+  flappybird: {
+    id: "flappybird",
+    name: "Flappy Bird",
+    description: "Fly the Bitcoin coin through crypto pipes!",
+    icon: "/icons/flappybird.png",
+    route: "/games/flappy-bird",
+    color: "from-orange-400 to-yellow-500",
     hasFee: false,
   },
 };

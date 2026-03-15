@@ -28,7 +28,8 @@ export type GameId =
   | 'tetris'
   | 'poker'
   | 'wordle'
-  | 'brickbreaker';
+  | 'brickbreaker'
+  | 'flappybird';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -143,6 +144,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     soneium: '0x7ed323C0d67A190673A62C5d1480284b14FA4E7b',
   },
   brickbreaker: { celo: '0xde31f2cfcf6b351cb5eefb951889d12206616008', base: '0x5D2F8f9EcA52C51e26D9224eDF61bA72Bac93743', megaeth: '0x07D3E0fdFcF7417A6Ef98Fa51b9f08d55D616818', soneium: '0x48D1acD1b7d6afD459a109cB4D706979b8883eEC' },
+  flappybird:   { celo: null, base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {
