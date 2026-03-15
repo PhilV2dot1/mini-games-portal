@@ -67,7 +67,7 @@ export const PADDLE_W = 80;
 export const PADDLE_H = 12;
 export const PADDLE_Y = CANVAS_H - 30;
 export const BALL_RADIUS = 8;
-export const BALL_SPEED = 5;
+export const BALL_SPEED = 3.5;
 export const BRICK_ROWS = 5;
 export const BRICK_COLS = 8;
 export const BRICK_PADDING = 4;
@@ -411,7 +411,7 @@ export function useBrickBreaker() {
         ball.vel.x = (hitPos - 0.5) * BALL_SPEED * 2;
         // Normalize speed
         const speed2 = Math.sqrt(ball.vel.x ** 2 + ball.vel.y ** 2);
-        const target = BALL_SPEED + (s.level - 1) * 0.5;
+        const target = BALL_SPEED + (s.level - 1) * 0.8;
         ball.vel.x = (ball.vel.x / speed2) * target;
         ball.vel.y = (ball.vel.y / speed2) * target;
       }
