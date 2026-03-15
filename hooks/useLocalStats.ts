@@ -41,6 +41,7 @@ const DEFAULT_PROFILE: UserProfile = {
     tetris: { ...DEFAULT_GAME_STATS },
     poker: { ...DEFAULT_GAME_STATS },
     wordle: { ...DEFAULT_GAME_STATS },
+    brickbreaker: { ...DEFAULT_GAME_STATS },
   },
 };
 

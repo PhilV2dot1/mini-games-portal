@@ -27,7 +27,8 @@ export type GameId =
   | 'maze'
   | 'tetris'
   | 'poker'
-  | 'wordle';
+  | 'wordle'
+  | 'brickbreaker';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -141,6 +142,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
     megaeth: '0x6b3f81c561E40Ac3F1BAA16cbE456a584F26dB84',
     soneium: '0x7ed323C0d67A190673A62C5d1480284b14FA4E7b',
   },
+  brickbreaker: { celo: null, base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {

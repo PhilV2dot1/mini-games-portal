@@ -151,6 +151,16 @@ export const GAME_SOUNDS = {
     lose:  { path: '/audio/wordle/lose.mp3',  category: 'lose' as const },
   },
 
+  // Brick Breaker
+  brickbreaker: {
+    brickHit:     { path: '/audio/brickbreaker/brickhit.mp3',  category: 'action' as const, volume: 0.5 },
+    paddleBounce: { path: '/audio/brickbreaker/paddle.mp3',    category: 'action' as const, volume: 0.6 },
+    powerUp:      { path: '/audio/brickbreaker/powerup.mp3',   category: 'win'    as const },
+    levelUp:      { path: '/audio/brickbreaker/levelup.mp3',   category: 'win'    as const },
+    win:          { path: '/audio/brickbreaker/win.mp3',       category: 'win'    as const },
+    lose:         { path: '/audio/brickbreaker/lose.mp3',      category: 'lose'   as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },

@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker";
 
 export interface GameMetadata {
   id: GameId;
@@ -176,6 +176,15 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/wordle.png",
     route: "/games/wordle",
     color: "from-green-400 to-emerald-600",
+    hasFee: false,
+  },
+  brickbreaker: {
+    id: "brickbreaker",
+    name: "Brick Breaker",
+    description: "Break bricks, catch power-ups, clear all levels!",
+    icon: "/icons/brickbreaker.png",
+    route: "/games/brick-breaker",
+    color: "from-sky-500 to-indigo-600",
     hasFee: false,
   },
 };
