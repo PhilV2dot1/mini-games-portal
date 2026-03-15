@@ -28,8 +28,8 @@ export const CANVAS_H = 560;
 
 const BIRD_X = 80;
 const BIRD_RADIUS = 18;
-const GRAVITY = 0.12;        // very gentle gravity
-const JUMP_VELOCITY = -5.0;  // smooth small jumps
+const GRAVITY = 0.14;        // slightly more gravity for better feel
+const JUMP_VELOCITY = -3.2;  // small nudge — subtle trajectory change
 const PIPE_WIDTH = 55;
 const PIPE_GAP = 200;        // wide gap, very forgiving
 const PIPE_SPEED_INIT = 1.6; // slow start
