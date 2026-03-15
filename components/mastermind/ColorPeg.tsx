@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Color, COLOR_CONFIG } from "@/lib/games/mastermind-logic";
+import "@cryptofonts/cryptofont/cryptofont.css";
 
 interface ColorPegProps {
   color: Color | null;
@@ -36,7 +37,10 @@ export function ColorPeg({ color, size = 'medium', onClick, showEmpty = true }: 
         boxShadow: config ? `0 4px 12px ${config.shadow}` : 'none',
       }}
     >
-      {config?.logo && (
+      {config?.cfClass && (
+        <i className={`${config.cfClass} text-2xl`} />
+      )}
+      {config?.logo && !config.cfClass && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={config.logo}

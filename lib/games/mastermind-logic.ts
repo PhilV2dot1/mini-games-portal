@@ -9,7 +9,8 @@ export const COLOR_CONFIG: Record<Color, {
   bg: string;
   border: string;
   shadow: string;
-  logo: string;
+  logo?: string;   // jsDelivr SVG URL
+  cfClass?: string; // cryptofonts class (e.g. "cf cf-celo")
 }> = {
   btc: {
     name: 'BTC',
@@ -37,14 +38,14 @@ export const COLOR_CONFIG: Record<Color, {
     bg: '#FBCC5C',
     border: '#F5B800',
     shadow: 'rgba(251, 204, 92, 0.5)',
-    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/celo.svg'
+    cfClass: 'cf cf-celo',
   },
   near: {
     name: 'NEAR',
     bg: '#00C08B',
     border: '#00A67D',
     shadow: 'rgba(0, 192, 139, 0.5)',
-    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/near.svg'
+    cfClass: 'cf cf-near',
   },
   link: {
     name: 'LINK',
