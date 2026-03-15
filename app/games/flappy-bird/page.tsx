@@ -203,15 +203,13 @@ export default function FlappyBirdPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 className="text-center space-y-4 px-8"
               >
-                <div className="text-6xl">{game.result === "win" ? "🏆" : "💥"}</div>
-                <p className="text-white font-black text-3xl">
-                  {game.result === "win" ? t("games.flappybird.win") : t("games.flappybird.lose")}
-                </p>
+                <div className="text-6xl">💥</div>
+                <p className="text-white font-black text-3xl">{t("games.flappybird.lose")}</p>
                 <p className="text-orange-300 font-bold text-xl">
-                  {t("games.flappybird.score")}: {game.score}
+                  Niveau {game.level} — {game.score} tuyaux
                 </p>
                 <p className="text-white/60 text-sm">
-                  {t("games.flappybird.bestScore")}: {game.stats.highScore}
+                  {t("games.flappybird.best")}: {game.stats.highScore}
                 </p>
               </motion.div>
             </div>
@@ -230,8 +228,8 @@ export default function FlappyBirdPage() {
               <p className="text-white font-black text-2xl">{game.score}</p>
             </div>
             <div className="text-center">
-              <p className="text-white/60 text-xs font-medium">{t("games.flappybird.goal")}</p>
-              <p className="text-orange-300 font-black text-2xl">{game.winScore}</p>
+              <p className="text-white/60 text-xs font-medium">Niveau</p>
+              <p className="text-orange-300 font-black text-2xl">{game.level}</p>
             </div>
             <div className="text-center">
               <p className="text-white/60 text-xs font-medium">{t("games.flappybird.best")}</p>

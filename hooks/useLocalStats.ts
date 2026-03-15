@@ -42,6 +42,7 @@ const DEFAULT_PROFILE: UserProfile = {
     poker: { ...DEFAULT_GAME_STATS },
     wordle: { ...DEFAULT_GAME_STATS },
     brickbreaker: { ...DEFAULT_GAME_STATS },
+    flappybird: { ...DEFAULT_GAME_STATS },
   },
 };
 

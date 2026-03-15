@@ -33,10 +33,11 @@ const JUMP_VELOCITY = -3.2;  // small nudge — subtle trajectory change
 const PIPE_WIDTH = 55;
 const PIPE_GAP = 200;        // wide gap, very forgiving
 const PIPE_SPEED_INIT = 1.6; // slow start
-const PIPE_SPEED_INCREMENT = 0.08; // gradual speed increase
+const PIPE_SPEED_INCREMENT = 0.08; // gradual speed increase within a level
 const PIPE_INTERVAL = 2200;  // lots of space between pipes
 const GROUND_H = 60;
-const WIN_SCORE = 30; // pipes passed to win
+const PIPES_PER_LEVEL = 30;  // new level every 30 pipes
+const LEVEL_SPEED_BOOST = 0.6; // speed added at each new level
 
 const STATS_KEY = "flappybird_stats";
 
@@ -127,6 +128,7 @@ function getLogoImg(ticker: string): HTMLImageElement {
 
 export function useFlappyBird() {
   const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(1);
   const [mode, setMode] = useState<GameMode>("free");
   const [status, setStatus] = useState<GameStatus>("idle");
   const [result, setResult] = useState<GameResult>(null);
@@ -141,6 +143,7 @@ export function useFlappyBird() {
     bird: { y: CANVAS_H / 2, vy: 0, angle: 0 } as BirdState,
     pipes: [] as Pipe[],
     score: 0,
+    level: 1,
     pipeSpeed: PIPE_SPEED_INIT,
     nextPipeX: CANVAS_W + 100,
     status: "idle" as GameStatus,
@@ -148,7 +151,6 @@ export function useFlappyBird() {
     lastTime: 0,
     bgOffset: 0, // parallax
     groundOffset: 0,
-    // pre-loaded logo images map
     logoImgs: {} as Record<string, HTMLImageElement>,
   });
 
@@ -384,16 +386,17 @@ export function useFlappyBird() {
         s.score++;
         setScore(s.score);
 
-        // Speed up every 5 pipes
+        // Speed up every 5 pipes within a level
         if (s.score % 5 === 0) {
           s.pipeSpeed += PIPE_SPEED_INCREMENT;
         }
 
-        // Win condition
-        if (s.score >= WIN_SCORE) {
-          s.status = "finished";
-          setStatus("processing");
-          return;
+        // New level every PIPES_PER_LEVEL pipes
+        const newLevel = Math.floor(s.score / PIPES_PER_LEVEL) + 1;
+        if (newLevel > s.level) {
+          s.level = newLevel;
+          s.pipeSpeed = PIPE_SPEED_INIT + (newLevel - 1) * LEVEL_SPEED_BOOST;
+          setLevel(newLevel);
         }
       }
 
@@ -434,21 +437,19 @@ export function useFlappyBird() {
   useEffect(() => {
     if (status !== "processing") return;
     const s = stateRef.current;
-    const won = s.score >= WIN_SCORE;
-    finalizeGame(won, s.score);
+    finalizeGame(s.score, s.level);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const finalizeGame = useCallback(async (won: boolean, finalScore: number) => {
-    const res: GameResult = won ? "win" : "lose";
-    setResult(res);
-    setMessage(won ? "🎉 You reached 30 pipes!" : "💥 Crash!");
+  const finalizeGame = useCallback(async (finalScore: number, finalLevel: number) => {
+    setResult("lose");
+    setMessage(`💥 Crash! Niveau ${finalLevel} — ${finalScore} tuyaux`);
 
     const raw = localStorage.getItem(STATS_KEY);
     const prev: PlayerStats = raw ? JSON.parse(raw) : DEFAULT_STATS;
     const next: PlayerStats = {
       games: prev.games + 1,
-      wins: prev.wins + (won ? 1 : 0),
+      wins: prev.wins,
       highScore: Math.max(prev.highScore, finalScore),
       totalScore: prev.totalScore + finalScore,
     };
@@ -461,7 +462,7 @@ export function useFlappyBird() {
           address: contractAddress,
           abi: FLAPPYBIRD_ABI,
           functionName: "endGame",
-          args: [BigInt(finalScore), BigInt(won ? 1 : 0)],
+          args: [BigInt(finalScore), BigInt(0)],
         });
         setGameStartedOnChain(false);
       } catch (err) {
@@ -506,14 +507,15 @@ export function useFlappyBird() {
     s.bird = { y: CANVAS_H / 2, vy: 0, angle: 0 };
     s.pipes = [];
     s.score = 0;
+    s.level = 1;
     s.pipeSpeed = PIPE_SPEED_INIT;
     s.nextPipeX = CANVAS_W + 100;
     s.groundOffset = 0;
     s.status = "countdown";
-    // Spawn first pipe a bit off-screen
     s.pipes.push(makePipe(CANVAS_W + 80));
 
     setScore(0);
+    setLevel(1);
     setResult(null);
     setMessage("");
     setStatus("countdown");
@@ -586,6 +588,7 @@ export function useFlappyBird() {
   return {
     canvasRef,
     score,
+    level,
     mode,
     status,
     result,
@@ -599,6 +602,5 @@ export function useFlappyBird() {
     stopGame,
     setGameMode,
     jump,
-    winScore: WIN_SCORE,
   };
 }
