@@ -241,6 +241,7 @@ export function useBrickBreaker() {
     animId: 0,
     lastTime: 0,
     shooting: false,
+    respawnTimer: 0, // ms remaining before next ball spawns after losing a life
   });
 
   // Wallet / contract
@@ -470,6 +471,18 @@ export function useBrickBreaker() {
       s.balls.splice(toRemoveBalls[i], 1);
     }
 
+    // Respawn timer — wait 1s before new ball appears after losing a life
+    if (s.respawnTimer > 0) {
+      s.respawnTimer -= dt;
+      if (s.respawnTimer <= 0) {
+        s.respawnTimer = 0;
+        s.balls = [initialBall(s.paddle.x, s.level)];
+      }
+      draw();
+      s.animId = requestAnimationFrame(gameLoop);
+      return;
+    }
+
     // If no balls left — lose a life
     if (s.balls.length === 0) {
       s.lives--;
@@ -479,8 +492,8 @@ export function useBrickBreaker() {
         setStatus("processing");
         return;
       }
-      // Respawn ball
-      s.balls = [initialBall(s.paddle.x, s.level)];
+      // Start 1s respawn delay
+      s.respawnTimer = 1000;
     }
 
     // Update power-ups
@@ -694,6 +707,7 @@ export function useBrickBreaker() {
     s.wideTimer = 0;
     s.laserTimer = 0;
     s.shooting = false;
+    s.respawnTimer = 0;
     s.paddleTargetX = s.paddle.x;
 
     setScore(0);
