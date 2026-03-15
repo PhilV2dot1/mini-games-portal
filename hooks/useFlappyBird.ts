@@ -353,15 +353,17 @@ export function useFlappyBird() {
       return;
     }
 
-    const dt = Math.min(timestamp - s.lastTime, 32);
+    // Initialize lastTime on first playing frame to avoid huge dt
+    if (s.lastTime === 0) s.lastTime = timestamp;
+    const dt = Math.min((timestamp - s.lastTime) / 16.67, 2); // normalized: 1.0 = 60fps frame
     s.lastTime = timestamp;
 
     // Parallax ground
-    s.groundOffset += s.pipeSpeed;
+    s.groundOffset += s.pipeSpeed * dt;
 
-    // Bird physics
-    s.bird.vy += GRAVITY;
-    s.bird.y += s.bird.vy;
+    // Bird physics (dt-normalized)
+    s.bird.vy += GRAVITY * dt;
+    s.bird.y += s.bird.vy * dt;
     s.bird.angle = Math.min(90, Math.max(-30, s.bird.vy * 5));
 
     // Ground / ceiling collision
@@ -374,7 +376,7 @@ export function useFlappyBird() {
 
     // Move pipes + spawn
     for (const pipe of s.pipes) {
-      pipe.x -= s.pipeSpeed;
+      pipe.x -= s.pipeSpeed * dt;
 
       // Passed pipe → score
       if (!pipe.passed && pipe.x + PIPE_WIDTH < BIRD_X) {
@@ -486,8 +488,13 @@ export function useFlappyBird() {
 
   const launchGame = useCallback(() => {
     const s = stateRef.current;
+    // Cancel any existing RAF (countdown loop) before starting play loop
+    if (s.animId) {
+      cancelAnimationFrame(s.animId);
+      s.animId = 0;
+    }
     s.status = "playing";
-    s.lastTime = performance.now();
+    s.lastTime = 0; // will be set on first frame
     setStatus("playing");
     s.animId = requestAnimationFrame(gameLoop);
   }, [gameLoop]);
