@@ -125,8 +125,14 @@ export default function SnakePage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
-          <div className="text-5xl mb-2" role="img" aria-label={t('games.snake.title')}>
-            🐍₿
+          <div className="mb-2 flex items-center justify-center gap-2" role="img" aria-label={t('games.snake.title')}>
+            <span className="text-5xl">🐍</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/btc.svg"
+              alt="BTC"
+              className="w-12 h-12"
+            />
           </div>
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.snake.title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
