@@ -155,7 +155,11 @@ export default function FlappyBirdPage() {
           {game.status === "idle" && (
             <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/50 backdrop-blur-sm">
               <div className="text-center space-y-3 px-6">
-                <div className="text-6xl">₿</div>
+                <img
+                  src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/btc.svg"
+                  alt="BTC"
+                  className="w-16 h-16 mx-auto"
+                />
                 <p className="text-white font-bold text-xl">Flappy Bitcoin</p>
                 <p className="text-white/60 text-sm">
                   {t("games.flappybird.tapToStart")}
