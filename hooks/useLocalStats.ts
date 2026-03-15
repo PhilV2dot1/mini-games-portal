@@ -43,6 +43,7 @@ const DEFAULT_PROFILE: UserProfile = {
     wordle: { ...DEFAULT_GAME_STATS },
     brickbreaker: { ...DEFAULT_GAME_STATS },
     flappybird: { ...DEFAULT_GAME_STATS },
+    plinko: { ...DEFAULT_GAME_STATS },
   },
 };
 

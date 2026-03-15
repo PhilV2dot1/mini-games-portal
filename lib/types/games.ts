@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko";
 
 export interface GameMetadata {
   id: GameId;
@@ -194,6 +194,15 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/flappybird.png",
     route: "/games/flappy-bird",
     color: "from-orange-400 to-yellow-500",
+    hasFee: false,
+  },
+  plinko: {
+    id: "plinko",
+    name: "Plinko",
+    description: "Drop BTC through pegs to multiply your coins!",
+    icon: "/icons/plinko.png",
+    route: "/games/plinko",
+    color: "from-yellow-400 to-orange-500",
     hasFee: false,
   },
 };

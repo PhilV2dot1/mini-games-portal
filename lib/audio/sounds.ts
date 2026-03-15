@@ -170,6 +170,15 @@ export const GAME_SOUNDS = {
     lose:         { path: '/audio/brickbreaker/lose.mp3',      category: 'lose'   as const },
   },
 
+  // Plinko
+  plinko: {
+    drop:  { path: '/audio/plinko/drop.mp3',  category: 'action' as const, volume: 0.4 },
+    peg:   { path: '/audio/plinko/peg.mp3',   category: 'action' as const, volume: 0.3 },
+    land:  { path: '/audio/plinko/land.mp3',  category: 'action' as const, volume: 0.6 },
+    win:   { path: '/audio/plinko/win.mp3',   category: 'win' as const },
+    lose:  { path: '/audio/plinko/lose.mp3',  category: 'lose' as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },
