@@ -36,6 +36,7 @@ const GRAVITY = 0.28;
 const BALL_MAX_VEL = 9;
 const BOUNCE_DEFLECT_MIN = 0.8;
 const BOUNCE_DEFLECT_MAX = 2.5;
+const BALL_MAX_LIFETIME_MS = 10000; // force landing after 10s
 const BUCKET_H = 48;
 const BUCKET_Y = CANVAS_H - BUCKET_H - 5;
 const DROP_ZONE_Y = 35;
@@ -101,6 +102,7 @@ interface PlinkoBall {
   landedBucketIdx: number;
   particles: Particle[];
   alpha: number; // fade-out after landing
+  spawnedAt: number; // performance.now() at spawn
 }
 
 interface Peg {
@@ -462,6 +464,12 @@ export function usePlinko() {
         }
       }
 
+      // Force landing if ball has been alive too long
+      if (!ball.landed && timestamp - ball.spawnedAt > BALL_MAX_LIFETIME_MS) {
+        ball.x = Math.max(BALL_RADIUS, Math.min(CANVAS_W - BALL_RADIUS, ball.x));
+        ball.y = BUCKET_Y;
+      }
+
       // Bucket landing
       if (!ball.landed && ball.y + BALL_RADIUS >= BUCKET_Y) {
         ball.landed = true;
@@ -562,6 +570,7 @@ export function usePlinko() {
       landedBucketIdx: -1,
       particles: [],
       alpha: 1,
+      spawnedAt: performance.now(),
     });
   }, []);
 
