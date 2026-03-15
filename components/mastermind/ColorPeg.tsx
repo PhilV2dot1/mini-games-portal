@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Color, COLOR_CONFIG } from "@/lib/games/mastermind-logic";
 
 interface ColorPegProps {
@@ -16,12 +15,6 @@ export function ColorPeg({ color, size = 'medium', onClick, showEmpty = true }: 
     small: 'w-6 h-6 sm:w-8 sm:h-8',
     medium: 'w-9 h-9 sm:w-11 sm:h-11',
     large: 'w-11 h-11 sm:w-14 sm:h-14',
-  };
-
-  const imageSizes = {
-    small: 20,
-    medium: 28,
-    large: 40,
   };
 
   if (!color && !showEmpty) return null;
@@ -44,13 +37,11 @@ export function ColorPeg({ color, size = 'medium', onClick, showEmpty = true }: 
       }}
     >
       {config?.logo && (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           src={config.logo}
           alt={config.name}
-          width={imageSizes[size]}
-          height={imageSizes[size]}
-          className="rounded-full"
-          unoptimized
+          className="w-full h-full object-contain p-0.5"
         />
       )}
     </motion.button>

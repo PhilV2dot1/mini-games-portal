@@ -16,42 +16,42 @@ export const COLOR_CONFIG: Record<Color, {
     bg: '#F7931A',
     border: '#E68A00',
     shadow: 'rgba(247, 147, 26, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png'
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/btc.svg'
   },
   eth: {
     name: 'ETH',
-    bg: '#D1D5DB',
-    border: '#9CA3AF',
-    shadow: 'rgba(209, 213, 219, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png'
+    bg: '#627EEA',
+    border: '#4C63C4',
+    shadow: 'rgba(98, 126, 234, 0.5)',
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/eth.svg'
   },
   avax: {
     name: 'AVAX',
     bg: '#E84142',
     border: '#D43030',
     shadow: 'rgba(232, 65, 66, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png'
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/avax.svg'
   },
   celo: {
     name: 'CELO',
     bg: '#FBCC5C',
     border: '#F5B800',
     shadow: 'rgba(251, 204, 92, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/11090/small/InjXBNx9_400x400.jpg'
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/celo.svg'
   },
   near: {
     name: 'NEAR',
     bg: '#00C08B',
     border: '#00A67D',
     shadow: 'rgba(0, 192, 139, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/10365/small/near.jpg'
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/near.svg'
   },
   link: {
     name: 'LINK',
-    bg: '#60A5FA',
-    border: '#3B82F6',
-    shadow: 'rgba(96, 165, 250, 0.5)',
-    logo: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'
+    bg: '#2A5ADA',
+    border: '#1E47C2',
+    shadow: 'rgba(42, 90, 218, 0.5)',
+    logo: 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/link.svg'
   },
 };
 
