@@ -3,7 +3,9 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
 import type { Card } from "@/lib/games/memory-logic";
-import "@cryptofonts/cryptofont/cryptofont.css";
+// Color crypto SVG icons via jsDelivr (cryptocurrency-icons package)
+const CRYPTO_ICON_URL = (symbol: string) =>
+  `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/${symbol}.svg`;
 
 interface MemoryBoardProps {
   board: Card[];
@@ -49,9 +51,14 @@ const MemoryCard = memo(function MemoryCard({
           initial={{ rotateY: 90, opacity: 0 }}
           animate={{ rotateY: 0, opacity: 1 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center justify-center"
+          className="flex items-center justify-center w-full h-full p-1"
         >
-          <i className={`cf cf-${card.emoji} text-3xl sm:text-4xl`} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={CRYPTO_ICON_URL(card.emoji)}
+            alt={card.emoji.toUpperCase()}
+            className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
+          />
         </motion.span>
       ) : (
         <span className="text-white/80 text-2xl">?</span>
