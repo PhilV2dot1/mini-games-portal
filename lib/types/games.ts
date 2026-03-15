@@ -164,7 +164,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     id: "poker",
     name: "Poker",
     description: "Texas Hold'em — free play & multiplayer!",
-    icon: "/icons/poker.svg",
+    icon: "/icons/poker.png",
     route: "/games/poker",
     color: "from-emerald-600 to-green-800",
     hasFee: false,
