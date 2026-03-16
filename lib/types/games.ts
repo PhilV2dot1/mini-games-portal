@@ -99,7 +99,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-blue-500 to-indigo-600",
     hasFee: false,
     category: "strategy",
-    duration: "quick",
+    duration: "medium",
   },
   snake: {
     id: "snake",
@@ -170,7 +170,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-purple-400 to-pink-500",
     hasFee: false,
     category: "puzzle",
-    duration: "quick",
+    duration: "medium",
   },
   maze: {
     id: "maze",
