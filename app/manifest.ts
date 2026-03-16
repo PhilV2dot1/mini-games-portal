@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Mini Games Portal',
     short_name: 'MiniGames',
-    description: 'Play 16 mini-games on Celo, Base, MegaETH & Soneium. Free mode, on-chain, and multiplayer.',
+    description: 'Play 20 mini-games on Celo, Base, MegaETH & Soneium. Free mode, on-chain, and multiplayer.',
     start_url: '/',
     scope: '/',
     display: 'standalone',

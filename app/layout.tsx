@@ -16,7 +16,7 @@ const geistMono = localFont({
 
 const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://mini-games-portal.vercel.app';
 const siteTitle = 'Mini Games Portal - Play Mini-Games on Blockchain';
-const siteDescription = 'Play 15 mini-games on Celo, Base & MegaETH! Blackjack, RPS, Tic-Tac-Toe, Jackpot, 2048, Mastermind, Snake, Minesweeper, Solitaire, Connect Five, Yahtzee, Sudoku, Memory, Maze & Tetris. Free mode, on-chain or multiplayer!';
+const siteDescription = 'Play 20 mini-games on Celo, Base, MegaETH & Soneium! Blackjack, RPS, Tic-Tac-Toe, Jackpot, 2048, Mastermind, Snake, Minesweeper, Solitaire, Connect Five, Yahtzee, Sudoku, Memory, Maze, Tetris, Poker, Wordle, Flappy Bird, Plinko & Brick Breaker. Free mode, on-chain or multiplayer!';
 
 export const viewport: Viewport = {
   themeColor: [
