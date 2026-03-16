@@ -88,18 +88,18 @@ export const translations = {
     },
 
     onboarding: {
-      welcomeTitle: 'Welcome to Mini Games Portal!',
+      welcomeTitle: 'Welcome to Celo Games Portal!',
       xpBonus: '+50 XP bonus when you start!',
       skip: 'Skip',
       next: 'Next →',
       start: "Let's Go! 🚀",
       step1: {
         title: 'Play 16 Games',
-        desc: 'From Blackjack to Tetris, on Celo, Base, MegaETH and Soneium. Earn points with every win.',
+        desc: 'From Blackjack to Tetris, challenge yourself across all games and earn points with every win.',
       },
       step2: {
         title: 'Climb the Leaderboard',
-        desc: 'Compete with players worldwide across all chains. Complete daily challenges and weekly missions.',
+        desc: 'Compete with players worldwide. Complete daily challenges and weekly missions to rise to the top.',
       },
       step3: {
         title: 'Level Up & Earn XP',
@@ -281,6 +281,7 @@ export const translations = {
         noGameData: 'Transaction successful but no game data received',
         recording: 'Recording...',
         recorded: 'Result recorded on blockchain!',
+        clickDealCards: 'Click "DEAL CARDS" to start',
       },
 
       // Connect Five specific
@@ -689,6 +690,24 @@ export const translations = {
         footer: '🪙 Flappy Bitcoin with blockchain integration',
         viewOnExplorer: 'View on Explorer →',
       },
+      coinflip: {
+        title: 'Coin Flip',
+        subtitle: '₿ Heads or Ξ Tails — double or nothing!',
+        howToPlay: 'How to Play',
+        rule1: 'Choose ₿ Heads (Bitcoin) or Ξ Tails (Ethereum)',
+        rule2: 'The coin spins and reveals the result',
+        rule3: 'Chain wins to build your streak 🔥',
+        tapToFlip: 'Choose a side to flip the coin',
+        flipping: 'The coin is spinning...',
+        flipAgain: 'Flip Again',
+        win: 'Well played! 🎉',
+        lose: 'Bad luck...',
+        streak: 'Streak',
+        bestStreak: 'Best Streak',
+        stats: 'My Stats',
+        footer: '🪙 Coin Flip — BTC vs ETH!',
+        viewOnExplorer: 'View on Explorer →',
+      },
       plinko: {
         title: 'Plinko Crypto',
         subtitle: 'Drop BTC through pegs — multiply your coins!',
@@ -756,7 +775,7 @@ export const translations = {
 
     // Home Page
     home: {
-      welcome: 'Welcome to Mini Games Portal',
+      welcome: 'Welcome to Celo Games Portal',
       subtitle: 'Play, earn points and unlock badges!',
       howToPlay: 'How to Play',
       yourProfile: 'Your Profile',
@@ -821,13 +840,6 @@ export const translations = {
       performancePerGame: 'Performance in each game',
       game: 'game',
       games: 'games',
-      totalGames: 'Games Played',
-      totalPoints: 'Total Points',
-      bestStreak: 'Best Streak',
-      favoriteGame: 'Favorite Game',
-      daysActive: 'Days Active',
-      streaks: 'Win Streaks',
-      viewFullStats: 'View full statistics →',
     },
 
     // Authentication
@@ -868,15 +880,6 @@ export const translations = {
       saveYourProgress: 'Save Your Progress!',
       createAccountMessage: 'Create an account to save your stats and compete on the global leaderboard!',
       createAccount: 'Create Account',
-      viewPublicProfile: 'Public profile',
-      shareProfile: 'Share',
-      copied: 'Copied!',
-      globalRank: 'Global Rank',
-      memberSince: 'Member since',
-      notFound: 'Profile not found',
-      notFoundDesc: 'This player does not exist or has a private profile.',
-      noPublicData: 'This player has no public statistics yet.',
-      recentGames: 'Recent Games',
       completion: {
         profile: 'Profile',
         completed: 'completed',
@@ -918,7 +921,7 @@ export const translations = {
 
     // Profile Setup
     profileSetup: {
-      welcome: 'Welcome to Mini Games Portal!',
+      welcome: 'Welcome to Celo Games Portal!',
       subtitle: 'Set up your profile to start playing',
       chooseAvatar: 'Choose your avatar',
       chooseUsername: 'Choose your username',
@@ -1070,7 +1073,7 @@ export const translations = {
     // Profile Edit
     profileEdit: {
       title: 'Edit my profile',
-      subtitle: 'Customize your Mini Games Portal profile',
+      subtitle: 'Customize your Celo Games Portal profile',
       loadingProfile: 'Loading profile',
       profileSaved: 'Profile saved successfully! Redirecting...',
       errorSaving: 'Please correct the errors before saving',
@@ -1107,7 +1110,7 @@ export const translations = {
     // Leaderboard
     leaderboard: {
       title: 'Leaderboard',
-      subtitle: 'Top players across all games on Mini Games Portal',
+      subtitle: 'Top players across all games on Celo Games Portal',
       globalRanking: 'Global Ranking',
       rank: 'Rank',
       player: 'Player',
@@ -1116,13 +1119,6 @@ export const translations = {
       wins: 'Wins',
       loadingLeaderboard: 'Loading leaderboard...',
       noPlayers: 'No players yet',
-      scores: 'Scores',
-      challenges: 'Daily Challenges',
-      noChallenges: 'No challenge completions yet. Be the first!',
-      challengeRanking: 'Challenge Ranking',
-      challengeRankingDesc: 'Players ranked by number of daily challenges completed',
-      completed: 'Completed',
-      challengesCount: 'challenges',
     },
 
     // Audio
@@ -1284,7 +1280,7 @@ export const translations = {
       replayFinished: 'Replay finished',
     },
 
-    // Daily Challenges
+    // Daily Challenge
     daily: {
       title: 'Daily Challenge',
       progress: 'Progress',
@@ -1389,13 +1385,9 @@ export const translations = {
     chain: {
       network: 'Network',
       celo: 'Celo',
-      base: 'Base',
-      megaeth: 'MegaETH',
-      soneium: 'Soneium',
       switchTo: 'Switch to',
       notAvailable: 'Not available on this network',
       comingSoon: 'Coming soon on this network',
-      onchainDev: 'On-chain mode is under development on this network. Free play is available!',
       unsupported: 'Unsupported Network',
       switchToPlay: 'is not supported. Switch to a supported network to play.',
     },
@@ -1482,18 +1474,18 @@ export const translations = {
     },
 
     onboarding: {
-      welcomeTitle: 'Bienvenue sur Mini Games Portal !',
+      welcomeTitle: 'Bienvenue sur Celo Games Portal !',
       xpBonus: '+50 XP bonus au démarrage !',
       skip: 'Passer',
       next: 'Suivant →',
       start: 'C\'est parti ! 🚀',
       step1: {
         title: 'Jouez à 16 jeux',
-        desc: 'Du Blackjack au Tetris, sur Celo, Base, MegaETH et Soneium. Gagnez des points à chaque victoire.',
+        desc: 'Du Blackjack au Tetris, relevez des défis dans tous les jeux et gagnez des points à chaque victoire.',
       },
       step2: {
         title: 'Grimpez au classement',
-        desc: 'Affrontez des joueurs du monde entier sur toutes les chaînes. Défis quotidiens et missions hebdomadaires.',
+        desc: 'Affrontez des joueurs du monde entier. Complétez les défis quotidiens et les missions hebdomadaires pour atteindre le sommet.',
       },
       step3: {
         title: 'Montez en niveau et gagnez des XP',
@@ -1675,6 +1667,7 @@ export const translations = {
         noGameData: 'Transaction réussie mais aucune donnée de jeu reçue',
         recording: 'Enregistrement...',
         recorded: 'Résultat enregistré sur la blockchain !',
+        clickDealCards: 'Cliquez sur "DISTRIBUER" pour commencer',
       },
 
       // Connect Five specific
@@ -2083,6 +2076,24 @@ export const translations = {
         footer: '🪙 Flappy Bitcoin avec intégration blockchain',
         viewOnExplorer: 'Voir sur l\'Explorer →',
       },
+      coinflip: {
+        title: 'Coin Flip',
+        subtitle: '₿ Pile ou Ξ Face — double ou rien !',
+        howToPlay: 'Comment jouer',
+        rule1: 'Choisis ₿ Pile (Bitcoin) ou Ξ Face (Ethereum)',
+        rule2: 'La pièce tourne et révèle le résultat',
+        rule3: 'Enchaîne les victoires pour monter ta série 🔥',
+        tapToFlip: 'Choisis un côté pour lancer la pièce',
+        flipping: 'La pièce tourne...',
+        flipAgain: 'Rejouer',
+        win: 'Bien joué ! 🎉',
+        lose: 'Pas de chance...',
+        streak: 'Série',
+        bestStreak: 'Record',
+        stats: 'Mes Stats',
+        footer: '🪙 Coin Flip — BTC vs ETH !',
+        viewOnExplorer: 'Voir sur l\'Explorer →',
+      },
       plinko: {
         title: 'Plinko Crypto',
         subtitle: 'Lâche du BTC dans les chevilles — multiplie tes coins !',
@@ -2150,7 +2161,7 @@ export const translations = {
 
     // Home Page
     home: {
-      welcome: 'Bienvenue sur Mini Games Portal',
+      welcome: 'Bienvenue sur Celo Games Portal',
       subtitle: 'Jouez, gagnez des points et débloquez des badges !',
       howToPlay: 'Comment Jouer',
       yourProfile: 'Votre Profil',
@@ -2215,13 +2226,6 @@ export const translations = {
       performancePerGame: 'Performance dans chaque jeu',
       game: 'partie',
       games: 'parties',
-      totalGames: 'Parties Jouées',
-      totalPoints: 'Points Totaux',
-      bestStreak: 'Meilleure Série',
-      favoriteGame: 'Jeu Favori',
-      daysActive: 'Jours Actifs',
-      streaks: 'Séries de Victoires',
-      viewFullStats: 'Voir toutes les statistiques →',
     },
 
     // Authentication
@@ -2262,15 +2266,6 @@ export const translations = {
       saveYourProgress: 'Sauvegardez votre Progression !',
       createAccountMessage: 'Créez un compte pour sauvegarder vos statistiques et participer au classement mondial !',
       createAccount: 'Créer un Compte',
-      viewPublicProfile: 'Profil public',
-      shareProfile: 'Partager',
-      copied: 'Copié !',
-      globalRank: 'Classement Global',
-      memberSince: 'Membre depuis',
-      notFound: 'Profil introuvable',
-      notFoundDesc: 'Ce joueur n\'existe pas ou a un profil privé.',
-      noPublicData: 'Ce joueur n\'a pas encore de statistiques publiques.',
-      recentGames: 'Parties Récentes',
       completion: {
         profile: 'Profil',
         completed: 'complété',
@@ -2312,7 +2307,7 @@ export const translations = {
 
     // Profile Setup
     profileSetup: {
-      welcome: 'Bienvenue sur Mini Games Portal !',
+      welcome: 'Bienvenue sur Celo Games Portal !',
       subtitle: 'Configurez votre profil pour commencer à jouer',
       chooseAvatar: 'Choisissez votre avatar',
       chooseUsername: 'Choisissez votre nom d\'utilisateur',
@@ -2464,7 +2459,7 @@ export const translations = {
     // Profile Edit
     profileEdit: {
       title: 'Éditer mon profil',
-      subtitle: 'Personnalisez votre profil Mini Games Portal',
+      subtitle: 'Personnalisez votre profil Celo Games Portal',
       loadingProfile: 'Chargement du profil',
       profileSaved: 'Profil sauvegardé avec succès ! Redirection...',
       errorSaving: 'Veuillez corriger les erreurs avant de sauvegarder',
@@ -2501,7 +2496,7 @@ export const translations = {
     // Leaderboard
     leaderboard: {
       title: 'Classement',
-      subtitle: 'Meilleurs joueurs de tous les jeux sur Mini Games Portal',
+      subtitle: 'Meilleurs joueurs de tous les jeux sur Celo Games Portal',
       globalRanking: 'Classement Global',
       rank: 'Rang',
       player: 'Joueur',
@@ -2510,13 +2505,6 @@ export const translations = {
       wins: 'Victoires',
       loadingLeaderboard: 'Chargement du classement...',
       noPlayers: 'Aucun joueur pour le moment',
-      scores: 'Scores',
-      challenges: 'Défis Quotidiens',
-      noChallenges: 'Aucun défi complété pour le moment. Soyez le premier !',
-      challengeRanking: 'Classement Défis',
-      challengeRankingDesc: 'Joueurs classés par nombre de défis quotidiens complétés',
-      completed: 'Complétés',
-      challengesCount: 'défis',
     },
 
     // Audio
@@ -2678,7 +2666,7 @@ export const translations = {
       replayFinished: 'Replay terminé',
     },
 
-    // Daily Challenges
+    // Daily Challenge
     daily: {
       title: 'Défi du Jour',
       progress: 'Progression',
@@ -2783,13 +2771,9 @@ export const translations = {
     chain: {
       network: 'Réseau',
       celo: 'Celo',
-      base: 'Base',
-      megaeth: 'MegaETH',
-      soneium: 'Soneium',
       switchTo: 'Basculer vers',
       notAvailable: 'Non disponible sur ce réseau',
       comingSoon: 'Bientôt disponible sur ce réseau',
-      onchainDev: 'Le mode on-chain est en développement sur ce réseau. Le mode gratuit est disponible !',
       unsupported: 'Réseau non supporté',
       switchToPlay: "n'est pas supporté. Changez de réseau pour jouer.",
     },
@@ -2814,7 +2798,7 @@ export const translations = {
     levels: { title: 'Nivel Jugador', xp: 'XP', bronze1: 'Bronce I', bronze2: 'Bronce II', bronze3: 'Bronce III', silver1: 'Plata I', silver2: 'Plata II', silver3: 'Plata III', gold1: 'Oro I', gold2: 'Oro II', platinum: 'Platino', diamond: 'Diamante', levelUp: '¡Subiste de Nivel!', xpEarned: '+{amount} XP' },
     missions: { title: 'Misiones Semanales', subtitle: 'Se reinicia cada lunes', missionComplete: '¡Misión completada!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jugar {target} partidas', wins: 'Ganar {target} partidas', points: 'Ganar {target} puntos', uniqueGames: 'Probar {target} juegos distintos', dailyChallenges: 'Completar {target} desafíos diarios' } },
     seasons: { current: 'Temporada Actual', daysLeft: 'días restantes', lastDay: '¡Último día!', viewRanking: 'Ver Clasificación →', start: 'Inicio', end: 'Fin', tab: 'Temporada', seasonLeaderboard: 'Clasificación de Temporada', noSeasonData: 'Sin datos de temporada aún.', points: 'Pts', gamesPlayed: 'Partidas', wins: 'Victorias' },
-    onboarding: { welcomeTitle: '¡Bienvenido a Mini Games Portal!', xpBonus: '+50 XP de bonus al empezar', skip: 'Omitir', next: 'Siguiente →', start: '¡Vamos! 🚀', step1: { title: 'Juega 16 juegos', desc: 'Del Blackjack al Tetris, en Celo, Base, MegaETH y Soneium. Gana puntos con cada victoria.' }, step2: { title: 'Escala el marcador', desc: 'Compite con jugadores de todo el mundo en todas las cadenas. Desafíos diarios y misiones semanales.' }, step3: { title: 'Sube de nivel y gana XP', desc: '¡Acumula XP con cada acción. Sube de Bronce a Diamante!' } },
+    onboarding: { welcomeTitle: '¡Bienvenido a Celo Games Portal!', xpBonus: '+50 XP de bonus al empezar', skip: 'Omitir', next: 'Siguiente →', start: '¡Vamos! 🚀', step1: { title: 'Juega 16 juegos', desc: 'Del Blackjack al Tetris, supera desafíos en todos los juegos y gana puntos con cada victoria.' }, step2: { title: 'Escala el marcador', desc: 'Compite con jugadores de todo el mundo. Completa desafíos diarios y misiones semanales.' }, step3: { title: 'Sube de nivel y gana XP', desc: 'Acumula XP con cada acción. ¡Sube de Bronce a Diamante y alcanza tu máximo potencial!' } },
     games: {
       mode: { freePlay: 'Modo Libre', onChain: 'On-Chain', switchToFree: 'Cambiar a modo libre', switchToOnChain: 'Cambiar a modo on-chain' },
       difficulty: { title: 'Dificultad IA', easy: 'Fácil', medium: 'Medio', hard: 'Difícil' },
@@ -2862,7 +2846,7 @@ export const translations = {
         aiChoosingCategory: 'La IA está eligiendo una categoría...', aiError: 'Error IA - cambiando al jugador',
         aiTurnFailed: 'Turno de IA fallido, cambiando al jugador...',
       },
-      blackjack: { title: 'Blackjack', hit: 'PEDIR', stand: 'PLANTARSE', newGame: 'NUEVA PARTIDA', playOnChain: 'JUGAR ON-CHAIN', playAgain: 'JUGAR DE NUEVO', subtitle: '¡Gana al crupier con 21!', clickNewGame: 'Haz clic en "NUEVA PARTIDA" para comenzar', clickPlayOnChain: 'Haz clic en "JUGAR ON-CHAIN" para comenzar', statistics: 'Estadísticas', pushes: 'Empates', viewOnCeloscan: 'Ver en Explorer →', dealer: 'Crupier', yourHand: 'Tu Mano', blackjackLabel: '¡BLACKJACK!', bustLabel: '¡PASADO!', youWin: '¡GANASTE!', dealerWins: 'El crupier gana', itsPush: 'Empate', blackjackWin: '¡BLACKJACK! ¡Ganaste!', bothBlackjack: 'Doble Blackjack - ¡EMPATE!', bustLose: '¡PASADO! Perdiste.', preparingGame: 'Preparando tu partida...', credits: 'Créditos', resetCredits: 'Reiniciar a 1000', creditsReset: 'Créditos reiniciados a 1000', blackjacks: 'Blackjacks', notEnoughCredits: '¡No tienes suficientes créditos! (Necesitas 10)', connectWallet: 'Conecta tu billetera primero', walletNotFound: 'Dirección de billetera no encontrada', notAvailable: 'Blackjack no disponible en esta red', txRejected: 'Transacción rechazada por el usuario', insufficientFunds: 'Fondos insuficientes para gas', txFailed: 'Transacción fallida', confirmingBlockchain: 'Confirmando en blockchain... (10-30 segundos)', txSent: '¡Transacción enviada! Esperando confirmación...', txTimeout: 'La transacción está tardando más de lo esperado.', txError: 'Error de transacción - Por favor intenta de nuevo', noGameData: 'Transacción exitosa pero sin datos de partida', recording: 'Registrando...', recorded: '¡Resultado registrado en la blockchain!' },
+      blackjack: { title: 'Blackjack', hit: 'PEDIR', stand: 'PLANTARSE', newGame: 'NUEVA PARTIDA', playOnChain: 'JUGAR ON-CHAIN', playAgain: 'JUGAR DE NUEVO', subtitle: '¡Gana al crupier con 21!', clickNewGame: 'Haz clic en "NUEVA PARTIDA" para comenzar', clickPlayOnChain: 'Haz clic en "JUGAR ON-CHAIN" para comenzar', statistics: 'Estadísticas', pushes: 'Empates', viewOnCeloscan: 'Ver en Explorer →', dealer: 'Crupier', yourHand: 'Tu Mano', blackjackLabel: '¡BLACKJACK!', bustLabel: '¡PASADO!', youWin: '¡GANASTE!', dealerWins: 'El crupier gana', itsPush: 'Empate', blackjackWin: '¡BLACKJACK! ¡Ganaste!', bothBlackjack: 'Doble Blackjack - ¡EMPATE!', bustLose: '¡PASADO! Perdiste.', preparingGame: 'Preparando tu partida...', credits: 'Créditos', resetCredits: 'Reiniciar a 1000', creditsReset: 'Créditos reiniciados a 1000', blackjacks: 'Blackjacks', notEnoughCredits: '¡No tienes suficientes créditos! (Necesitas 10)', connectWallet: 'Conecta tu billetera primero', walletNotFound: 'Dirección de billetera no encontrada', notAvailable: 'Blackjack no disponible en esta red', txRejected: 'Transacción rechazada por el usuario', insufficientFunds: 'Fondos insuficientes para gas', txFailed: 'Transacción fallida', confirmingBlockchain: 'Confirmando en blockchain... (10-30 segundos)', txSent: '¡Transacción enviada! Esperando confirmación...', txTimeout: 'La transacción está tardando más de lo esperado.', txError: 'Error de transacción - Por favor intenta de nuevo', noGameData: 'Transacción exitosa pero sin datos de partida' },
       connectfive: { title: 'Conecta 4', subtitle: '¡Alinea 4 piezas en fila!', aiInfo: '🎮 Juega contra IA inteligente con algoritmo minimax', viewOnCeloscan: 'Ver en Explorer →' },
       tictactoe: { title: 'Tres en Raya', subtitle: '¡Tres en línea!', viewOnCeloscan: 'Ver en Explorer →', clickToStart: '¡Haz clic en Iniciar para comenzar!', recordingGameStart: 'Registrando inicio de partida en blockchain...' },
       2048: { title: '2048', subtitle: '¡Fusiona fichas para llegar a 2048!', score: 'Puntuación', status: 'Estado', playing: '🎮 Jugando', won: '🎉 ¡Ganaste!', lost: '😞 Perdiste', instructions: 'Usa las flechas para mover fichas', newGame: 'Nueva Partida', submitting: 'Enviando...', submitScore: 'Enviar Puntuación', viewOnCeloscan: 'Ver en Explorer →' },
@@ -2879,24 +2863,24 @@ export const translations = {
       tetris: { title: 'Tetris', subtitle: '¡Elimina líneas con bloques que caen!', howToPlay: 'Cómo Jugar', rule1: 'Mueve y rota piezas para formar líneas completas', rule2: 'Elimina líneas para puntuar — ¡4 a la vez para un Tetris!', rule3: 'La velocidad aumenta cada nivel (cada 10 líneas)', rule4: 'Usa Reserva (C) para guardar una pieza', level: 'Nivel', lines: 'Líneas', hold: 'Reserva', next: 'Siguiente', instructions: '← → Mover | ↑ Rotar | ↓ Caída suave | Espacio Caída | C Reserva', footer: 'Tetris clásico con integración blockchain', viewOnCeloscan: 'Ver en Explorer →' },
       poker: { title: 'Poker', subtitle: "Texas Hold'em — Solo y Multijugador", dealCards: 'Repartir', newHand: 'Nueva Mano', fold: 'Retirarse', check: 'Pasar', call: 'Igualar', bet: 'Apostar', raise: 'Subir', allIn: 'All-In', pot: 'Bote', yourHand: 'Tu Mano', dealerHand: 'Mano del Crupier', communityCards: 'Cartas Comunitarias', preflop: 'Pre-Flop', flop: 'El Flop', turn: 'El Turn', river: 'El River', showdown: 'Showdown', youWin: '🎉 ¡GANASTE!', dealerWins: '😔 El crupier gana', splitPot: '🤝 ¡Bote dividido!', youFolded: '😔 Te retiraste', dealerFolded: '🎉 ¡El crupier se retiró — ganaste!', handsPlayed: 'Manos', handsWon: 'Ganadas', winRate: 'Tasa de victoria', streak: 'Racha', biggestPot: 'Mayor bote', smallBlind: 'Ciega Pequeña', bigBlind: 'Ciega Grande', stack: 'Fichas', notEnoughChips: '❌ ¡Sin fichas suficientes! Fin del juego.', howToPlay: 'Cómo Jugar', rule1: 'Cada jugador recibe 2 cartas privadas — mantenlas en secreto', rule2: '5 cartas comunitarias se revelan en 3 rondas: Flop, Turn, River', rule3: 'Forma la mejor mano de 5 cartas con tus 2 + 5 cartas comunitarias', rule4: 'Apuesta, Pasa, Sube o Retírate en cada calle', footer: "Texas Hold'em Poker con integración blockchain", viewOnExplorer: 'Ver en Explorer →', startSession: '⛓️ Iniciar Sesión', endSession: '⛓️ Terminar Sesión', abandonSession: '🗑️ Abandonar Sesión', abandoning: '⏳ Abandonando...', recording: '⏳ Registrando...', confirming: '⏳ Confirmando...', unfinishedSession: '⚠️ Tienes una sesión on-chain sin terminar. Abandónala para iniciar una nueva.', handsLabel: 'manos', wonLabel: 'ganadas' },
       wordle: { title: 'Wordle', subtitle: '¡Adivina la palabra de 5 letras en 6 intentos!', howToPlay: 'Cómo Jugar', rule1: 'Adivina una palabra de 5 letras en 6 intentos', rule2: 'Cada intento debe ser una palabra inglesa válida', rule3: 'El color de las fichas muestra la cercanía de tu respuesta', ruleGreen: 'Letra correcta, posición correcta', ruleYellow: 'Letra correcta, posición incorrecta', ruleGray: 'Letra ausente en la palabra', wordsInEnglish: '🇬🇧 Las palabras son en inglés', footer: '🟩 Wordle clásico con integración blockchain', viewOnCeloscan: 'Ver en Explorer →' },
-      brickbreaker: { title: 'Brick Breaker', subtitle: '¡Rompe todas las piezas y supera cada nivel!', howToPlay: 'Cómo Jugar', rule1: 'Mueve la paleta con el ratón, el tacto o las flechas', rule2: 'Rebota la bola para romper las piezas — algunas necesitan varios golpes', rule3: 'Atrapa los bonus que caen: paleta ancha, multi-bola o láser', rule4: 'Elimina todas las piezas para avanzar — 3 niveles en total', rule5: 'Tienes 3 vidas — pierdes una cada vez que la bola cae bajo la paleta', paused: 'Pausado', resume: 'Reanudar', lives: 'Vidas', level: 'Nivel', footer: '🧱 Brick Breaker clásico con integración blockchain', viewOnCeloscan: 'Ver en Explorer →' },
       flappybird: { title: 'Flappy Bird', subtitle: '¡Vuela la moneda Bitcoin por las tuberías crypto — esquiva todo!', howToPlay: 'Cómo Jugar', rule1: 'Toca, haz clic o presiona Espacio / ↑ para volar', rule2: 'Navega por los espacios entre las tuberías verdes', rule3: 'Cada tubería pasada vale +1 punto — la velocidad aumenta cada 5 tuberías', rule4: '¡Pasa 30 tuberías para ganar — un solo golpe y el juego termina!', tapToStart: 'Presiona Iniciar para comenzar', score: 'Puntuación', goal: 'Objetivo', best: 'Mejor', win: '¡Ganaste! 🏆', lose: '¡Game Over!', controls: 'Espacio / ↑ para volar — o toca la pantalla', stats: 'Mis Stats', footer: '🪙 Flappy Bitcoin con integración blockchain', viewOnExplorer: 'Ver en Explorer →' },
+      coinflip: { title: 'Coin Flip', subtitle: '₿ Cara o Ξ Cruz — ¡doble o nada!', howToPlay: 'Cómo Jugar', rule1: 'Elige ₿ Cara (Bitcoin) o Ξ Cruz (Ethereum)', rule2: 'La moneda gira y revela el resultado', rule3: 'Encadena victorias para construir tu racha 🔥', tapToFlip: 'Elige un lado para lanzar la moneda', flipping: 'La moneda está girando...', flipAgain: 'Jugar de nuevo', win: '¡Bien jugado! 🎉', lose: 'Mala suerte...', streak: 'Racha', bestStreak: 'Récord', stats: 'Mis Stats', footer: '🪙 Coin Flip — ¡BTC vs ETH!', viewOnExplorer: 'Ver en Explorer →' },
       plinko: { title: 'Plinko Crypto', subtitle: '¡Lanza BTC por las clavijas — multiplica tus monedas!', howToPlay: 'Cómo Jugar', rule1: 'Mueve el ratón o desliza para apuntar la zona de lanzamiento', rule2: 'Presiona Espacio o haz clic para lanzar una moneda BTC', rule3: 'Las monedas rebotan en las clavijas y aterrizan en casillas multiplicadoras', rule4: '¡Alcanza 10 000 monedas para ganar — no quiebres!', tapToDrop: 'Toca para lanzar una moneda', coins: 'Monedas', bet: 'Apuesta', multiplier: 'Multiplicador', best: 'Mejor', win: '🎉 ¡Alcanzaste 10 000 monedas — Ganador!', lose: '💸 ¡Quiebra! Sin monedas.', controls: 'Mueve para apuntar · Espacio o Clic para lanzar', stats: 'Tus Stats', footer: 'Plinko Crypto — ¡Bitcoin rebotando en el mercado!', viewOnExplorer: 'Ver en Explorer' },
     },
     wallet: { connectPrompt: 'Conecta tu billetera para jugar on-chain', connectFarcaster: 'Conectar con billetera Farcaster', connectWalletConnect: 'Conectar con cualquier billetera móvil', connectMetaMask: 'Conectar con MetaMask', connectCoinbase: 'Conectar con Coinbase / Base Wallet', connectBrowser: 'Conectar con billetera del navegador', connectWith: 'Conectar con', switchingNetwork: 'Cambiando red...', via: 'via', disconnect: 'Desconectar', disconnectLabel: 'Desconectar billetera', farcasterNotReady: 'SDK de Farcaster no listo. Algunas funciones pueden no funcionar.', noConnectors: 'No hay conectores de billetera disponibles' },
     header: { subtitle: 'Juega Mini-Juegos en la Blockchain' },
     nav: { home: 'Inicio', leaderboard: 'Clasificación', profile: 'Perfil', about: 'Acerca de', guide: 'Guía', friends: 'Amigos', tournaments: 'Torneos', signOut: 'Cerrar Sesión', menu: 'Menú', closeMenu: 'Cerrar menú' },
-    home: { welcome: 'Bienvenido a Mini Games Portal', subtitle: '¡Juega, gana puntos y desbloquea insignias!', howToPlay: 'Cómo Jugar', yourProfile: 'Tu Perfil', points: 'Puntos', profileStatus: 'Perfil', customAvatar: 'Avatar Personalizado', ranking: 'Clasificación', gameModes: 'Modos de Juego', freeMode: 'Modo Libre', freeModeDesc: 'Juega sin billetera. Stats guardadas localmente.', freePlay: 'Modo Libre', onChainMode: 'Modo On-Chain', onChainModeDesc: 'Conecta tu billetera para guardar en blockchain.', learnMore: 'Saber más sobre puntos e insignias →', availableBadges: 'Insignias Disponibles', viewAllBadges: 'Ver todas las insignias →', availableGames: 'Juegos Disponibles', builtOn: 'Creado con ❤️ en la Blockchain', learnMoreCelo: 'Saber más →', createProfile: 'Crear Perfil', saveProgress: 'Guarda tu progreso y compite en el clasificación', setupNow: 'Configurar Ahora', edit: 'Editar', profile: 'Perfil', leaderboard: 'Clasificación', gamesPlayed: 'Partidas', stats: 'Estadísticas', footerBuilt: 'Creado con ❤️ en la Blockchain', footerLearnCelo: 'Saber más →', footerCreatedBy: 'Creado por', learnMoreBadges: 'Saber más sobre insignias' },
+    home: { welcome: 'Bienvenido a Celo Games Portal', subtitle: '¡Juega, gana puntos y desbloquea insignias!', howToPlay: 'Cómo Jugar', yourProfile: 'Tu Perfil', points: 'Puntos', profileStatus: 'Perfil', customAvatar: 'Avatar Personalizado', ranking: 'Clasificación', gameModes: 'Modos de Juego', freeMode: 'Modo Libre', freeModeDesc: 'Juega sin billetera. Stats guardadas localmente.', freePlay: 'Modo Libre', onChainMode: 'Modo On-Chain', onChainModeDesc: 'Conecta tu billetera para guardar en blockchain.', learnMore: 'Saber más sobre puntos e insignias →', availableBadges: 'Insignias Disponibles', viewAllBadges: 'Ver todas las insignias →', availableGames: 'Juegos Disponibles', builtOn: 'Creado con ❤️ en la Blockchain', learnMoreCelo: 'Saber más →', createProfile: 'Crear Perfil', saveProgress: 'Guarda tu progreso y compite en el clasificación', setupNow: 'Configurar Ahora', edit: 'Editar', profile: 'Perfil', leaderboard: 'Clasificación', gamesPlayed: 'Partidas', stats: 'Estadísticas', footerBuilt: 'Creado con ❤️ en la Blockchain', footerLearnCelo: 'Saber más →', footerCreatedBy: 'Creado por', learnMoreBadges: 'Saber más sobre insignias' },
     stats: { wins: 'Victorias', losses: 'Derrotas', ties: 'Empates', draws: 'Empates', played: 'Jugadas', winRate: 'Tasa de Victoria', current: 'Actual', best: 'Mejor', perGame: 'Estadísticas por Juego', noGames: 'Sin partidas jugadas', loading: 'Cargando estadísticas...', loadError: 'Error al cargar estadísticas', noData: 'Sin estadísticas', title: 'Estadísticas', recentActivity: 'Actividad Reciente', win: 'Victoria', loss: 'Derrota', noProgressData: 'Sin datos de progreso', playToSeeProgress: '¡Juega para ver tu progreso!', pointsProgress: 'Progreso de Puntos', pointsProgressSubtitle: 'Puntos ganados con el tiempo (últimos 30 días)', dailyPoints: 'Puntos Diarios', cumulativeTotal: 'Total Acumulado', noGameStats: 'Sin estadísticas de juego', playToSeeWinRate: '¡Juega para ver tus tasas de victoria!', winRateByGame: 'Tasa de Victoria por Juego', performancePerGame: 'Rendimiento en cada juego', game: 'partida', games: 'partidas' },
     auth: { login: 'Iniciar sesión', loginButton: 'Entrar', createAccount: 'Crear cuenta', emailPasswordRequired: 'Email y contraseña requeridos', passwordMinLength: 'La contraseña debe tener al menos 8 caracteres', passwordsDoNotMatch: 'Las contraseñas no coinciden', accountCreationFailed: 'Error al crear cuenta', errorOccurred: 'Ocurrió un error', socialLoginFailed: 'Error de inicio de sesión social', saveProgressDesc: 'Guarda tu progreso y juega en todos tus dispositivos', yourCurrentStats: 'Tus estadísticas actuales', statsWillBePreserved: '¡Estas estadísticas se conservarán!', accountCreatedSuccess: '¡Cuenta creada con éxito!', checkEmailToConfirm: 'Revisa tu email para confirmar', continueWithGoogle: 'Continuar con Google', continueWithTwitter: 'Continuar con Twitter', continueWithDiscord: 'Continuar con Discord', continueWithEthos: 'Continuar con Ethos', orWithEmail: 'o con email', emailPlaceholder: 'tu@email.com', confirmPassword: 'Confirmar contraseña', passwordHint: 'Mínimo 8 caracteres', createMyAccount: 'Crear mi cuenta', continueAsGuest: 'Continuar como invitado', termsAcceptance: 'Al crear una cuenta, aceptas nuestros términos de uso', welcomeSignIn: '¡Bienvenido! Inicia sesión para continuar', forgotPassword: '¿Olvidaste tu contraseña?', noAccountYet: '¿No tienes cuenta todavía?', loginFailed: 'Error al iniciar sesión' },
     profile: { saveYourProgress: '¡Guarda Tu Progreso!', createAccountMessage: '¡Crea una cuenta para guardar tus estadísticas y competir en el clasificación global!', createAccount: 'Crear Cuenta', completion: { profile: 'Perfil', completed: 'completado', nextStep: 'Siguiente paso', title: 'Completar Perfil', actionsToComplete: 'Acciones a completar', tip: 'Consejo', tipMessage: '¡Un perfil completo te ayuda a destacar y ganar la confianza de la comunidad!', complete: '¡Perfil 100% Completo!', completeMessage: '¡Ahora eres un miembro ejemplar de la comunidad!', displayName: 'Nombre de display establecido', customAvatar: 'Avatar personalizado', bioFilled: 'Bio completada', socialLink: 'Enlace social añadido', firstGame: 'Primera partida jugada', pointsMilestone: '100 puntos alcanzados', displayNameDesc: 'Añade un nombre de display personalizado con espacios y emojis', customAvatarDesc: 'Elige un avatar predefinido o sube el tuyo', bioDesc: 'Descríbete en pocas palabras (mín. 20 caracteres)', socialLinkDesc: 'Añade al menos un enlace social (Twitter, Farcaster, Discord)', firstGameDesc: 'Juega tu primera partida y gana puntos', pointsMilestoneDesc: 'Alcanza 100 puntos jugando', levelComplete: 'Perfil Completo', levelAdvanced: 'Avanzado', levelIntermediate: 'Intermedio', levelBeginner: 'Principiante', msg100: '¡Felicidades! ¡Tu perfil es perfecto! 🎉', msg80: '¡Excelente! ¡Unos detalles más y es perfecto!', msg60: '¡Muy bien! ¡Vas por buen camino!', msg40: '¡Buen comienzo! ¡Sigue completando tu perfil!', msg20: '¡Es un comienzo! Completa algunas acciones para mejorar tu perfil.', msg0: '¡Bienvenido! Empieza completando tu perfil.' } },
-    profileSetup: { welcome: '¡Bienvenido a Mini Games Portal!', subtitle: 'Configura tu perfil para comenzar a jugar', chooseAvatar: 'Elige tu avatar', chooseUsername: 'Elige tu nombre de usuario', usernameRules: '3-20 caracteres, solo letras, números y guión bajo', startPlaying: '¡Empezar a jugar!', saving: 'Guardando...', skipForNow: 'Omitir por ahora', profileCreated: '¡Perfil creado con éxito!', readyToEarn: 'Listo para ganar puntos e insignias', hint: 'Consejo:', unlockCustom: '¡Puedes desbloquear avatares personalizados jugando!', enterUsername: 'Por favor introduce un nombre de usuario', usernameTooShort: 'El nombre debe tener entre 3 y 20 caracteres' },
+    profileSetup: { welcome: '¡Bienvenido a Celo Games Portal!', subtitle: 'Configura tu perfil para comenzar a jugar', chooseAvatar: 'Elige tu avatar', chooseUsername: 'Elige tu nombre de usuario', usernameRules: '3-20 caracteres, solo letras, números y guión bajo', startPlaying: '¡Empezar a jugar!', saving: 'Guardando...', skipForNow: 'Omitir por ahora', profileCreated: '¡Perfil creado con éxito!', readyToEarn: 'Listo para ganar puntos e insignias', hint: 'Consejo:', unlockCustom: '¡Puedes desbloquear avatares personalizados jugando!', enterUsername: 'Por favor introduce un nombre de usuario', usernameTooShort: 'El nombre debe tener entre 3 y 20 caracteres' },
     avatar: { chooseAvatar: 'Elegir un avatar', uploadCustom: 'Subir personalizado', uploadLocked: 'Subida personalizada desbloqueada', afterGames: 'después de', games: 'partidas', orBadge: 'o insignia', veteran: 'Veterano', selected: 'Seleccionado:', uploadCustomAvatar: 'Subir Avatar Personalizado', fileTypes: 'JPEG, PNG, WebP o GIF - Máx 2MB', uploadSuccess: '¡Avatar subido con éxito!', selectFile: 'Seleccionar archivo', changeFile: 'Cambiar archivo', upload: 'Subir', uploading: 'Subiendo...', pleaseSelectFile: 'Por favor selecciona un archivo', tips: 'Consejos:', tipSquare: 'Usa una imagen cuadrada para mejores resultados', tipSimple: 'Evita imágenes muy complejas (legibilidad)', tipFormat: 'Formato recomendado: PNG con fondo transparente' },
     badges: { title: 'Insignias', unlocked: 'insignias desbloqueadas', howToEarn: '¿Cómo ganar insignias?', locked: 'Bloqueado', loadingBadges: 'Cargando insignias...', first_win: 'Primera Victoria', win_streak_5: 'Racha de 5', win_streak_10: 'Racha de 10', games_10: 'Principiante', games_50: 'Jugador Regular', veteran: 'Veterano', master: 'Maestro del Juego', all_games: 'Todoterreno', perfect_week: 'Semana Perfecta', high_roller: 'Gran Jugador', points_5000: 'Campeón', leaderboard_top10: 'Top 10', leaderboard_top3: 'Podio', leaderboard_1: 'Número Uno', desc_first_win: 'Gana tu primera partida', desc_win_streak_5: 'Gana 5 partidas seguidas', desc_win_streak_10: 'Gana 10 partidas seguidas', desc_games_10: 'Juega 10 partidas', desc_games_50: 'Juega 50 partidas', desc_veteran: 'Juega 100 partidas', desc_master: 'Juega 500 partidas', desc_all_games: 'Juega todos los juegos', desc_perfect_week: 'Gana al menos una partida cada día durante 7 días', desc_high_roller: 'Acumula 1000 puntos', desc_points_5000: 'Acumula 5000 puntos', desc_leaderboard_top10: 'Llega al top 10 del clasificación', desc_leaderboard_top3: 'Llega al top 3 del clasificación', desc_leaderboard_1: 'Llega al 1er lugar del clasificación', progression: 'Progresión', performance: 'Rendimiento', elite: 'Elite', collection: 'Colección', engagement: 'Compromiso', points: 'Puntos', ranking: 'Clasificación', cat_progression: 'Progresión', cat_performance: 'Rendimiento', cat_elite: 'Elite', cat_collection: 'Colección', cat_engagement: 'Compromiso', cat_points: 'Puntos', cat_ranking: 'Clasificación', cat_classement: 'Clasificación' },
     about: { title: 'Cómo Jugar', subtitle: '¡Descubre cómo ganar puntos, desbloquear insignias y subir en el clasificación!', gameModesTitle: 'Modos de Juego', freePlayTitle: 'Modo Libre', freePlayBullets: ['Juega al instante sin billetera', 'Gana puntos e insignias', 'Stats guardadas localmente', 'Ideal para descubrir juegos'], onChainTitle: 'On-Chain', onChainBullets: ['Conecta tu billetera', 'Stats guardadas en blockchain', 'Participa en clasificaciones globales', 'Algunos juegos requieren un pequeño fee de gas'], pointsSystemTitle: 'Sistema de Puntos', victory: 'Victoria', victoryDesc: '+10 a +50 puntos según el juego', participation: 'Participación', participationDesc: '+5 puntos incluso en derrota', streakBonus: 'Bono de Racha', streakBonusDesc: 'Puntos extra por victorias consecutivas', badgeBonus: 'Insignias', badgeBonusDesc: '10 a 1000 puntos extra por insignia desbloqueada', badgesToUnlockTitle: 'Insignias a Desbloquear', badgesToUnlockDesc: '¡Completa desafíos para desbloquear insignias y ganar puntos extra!', leaderboardTitle: 'Clasificación', leaderboardDesc: 'La clasificación se actualiza en tiempo real según el total de puntos.', firstPlace: '1er Lugar', firstPlaceDesc: 'Corona dorada + insignia exclusiva', secondPlace: '2do Lugar', secondPlaceDesc: 'Medalla de plata', thirdPlace: '3er Lugar', thirdPlaceDesc: 'Medalla de bronce', viewLeaderboard: 'Ver Clasificación →', avatarSystemTitle: 'Sistema de Avatares', predefinedAvatars: 'Avatares Predefinidos', predefinedAvatarsDesc: 'Elige entre 30 avatares gaming estilizados', customAvatar: 'Avatar Personalizado', customAvatarDesc: 'Sube tu propia imagen (desbloqueado tras 100 partidas o insignia Veterano)', startPlaying: '¡Empezar a Jugar!', veteranTip: 'Consejo:', veteranTipDesc: '¡La insignia Veterano (100 partidas) desbloquea la posibilidad de subir un avatar personalizado!' },
-    profileEdit: { title: 'Editar mi perfil', subtitle: 'Personaliza tu perfil de Mini Games Portal', loadingProfile: 'Cargando perfil', profileSaved: '¡Perfil guardado con éxito! Redirigiendo...', errorSaving: 'Por favor corrige los errores antes de guardar', avatar: 'Avatar', chooseAvatar: 'Elige tu avatar de perfil', username: 'Nombre de usuario', usernamePlaceholder: 'PlayerOne', usernameRules: '3-20 caracteres, solo letras, números y guión bajo', bio: 'Bio', bioOptional: '(opcional)', bioPlaceholder: 'Apasionado de los juegos blockchain...', bioCharacters: 'caracteres', socialLinks: 'Redes sociales', twitter: 'Twitter / X', farcaster: 'Farcaster', discord: 'Discord', unsavedChanges: 'Tienes cambios sin guardar', usernameRequired: 'El nombre de usuario es obligatorio' },
+    profileEdit: { title: 'Editar mi perfil', subtitle: 'Personaliza tu perfil de Celo Games Portal', loadingProfile: 'Cargando perfil', profileSaved: '¡Perfil guardado con éxito! Redirigiendo...', errorSaving: 'Por favor corrige los errores antes de guardar', avatar: 'Avatar', chooseAvatar: 'Elige tu avatar de perfil', username: 'Nombre de usuario', usernamePlaceholder: 'PlayerOne', usernameRules: '3-20 caracteres, solo letras, números y guión bajo', bio: 'Bio', bioOptional: '(opcional)', bioPlaceholder: 'Apasionado de los juegos blockchain...', bioCharacters: 'caracteres', socialLinks: 'Redes sociales', twitter: 'Twitter / X', farcaster: 'Farcaster', discord: 'Discord', unsavedChanges: 'Tienes cambios sin guardar', usernameRequired: 'El nombre de usuario es obligatorio' },
     gameDescriptions: { blackjack: '¡Gana al crupier con 21!', rps: '¡Juego de manos clásico!', tictactoe: '¡Consigue tres en línea!', jackpot: '¡Gira la rueda crypto!', '2048': '¡Fusiona fichas hasta 2048!', mastermind: '¡Descifra el código crypto!', connectfive: '¡Conecta 4 en línea!', snake: '¡Come y crece!', poker: "Texas Hold'em — ¡juego libre y multijugador!" },
-    leaderboard: { title: 'Clasificación', subtitle: 'Mejores jugadores de todos los juegos en Mini Games Portal', globalRanking: 'Clasificación Global', rank: 'Posición', player: 'Jugador', points: 'Puntos', gamesPlayed: 'Partidas', wins: 'Victorias', loadingLeaderboard: 'Cargando clasificación...', noPlayers: 'Sin jugadores todavía', scores: 'Puntuaciones', challenges: 'Desafíos Diarios', noChallenges: 'Sin desafíos completados todavía. ¡Sé el primero!', challengeRanking: 'Clasificación de Desafíos', challengeRankingDesc: 'Jugadores clasificados por número de desafíos diarios completados', completed: 'Completados', challengesCount: 'desafíos' },
+    leaderboard: { title: 'Clasificación', subtitle: 'Mejores jugadores de todos los juegos en Celo Games Portal', globalRanking: 'Clasificación Global', rank: 'Posición', player: 'Jugador', points: 'Puntos', gamesPlayed: 'Partidas', wins: 'Victorias', loadingLeaderboard: 'Cargando clasificación...', noPlayers: 'Sin jugadores todavía' },
     audio: { mute: 'Silenciar', unmute: 'Activar sonido', soundOn: 'Sonido Activado', soundOff: 'Sonido Desactivado', volume: 'Volumen' },
     theme: { light: 'Claro', dark: 'Oscuro', system: 'Sistema', switchToLight: 'Cambiar a modo claro', switchToDark: 'Cambiar a modo oscuro', switchToSystem: 'Usar preferencia del sistema' },
     errors: { generic: 'Ocurrió un error', loadingFailed: 'Error al cargar', savingFailed: 'Error al guardar', invalidUsername: 'Nombre de usuario inválido', usernameTaken: 'Este nombre ya está en uso', usernameReserved: 'Este nombre está reservado', invalidEmail: 'Email inválido', invalidUrl: 'URL inválida', fileTooLarge: 'Archivo demasiado grande. Tamaño máximo: 2MB', invalidFileType: 'Tipo de archivo no soportado. Usa JPEG, PNG, WebP o GIF' },
@@ -2908,7 +2892,7 @@ export const translations = {
     streak: { title: 'Racha de Conexión', day: 'día', days: 'días', loginBonus: 'Bono de conexión diario', nextReward: 'Próxima recompensa', tomorrowReach: '¡Mañana!', inDays: 'en', best: 'Mejor' },
     friends: { title: 'Amigos', search: 'Buscar por usuario...', sendRequest: 'Añadir Amigo', pending: 'Solicitudes Recibidas', pendingSent: 'Solicitudes Enviadas', myFriends: 'Mis Amigos', noFriends: 'Sin amigos todavía. ¡Busca jugadores para añadir!', noPending: 'Sin solicitudes recibidas', noPendingSent: 'Sin solicitudes enviadas', requestSent: '¡Solicitud enviada!', requestAccepted: '¡Solicitud aceptada!', removed: 'Amigo eliminado', inviteToPlay: 'Invitar a Jugar', accept: 'Aceptar', decline: 'Rechazar', remove: 'Eliminar', block: 'Bloquear', alreadyFriends: 'Ya son amigos', requestPending: 'Solicitud pendiente', userNotFound: 'Usuario no encontrado', searchResults: 'Resultados de Búsqueda', noResults: 'Sin usuarios encontrados', loginRequired: 'Inicia sesión para gestionar amigos', selectGame: 'Seleccionar un juego', inviteSent: '¡Invitación enviada!', copyCode: 'Copiar Código', codeCopied: '¡Código copiado!' },
     tournament: { title: 'Torneos', create: 'Crear Torneo', join: 'Unirse', leave: 'Salir', name: 'Nombre del Torneo', game: 'Juego', format: 'Formato', singleElimination: 'Eliminación Directa', players: 'Jugadores', maxPlayers: 'Jugadores Máx', prizePoints: 'Puntos Premio', status: { registration: 'Abierto', in_progress: 'En Curso', completed: 'Completado', cancelled: 'Cancelado' }, bracket: 'Cuadro', round: 'Ronda', finals: 'Final', semiFinals: 'Semifinales', quarterFinals: 'Cuartos de Final', winner: 'Ganador', prize: 'Premio', startsWhenFull: 'Empieza cuando esté lleno', startingSoon: 'Comenzando pronto...', yourMatch: 'Tu Partido', playNow: 'Jugar Ahora', waitingForOpponent: 'Esperando oponente...', tournamentComplete: '¡Torneo Completado!', noTournaments: 'Sin torneos disponibles. ¡Crea uno!', registrationOpen: 'Inscripción Abierta', spotsLeft: 'plazas restantes', createdBy: 'Creado por', participants: 'Participantes', loginRequired: 'Inicia sesión para unirte a torneos', matchBye: 'BYE', matchPending: 'Pendiente', matchLive: 'EN VIVO', filters: { all: 'Todos los Juegos', open: 'Abiertos', inProgress: 'En Curso', completed: 'Completados' } },
-    chain: { network: 'Red', celo: 'Celo', base: 'Base', megaeth: 'MegaETH', soneium: 'Soneium', switchTo: 'Cambiar a', notAvailable: 'No disponible en esta red', comingSoon: 'Próximamente en esta red', onchainDev: 'El modo on-chain está en desarrollo en esta red. ¡El modo libre está disponible!', unsupported: 'Red No Soportada', switchToPlay: 'no está soportada. Cambia a una red soportada para jugar.' },
+    chain: { network: 'Red', celo: 'Celo', switchTo: 'Cambiar a', notAvailable: 'No disponible en esta red', comingSoon: 'Próximamente en esta red', unsupported: 'Red No Soportada', switchToPlay: 'no está soportada. Cambia a una red soportada para jugar.' },
   },
 
   pt: {
@@ -2930,7 +2914,7 @@ export const translations = {
     levels: { title: 'Nível do Jogador', xp: 'XP', bronze1: 'Bronze I', bronze2: 'Bronze II', bronze3: 'Bronze III', silver1: 'Prata I', silver2: 'Prata II', silver3: 'Prata III', gold1: 'Ouro I', gold2: 'Ouro II', platinum: 'Platina', diamond: 'Diamante', levelUp: 'Subiu de Nível!', xpEarned: '+{amount} XP' },
     missions: { title: 'Missões Semanais', subtitle: 'Reinicia toda segunda-feira', missionComplete: 'Missão concluída!', xpAwarded: '+100 XP', daysLeft: '{days}d restantes', type: { gamesPlayed: 'Jogar {target} partidas', wins: 'Ganhar {target} partidas', points: 'Ganhar {target} pontos', uniqueGames: 'Experimentar {target} jogos diferentes', dailyChallenges: 'Completar {target} desafios diários' } },
     seasons: { current: 'Temporada Atual', daysLeft: 'dias restantes', lastDay: 'Último dia!', viewRanking: 'Ver Classificação →', start: 'Início', end: 'Fim', tab: 'Temporada', seasonLeaderboard: 'Classificação da Temporada', noSeasonData: 'Sem dados de temporada ainda.', points: 'Pts', gamesPlayed: 'Partidas', wins: 'Vitórias' },
-    onboarding: { welcomeTitle: 'Bem-vindo ao Mini Games Portal!', xpBonus: '+50 XP de bônus ao começar!', skip: 'Pular', next: 'Próximo →', start: 'Vamos lá! 🚀', step1: { title: 'Jogue 16 jogos', desc: 'Do Blackjack ao Tetris, na Celo, Base, MegaETH e Soneium. Ganhe pontos a cada vitória.' }, step2: { title: 'Suba no placar', desc: 'Compete com jogadores do mundo todo em todas as chains. Desafios diários e missões semanais.' }, step3: { title: 'Suba de nível e ganhe XP', desc: 'Acumule XP a cada ação. Suba de Bronze a Diamante!' } },
+    onboarding: { welcomeTitle: 'Bem-vindo ao Celo Games Portal!', xpBonus: '+50 XP de bônus ao começar!', skip: 'Pular', next: 'Próximo →', start: 'Vamos lá! 🚀', step1: { title: 'Jogue 16 jogos', desc: 'Do Blackjack ao Tetris, enfrente desafios em todos os jogos e ganhe pontos a cada vitória.' }, step2: { title: 'Suba no placar', desc: 'Compete com jogadores do mundo todo. Complete desafios diários e missões semanais.' }, step3: { title: 'Suba de nível e ganhe XP', desc: 'Acumule XP a cada ação. Suba de Bronze a Diamante e alcance seu pleno potencial!' } },
     games: {
       mode: { freePlay: 'Modo Livre', onChain: 'On-Chain', switchToFree: 'Mudar para modo livre', switchToOnChain: 'Mudar para modo on-chain' },
       difficulty: { title: 'Dificuldade IA', easy: 'Fácil', medium: 'Médio', hard: 'Difícil' },
@@ -2978,7 +2962,7 @@ export const translations = {
         aiChoosingCategory: 'A IA está escolhendo uma categoria...', aiError: 'Erro IA - mudando para jogador',
         aiTurnFailed: 'Turno da IA falhou, mudando para jogador...',
       },
-      blackjack: { title: 'Blackjack', hit: 'PEDIR', stand: 'PARAR', newGame: 'NOVA PARTIDA', playOnChain: 'JOGAR ON-CHAIN', playAgain: 'JOGAR NOVAMENTE', subtitle: 'Bata o dealer com 21!', clickNewGame: 'Clique em "NOVA PARTIDA" para começar', clickPlayOnChain: 'Clique em "JOGAR ON-CHAIN" para começar', statistics: 'Estatísticas', pushes: 'Empates', viewOnCeloscan: 'Ver no Explorer →', dealer: 'Dealer', yourHand: 'Sua Mão', blackjackLabel: 'BLACKJACK!', bustLabel: 'ESTOURO!', youWin: 'VOCÊ VENCEU!', dealerWins: 'O dealer vence', itsPush: 'Empate', blackjackWin: 'BLACKJACK! Você venceu!', bothBlackjack: 'Blackjack duplo - EMPATE!', bustLose: 'ESTOURO! Você perdeu.', preparingGame: 'Preparando sua partida...', credits: 'Créditos', resetCredits: 'Reiniciar para 1000', creditsReset: 'Créditos reiniciados para 1000', blackjacks: 'Blackjacks', notEnoughCredits: 'Créditos insuficientes! (Precisa de 10)', connectWallet: 'Por favor conecte sua carteira', walletNotFound: 'Endereço da carteira não encontrado', notAvailable: 'Blackjack não disponível nesta rede', txRejected: 'Transação rejeitada pelo usuário', insufficientFunds: 'Fundos insuficientes para gas', txFailed: 'Transação falhou', confirmingBlockchain: 'Confirmando na blockchain... (10-30 segundos)', txSent: 'Transação enviada! Aguardando confirmação...', txTimeout: 'A transação está demorando mais que o esperado.', txError: 'Erro de transação - Por favor tente novamente', noGameData: 'Transação bem-sucedida mas sem dados de partida', recording: 'Registrando...', recorded: 'Resultado registrado na blockchain!' },
+      blackjack: { title: 'Blackjack', hit: 'PEDIR', stand: 'PARAR', newGame: 'NOVA PARTIDA', playOnChain: 'JOGAR ON-CHAIN', playAgain: 'JOGAR NOVAMENTE', subtitle: 'Bata o dealer com 21!', clickNewGame: 'Clique em "NOVA PARTIDA" para começar', clickPlayOnChain: 'Clique em "JOGAR ON-CHAIN" para começar', statistics: 'Estatísticas', pushes: 'Empates', viewOnCeloscan: 'Ver no Explorer →', dealer: 'Dealer', yourHand: 'Sua Mão', blackjackLabel: 'BLACKJACK!', bustLabel: 'ESTOURO!', youWin: 'VOCÊ VENCEU!', dealerWins: 'O dealer vence', itsPush: 'Empate', blackjackWin: 'BLACKJACK! Você venceu!', bothBlackjack: 'Blackjack duplo - EMPATE!', bustLose: 'ESTOURO! Você perdeu.', preparingGame: 'Preparando sua partida...', credits: 'Créditos', resetCredits: 'Reiniciar para 1000', creditsReset: 'Créditos reiniciados para 1000', blackjacks: 'Blackjacks', notEnoughCredits: 'Créditos insuficientes! (Precisa de 10)', connectWallet: 'Por favor conecte sua carteira', walletNotFound: 'Endereço da carteira não encontrado', notAvailable: 'Blackjack não disponível nesta rede', txRejected: 'Transação rejeitada pelo usuário', insufficientFunds: 'Fundos insuficientes para gas', txFailed: 'Transação falhou', confirmingBlockchain: 'Confirmando na blockchain... (10-30 segundos)', txSent: 'Transação enviada! Aguardando confirmação...', txTimeout: 'A transação está demorando mais que o esperado.', txError: 'Erro de transação - Por favor tente novamente', noGameData: 'Transação bem-sucedida mas sem dados de partida' },
       connectfive: { title: 'Conecta 4', subtitle: 'Alinhe 4 peças em fila!', aiInfo: '🎮 Jogue contra IA inteligente com algoritmo minimax', viewOnCeloscan: 'Ver no Explorer →' },
       tictactoe: { title: 'Jogo da Velha', subtitle: 'Três em linha!', viewOnCeloscan: 'Ver no Explorer →', clickToStart: 'Clique em Iniciar para começar!', recordingGameStart: 'Registrando início da partida na blockchain...' },
       2048: { title: '2048', subtitle: 'Funda peças para chegar em 2048!', score: 'Pontuação', status: 'Status', playing: '🎮 Jogando', won: '🎉 Venceu!', lost: '😞 Perdeu', instructions: 'Use as setas para mover peças', newGame: 'Nova Partida', submitting: 'Enviando...', submitScore: 'Enviar Pontuação', viewOnCeloscan: 'Ver no Explorer →' },
@@ -2995,24 +2979,24 @@ export const translations = {
       tetris: { title: 'Tetris', subtitle: 'Elimine linhas com blocos que caem!', howToPlay: 'Como Jogar', rule1: 'Mova e gire peças para formar linhas completas', rule2: 'Elimine linhas para pontuar — 4 de uma vez para um Tetris!', rule3: 'A velocidade aumenta a cada nível (a cada 10 linhas)', rule4: 'Use Reserva (C) para guardar uma peça', level: 'Nível', lines: 'Linhas', hold: 'Reserva', next: 'Próxima', instructions: '← → Mover | ↑ Girar | ↓ Queda suave | Espaço Queda | C Reserva', footer: 'Tetris clássico com integração blockchain', viewOnCeloscan: 'Ver no Explorer →' },
       poker: { title: 'Poker', subtitle: "Texas Hold'em — Solo e Multijogador", dealCards: 'Distribuir', newHand: 'Nova Mão', fold: 'Desistir', check: 'Passar', call: 'Pagar', bet: 'Apostar', raise: 'Aumentar', allIn: 'All-In', pot: 'Pote', yourHand: 'Sua Mão', dealerHand: 'Mão do Dealer', communityCards: 'Cartas Comunitárias', preflop: 'Pré-Flop', flop: 'O Flop', turn: 'O Turn', river: 'O River', showdown: 'Showdown', youWin: '🎉 VOCÊ VENCEU!', dealerWins: '😔 O dealer vence', splitPot: '🤝 Pote dividido!', youFolded: '😔 Você desistiu', dealerFolded: '🎉 O dealer desistiu — você venceu!', handsPlayed: 'Mãos', handsWon: 'Ganhas', winRate: 'Taxa de vitória', streak: 'Sequência', biggestPot: 'Maior pote', smallBlind: 'Small Blind', bigBlind: 'Big Blind', stack: 'Fichas', notEnoughChips: '❌ Fichas insuficientes! Fim de jogo.', howToPlay: 'Como Jogar', rule1: 'Cada jogador recebe 2 cartas privadas — mantenha-as em segredo', rule2: '5 cartas comunitárias são reveladas em 3 rodadas: Flop, Turn, River', rule3: 'Forme a melhor mão de 5 cartas com suas 2 + 5 cartas comunitárias', rule4: 'Aposte, Passe, Aumente ou Desista em cada rua', footer: "Texas Hold'em Poker com integração blockchain", viewOnExplorer: 'Ver no Explorer →', startSession: '⛓️ Iniciar Sessão', endSession: '⛓️ Encerrar Sessão', abandonSession: '🗑️ Abandonar Sessão', abandoning: '⏳ Abandonando...', recording: '⏳ Registrando...', confirming: '⏳ Confirmando...', unfinishedSession: '⚠️ Você tem uma sessão on-chain incompleta. Abandone-a para iniciar uma nova.', handsLabel: 'mãos', wonLabel: 'ganhas' },
       wordle: { title: 'Wordle', subtitle: 'Adivinhe a palavra de 5 letras em 6 tentativas!', howToPlay: 'Como Jogar', rule1: 'Adivinhe uma palavra de 5 letras em 6 tentativas', rule2: 'Cada tentativa deve ser uma palavra inglesa válida', rule3: 'A cor dos blocos mostra quão próxima foi sua resposta', ruleGreen: 'Letra correta, posição correta', ruleYellow: 'Letra correta, posição errada', ruleGray: 'Letra ausente na palavra', wordsInEnglish: '🇬🇧 As palavras são em inglês', footer: '🟩 Wordle clássico com integração blockchain', viewOnCeloscan: 'Ver no Explorer →' },
-      brickbreaker: { title: 'Brick Breaker', subtitle: 'Quebre todos os tijolos — pegue power-ups e avance por todos os níveis!', howToPlay: 'Como Jogar', rule1: 'Mova a raquete com o mouse, toque ou teclas de seta', rule2: 'Rebata a bola para quebrar tijolos — alguns precisam de várias batidas', rule3: 'Pegue os power-ups que caem: raquete mais larga, multi-bola ou laser', rule4: 'Elimine todos os tijolos para avançar — 3 níveis no total', rule5: 'Você tem 3 vidas — perde uma cada vez que a bola cai sob a raquete', paused: 'Pausado', resume: 'Retomar', lives: 'Vidas', level: 'Nível', footer: '🧱 Brick Breaker clássico com integração blockchain', viewOnCeloscan: 'Ver no Explorer →' },
       flappybird: { title: 'Flappy Bird', subtitle: 'Voe com a moeda Bitcoin por entre os canos crypto — desvie de tudo!', howToPlay: 'Como Jogar', rule1: 'Toque, clique ou pressione Espaço / ↑ para bater as asas', rule2: 'Navegue pelos espaços entre os canos verdes', rule3: 'Cada cano passado vale +1 ponto — a velocidade aumenta a cada 5 canos', rule4: 'Passe 30 canos para vencer — um único toque e o jogo acaba!', tapToStart: 'Pressione Iniciar para começar', score: 'Pontuação', goal: 'Objetivo', best: 'Melhor', win: 'Você Venceu! 🏆', lose: 'Game Over!', controls: 'Espaço / ↑ para voar — ou toque na tela', stats: 'Minhas Stats', footer: '🪙 Flappy Bitcoin com integração blockchain', viewOnExplorer: 'Ver no Explorer →' },
+      coinflip: { title: 'Coin Flip', subtitle: '₿ Cara ou Ξ Coroa — dobre ou nada!', howToPlay: 'Como Jogar', rule1: 'Escolha ₿ Cara (Bitcoin) ou Ξ Coroa (Ethereum)', rule2: 'A moeda gira e revela o resultado', rule3: 'Encadeie vitórias para construir sua sequência 🔥', tapToFlip: 'Escolha um lado para lançar a moeda', flipping: 'A moeda está girando...', flipAgain: 'Jogar novamente', win: 'Bem jogado! 🎉', lose: 'Sem sorte...', streak: 'Sequência', bestStreak: 'Recorde', stats: 'Minhas Stats', footer: '🪙 Coin Flip — BTC vs ETH!', viewOnExplorer: 'Ver no Explorer →' },
       plinko: { title: 'Plinko Crypto', subtitle: 'Solte BTC pelas estacas — multiplique suas moedas!', howToPlay: 'Como Jogar', rule1: 'Mova o mouse ou arraste para mirar a zona de lançamento', rule2: 'Pressione Espaço ou clique para soltar uma moeda BTC', rule3: 'As moedas ricocheteiam nas estacas e pousam em caixas multiplicadoras', rule4: 'Alcance 10 000 moedas para vencer — não vá à falência!', tapToDrop: 'Toque para soltar uma moeda', coins: 'Moedas', bet: 'Aposta', multiplier: 'Multiplicador', best: 'Melhor', win: '🎉 Você alcançou 10 000 moedas — Vencedor!', lose: '💸 Falência! Sem moedas.', controls: 'Mova para mirar · Espaço ou Clique para soltar', stats: 'Suas Stats', footer: 'Plinko Crypto — Bitcoin ricocheteando no mercado!', viewOnExplorer: 'Ver no Explorer' },
     },
     wallet: { connectPrompt: 'Conecte sua carteira para jogar on-chain', connectFarcaster: 'Conectar com carteira Farcaster', connectWalletConnect: 'Conectar com qualquer carteira móvel', connectMetaMask: 'Conectar com MetaMask', connectCoinbase: 'Conectar com Coinbase / Base Wallet', connectBrowser: 'Conectar com carteira do navegador', connectWith: 'Conectar com', switchingNetwork: 'Trocando rede...', via: 'via', disconnect: 'Desconectar', disconnectLabel: 'Desconectar carteira', farcasterNotReady: 'SDK Farcaster não está pronto. Alguns recursos podem não funcionar.', noConnectors: 'Nenhum conector de carteira disponível' },
     header: { subtitle: 'Jogue Mini-Games na Blockchain' },
     nav: { home: 'Início', leaderboard: 'Classificação', profile: 'Perfil', about: 'Sobre', guide: 'Guia', friends: 'Amigos', tournaments: 'Torneios', signOut: 'Sair', menu: 'Menu', closeMenu: 'Fechar menu' },
-    home: { welcome: 'Bem-vindo ao Mini Games Portal', subtitle: 'Jogue, ganhe pontos e desbloqueie emblemas!', howToPlay: 'Como Jogar', yourProfile: 'Seu Perfil', points: 'Pontos', profileStatus: 'Perfil', customAvatar: 'Avatar Personalizado', ranking: 'Classificação', gameModes: 'Modos de Jogo', freeMode: 'Modo Livre', freeModeDesc: 'Jogue sem carteira. Stats salvas localmente.', freePlay: 'Modo Livre', onChainMode: 'Modo On-Chain', onChainModeDesc: 'Conecte sua carteira para salvar na blockchain.', learnMore: 'Saiba mais sobre pontos e emblemas →', availableBadges: 'Emblemas Disponíveis', viewAllBadges: 'Ver todos os emblemas →', availableGames: 'Jogos Disponíveis', builtOn: 'Criado com ❤️ na Blockchain', learnMoreCelo: 'Saiba mais →', createProfile: 'Criar Perfil', saveProgress: 'Salve seu progresso e compita na classificação', setupNow: 'Configurar Agora', edit: 'Editar', profile: 'Perfil', leaderboard: 'Classificação', gamesPlayed: 'Partidas', stats: 'Estatísticas', footerBuilt: 'Criado com ❤️ na Blockchain', footerLearnCelo: 'Saiba mais →', footerCreatedBy: 'Criado por', learnMoreBadges: 'Saiba mais sobre emblemas' },
+    home: { welcome: 'Bem-vindo ao Celo Games Portal', subtitle: 'Jogue, ganhe pontos e desbloqueie emblemas!', howToPlay: 'Como Jogar', yourProfile: 'Seu Perfil', points: 'Pontos', profileStatus: 'Perfil', customAvatar: 'Avatar Personalizado', ranking: 'Classificação', gameModes: 'Modos de Jogo', freeMode: 'Modo Livre', freeModeDesc: 'Jogue sem carteira. Stats salvas localmente.', freePlay: 'Modo Livre', onChainMode: 'Modo On-Chain', onChainModeDesc: 'Conecte sua carteira para salvar na blockchain.', learnMore: 'Saiba mais sobre pontos e emblemas →', availableBadges: 'Emblemas Disponíveis', viewAllBadges: 'Ver todos os emblemas →', availableGames: 'Jogos Disponíveis', builtOn: 'Criado com ❤️ na Blockchain', learnMoreCelo: 'Saiba mais →', createProfile: 'Criar Perfil', saveProgress: 'Salve seu progresso e compita na classificação', setupNow: 'Configurar Agora', edit: 'Editar', profile: 'Perfil', leaderboard: 'Classificação', gamesPlayed: 'Partidas', stats: 'Estatísticas', footerBuilt: 'Criado com ❤️ na Blockchain', footerLearnCelo: 'Saiba mais →', footerCreatedBy: 'Criado por', learnMoreBadges: 'Saiba mais sobre emblemas' },
     stats: { wins: 'Vitórias', losses: 'Derrotas', ties: 'Empates', draws: 'Empates', played: 'Jogadas', winRate: 'Taxa de Vitória', current: 'Atual', best: 'Melhor', perGame: 'Estatísticas por Jogo', noGames: 'Sem partidas jogadas', loading: 'Carregando estatísticas...', loadError: 'Erro ao carregar estatísticas', noData: 'Sem estatísticas', title: 'Estatísticas', recentActivity: 'Atividade Recente', win: 'Vitória', loss: 'Derrota', noProgressData: 'Sem dados de progresso', playToSeeProgress: 'Jogue para ver seu progresso!', pointsProgress: 'Progresso de Pontos', pointsProgressSubtitle: 'Pontos ganhos ao longo do tempo (últimos 30 dias)', dailyPoints: 'Pontos Diários', cumulativeTotal: 'Total Acumulado', noGameStats: 'Sem estatísticas de jogo', playToSeeWinRate: 'Jogue para ver suas taxas de vitória!', winRateByGame: 'Taxa de Vitória por Jogo', performancePerGame: 'Desempenho em cada jogo', game: 'partida', games: 'partidas' },
     auth: { login: 'Entrar', loginButton: 'Entrar', createAccount: 'Criar conta', emailPasswordRequired: 'Email e senha obrigatórios', passwordMinLength: 'A senha deve ter pelo menos 8 caracteres', passwordsDoNotMatch: 'As senhas não coincidem', accountCreationFailed: 'Falha ao criar conta', errorOccurred: 'Ocorreu um erro', socialLoginFailed: 'Falha no login social', saveProgressDesc: 'Salve seu progresso e jogue em todos os seus dispositivos', yourCurrentStats: 'Suas estatísticas atuais', statsWillBePreserved: 'Essas estatísticas serão preservadas!', accountCreatedSuccess: 'Conta criada com sucesso!', checkEmailToConfirm: 'Verifique seu email para confirmar', continueWithGoogle: 'Continuar com Google', continueWithTwitter: 'Continuar com Twitter', continueWithDiscord: 'Continuar com Discord', continueWithEthos: 'Continuar com Ethos', orWithEmail: 'ou com email', emailPlaceholder: 'seu@email.com', confirmPassword: 'Confirmar senha', passwordHint: 'Mínimo 8 caracteres', createMyAccount: 'Criar minha conta', continueAsGuest: 'Continuar como visitante', termsAcceptance: 'Ao criar uma conta, você aceita nossos termos de uso', welcomeSignIn: 'Bem-vindo! Entre para continuar', forgotPassword: 'Esqueceu a senha?', noAccountYet: 'Ainda não tem conta?', loginFailed: 'Falha ao entrar' },
     profile: { saveYourProgress: 'Salve Seu Progresso!', createAccountMessage: 'Crie uma conta para salvar suas estatísticas e competir no classificação global!', createAccount: 'Criar Conta', completion: { profile: 'Perfil', completed: 'concluído', nextStep: 'Próximo passo', title: 'Completar Perfil', actionsToComplete: 'Ações a completar', tip: 'Dica', tipMessage: 'Um perfil completo ajuda você a se destacar e ganhar a confiança da comunidade!', complete: 'Perfil 100% Completo!', completeMessage: 'Você agora é um membro exemplar da comunidade!', displayName: 'Nome de exibição definido', customAvatar: 'Avatar personalizado', bioFilled: 'Bio preenchida', socialLink: 'Link social adicionado', firstGame: 'Primeira partida jogada', pointsMilestone: '100 pontos alcançados', displayNameDesc: 'Adicione um nome de exibição personalizado com espaços e emojis', customAvatarDesc: 'Escolha um avatar predefinido ou envie o seu', bioDesc: 'Descreva-se em poucas palavras (mín. 20 caracteres)', socialLinkDesc: 'Adicione pelo menos um link social (Twitter, Farcaster, Discord)', firstGameDesc: 'Jogue sua primeira partida e ganhe pontos', pointsMilestoneDesc: 'Alcance 100 pontos jogando', levelComplete: 'Perfil Completo', levelAdvanced: 'Avançado', levelIntermediate: 'Intermediário', levelBeginner: 'Iniciante', msg100: 'Parabéns! Seu perfil está perfeito! 🎉', msg80: 'Excelente! Mais alguns detalhes e está perfeito!', msg60: 'Muito bem! Você está no caminho certo!', msg40: 'Bom começo! Continue completando seu perfil!', msg20: 'É um começo! Complete algumas ações para melhorar seu perfil.', msg0: 'Bem-vindo! Comece completando seu perfil.' } },
-    profileSetup: { welcome: 'Bem-vindo ao Mini Games Portal!', subtitle: 'Configure seu perfil para começar a jogar', chooseAvatar: 'Escolha seu avatar', chooseUsername: 'Escolha seu nome de usuário', usernameRules: '3-20 caracteres, apenas letras, números e sublinhado', startPlaying: 'Começar a jogar!', saving: 'Salvando...', skipForNow: 'Pular por enquanto', profileCreated: 'Perfil criado com sucesso!', readyToEarn: 'Pronto para ganhar pontos e emblemas', hint: 'Dica:', unlockCustom: 'Você pode desbloquear avatares personalizados jogando!', enterUsername: 'Por favor insira um nome de usuário', usernameTooShort: 'O nome deve ter entre 3 e 20 caracteres' },
+    profileSetup: { welcome: 'Bem-vindo ao Celo Games Portal!', subtitle: 'Configure seu perfil para começar a jogar', chooseAvatar: 'Escolha seu avatar', chooseUsername: 'Escolha seu nome de usuário', usernameRules: '3-20 caracteres, apenas letras, números e sublinhado', startPlaying: 'Começar a jogar!', saving: 'Salvando...', skipForNow: 'Pular por enquanto', profileCreated: 'Perfil criado com sucesso!', readyToEarn: 'Pronto para ganhar pontos e emblemas', hint: 'Dica:', unlockCustom: 'Você pode desbloquear avatares personalizados jogando!', enterUsername: 'Por favor insira um nome de usuário', usernameTooShort: 'O nome deve ter entre 3 e 20 caracteres' },
     avatar: { chooseAvatar: 'Escolher um avatar', uploadCustom: 'Enviar personalizado', uploadLocked: 'Envio personalizado desbloqueado', afterGames: 'após', games: 'partidas', orBadge: 'ou emblema', veteran: 'Veterano', selected: 'Selecionado:', uploadCustomAvatar: 'Enviar Avatar Personalizado', fileTypes: 'JPEG, PNG, WebP ou GIF - Máx 2MB', uploadSuccess: 'Avatar enviado com sucesso!', selectFile: 'Selecionar arquivo', changeFile: 'Trocar arquivo', upload: 'Enviar', uploading: 'Enviando...', pleaseSelectFile: 'Por favor selecione um arquivo', tips: 'Dicas:', tipSquare: 'Use uma imagem quadrada para melhores resultados', tipSimple: 'Evite imagens muito complexas (legibilidade)', tipFormat: 'Formato recomendado: PNG com fundo transparente' },
     badges: { title: 'Emblemas', unlocked: 'emblemas desbloqueados', howToEarn: 'Como ganhar emblemas?', locked: 'Bloqueado', loadingBadges: 'Carregando emblemas...', first_win: 'Primeira Vitória', win_streak_5: 'Sequência de 5', win_streak_10: 'Sequência de 10', games_10: 'Iniciante', games_50: 'Jogador Regular', veteran: 'Veterano', master: 'Mestre do Jogo', all_games: 'Multijogas', perfect_week: 'Semana Perfeita', high_roller: 'Grande Jogador', points_5000: 'Campeão', leaderboard_top10: 'Top 10', leaderboard_top3: 'Pódio', leaderboard_1: 'Número Um', desc_first_win: 'Vença sua primeira partida', desc_win_streak_5: 'Vença 5 partidas seguidas', desc_win_streak_10: 'Vença 10 partidas seguidas', desc_games_10: 'Jogue 10 partidas', desc_games_50: 'Jogue 50 partidas', desc_veteran: 'Jogue 100 partidas', desc_master: 'Jogue 500 partidas', desc_all_games: 'Jogue todos os jogos', desc_perfect_week: 'Vença pelo menos uma partida por dia durante 7 dias', desc_high_roller: 'Acumule 1000 pontos', desc_points_5000: 'Acumule 5000 pontos', desc_leaderboard_top10: 'Alcance o top 10 do classificação', desc_leaderboard_top3: 'Alcance o top 3 do classificação', desc_leaderboard_1: 'Alcance o 1º lugar do classificação', progression: 'Progressão', performance: 'Desempenho', elite: 'Elite', collection: 'Coleção', engagement: 'Engajamento', points: 'Pontos', ranking: 'Classificação', cat_progression: 'Progressão', cat_performance: 'Desempenho', cat_elite: 'Elite', cat_collection: 'Coleção', cat_engagement: 'Engajamento', cat_points: 'Pontos', cat_ranking: 'Classificação', cat_classement: 'Classificação' },
     about: { title: 'Como Jogar', subtitle: 'Descubra como ganhar pontos, desbloquear emblemas e subir no classificação!', gameModesTitle: 'Modos de Jogo', freePlayTitle: 'Modo Livre', freePlayBullets: ['Jogue imediatamente sem carteira', 'Ganhe pontos e emblemas', 'Stats salvas localmente', 'Ideal para descobrir os jogos'], onChainTitle: 'On-Chain', onChainBullets: ['Conecte sua carteira', 'Stats salvas na blockchain', 'Participe de classificações globais', 'Alguns jogos requerem uma pequena taxa de gas'], pointsSystemTitle: 'Sistema de Pontos', victory: 'Vitória', victoryDesc: '+10 a +50 pontos dependendo do jogo', participation: 'Participação', participationDesc: '+5 pontos mesmo em derrota', streakBonus: 'Bônus de Sequência', streakBonusDesc: 'Pontos extras por vitórias consecutivas', badgeBonus: 'Emblemas', badgeBonusDesc: '10 a 1000 pontos extras por emblema desbloqueado', badgesToUnlockTitle: 'Emblemas a Desbloquear', badgesToUnlockDesc: 'Complete desafios para desbloquear emblemas e ganhar pontos extras!', leaderboardTitle: 'Classificação', leaderboardDesc: 'O classificação é atualizado em tempo real e classifica os jogadores pelo total de pontos.', firstPlace: '1º Lugar', firstPlaceDesc: 'Coroa dourada + emblema exclusivo', secondPlace: '2º Lugar', secondPlaceDesc: 'Medalha de prata', thirdPlace: '3º Lugar', thirdPlaceDesc: 'Medalha de bronze', viewLeaderboard: 'Ver Classificação →', avatarSystemTitle: 'Sistema de Avatares', predefinedAvatars: 'Avatares Predefinidos', predefinedAvatarsDesc: 'Escolha entre 30 avatares de jogos estilizados', customAvatar: 'Avatar Personalizado', customAvatarDesc: 'Envie sua própria imagem (desbloqueado após 100 partidas ou emblema Veterano)', startPlaying: 'Começar a Jogar!', veteranTip: 'Dica:', veteranTipDesc: 'O emblema Veterano (100 partidas) desbloqueia a possibilidade de enviar um avatar personalizado!' },
-    profileEdit: { title: 'Editar meu perfil', subtitle: 'Personalize seu perfil no Mini Games Portal', loadingProfile: 'Carregando perfil', profileSaved: 'Perfil salvo com sucesso! Redirecionando...', errorSaving: 'Por favor corrija os erros antes de salvar', avatar: 'Avatar', chooseAvatar: 'Escolha seu avatar de perfil', username: 'Nome de usuário', usernamePlaceholder: 'PlayerOne', usernameRules: '3-20 caracteres, apenas letras, números e sublinhado', bio: 'Bio', bioOptional: '(opcional)', bioPlaceholder: 'Apaixonado por jogos blockchain...', bioCharacters: 'caracteres', socialLinks: 'Redes sociais', twitter: 'Twitter / X', farcaster: 'Farcaster', discord: 'Discord', unsavedChanges: 'Você tem alterações não salvas', usernameRequired: 'O nome de usuário é obrigatório' },
+    profileEdit: { title: 'Editar meu perfil', subtitle: 'Personalize seu perfil no Celo Games Portal', loadingProfile: 'Carregando perfil', profileSaved: 'Perfil salvo com sucesso! Redirecionando...', errorSaving: 'Por favor corrija os erros antes de salvar', avatar: 'Avatar', chooseAvatar: 'Escolha seu avatar de perfil', username: 'Nome de usuário', usernamePlaceholder: 'PlayerOne', usernameRules: '3-20 caracteres, apenas letras, números e sublinhado', bio: 'Bio', bioOptional: '(opcional)', bioPlaceholder: 'Apaixonado por jogos blockchain...', bioCharacters: 'caracteres', socialLinks: 'Redes sociais', twitter: 'Twitter / X', farcaster: 'Farcaster', discord: 'Discord', unsavedChanges: 'Você tem alterações não salvas', usernameRequired: 'O nome de usuário é obrigatório' },
     gameDescriptions: { blackjack: 'Bata o dealer com 21!', rps: 'Jogo de mãos clássico!', tictactoe: 'Consiga três em linha!', jackpot: 'Gire a roda crypto!', '2048': 'Funda peças até 2048!', mastermind: 'Decifre o código crypto!', connectfive: 'Conecte 4 em linha!', snake: 'Coma e cresça!', poker: "Texas Hold'em — jogo livre e multijogador!" },
-    leaderboard: { title: 'Classificação', subtitle: 'Melhores jogadores de todos os jogos no Mini Games Portal', globalRanking: 'Classificação Global', rank: 'Posição', player: 'Jogador', points: 'Pontos', gamesPlayed: 'Partidas', wins: 'Vitórias', loadingLeaderboard: 'Carregando classificação...', noPlayers: 'Sem jogadores ainda', scores: 'Pontuações', challenges: 'Desafios Diários', noChallenges: 'Sem desafios concluídos ainda. Seja o primeiro!', challengeRanking: 'Classificação de Desafios', challengeRankingDesc: 'Jogadores classificados por número de desafios diários concluídos', completed: 'Concluídos', challengesCount: 'desafios' },
+    leaderboard: { title: 'Classificação', subtitle: 'Melhores jogadores de todos os jogos no Celo Games Portal', globalRanking: 'Classificação Global', rank: 'Posição', player: 'Jogador', points: 'Pontos', gamesPlayed: 'Partidas', wins: 'Vitórias', loadingLeaderboard: 'Carregando classificação...', noPlayers: 'Sem jogadores ainda' },
     audio: { mute: 'Silenciar', unmute: 'Ativar som', soundOn: 'Som Ativado', soundOff: 'Som Desativado', volume: 'Volume' },
     theme: { light: 'Claro', dark: 'Escuro', system: 'Sistema', switchToLight: 'Mudar para modo claro', switchToDark: 'Mudar para modo escuro', switchToSystem: 'Usar preferência do sistema' },
     errors: { generic: 'Ocorreu um erro', loadingFailed: 'Falha ao carregar', savingFailed: 'Falha ao salvar', invalidUsername: 'Nome de usuário inválido', usernameTaken: 'Este nome já está em uso', usernameReserved: 'Este nome está reservado', invalidEmail: 'Email inválido', invalidUrl: 'URL inválida', fileTooLarge: 'Arquivo muito grande. Tamanho máximo: 2MB', invalidFileType: 'Tipo de arquivo não suportado. Use JPEG, PNG, WebP ou GIF' },
@@ -3024,7 +3008,7 @@ export const translations = {
     streak: { title: 'Sequência de Login', day: 'dia', days: 'dias', loginBonus: 'Bônus de login diário', nextReward: 'Próxima recompensa', tomorrowReach: 'Amanhã!', inDays: 'em', best: 'Melhor' },
     friends: { title: 'Amigos', search: 'Buscar por usuário...', sendRequest: 'Adicionar Amigo', pending: 'Solicitações Recebidas', pendingSent: 'Solicitações Enviadas', myFriends: 'Meus Amigos', noFriends: 'Sem amigos ainda. Busque jogadores para adicionar!', noPending: 'Sem solicitações recebidas', noPendingSent: 'Sem solicitações enviadas', requestSent: 'Solicitação enviada!', requestAccepted: 'Solicitação aceita!', removed: 'Amigo removido', inviteToPlay: 'Convidar para Jogar', accept: 'Aceitar', decline: 'Recusar', remove: 'Remover', block: 'Bloquear', alreadyFriends: 'Já são amigos', requestPending: 'Solicitação pendente', userNotFound: 'Usuário não encontrado', searchResults: 'Resultados da Busca', noResults: 'Nenhum usuário encontrado', loginRequired: 'Entre para gerenciar amigos', selectGame: 'Selecionar um jogo', inviteSent: 'Convite enviado!', copyCode: 'Copiar Código', codeCopied: 'Código copiado!' },
     tournament: { title: 'Torneios', create: 'Criar Torneio', join: 'Entrar', leave: 'Sair', name: 'Nome do Torneio', game: 'Jogo', format: 'Formato', singleElimination: 'Eliminação Simples', players: 'Jogadores', maxPlayers: 'Máx de Jogadores', prizePoints: 'Pontos de Prêmio', status: { registration: 'Aberto', in_progress: 'Em Andamento', completed: 'Concluído', cancelled: 'Cancelado' }, bracket: 'Chave', round: 'Rodada', finals: 'Final', semiFinals: 'Semifinais', quarterFinals: 'Quartas de Final', winner: 'Vencedor', prize: 'Prêmio', startsWhenFull: 'Começa quando cheio', startingSoon: 'Começando em breve...', yourMatch: 'Sua Partida', playNow: 'Jogar Agora', waitingForOpponent: 'Aguardando oponente...', tournamentComplete: 'Torneio Concluído!', noTournaments: 'Sem torneios disponíveis. Crie um!', registrationOpen: 'Inscrições Abertas', spotsLeft: 'vagas restantes', createdBy: 'Criado por', participants: 'Participantes', loginRequired: 'Entre para participar de torneios', matchBye: 'BYE', matchPending: 'Pendente', matchLive: 'AO VIVO', filters: { all: 'Todos os Jogos', open: 'Abertos', inProgress: 'Em Andamento', completed: 'Concluídos' } },
-    chain: { network: 'Rede', celo: 'Celo', base: 'Base', megaeth: 'MegaETH', soneium: 'Soneium', switchTo: 'Mudar para', notAvailable: 'Não disponível nesta rede', comingSoon: 'Em breve nesta rede', onchainDev: 'O modo on-chain está em desenvolvimento nesta rede. O modo livre está disponível!', unsupported: 'Rede Não Suportada', switchToPlay: 'não é suportada. Mude para uma rede suportada para jogar.' },
+    chain: { network: 'Rede', celo: 'Celo', switchTo: 'Mudar para', notAvailable: 'Não disponível nesta rede', comingSoon: 'Em breve nesta rede', unsupported: 'Rede Não Suportada', switchToPlay: 'não é suportada. Mude para uma rede suportada para jogar.' },
   },
 } as const;
 

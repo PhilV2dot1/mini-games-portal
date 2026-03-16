@@ -179,6 +179,13 @@ export const GAME_SOUNDS = {
     lose:  { path: '/audio/plinko/lose.mp3',  category: 'lose' as const },
   },
 
+  // Coin Flip
+  coinflip: {
+    flip:  { path: '/audio/coinflip/flip.mp3',  category: 'action' as const, volume: 0.6 },
+    win:   { path: '/audio/coinflip/win.mp3',   category: 'win' as const },
+    lose:  { path: '/audio/coinflip/lose.mp3',  category: 'lose' as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },

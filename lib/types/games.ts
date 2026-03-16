@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -246,6 +246,17 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/plinko.png",
     route: "/games/plinko",
     color: "from-yellow-400 to-orange-500",
+    hasFee: false,
+    category: "casino",
+    duration: "quick",
+  },
+  coinflip: {
+    id: "coinflip",
+    name: "Coin Flip",
+    description: "₿ Heads or Ξ Tails — double or nothing!",
+    icon: "/icons/coinflip.png",
+    route: "/games/coin-flip",
+    color: "from-orange-400 to-indigo-500",
     hasFee: false,
     category: "casino",
     duration: "quick",
