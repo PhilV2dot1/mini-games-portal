@@ -72,16 +72,10 @@ export default function FlappyBirdPage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-orange-400/60 text-center space-y-1"
         >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <img
-              src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/btc.svg"
-              alt="BTC"
-              className="w-10 h-10"
-            />
-            <h1 className="text-4xl font-black text-white">
-              {t("games.flappybird.title")}
-            </h1>
-          </div>
+          <img src="/icons/flappybird.png" alt="Flappy Bird" className="w-14 h-14 mx-auto object-contain mb-2" />
+          <h1 className="text-4xl font-black text-white">
+            {t("games.flappybird.title")}
+          </h1>
           <p className="text-sm text-white/70">
             {t("games.flappybird.subtitle")}
           </p>

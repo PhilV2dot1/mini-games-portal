@@ -70,8 +70,9 @@ export default function CoinFlipPage() {
 
         {/* Header */}
         <div className="text-center mb-6">
+          <img src="/icons/coinflip.png" alt="Coin Flip" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-1">
-            {t("games.coinflip.title") || "Coin Flip"} 🪙
+            {t("games.coinflip.title") || "Coin Flip"}
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             {withLogos(t("games.coinflip.subtitle"))}

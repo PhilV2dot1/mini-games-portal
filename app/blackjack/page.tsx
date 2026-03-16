@@ -22,7 +22,7 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
-import { getContractAddress, getExplorerAddressUrl, getExplorerName, getExplorerTxUrl, isGameAvailableOnChain } from '@/lib/contracts/addresses';
+import { getContractAddress, getExplorerAddressUrl, getExplorerName, isGameAvailableOnChain } from '@/lib/contracts/addresses';
 
 type GameMode = 'free' | 'onchain' | 'multiplayer';
 
@@ -167,7 +167,7 @@ export default function BlackjackPage() {
 
         {/* Header */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center">
-          <div className="text-6xl mb-2">🃏</div>
+          <img src="/icons/blackjack.png" alt="Blackjack" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-2">
             Blackjack
           </h1>
@@ -188,24 +188,6 @@ export default function BlackjackPage() {
               <WalletConnect />
             )}
             {soloGame.message && <GameMessage message={translateMessage(soloGame.message)} />}
-
-            {/* Recording indicator: tx in progress after local result */}
-            {soloGame.isRecording && soloGame.txHash && (
-              <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-400 rounded-xl text-sm">
-                <span className="text-blue-800 dark:text-blue-200 font-semibold">
-                  ⏳ Recording result on-chain...
-                </span>
-                <a
-                  href={getExplorerTxUrl(chain?.id, soloGame.txHash)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1 bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 rounded-lg font-medium hover:brightness-95 transition-all"
-                >
-                  View tx ↗
-                </a>
-              </div>
-            )}
-
             <BlackjackTable
               playerCards={soloGame.playerHand}
               dealerCards={soloGame.dealerHand}

@@ -247,7 +247,7 @@ export default function WordlePage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
-          <div className="text-5xl mb-2" role="img" aria-label={t('games.wordle.title')}>🟩</div>
+          <img src="/icons/wordle.png" alt="Wordle" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.wordle.title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">{t('games.wordle.subtitle')}</p>
           <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 mt-1">{t('games.wordle.wordsInEnglish')}</p>

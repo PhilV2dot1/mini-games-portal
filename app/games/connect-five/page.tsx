@@ -170,9 +170,7 @@ export default function ConnectFivePage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
-          <div className="text-5xl mb-2" role="img" aria-label={t('games.connectfive.title')}>
-            🔴🟡
-          </div>
+          <img src="/icons/connectfive.png" alt="Connect Five" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t('games.connectfive.title')}
           </h1>

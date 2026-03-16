@@ -114,7 +114,7 @@ export default function JackpotPage() {
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl text-center"
           style={{ border: '4px solid var(--chain-primary)' }}
         >
-          <div className="text-6xl mb-2">🎰</div>
+          <img src="/icons/jackpot.png" alt="Jackpot" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.jackpot.title')}</h1>
           <p className="text-sm text-gray-700 dark:text-gray-300 mt-2 font-medium">{t('games.jackpot.subtitle')}</p>
         </motion.div>

@@ -80,7 +80,7 @@ export default function Game2048Page() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-chain text-center space-y-1"
         >
-          <div className="text-5xl mb-2">🔢</div>
+          <img src="/icons/2048.png" alt="2048" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">{t('games.2048.title')}</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">{t('games.2048.subtitle')}</p>
         </motion.div>

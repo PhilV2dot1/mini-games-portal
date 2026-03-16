@@ -39,14 +39,11 @@ export default function PokerPage() {
   // Record each completed hand to portal stats — guard against duplicate triggers
   useEffect(() => {
     if (solo.phase === 'showdown' && solo.outcome) {
-      // Use a unique key per hand to avoid recording the same hand twice
-      const handKey = `${solo.outcome}-${solo.pot}-${Date.now()}`;
       if (recordedHandRef.current === solo.outcome + solo.pot) return;
       recordedHandRef.current = solo.outcome + solo.pot;
       const result = solo.outcome === 'win' ? 'win' : solo.outcome === 'split' ? 'draw' : 'lose';
       recordGame('poker', solo.mode, result);
     } else if (solo.phase === 'betting') {
-      // Reset guard when a new hand starts
       recordedHandRef.current = null;
     }
   }, [solo.phase, solo.outcome, solo.pot, solo.mode, recordGame]);
@@ -90,7 +87,7 @@ export default function PokerPage() {
           className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 text-center space-y-1"
           style={{ borderColor: theme.primary }}
         >
-          <div className="text-5xl mb-2">🃏</div>
+          <img src="/icons/poker.png" alt="Poker" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t('games.poker.title') || 'Poker'}
           </h1>
@@ -252,6 +249,7 @@ export default function PokerPage() {
               {solo.phase === 'betting' && (
                 mode === 'onchain' ? (
                   solo.sessionActive ? (
+                    // Session active → deal next hand
                     <motion.button
                       data-testid="poker-deal"
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -265,6 +263,7 @@ export default function PokerPage() {
                       🃏 {t('games.poker.dealCards')}
                     </motion.button>
                   ) : (
+                    // No session → start one
                     <motion.button
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
