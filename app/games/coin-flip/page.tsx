@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, Fragment } from "react";
 import { useCoinFlip, CANVAS_W, CANVAS_H } from "@/hooks/useCoinFlip";
 import { useHaptic } from "@/hooks/useHaptic";
 import { ModeToggle } from "@/components/shared/ModeToggle";
@@ -14,6 +14,19 @@ import {
   getExplorerAddressUrl,
   getExplorerName,
 } from "@/lib/contracts/addresses";
+
+const BTC_LOGO = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/btc.svg";
+const ETH_LOGO = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/eth.svg";
+
+// Replace {BTC} and {ETH} tokens in a string with inline logo images
+function withLogos(text: string) {
+  const parts = text.split(/(\{BTC\}|\{ETH\})/);
+  return parts.map((part, i) => {
+    if (part === "{BTC}") return <img key={i} src={BTC_LOGO} alt="BTC" className="inline w-4 h-4 mx-0.5 align-middle" />;
+    if (part === "{ETH}") return <img key={i} src={ETH_LOGO} alt="ETH" className="inline w-4 h-4 mx-0.5 align-middle" />;
+    return <Fragment key={i}>{part}</Fragment>;
+  });
+}
 
 export default function CoinFlipPage() {
   const game = useCoinFlip();
@@ -61,16 +74,15 @@ export default function CoinFlipPage() {
             {t("games.coinflip.title") || "Coin Flip"} 🪙
           </h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            {t("games.coinflip.subtitle")}
+            {withLogos(t("games.coinflip.subtitle"))}
           </p>
         </div>
 
         {/* Mode toggle */}
-        <div className="mb-6">
+        <div className="mb-6 flex justify-center">
           <ModeToggle
-            currentMode={game.mode}
+            mode={game.mode}
             onModeChange={game.setGameMode}
-            gameId="coinflip"
           />
         </div>
 
@@ -223,7 +235,7 @@ export default function CoinFlipPage() {
             {t("games.coinflip.howToPlay")}
           </h3>
           <ul className="space-y-1 list-disc list-inside">
-            <li>{t("games.coinflip.rule1")}</li>
+            <li>{withLogos(t("games.coinflip.rule1"))}</li>
             <li>{t("games.coinflip.rule2")}</li>
             <li>{t("games.coinflip.rule3")}</li>
           </ul>
@@ -233,7 +245,7 @@ export default function CoinFlipPage() {
         {game.mode === "onchain" && contractAddress && (
           <div className="text-center text-xs text-gray-400 dark:text-gray-600 mb-6">
             <a
-              href={getExplorerAddressUrl(contractAddress, chain?.id)}
+              href={getExplorerAddressUrl(chain?.id, contractAddress)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
