@@ -18,10 +18,10 @@ function TubeSegment({ cryptoId, isTop }: { cryptoId: string; isTop: boolean }) 
   if (!crypto) return null;
   return (
     <div
-      className="w-full flex items-center justify-center transition-all duration-300"
+      className="w-full flex-none flex items-center justify-center"
       style={{
+        height: "25%",
         backgroundColor: crypto.color,
-        height: "100%",
         boxShadow: isTop
           ? `inset 0 4px 8px rgba(255,255,255,0.3)`
           : `inset 0 2px 4px rgba(255,255,255,0.15)`,
@@ -64,9 +64,8 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
           : "border-white/40 hover:border-white/70",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}
-      style={{ gap: "2px" }}
     >
-      {/* 4 slots always visible */}
+      {/* 4 slots — chacun occupe exactement 25% de la hauteur du tube */}
       {Array.from({ length: 4 }, (_, slotIdx) => {
         const segment = tube[slotIdx];
         return segment ? (
@@ -76,7 +75,7 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
             isTop={slotIdx === tube.length - 1}
           />
         ) : (
-          <div key={slotIdx} className="w-full h-10 bg-white/5" />
+          <div key={slotIdx} className="w-full flex-none" style={{ height: "25%" }} />
         );
       })}
     </button>
