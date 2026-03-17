@@ -150,7 +150,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   brickbreaker: { celo: '0xde31f2cfcf6b351cb5eefb951889d12206616008', base: '0x5D2F8f9EcA52C51e26D9224eDF61bA72Bac93743', megaeth: '0x07D3E0fdFcF7417A6Ef98Fa51b9f08d55D616818', soneium: '0x48D1acD1b7d6afD459a109cB4D706979b8883eEC' },
   flappybird:   { celo: '0x6b0f0a8dfcd4faa3166261e026a4bcaae8f28057', base: '0xfecd3ef79cc68dbdd7f0917ee7bd87bfb038fdb6', megaeth: '0xe7765646da6631ab3ed8e3544dfaabdd927751fa', soneium: '0x2A5c10182b9B6a67c198f5A981A09D4990396cE0' },
   plinko:       { celo: '0x2d65202f305e18672a56de2c499e7cb0be74ea94', base: '0xbb59cb3fa35329ce68e33678263dc5e8937352e6', megaeth: '0xEb90D2638Ebd2a8a4A8F3E30792f80e372C06E3a', soneium: '0x995a9394d45b427B4102Bd3B4897d44b1b1BFB4A' },
-  coinflip:     { celo: '0x57912445add80bbf98802ec7ebc281f554e91380', base: '0x21153a79E0d788D13EAbE7f6B28375DFd678f839', megaeth: null, soneium: '0x15905bf6Cf99569552e197b3e829D640afA9F1F8' },
+  coinflip:     { celo: '0x57912445add80bbf98802ec7ebc281f554e91380', base: '0x21153a79E0d788D13EAbE7f6B28375DFd678f839', megaeth: '0x0e60f4cf609d1c6f1a67639517bf0cd2110fa09e', soneium: '0x15905bf6Cf99569552e197b3e829D640afA9F1F8' },
   roulette:     { celo: null, base: null, megaeth: null, soneium: null },
   watersort:    { celo: null, base: null, megaeth: null, soneium: null },
 };
