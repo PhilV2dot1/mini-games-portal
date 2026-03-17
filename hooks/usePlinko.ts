@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
+import { useLocalStats } from "@/hooks/useLocalStats";
 
 // ========================================
 // TYPES
@@ -199,6 +200,7 @@ export function usePlinko() {
   const { address, chainId } = useAccount();
   const contractAddress = getContractAddress("plinko", chainId);
   const { writeContractAsync } = useWriteContract();
+  const { recordGame } = useLocalStats();
 
   const { data: onChainStats } = useReadContract({
     address: contractAddress ?? undefined,
@@ -539,9 +541,11 @@ export function usePlinko() {
     localStorage.setItem(STATS_KEY, JSON.stringify(next));
     setLocalStats(next);
 
+    let txHash: string | undefined;
+
     if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
       try {
-        await writeContractAsync({
+        txHash = await writeContractAsync({
           address: contractAddress,
           abi: PLINKO_ABI,
           functionName: "endGame",
@@ -552,8 +556,10 @@ export function usePlinko() {
         console.error("endGame tx failed:", err);
       }
     }
+
+    await recordGame("plinko", mode, won ? "win" : "lose", txHash);
     setStatus("finished");
-  }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync]);
+  }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync, recordGame]);
 
   // ======================================
   // DROP BALL
