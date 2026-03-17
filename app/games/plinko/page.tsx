@@ -300,16 +300,27 @@ export default function PlinkoPage() {
             </motion.button>
           )}
           {isPlaying && (
-            <motion.button
-              data-testid="stop-game"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={game.stopGame}
-              className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold shadow-lg transition-all"
-            >
-              {t("games.reset")}
-            </motion.button>
+            <>
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={game.endGameManually}
+                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:brightness-110 text-white rounded-xl font-semibold shadow-lg transition-all"
+              >
+                {t("games.plinko.endGame") || "End & Save"}
+              </motion.button>
+              <motion.button
+                data-testid="stop-game"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={game.stopGame}
+                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold shadow-lg transition-all"
+              >
+                {t("games.reset")}
+              </motion.button>
+            </>
           )}
         </div>
 

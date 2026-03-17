@@ -507,7 +507,7 @@ export function usePlinko() {
       setStatus("processing");
       return;
     }
-    if (allLanded && s.coins < s.currentBet && s.coins === 0) {
+    if (allLanded && s.coins < s.currentBet) {
       s.status = "finished";
       setStatus("processing");
       return;
@@ -692,6 +692,15 @@ export function usePlinko() {
     setMessage("");
   }, []);
 
+  // End session and record score (on-chain if applicable)
+  const endGameManually = useCallback(() => {
+    const s = stateRef.current;
+    if (s.status !== "playing") return;
+    if (s.animId) { cancelAnimationFrame(s.animId); s.animId = 0; }
+    s.status = "finished";
+    setStatus("processing");
+  }, []);
+
   const setGameMode = useCallback((m: GameMode) => {
     setMode(m);
     stopGame();
@@ -730,6 +739,7 @@ export function usePlinko() {
     lastBucketIdx,
     startGame,
     stopGame,
+    endGameManually,
     setGameMode,
     dropBall,
     setBet,
