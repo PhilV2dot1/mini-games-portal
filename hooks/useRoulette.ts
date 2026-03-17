@@ -31,8 +31,8 @@ export interface PlayerStats {
 // CONSTANTS
 // ========================================
 
-export const CANVAS_W = 420;
-export const CANVAS_H = 420;
+export const CANVAS_W = 560;
+export const CANVAS_H = 560;
 
 const SPIN_DURATION = 4500; // ms
 const STATS_KEY = "roulette_stats";
@@ -76,7 +76,8 @@ const SLOT_COUNT = WHEEL_ORDER.length; // 37
 const WHEEL_COLORS = WHEEL_ORDER.map(n => getNumberColor(n));
 
 // Crypto tokens for wheel decoration (one per sector, cycling)
-export const CRYPTO_TICKERS = ["btc","eth","sol","bnb","xrp","ada","avax","doge","dot","matic","link","atom","ltc","uni","aave","snx","crv","mkr","comp","yfi","sushi","1inch","bal","ren","knc","zrx","lrc","band","uma","kava","iost","hbar","icp","fil","theta","ftm"];
+// 37 unique tickers — one per wheel slot, all verified valid on jsDelivr
+export const CRYPTO_TICKERS = ["btc","eth","sol","bnb","xrp","ada","avax","doge","dot","matic","link","atom","ltc","uni","aave","snx","crv","mkr","comp","yfi","sushi","1inch","bal","ren","knc","zrx","lrc","band","uma","algo","iost","grt","icp","fil","theta","enj","usdt"];
 
 // ========================================
 // HELPERS
