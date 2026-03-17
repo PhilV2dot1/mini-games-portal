@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useWaterSort, CRYPTOS, Tube, Difficulty } from "@/hooks/useWaterSort";
+import { useWaterSort, CRYPTOS, Tube, Difficulty, PourAnim } from "@/hooks/useWaterSort";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -27,9 +28,10 @@ interface TubeDisplayProps {
   isSelected: boolean;
   onClick: () => void;
   disabled: boolean;
+  tubeRef?: React.Ref<HTMLButtonElement>;
 }
 
-function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplayProps) {
+function TubeDisplay({ tube, index, isSelected, onClick, disabled, tubeRef }: TubeDisplayProps) {
   // Intérieur du tube
   const innerX = PAD;
   const innerW = TW - PAD * 2;
@@ -45,6 +47,7 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
 
   return (
     <button
+      ref={tubeRef}
       onClick={onClick}
       disabled={disabled}
       aria-label={`Tube ${index + 1}`}
@@ -211,6 +214,125 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
 }
 
 // ========================================
+// POUR OVERLAY — animated arc from source to destination tube
+// ========================================
+
+interface PourOverlayProps {
+  pourAnim: PourAnim | null;
+  tubeRefs: React.RefObject<(HTMLButtonElement | null)[]>;
+  containerRef: React.RefObject<HTMLDivElement>;
+}
+
+function PourOverlay({ pourAnim, tubeRefs, containerRef }: PourOverlayProps) {
+  if (!pourAnim) return null;
+
+  const refs = tubeRefs.current;
+  const container = containerRef.current;
+  if (!refs || !container) return null;
+
+  const fromEl = refs[pourAnim.from];
+  const toEl = refs[pourAnim.to];
+  if (!fromEl || !toEl) return null;
+
+  const containerRect = container.getBoundingClientRect();
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect = toEl.getBoundingClientRect();
+
+  // Top-center of each tube relative to the container
+  const x1 = fromRect.left - containerRect.left + fromRect.width / 2;
+  const y1 = fromRect.top - containerRect.top + 10; // slightly below top edge
+  const x2 = toRect.left - containerRect.left + toRect.width / 2;
+  const y2 = toRect.top - containerRect.top + 10;
+
+  // Control point: arc upward between the two tubes
+  const midX = (x1 + x2) / 2;
+  const arcHeight = Math.max(60, Math.abs(x2 - x1) * 0.55);
+  const cy = Math.min(y1, y2) - arcHeight;
+
+  const pathD = `M ${x1} ${y1} Q ${midX} ${cy} ${x2} ${y2}`;
+
+  // Approximate path length for dasharray animation
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const approxLen = Math.sqrt(dx * dx + dy * dy) + arcHeight * 1.4;
+
+  const animId = `pour-${pourAnim.from}-${pourAnim.to}`;
+
+  return (
+    <svg
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        overflow: "visible",
+      }}
+    >
+      <defs>
+        <style>{`
+          @keyframes ${animId}-flow {
+            from { stroke-dashoffset: ${approxLen}; }
+            to   { stroke-dashoffset: 0; }
+          }
+        `}</style>
+      </defs>
+
+      {/* Arc path — liquid stream */}
+      <path
+        d={pathD}
+        fill="none"
+        stroke={pourAnim.color}
+        strokeWidth={8}
+        strokeLinecap="round"
+        opacity={0.85}
+        strokeDasharray={approxLen}
+        strokeDashoffset={approxLen}
+        style={{
+          animation: `${animId}-flow 400ms ease-out forwards`,
+        }}
+      />
+
+      {/* Drop travelling along the path */}
+      <circle r={8} fill={pourAnim.color} opacity={0.9}>
+        <animateMotion
+          dur="400ms"
+          fill="freeze"
+          path={pathD}
+        />
+      </circle>
+
+      {/* Crypto logo on the drop */}
+      <image
+        href={`${CDN_ICONS}${pourAnim.ticker}.svg`}
+        width={14}
+        height={14}
+      >
+        <animateMotion
+          dur="400ms"
+          fill="freeze"
+          path={pathD}
+          keyPoints="0;1"
+          keyTimes="0;1"
+          calcMode="linear"
+        />
+        {/* Offset the image so it's centered on the drop */}
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          values="-7,-7;-7,-7"
+          keyTimes="0;1"
+          dur="400ms"
+          fill="freeze"
+          additive="sum"
+        />
+      </image>
+    </svg>
+  );
+}
+
+// ========================================
 // DIFFICULTY BUTTON
 // ========================================
 
@@ -228,6 +350,9 @@ export default function WaterSortPage() {
   const game = useWaterSort();
   const { t } = useLanguage();
   const { chain } = useAccount();
+
+  const tubeRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const explorerUrl = game.contractAddress
     ? getExplorerAddressUrl(chain?.id, game.contractAddress)
@@ -318,7 +443,7 @@ export default function WaterSortPage() {
         </div>
 
         {/* Tubes Grid */}
-        <div className="flex flex-wrap gap-3 justify-center mb-8">
+        <div ref={containerRef} className="relative flex flex-wrap gap-3 justify-center mb-8">
           {game.tubes.map((tube, idx) => (
             <TubeDisplay
               key={idx}
@@ -327,8 +452,14 @@ export default function WaterSortPage() {
               isSelected={game.selectedTube === idx}
               onClick={() => game.selectTube(idx)}
               disabled={game.status === "won"}
+              tubeRef={(el) => { tubeRefs.current[idx] = el; }}
             />
           ))}
+          <PourOverlay
+            pourAnim={game.pourAnim}
+            tubeRefs={tubeRefs}
+            containerRef={containerRef}
+          />
         </div>
 
         {/* Reset / New Game buttons */}

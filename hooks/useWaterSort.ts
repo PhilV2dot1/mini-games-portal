@@ -22,6 +22,14 @@ export interface WaterSortStats {
   bestMoves: { easy: number; medium: number; hard: number };
 }
 
+export interface PourAnim {
+  from: number;    // source tube index
+  to: number;      // destination tube index
+  color: string;   // color of the segment being poured (crypto color)
+  count: number;   // number of segments being poured
+  ticker: string;  // crypto ticker for logo
+}
+
 // ========================================
 // CRYPTO DEFINITIONS
 // ========================================
@@ -185,6 +193,8 @@ export function useWaterSort() {
   const [mode, setGameMode] = useState<GameMode>("free");
   const [stats, setStats] = useState<WaterSortStats>(() => loadStats());
 
+  const [pourAnim, setPourAnim] = useState<PourAnim | null>(null);
+
   const { writeContractAsync } = useWriteContract();
   const { recordGame } = useLocalStats();
   const recordGameRef = useRef(recordGame);
@@ -197,6 +207,7 @@ export function useWaterSort() {
   const statusRef = useRef<GameStatus>("idle");
   const modeRef = useRef<GameMode>("free");
   const difficultyRef = useRef<Difficulty>("easy");
+  const pourAnimRef = useRef<PourAnim | null>(null);
 
   tubesRef.current = tubes;
   selectedTubeRef.current = selectedTube;
@@ -204,6 +215,7 @@ export function useWaterSort() {
   statusRef.current = status;
   modeRef.current = mode;
   difficultyRef.current = difficulty;
+  pourAnimRef.current = pourAnim;
 
   const contractAddressRef = useRef(contractAddress);
   contractAddressRef.current = contractAddress;
@@ -260,6 +272,9 @@ export function useWaterSort() {
   }, [writeContractAsync]);
 
   const selectTube = useCallback((idx: number) => {
+    // Block interactions while animating
+    if (pourAnimRef.current !== null) return;
+
     const currentStatus = statusRef.current;
     const currentTubes = tubesRef.current;
     const currentSelected = selectedTubeRef.current;
@@ -287,15 +302,43 @@ export function useWaterSort() {
 
     // Try to pour
     if (canPour(currentTubes, currentSelected, idx)) {
+      const fromTube = currentTubes[currentSelected];
+      const topSegId = fromTube[fromTube.length - 1];
+      const crypto = CRYPTOS.find(c => c.id === topSegId);
+
+      // Count consecutive same-color segments being poured
+      let count = 0;
+      for (let i = fromTube.length - 1; i >= 0; i--) {
+        if (fromTube[i] === topSegId) count++;
+        else break;
+      }
+      const space = 4 - currentTubes[idx].length;
+      const moveCount = Math.min(count, space);
+
       const newTubes = pourLiquid(currentTubes, currentSelected, idx);
       const newMoves = currentMoves + 1;
-      setTubes(newTubes);
-      setMoves(newMoves);
-      setSelectedTube(null);
 
-      if (checkWon(newTubes)) {
-        handleWin(newMoves, currentDifficulty);
-      }
+      // Trigger pour animation first, then apply state after 450ms
+      const anim: PourAnim = {
+        from: currentSelected,
+        to: idx,
+        color: crypto?.color ?? "#888",
+        count: moveCount,
+        ticker: crypto?.ticker ?? topSegId,
+      };
+      setPourAnim(anim);
+
+      setTimeout(() => {
+        setTubes(newTubes);
+        setMoves(newMoves);
+        setSelectedTube(null);
+        setPourAnim(null);
+
+        if (checkWon(newTubes)) {
+          handleWin(newMoves, currentDifficulty);
+        }
+      }, 450);
+
       return;
     }
 
@@ -313,6 +356,7 @@ export function useWaterSort() {
     setStatus("idle");
     setMoves(0);
     setSelectedTube(null);
+    setPourAnim(null);
   }, []);
 
   const newGame = useCallback((diff: Difficulty) => {
@@ -322,6 +366,7 @@ export function useWaterSort() {
     setStatus("idle");
     setMoves(0);
     setSelectedTube(null);
+    setPourAnim(null);
   }, []);
 
   return {
@@ -338,5 +383,6 @@ export function useWaterSort() {
     setGameMode,
     stats,
     contractAddress,
+    pourAnim,
   };
 }
