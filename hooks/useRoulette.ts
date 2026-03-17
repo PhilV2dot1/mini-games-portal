@@ -64,8 +64,6 @@ export function getBetPayout(type: BetType): number {
   }
 }
 
-// 37 slots: 0..36
-const SLOTS = Array.from({ length: 37 }, (_, i) => i);
 // Arrange in classic roulette wheel order
 export const WHEEL_ORDER = [
   0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26
@@ -383,8 +381,16 @@ export function useRoulette() {
   const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
   const [message, setMessage] = useState("");
 
+  // Session tracking for on-chain recording
+  const sessionRef = useRef({
+    active: false,
+    spinsPlayed: 0,
+    spinsWon: 0,
+    bestWin: 0,       // best single-spin net profit
+  });
+
   const { address, chain } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { writeContract, writeContractAsync } = useWriteContract();
 
   // Load stats
   useEffect(() => {
@@ -453,6 +459,15 @@ export function useRoulette() {
           };
           saveStats(updated);
 
+          // Update session counters
+          const sess = sessionRef.current;
+          sess.spinsPlayed++;
+          if (win > 0) {
+            sess.spinsWon++;
+            const netWin = win - totalBetRef.current;
+            if (netWin > sess.bestWin) sess.bestWin = netWin;
+          }
+
           setWinningNumber(num);
           setTotalWin(win);
           setResult(win > 0 ? "win" : "lose");
@@ -506,8 +521,6 @@ export function useRoulette() {
     // Wheel end angle: enough full rotations to feel satisfying
     const extraRotations = 5 + Math.random() * 3;
     const targetAngle = -resolvedIdx * sliceAngle;
-    const wheelEnd = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle - s.current.wheelStartAngle;
-
     s.current.spinning = true;
     s.current.spinStart = performance.now();
     s.current.wheelEndAngle = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle;
@@ -521,13 +534,15 @@ export function useRoulette() {
     setMessage("");
     setWinningNumber(null);
 
-    if (mode === "onchain" && address && chain) {
+    // Open session on first spin of the session
+    if (mode === "onchain" && address && chain && !sessionRef.current.active) {
       const addr = getContractAddress("roulette", chain.id);
       if (addr) {
+        sessionRef.current.active = true;
         writeContract({
           address: addr as `0x${string}`,
-          abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
-          functionName: "startGame",
+          abi: [{ name: "startSession", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
+          functionName: "startSession",
         });
       }
     }
@@ -565,16 +580,64 @@ export function useRoulette() {
   const setGameMode = useCallback((m: GameMode) => {
     setMode(m);
     reset();
-  }, [reset]);
+    // Abandon on-chain session if switching mode mid-session
+    if (m !== "onchain" && sessionRef.current.active && address && chain) {
+      const addr = getContractAddress("roulette", chain.id);
+      if (addr) {
+        writeContract({
+          address: addr as `0x${string}`,
+          abi: [{ name: "abandonSession", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
+          functionName: "abandonSession",
+        });
+      }
+      sessionRef.current = { active: false, spinsPlayed: 0, spinsWon: 0, bestWin: 0 };
+    }
+  }, [reset, address, chain, writeContract]);
+
+  // End session and record on-chain
+  const endSession = useCallback(async () => {
+    const sess = sessionRef.current;
+    if (!sess.active || !address || !chain) return;
+    const addr = getContractAddress("roulette", chain.id);
+    if (!addr) return;
+
+    const finalChips = loadStats().chips;
+    try {
+      await writeContractAsync({
+        address: addr as `0x${string}`,
+        abi: [{
+          name: "endSession", type: "function", stateMutability: "nonpayable",
+          inputs: [
+            { name: "spinsPlayed", type: "uint256" },
+            { name: "spinsWon",    type: "uint256" },
+            { name: "bestWin",     type: "uint256" },
+            { name: "finalChips",  type: "uint256" },
+          ],
+          outputs: [],
+        }],
+        functionName: "endSession",
+        args: [
+          BigInt(sess.spinsPlayed),
+          BigInt(sess.spinsWon),
+          BigInt(sess.bestWin),
+          BigInt(finalChips),
+        ],
+      });
+    } catch (err) {
+      console.error("endSession tx failed:", err);
+    }
+    sessionRef.current = { active: false, spinsPlayed: 0, spinsWon: 0, bestWin: 0 };
+  }, [address, chain, writeContractAsync]);
 
   const totalBet = bets.reduce((sum, b) => sum + b.amount, 0);
+  const hasActiveSession = sessionRef.current.active;
 
   return {
     canvasRef,
     mode, status, bets, selectedBetAmount,
     result, winningNumber, totalWin, totalBet,
-    stats, message,
-    spin, placeBet, clearBets, reset,
+    stats, message, hasActiveSession,
+    spin, placeBet, clearBets, reset, endSession,
     setSelectedBetAmount, setGameMode,
   };
 }

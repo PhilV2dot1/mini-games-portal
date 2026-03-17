@@ -350,6 +350,18 @@ export default function RoulettePage() {
           )}
         </div>
 
+        {/* End Session button — on-chain mode only, once a session is open */}
+        {game.mode === "onchain" && game.hasActiveSession && !isSpinning && (
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={game.endSession}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:brightness-110 text-white font-semibold shadow-lg transition-all text-sm"
+            >
+              {t("games.roulette.endSession") || "End & Save session"}
+            </button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-4 gap-3 mb-8">
           {[
