@@ -31,7 +31,8 @@ export type GameId =
   | 'brickbreaker'
   | 'flappybird'
   | 'plinko'
-  | 'coinflip';
+  | 'coinflip'
+  | 'roulette';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -149,6 +150,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   flappybird:   { celo: '0x6b0f0a8dfcd4faa3166261e026a4bcaae8f28057', base: '0xfecd3ef79cc68dbdd7f0917ee7bd87bfb038fdb6', megaeth: '0xe7765646da6631ab3ed8e3544dfaabdd927751fa', soneium: '0x2A5c10182b9B6a67c198f5A981A09D4990396cE0' },
   plinko:       { celo: '0x2d65202f305e18672a56de2c499e7cb0be74ea94', base: '0xbb59cb3fa35329ce68e33678263dc5e8937352e6', megaeth: '0xEb90D2638Ebd2a8a4A8F3E30792f80e372C06E3a', soneium: '0x995a9394d45b427B4102Bd3B4897d44b1b1BFB4A' },
   coinflip:     { celo: null, base: null, megaeth: null, soneium: null },
+  roulette:     { celo: null, base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {

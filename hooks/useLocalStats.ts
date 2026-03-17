@@ -45,6 +45,7 @@ const DEFAULT_PROFILE: UserProfile = {
     flappybird: { ...DEFAULT_GAME_STATS },
     plinko: { ...DEFAULT_GAME_STATS },
     coinflip: { ...DEFAULT_GAME_STATS },
+    roulette: { ...DEFAULT_GAME_STATS },
   },
 };
 

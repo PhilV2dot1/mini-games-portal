@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -257,6 +257,17 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/coinflip.png",
     route: "/games/coin-flip",
     color: "from-orange-400 to-indigo-500",
+    hasFee: false,
+    category: "casino",
+    duration: "quick",
+  },
+  roulette: {
+    id: "roulette",
+    name: "Roulette Crypto",
+    description: "Spin the wheel — bet on numbers, colors or odd/even!",
+    icon: "/icons/roulette.png",
+    route: "/games/roulette",
+    color: "from-indigo-500 to-purple-600",
     hasFee: false,
     category: "casino",
     duration: "quick",

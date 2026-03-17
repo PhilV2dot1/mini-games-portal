@@ -186,6 +186,14 @@ export const GAME_SOUNDS = {
     lose:  { path: '/audio/coinflip/lose.mp3',  category: 'lose' as const },
   },
 
+  // Roulette
+  roulette: {
+    spin: { path: '/audio/roulette/spin.mp3', category: 'action' as const, volume: 0.6 },
+    ball: { path: '/audio/roulette/ball.mp3', category: 'action' as const, volume: 0.4 },
+    win:  { path: '/audio/roulette/win.mp3',  category: 'win' as const },
+    lose: { path: '/audio/roulette/lose.mp3', category: 'lose' as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },
