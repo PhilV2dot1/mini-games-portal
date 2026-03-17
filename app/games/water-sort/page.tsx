@@ -85,16 +85,16 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
         </defs>
 
         {/* Ombre portée sous le tube */}
-        <ellipse cx={TW / 2} cy={TH + 8} rx={TW * 0.38} ry={4} fill="rgba(0,0,0,0.35)" />
+        <ellipse cx={TW / 2} cy={TH + 8} rx={TW * 0.38} ry={4} fill="rgba(0,0,0,0.20)" />
 
         {/* Corps extérieur de l'éprouvette (verre) */}
         <rect
           x={0} y={NECK_Y - 8}
           width={TW} height={TH - NECK_Y + 8 + PAD}
           rx={RX} ry={RX}
-          fill="rgba(200,230,255,0.08)"
-          stroke={isSelected ? "#facc15" : "rgba(200,230,255,0.45)"}
-          strokeWidth={isSelected ? 2.5 : 1.5}
+          fill="rgba(200,230,255,0.15)"
+          stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.70)"}
+          strokeWidth={isSelected ? 2.5 : 1.8}
         />
 
         {/* Segments de liquide (clippés dans l'intérieur) */}
@@ -164,13 +164,13 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
         {/* Parois de verre (devant le liquide) */}
         {/* Bord gauche */}
         <rect x={0} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
-          rx={2} fill="rgba(200,230,255,0.12)" />
+          rx={2} fill="rgba(100,160,220,0.20)" />
         {/* Bord droit */}
         <rect x={TW - PAD} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
-          rx={2} fill="rgba(200,230,255,0.06)" />
+          rx={2} fill="rgba(100,160,220,0.14)" />
         {/* Fond arrondi */}
         <rect x={0} y={TH - PAD} width={TW} height={PAD + 10}
-          rx={RX} fill="rgba(200,230,255,0.10)" />
+          rx={RX} fill="rgba(100,160,220,0.18)" />
 
         {/* Reflet vertical brillant gauche (rayure de verre) */}
         <rect
@@ -183,8 +183,8 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplay
         {/* Col / ouverture du tube */}
         <rect x={PAD} y={0} width={innerW} height={NECK_Y + 2}
           rx={3}
-          fill="rgba(200,230,255,0.08)"
-          stroke={isSelected ? "#facc15" : "rgba(200,230,255,0.4)"}
+          fill="rgba(200,230,255,0.15)"
+          stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.65)"}
           strokeWidth={isSelected ? 2 : 1.2}
         />
 
@@ -272,7 +272,7 @@ export default function WaterSortPage() {
         </div>
 
         {/* Mode Toggle + Wallet */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5">
+        <div className="flex flex-col items-center gap-3 mb-5">
           <ModeToggle
             mode={game.mode}
             onModeChange={game.setGameMode}
