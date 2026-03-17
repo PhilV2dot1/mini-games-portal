@@ -194,6 +194,14 @@ export const GAME_SOUNDS = {
     lose: { path: '/audio/roulette/lose.mp3', category: 'lose' as const },
   },
 
+  // Water Sort
+  watersort: {
+    pour:     { path: '/audio/watersort/pour.mp3',     category: 'action' as const, volume: 0.5 },
+    select:   { path: '/audio/watersort/select.mp3',   category: 'action' as const, volume: 0.3 },
+    complete: { path: '/audio/watersort/complete.mp3', category: 'win'    as const },
+    win:      { path: '/audio/watersort/win.mp3',      category: 'win'    as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },

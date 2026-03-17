@@ -46,6 +46,7 @@ const DEFAULT_PROFILE: UserProfile = {
     plinko: { ...DEFAULT_GAME_STATS },
     coinflip: { ...DEFAULT_GAME_STATS },
     roulette: { ...DEFAULT_GAME_STATS },
+    watersort: { ...DEFAULT_GAME_STATS },
   },
 };
 

@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -271,5 +271,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "casino",
     duration: "quick",
+  },
+  watersort: {
+    id: "watersort",
+    name: "Water Sort Crypto",
+    description: "Sort the crypto liquids — pour and match colors!",
+    icon: "/icons/watersort.png",
+    route: "/games/water-sort",
+    color: "from-cyan-500 to-blue-600",
+    hasFee: false,
+    category: "puzzle",
+    duration: "medium",
   },
 };

@@ -32,7 +32,8 @@ export type GameId =
   | 'flappybird'
   | 'plinko'
   | 'coinflip'
-  | 'roulette';
+  | 'roulette'
+  | 'watersort';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -151,6 +152,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   plinko:       { celo: '0x2d65202f305e18672a56de2c499e7cb0be74ea94', base: '0xbb59cb3fa35329ce68e33678263dc5e8937352e6', megaeth: '0xEb90D2638Ebd2a8a4A8F3E30792f80e372C06E3a', soneium: '0x995a9394d45b427B4102Bd3B4897d44b1b1BFB4A' },
   coinflip:     { celo: null, base: null, megaeth: null, soneium: null },
   roulette:     { celo: null, base: null, megaeth: null, soneium: null },
+  watersort:    { celo: null, base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {
