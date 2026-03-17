@@ -245,13 +245,13 @@ export default function WaterSortPage() {
   const bestForDiff = game.stats.bestMoves[game.difficulty];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-950 via-blue-950 to-indigo-950 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-100 to-indigo-100 dark:from-cyan-950 dark:via-blue-950 dark:to-indigo-950 p-4 sm:p-8">
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-cyan-300/70 hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-cyan-700 dark:text-cyan-300/70 hover:text-gray-900 dark:hover:text-white text-sm mb-6 transition-colors"
         >
           ← {t("common.back") || "Back"}
         </Link>
@@ -263,10 +263,10 @@ export default function WaterSortPage() {
             alt="Water Sort Crypto"
             className="w-14 h-14 mx-auto object-contain mb-2"
           />
-          <h1 className="text-4xl font-bold text-white mb-1">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-1">
             {t("games.watersort.title") || "Water Sort Crypto"}
           </h1>
-          <p className="text-cyan-300/70 text-sm">
+          <p className="text-cyan-700 dark:text-cyan-300/70 text-sm">
             {t("games.watersort.subtitle") || "Sort the crypto liquids — pour and match colors!"}
           </p>
         </div>
@@ -302,15 +302,15 @@ export default function WaterSortPage() {
         {/* Stats Row */}
         <div className="flex gap-6 justify-center mb-6 text-center">
           <div>
-            <div className="text-2xl font-bold text-white">{game.moves}</div>
-            <div className="text-xs text-cyan-300/60 uppercase tracking-wider">
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{game.moves}</div>
+            <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
               {t("games.watersort.moves") || "Moves"}
             </div>
           </div>
           {bestForDiff > 0 && (
             <div>
-              <div className="text-2xl font-bold text-yellow-400">{bestForDiff}</div>
-              <div className="text-xs text-cyan-300/60 uppercase tracking-wider">
+              <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">{bestForDiff}</div>
+              <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
                 {t("games.watersort.bestMoves") || "Best"}
               </div>
             </div>
@@ -335,7 +335,7 @@ export default function WaterSortPage() {
         <div className="flex gap-3 justify-center mb-8">
           <button
             onClick={game.resetGame}
-            className="px-5 py-2 rounded-xl bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all text-sm"
+            className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm"
           >
             {t("games.watersort.playAgain") || "Play Again"}
           </button>
@@ -348,14 +348,14 @@ export default function WaterSortPage() {
         </div>
 
         {/* How to Play */}
-        <div className="bg-white/5 rounded-2xl border border-white/10 p-5 mb-6">
-          <h2 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">
+        <div className="bg-white/70 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 mb-6">
+          <h2 className="text-gray-900 dark:text-white font-bold mb-3 text-sm uppercase tracking-wider">
             {t("games.watersort.howToPlay") || "How to Play"}
           </h2>
           <ol className="space-y-1.5">
             {(["rule1", "rule2", "rule3", "rule4"] as const).map((key, i) => (
-              <li key={key} className="flex gap-2 text-sm text-cyan-200/80">
-                <span className="text-cyan-400 font-bold flex-shrink-0">{i + 1}.</span>
+              <li key={key} className="flex gap-2 text-sm text-gray-600 dark:text-cyan-200/80">
+                <span className="text-cyan-600 dark:text-cyan-400 font-bold flex-shrink-0">{i + 1}.</span>
                 {t(`games.watersort.${key}`) || ""}
               </li>
             ))}
@@ -371,10 +371,10 @@ export default function WaterSortPage() {
           ].map(s => (
             <div
               key={s.label}
-              className="bg-white/5 rounded-xl border border-white/10 p-3 text-center"
+              className="bg-white/70 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 p-3 text-center"
             >
-              <div className="text-xl font-bold text-white">{s.value}</div>
-              <div className="text-xs text-cyan-300/60">{s.label}</div>
+              <div className="text-xl font-bold text-gray-900 dark:text-white">{s.value}</div>
+              <div className="text-xs text-cyan-700 dark:text-cyan-300/60">{s.label}</div>
             </div>
           ))}
         </div>
@@ -386,7 +386,7 @@ export default function WaterSortPage() {
               href={explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-cyan-400 hover:text-cyan-300 text-xs underline"
+              className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-300 text-xs underline"
             >
               {t("games.watersort.viewOnExplorer") || `View on ${explorerName} →`}
             </a>
@@ -409,7 +409,7 @@ export default function WaterSortPage() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="bg-gradient-to-br from-cyan-900 to-blue-900 border border-cyan-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+              className="bg-gradient-to-br from-white to-cyan-50 dark:from-cyan-900 dark:to-blue-900 border border-cyan-200 dark:border-cyan-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
             >
               {/* Confetti-like circles */}
               <div className="flex justify-center gap-2 mb-4">
@@ -426,21 +426,21 @@ export default function WaterSortPage() {
               </div>
 
               <div className="text-4xl mb-2">🎉</div>
-              <h2 className="text-2xl font-bold text-white mb-2">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 {t("games.watersort.win") || "Sorted! All cryptos matched!"}
               </h2>
 
               <div className="flex gap-6 justify-center my-4">
                 <div>
-                  <div className="text-3xl font-bold text-cyan-300">{game.moves}</div>
-                  <div className="text-xs text-cyan-300/60 uppercase">
+                  <div className="text-3xl font-bold text-cyan-600 dark:text-cyan-300">{game.moves}</div>
+                  <div className="text-xs text-gray-500 dark:text-cyan-300/60 uppercase">
                     {t("games.watersort.moves") || "Moves"}
                   </div>
                 </div>
                 {bestForDiff > 0 && (
                   <div>
-                    <div className="text-3xl font-bold text-yellow-400">{bestForDiff}</div>
-                    <div className="text-xs text-cyan-300/60 uppercase">
+                    <div className="text-3xl font-bold text-yellow-500 dark:text-yellow-400">{bestForDiff}</div>
+                    <div className="text-xs text-gray-500 dark:text-cyan-300/60 uppercase">
                       {t("games.watersort.bestMoves") || "Best"}
                     </div>
                   </div>
@@ -450,7 +450,7 @@ export default function WaterSortPage() {
               <div className="flex gap-3 justify-center mt-4">
                 <button
                   onClick={game.resetGame}
-                  className="px-5 py-2.5 rounded-xl bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-all font-medium"
+                  className="px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/20 transition-all font-medium"
                 >
                   {t("games.watersort.playAgain") || "Play Again"}
                 </button>
