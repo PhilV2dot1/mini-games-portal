@@ -67,7 +67,7 @@ export function getBetPayout(type: BetType): number {
 // 37 slots: 0..36
 const SLOTS = Array.from({ length: 37 }, (_, i) => i);
 // Arrange in classic roulette wheel order
-const WHEEL_ORDER = [
+export const WHEEL_ORDER = [
   0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26
 ];
 const SLOT_COUNT = WHEEL_ORDER.length; // 37
@@ -76,7 +76,7 @@ const SLOT_COUNT = WHEEL_ORDER.length; // 37
 const WHEEL_COLORS = WHEEL_ORDER.map(n => getNumberColor(n));
 
 // Crypto tokens for wheel decoration (one per sector, cycling)
-const CRYPTO_TICKERS = ["btc","eth","sol","bnb","xrp","ada","avax","doge","dot","matic","link","atom","ltc","uni","aave","snx","crv","mkr","comp","yfi","sushi","1inch","bal","ren","knc","zrx","lrc","band","uma","kava","iost","hbar","icp","fil","theta","ftm"];
+export const CRYPTO_TICKERS = ["btc","eth","sol","bnb","xrp","ada","avax","doge","dot","matic","link","atom","ltc","uni","aave","snx","crv","mkr","comp","yfi","sushi","1inch","bal","ren","knc","zrx","lrc","band","uma","kava","iost","hbar","icp","fil","theta","ftm"];
 
 // ========================================
 // HELPERS

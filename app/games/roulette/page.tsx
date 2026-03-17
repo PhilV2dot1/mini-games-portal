@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback } from "react";
-import { useRoulette, CANVAS_W, CANVAS_H, BET_AMOUNTS, getNumberColor, getBetPayout, type BetType } from "@/hooks/useRoulette";
+import { useRoulette, CANVAS_W, CANVAS_H, BET_AMOUNTS, getNumberColor, getBetPayout, WHEEL_ORDER, CRYPTO_TICKERS, type BetType } from "@/hooks/useRoulette";
 import { useHaptic } from "@/hooks/useHaptic";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -11,8 +11,24 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { useAccount } from "wagmi";
 import { getContractAddress, getExplorerAddressUrl, getExplorerName } from "@/lib/contracts/addresses";
 
-// Numbers 1–36 laid out in 3 columns (roulette table layout)
-const TABLE_NUMBERS = Array.from({ length: 36 }, (_, i) => i + 1);
+const CDN = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/";
+
+// Map each number (0–36) to its crypto ticker (by wheel slot order)
+const NUMBER_TO_TICKER: Record<number, string> = {};
+WHEEL_ORDER.forEach((num, i) => { NUMBER_TO_TICKER[num] = CRYPTO_TICKERS[i % CRYPTO_TICKERS.length]; });
+
+function CryptoLogo({ ticker, size = 12 }: { ticker: string; size?: number }) {
+  return (
+    <img
+      src={`${CDN}${ticker}.svg`}
+      alt={ticker}
+      width={size}
+      height={size}
+      className="inline-block flex-shrink-0"
+      style={{ imageRendering: "crisp-edges" }}
+    />
+  );
+}
 
 function NumberCell({ n, onClick, bets, disabled }: {
   n: number;
@@ -21,19 +37,21 @@ function NumberCell({ n, onClick, bets, disabled }: {
   disabled: boolean;
 }) {
   const color = getNumberColor(n);
+  const ticker = NUMBER_TO_TICKER[n] ?? "btc";
   const betOnThis = bets.filter(b => b.type === "number" && b.value === n);
   const totalBet = betOnThis.reduce((s, b) => s + b.amount, 0);
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative aspect-square rounded text-xs font-bold transition-all border
+      className={`relative aspect-square rounded text-[10px] font-bold transition-all border flex flex-col items-center justify-center gap-0.5 p-0.5
         ${color === "red" ? "bg-red-600 hover:bg-red-500 border-red-400 text-white" :
           "bg-gray-800 hover:bg-gray-700 border-gray-600 text-white"}
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-105"}
       `}
     >
-      {n}
+      <CryptoLogo ticker={ticker} size={11} />
+      <span className="leading-none">{n}</span>
       {totalBet > 0 && (
         <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow">
           {totalBet >= 100 ? "+" : totalBet}
@@ -43,6 +61,15 @@ function NumberCell({ n, onClick, bets, disabled }: {
   );
 }
 
+// Logos représentatifs par type de mise extérieure
+const OUTSIDE_BET_LOGO: Record<string, string> = {
+  red:   "btc",   // BTC est souvent associé à l'orange/rouge
+  black: "eth",   // ETH couleur sombre
+  green: "usdt",  // USDT vert
+  even:  "bnb",
+  odd:   "sol",
+};
+
 function OutsideBetButton({ label, type, value, onClick, bets, disabled, className }: {
   label: string; type: BetType; value: number | null;
   onClick: () => void; bets: { type: BetType; value: number | null; amount: number }[];
@@ -50,15 +77,17 @@ function OutsideBetButton({ label, type, value, onClick, bets, disabled, classNa
 }) {
   const betOn = bets.filter(b => b.type === type && b.value === value);
   const totalBet = betOn.reduce((s, b) => s + b.amount, 0);
+  const ticker = OUTSIDE_BET_LOGO[type] ?? "btc";
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative py-2 px-1 rounded font-bold text-xs transition-all border flex flex-col items-center gap-0.5
+      className={`relative py-2 px-1 rounded font-bold text-xs transition-all border flex flex-col items-center gap-1
         ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-105"}
         ${className}`}
     >
-      <span>{label}</span>
+      <CryptoLogo ticker={ticker} size={14} />
+      <span className="leading-none">{label}</span>
       <span className="text-[10px] opacity-60">{getBetPayout(type)}:1</span>
       {totalBet > 0 && (
         <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow">
@@ -78,7 +107,6 @@ export default function RoulettePage() {
 
   const isSpinning = game.status === "spinning";
   const isResult = game.status === "result";
-  const isIdle = game.status === "idle";
 
   const handlePlaceBet = useCallback((type: BetType, value: number | null) => {
     vibrate("light");
@@ -224,13 +252,13 @@ export default function RoulettePage() {
 
           {/* Outside bets */}
           <div className="grid grid-cols-5 gap-1">
-            <OutsideBetButton label="🔴 Rouge" type="red" value={null}
+            <OutsideBetButton label="Rouge" type="red" value={null}
               onClick={() => handlePlaceBet("red", null)} bets={game.bets} disabled={isSpinning}
               className="bg-red-700 hover:bg-red-600 border-red-500 text-white col-span-1" />
-            <OutsideBetButton label="⚫ Noir" type="black" value={null}
+            <OutsideBetButton label="Noir" type="black" value={null}
               onClick={() => handlePlaceBet("black", null)} bets={game.bets} disabled={isSpinning}
               className="bg-gray-800 hover:bg-gray-700 border-gray-600 text-white col-span-1" />
-            <OutsideBetButton label="🟢 Vert" type="green" value={null}
+            <OutsideBetButton label="Vert" type="green" value={null}
               onClick={() => handlePlaceBet("green", null)} bets={game.bets} disabled={isSpinning}
               className="bg-green-700 hover:bg-green-600 border-green-500 text-white col-span-1" />
             <OutsideBetButton label="Pair" type="even" value={null}
