@@ -201,6 +201,9 @@ export function usePlinko() {
   const contractAddress = getContractAddress("plinko", chainId);
   const { writeContractAsync } = useWriteContract();
   const { recordGame } = useLocalStats();
+  // Stable ref so finalizeGame doesn't recreate on every recordGame identity change
+  const recordGameRef = useRef(recordGame);
+  useEffect(() => { recordGameRef.current = recordGame; }, [recordGame]);
 
   const { data: onChainStats } = useReadContract({
     address: contractAddress ?? undefined,
@@ -557,9 +560,9 @@ export function usePlinko() {
       }
     }
 
-    await recordGame("plinko", mode, won ? "win" : "lose", txHash);
+    await recordGameRef.current("plinko", mode, won ? "win" : "lose", txHash);
     setStatus("finished");
-  }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync, recordGame]);
+  }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync]);
 
   // ======================================
   // DROP BALL
