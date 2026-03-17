@@ -443,7 +443,8 @@ export function useRoulette() {
           st.particles = spawnParticles(canvas.width / 2, canvas.height / 2, win > 0);
 
           const saved = loadStats();
-          const newChips = saved.chips - totalBetRef.current + win;
+          // chips already deducted optimistically at spin start — just add winnings
+          const newChips = saved.chips + win;
           const updated: PlayerStats = {
             games: saved.games + 1,
             wins: win > 0 ? saved.wins + 1 : saved.wins,
