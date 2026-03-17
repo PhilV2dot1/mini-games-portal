@@ -10,36 +10,16 @@ import { getExplorerAddressUrl, getExplorerName } from "@/lib/contracts/addresse
 import { useAccount } from "wagmi";
 
 // ========================================
-// SEGMENT COMPONENT
+// TUBE SVG — éprouvette avec reflets de verre
 // ========================================
-
-function TubeSegment({ cryptoId, isTop }: { cryptoId: string; isTop: boolean }) {
-  const crypto = CRYPTOS.find(c => c.id === cryptoId);
-  if (!crypto) return null;
-  return (
-    <div
-      className="w-full flex-none flex items-center justify-center"
-      style={{
-        height: "25%",
-        backgroundColor: crypto.color,
-        boxShadow: isTop
-          ? `inset 0 4px 8px rgba(255,255,255,0.3)`
-          : `inset 0 2px 4px rgba(255,255,255,0.15)`,
-      }}
-    >
-      <img
-        src={`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/${crypto.ticker}.svg`}
-        alt={crypto.name}
-        width={20}
-        height={20}
-      />
-    </div>
-  );
-}
-
-// ========================================
-// TUBE COMPONENT
-// ========================================
+// Dimensions internes SVG
+const TW = 60;   // largeur totale
+const TH = 200;  // hauteur totale
+const RX = 12;   // rayon coins
+const PAD = 6;   // épaisseur de la paroi
+const NECK_Y = 28; // hauteur du col ouvert
+const SEG_H = (TH - NECK_Y - PAD) / 4; // hauteur d'un segment (fond = PAD)
+const CDN_ICONS = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/";
 
 interface TubeDisplayProps {
   tube: Tube;
@@ -50,34 +30,182 @@ interface TubeDisplayProps {
 }
 
 function TubeDisplay({ tube, index, isSelected, onClick, disabled }: TubeDisplayProps) {
+  // Intérieur du tube
+  const innerX = PAD;
+  const innerW = TW - PAD * 2;
+  const innerTop = NECK_Y;
+  const innerH = TH - NECK_Y - PAD;
+
+  // Pour chaque slot 0=bas → 3=haut, on calcule y dans l'espace interne
+  // On rend de haut en bas dans le SVG (y croît vers le bas)
+  const slotY = (slotIdx: number) => innerTop + innerH - (slotIdx + 1) * SEG_H;
+
+  // Clip path pour arrondir le bas du tube (fond en U)
+  const clipId = `tube-clip-${index}`;
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       aria-label={`Tube ${index + 1}`}
       className={[
-        "relative flex flex-col-reverse items-stretch w-14 h-52",
-        "rounded-b-2xl border-2 overflow-hidden transition-all duration-200",
-        "bg-white/5 backdrop-blur-sm",
-        isSelected
-          ? "ring-4 ring-yellow-400 scale-105 border-yellow-400"
-          : "border-white/40 hover:border-white/70",
+        "relative transition-all duration-200 focus:outline-none",
+        isSelected ? "scale-110 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]" : "hover:scale-105",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}
+      style={{ width: TW, height: TH + 10 }}
     >
-      {/* 4 slots — chacun occupe exactement 25% de la hauteur du tube */}
-      {Array.from({ length: 4 }, (_, slotIdx) => {
-        const segment = tube[slotIdx];
-        return segment ? (
-          <TubeSegment
-            key={slotIdx}
-            cryptoId={segment}
-            isTop={slotIdx === tube.length - 1}
+      <svg
+        width={TW}
+        height={TH + 10}
+        viewBox={`0 0 ${TW} ${TH + 10}`}
+        overflow="visible"
+      >
+        <defs>
+          {/* Clip : intérieur du tube (zone liquide) */}
+          <clipPath id={clipId}>
+            <rect
+              x={innerX} y={innerTop}
+              width={innerW} height={innerH}
+              rx={RX - PAD} ry={RX - PAD}
+            />
+          </clipPath>
+          {/* Gradient reflet latéral gauche */}
+          <linearGradient id={`shine-${index}`} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%"   stopColor="white" stopOpacity="0.18" />
+            <stop offset="35%"  stopColor="white" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </linearGradient>
+          {/* Gradient reflet haut de chaque segment */}
+          <linearGradient id={`seg-top-${index}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="white" stopOpacity="0.35" />
+            <stop offset="40%"  stopColor="white" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="black" stopOpacity="0.12" />
+          </linearGradient>
+        </defs>
+
+        {/* Ombre portée sous le tube */}
+        <ellipse cx={TW / 2} cy={TH + 8} rx={TW * 0.38} ry={4} fill="rgba(0,0,0,0.35)" />
+
+        {/* Corps extérieur de l'éprouvette (verre) */}
+        <rect
+          x={0} y={NECK_Y - 8}
+          width={TW} height={TH - NECK_Y + 8 + PAD}
+          rx={RX} ry={RX}
+          fill="rgba(200,230,255,0.08)"
+          stroke={isSelected ? "#facc15" : "rgba(200,230,255,0.45)"}
+          strokeWidth={isSelected ? 2.5 : 1.5}
+        />
+
+        {/* Segments de liquide (clippés dans l'intérieur) */}
+        <g clipPath={`url(#${clipId})`}>
+          {/* Fond (transparent si vide) */}
+          <rect x={innerX} y={innerTop} width={innerW} height={innerH}
+            fill="rgba(255,255,255,0.04)" />
+
+          {/* 4 couches de bas en haut */}
+          {Array.from({ length: 4 }, (_, slotIdx) => {
+            const seg = tube[slotIdx];
+            const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
+            const y = slotY(slotIdx);
+            const isTopSeg = slotIdx === tube.length - 1 && !!seg;
+
+            return (
+              <g key={slotIdx}>
+                {crypto && (
+                  <>
+                    {/* Bloc de couleur */}
+                    <rect
+                      x={innerX} y={y}
+                      width={innerW} height={SEG_H}
+                      fill={crypto.color}
+                    />
+                    {/* Reflet sur le dessus du segment */}
+                    {isTopSeg && (
+                      <rect
+                        x={innerX} y={y}
+                        width={innerW} height={SEG_H * 0.38}
+                        fill={`url(#seg-top-${index})`}
+                      />
+                    )}
+                    {/* Ondulation surface supérieure (si segment du dessus) */}
+                    {isTopSeg && (
+                      <path
+                        d={`M${innerX},${y}
+                            q${innerW * 0.25},-5 ${innerW * 0.5},0
+                            q${innerW * 0.25},5  ${innerW * 0.5},0`}
+                        fill="none"
+                        stroke="rgba(255,255,255,0.5)"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    {/* Séparateur entre segments */}
+                    {slotIdx > 0 && tube[slotIdx - 1] && (
+                      <line
+                        x1={innerX} y1={y + SEG_H}
+                        x2={innerX + innerW} y2={y + SEG_H}
+                        stroke="rgba(0,0,0,0.2)" strokeWidth="1"
+                      />
+                    )}
+                  </>
+                )}
+              </g>
+            );
+          })}
+
+          {/* Reflet latéral gauche (sur tout le liquide) */}
+          <rect
+            x={innerX} y={innerTop}
+            width={innerW * 0.28} height={innerH}
+            fill={`url(#shine-${index})`}
           />
-        ) : (
-          <div key={slotIdx} className="w-full flex-none" style={{ height: "25%" }} />
-        );
-      })}
+        </g>
+
+        {/* Parois de verre (devant le liquide) */}
+        {/* Bord gauche */}
+        <rect x={0} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
+          rx={2} fill="rgba(200,230,255,0.12)" />
+        {/* Bord droit */}
+        <rect x={TW - PAD} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
+          rx={2} fill="rgba(200,230,255,0.06)" />
+        {/* Fond arrondi */}
+        <rect x={0} y={TH - PAD} width={TW} height={PAD + 10}
+          rx={RX} fill="rgba(200,230,255,0.10)" />
+
+        {/* Reflet vertical brillant gauche (rayure de verre) */}
+        <rect
+          x={PAD + 2} y={NECK_Y}
+          width={3} height={TH - NECK_Y - PAD - 10}
+          rx={1.5}
+          fill="rgba(255,255,255,0.22)"
+        />
+
+        {/* Col / ouverture du tube */}
+        <rect x={PAD} y={0} width={innerW} height={NECK_Y + 2}
+          rx={3}
+          fill="rgba(200,230,255,0.08)"
+          stroke={isSelected ? "#facc15" : "rgba(200,230,255,0.4)"}
+          strokeWidth={isSelected ? 2 : 1.2}
+        />
+
+        {/* Logos crypto — un par segment rempli */}
+        {Array.from({ length: 4 }, (_, slotIdx) => {
+          const seg = tube[slotIdx];
+          const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
+          if (!crypto) return null;
+          const y = slotY(slotIdx);
+          const cx = TW / 2;
+          const cy = y + SEG_H / 2;
+          return (
+            <image
+              key={slotIdx}
+              href={`${CDN_ICONS}${crypto.ticker}.svg`}
+              x={cx - 11} y={cy - 11}
+              width={22} height={22}
+            />
+          );
+        })}
+      </svg>
     </button>
   );
 }
