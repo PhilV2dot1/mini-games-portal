@@ -204,6 +204,7 @@ export function usePlinko() {
   // Stable ref so finalizeGame doesn't recreate on every recordGame identity change
   const recordGameRef = useRef(recordGame);
   useEffect(() => { recordGameRef.current = recordGame; }, [recordGame]);
+  const manualEndRef = useRef(false);
 
   const { data: onChainStats } = useReadContract({
     address: contractAddress ?? undefined,
@@ -525,13 +526,14 @@ export function usePlinko() {
     if (status !== "processing") return;
     const s = stateRef.current;
     const won = s.coins >= WIN_TARGET;
-    finalizeGame(won, s.maxCoins);
+    finalizeGame(won, s.maxCoins, manualEndRef.current);
+    manualEndRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const finalizeGame = useCallback(async (won: boolean, finalScore: number) => {
+  const finalizeGame = useCallback(async (won: boolean, finalScore: number, manual = false) => {
     setResult(won ? "win" : "lose");
-    setMessage(won ? "🏆 You reached 1 BTC!" : "💸 Broke!");
+    setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
 
     const raw = localStorage.getItem(STATS_KEY);
     const prev: PlayerStats = raw ? JSON.parse(raw) : DEFAULT_STATS;
@@ -697,6 +699,7 @@ export function usePlinko() {
     const s = stateRef.current;
     if (s.status !== "playing") return;
     if (s.animId) { cancelAnimationFrame(s.animId); s.animId = 0; }
+    manualEndRef.current = true;
     s.status = "finished";
     setStatus("processing");
   }, []);
