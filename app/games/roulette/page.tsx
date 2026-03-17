@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback } from "react";
-import { useRoulette, CANVAS_W, CANVAS_H, BET_AMOUNTS, getNumberColor, getBetPayout, WHEEL_ORDER, CRYPTO_TICKERS, type BetType } from "@/hooks/useRoulette";
+import { useRoulette, CANVAS_W, CANVAS_H, BET_AMOUNTS, getNumberColor, WHEEL_ORDER, CRYPTO_TICKERS, type BetType } from "@/hooks/useRoulette";
 import { useHaptic } from "@/hooks/useHaptic";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -17,17 +17,30 @@ const CDN = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/
 const NUMBER_TO_TICKER: Record<number, string> = {};
 WHEEL_ORDER.forEach((num, i) => { NUMBER_TO_TICKER[num] = CRYPTO_TICKERS[i]; });
 
-function CryptoLogo({ ticker, size = 12 }: { ticker: string; size?: number }) {
+// Chip colors by amount
+const CHIP_COLOR: Record<number, string> = {
+  10:  "bg-blue-500 border-blue-300",
+  25:  "bg-green-500 border-green-300",
+  50:  "bg-orange-500 border-orange-300",
+  100: "bg-red-500 border-red-300",
+};
+
+function ChipBadge({ amount }: { amount: number }) {
+  const color = CHIP_COLOR[amount] ?? "bg-yellow-500 border-yellow-300";
   return (
-    <img
-      src={`${CDN}${ticker}.svg`}
-      alt={ticker}
-      width={size}
-      height={size}
-      className="inline-block flex-shrink-0"
-    />
+    <span className={`absolute -top-2 -right-2 z-20 ${color} border-2 text-white text-[9px] font-black rounded-full w-5 h-5 flex items-center justify-center shadow-lg`}>
+      {amount >= 100 ? "+" : amount}
+    </span>
   );
 }
+
+// Roulette table layout: 3 rows top-to-bottom = [3,6,9,...,36] [2,5,8,...,35] [1,4,7,...,34]
+// 12 columns left to right
+const TABLE_ROWS = [
+  Array.from({ length: 12 }, (_, col) => col * 3 + 3), // row top:    3,6,9,...,36
+  Array.from({ length: 12 }, (_, col) => col * 3 + 2), // row middle: 2,5,8,...,35
+  Array.from({ length: 12 }, (_, col) => col * 3 + 1), // row bottom: 1,4,7,...,34
+];
 
 function NumberCell({ n, onClick, bets, disabled }: {
   n: number;
@@ -39,49 +52,71 @@ function NumberCell({ n, onClick, bets, disabled }: {
   const ticker = NUMBER_TO_TICKER[n] ?? "btc";
   const betOnThis = bets.filter(b => b.type === "number" && b.value === n);
   const totalBet = betOnThis.reduce((s, b) => s + b.amount, 0);
+  const lastBet = betOnThis[betOnThis.length - 1];
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative rounded text-[9px] font-bold transition-all border flex flex-col items-center justify-center gap-0.5 p-0.5 w-full aspect-square
-        ${color === "red" ? "bg-red-600 hover:bg-red-500 border-red-400 text-white" :
-          "bg-gray-800 hover:bg-gray-700 border-gray-600 text-white"}
-        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-105"}
+      className={`relative flex flex-col items-center justify-center gap-1 py-2 px-1 rounded border-2 font-bold transition-all select-none
+        ${color === "red"
+          ? "bg-red-700 hover:bg-red-600 border-red-400 text-white"
+          : "bg-gray-900 hover:bg-gray-700 border-gray-600 text-white"}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-95"}
+        ${totalBet > 0 ? "ring-2 ring-yellow-400 ring-offset-1 ring-offset-green-900" : ""}
       `}
     >
-      <CryptoLogo ticker={ticker} size={13} />
-      <span className="leading-none">{n}</span>
-      {totalBet > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow z-10">
-          {totalBet >= 100 ? "+" : totalBet}
-        </span>
-      )}
+      <img src={`${CDN}${ticker}.svg`} alt={ticker} width={18} height={18} className="flex-shrink-0" />
+      <span className="text-sm font-black leading-none">{n}</span>
+      {totalBet > 0 && <ChipBadge amount={lastBet?.amount ?? totalBet} />}
     </button>
   );
 }
 
-function OutsideBetButton({ label, payout, type, value, onClick, bets, disabled, className }: {
-  label: string; payout?: number; type: BetType; value: number | null;
+function ZeroCell({ onClick, bets, disabled }: {
+  onClick: () => void;
+  bets: { type: BetType; value: number | null; amount: number }[];
+  disabled: boolean;
+}) {
+  const betOnThis = bets.filter(b => b.type === "number" && b.value === 0);
+  const totalBet = betOnThis.reduce((s, b) => s + b.amount, 0);
+  const lastBet = betOnThis[betOnThis.length - 1];
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`relative flex flex-col items-center justify-center gap-1 rounded border-2 border-emerald-400 bg-emerald-700 hover:bg-emerald-600 text-white font-black transition-all row-span-3 w-full h-full
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-95"}
+        ${totalBet > 0 ? "ring-2 ring-yellow-400" : ""}
+      `}
+    >
+      <img src={`${CDN}${NUMBER_TO_TICKER[0]}.svg`} alt="btc" width={20} height={20} />
+      <span className="text-lg leading-none">0</span>
+      {totalBet > 0 && <ChipBadge amount={lastBet?.amount ?? totalBet} />}
+    </button>
+  );
+}
+
+function OutsideBetCell({ label, sub, type, value, onClick, bets, disabled, className }: {
+  label: string; sub: string; type: BetType; value: number | null;
   onClick: () => void; bets: { type: BetType; value: number | null; amount: number }[];
   disabled: boolean; className?: string;
 }) {
   const betOn = bets.filter(b => b.type === type && b.value === value);
   const totalBet = betOn.reduce((s, b) => s + b.amount, 0);
+  const lastBet = betOn[betOn.length - 1];
   return (
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative py-3 px-2 rounded font-bold text-sm transition-all border flex flex-col items-center justify-center gap-1
-        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-105"}
+      className={`relative flex flex-col items-center justify-center gap-0.5 py-3 rounded border-2 font-bold transition-all
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-95"}
+        ${totalBet > 0 ? "ring-2 ring-yellow-400 ring-offset-1 ring-offset-green-900" : ""}
         ${className}`}
     >
-      <span className="leading-none">{label}</span>
-      <span className="text-[11px] opacity-70">{(payout ?? getBetPayout(type))}:1</span>
-      {totalBet > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow z-10">
-          {totalBet >= 100 ? "+" : totalBet}
-        </span>
-      )}
+      <span className="text-sm font-black tracking-wide uppercase">{label}</span>
+      <span className="text-[11px] opacity-70 font-normal">{sub}</span>
+      {totalBet > 0 && <ChipBadge amount={lastBet?.amount ?? totalBet} />}
     </button>
   );
 }
@@ -110,7 +145,7 @@ export default function RoulettePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-gray-100 dark:from-gray-900 dark:via-indigo-950 dark:to-gray-900 p-4 sm:p-6">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
 
         {/* Back */}
         <Link href="/" className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm mb-6 transition-colors">
@@ -147,7 +182,7 @@ export default function RoulettePage() {
           </div>
           {game.totalBet > 0 && (
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              Mise : <span className="font-bold text-gray-900 dark:text-white">{game.totalBet}</span>
+              Mise : <span className="font-bold text-yellow-500">{game.totalBet}</span>
             </div>
           )}
         </div>
@@ -184,49 +219,67 @@ export default function RoulettePage() {
         </AnimatePresence>
 
         {/* Chip selector */}
-        <div className="flex gap-2 justify-center mb-4">
-          {BET_AMOUNTS.map(a => (
-            <button
-              key={a}
-              onClick={() => game.setSelectedBetAmount(a)}
-              className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border
-                ${game.selectedBetAmount === a
-                  ? "bg-yellow-400 text-gray-900 border-yellow-300 shadow-lg scale-105"
-                  : "bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-yellow-400"
-                }`}
-            >
-              {a}
-            </button>
-          ))}
+        <div className="flex gap-2 justify-center mb-5">
+          {BET_AMOUNTS.map(a => {
+            const isSelected = game.selectedBetAmount === a;
+            return (
+              <button
+                key={a}
+                onClick={() => game.setSelectedBetAmount(a)}
+                className={`relative w-14 h-14 rounded-full font-black text-sm transition-all border-4 shadow-lg
+                  ${isSelected ? "scale-110 shadow-yellow-400/40 shadow-xl" : "opacity-70 hover:opacity-100 hover:scale-105"}
+                  ${a === 10  ? "bg-blue-600 border-blue-300 text-white" : ""}
+                  ${a === 25  ? "bg-green-600 border-green-300 text-white" : ""}
+                  ${a === 50  ? "bg-orange-600 border-orange-300 text-white" : ""}
+                  ${a === 100 ? "bg-red-600 border-red-300 text-white" : ""}
+                `}
+              >
+                {a}
+                {isSelected && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse" />
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Table de mise */}
-        <div className="bg-green-800 dark:bg-green-900 rounded-2xl p-4 mb-4 border-2 border-green-600 shadow-xl">
-
-          {/* Zéro */}
-          <div className="flex justify-center mb-2">
-            <button
-              onClick={() => handlePlaceBet("number", 0)}
-              disabled={isSpinning}
-              className={`relative flex flex-col items-center justify-center gap-0.5 w-16 h-10 rounded font-bold text-sm text-white bg-green-600 hover:bg-green-500 border border-green-400 transition-all
-                ${isSpinning ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}`}
+        {/* ════════════════════════════════════
+            TAPIS DE CASINO
+            ════════════════════════════════════ */}
+        <div
+          className="rounded-2xl p-4 mb-5 shadow-2xl overflow-hidden"
+          style={{
+            background: "linear-gradient(160deg, #1a5c2a 0%, #145221 50%, #0f3d18 100%)",
+            border: "3px solid #c9a84c",
+            boxShadow: "0 0 0 1px #8b6914, inset 0 0 60px rgba(0,0,0,0.4)",
+          }}
+        >
+          {/* Titre décoratif casino */}
+          <div className="text-center mb-3">
+            <span
+              className="text-xs font-black tracking-[0.3em] uppercase"
+              style={{ color: "#c9a84c", textShadow: "0 0 8px rgba(201,168,76,0.5)" }}
             >
-              <CryptoLogo ticker={NUMBER_TO_TICKER[0]} size={13} />
-              <span className="leading-none text-xs">0</span>
-              {game.bets.some(b => b.type === "number" && b.value === 0) && (
-                <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center z-10">
-                  {game.bets.filter(b => b.type === "number" && b.value === 0).reduce((s, b) => s + b.amount, 0)}
-                </span>
-              )}
-            </button>
+              ✦ Crypto Roulette ✦
+            </span>
           </div>
 
-          {/* Numéros 1–36 — grille 12 colonnes × 3 rangées */}
-          <div className="grid grid-cols-12 gap-1 mb-3">
-            {Array.from({ length: 12 }, (_, col) =>
-              [1, 2, 3].map((row) => {
-                const n = col * 3 + row;
-                return (
+          {/* Grille principale : 0 + numéros 1-36 */}
+          <div className="flex gap-1.5 mb-3">
+
+            {/* Colonne Zéro */}
+            <div className="flex-shrink-0" style={{ width: "52px" }}>
+              <ZeroCell
+                onClick={() => handlePlaceBet("number", 0)}
+                bets={game.bets}
+                disabled={isSpinning}
+              />
+            </div>
+
+            {/* Grille 12 colonnes × 3 rangées */}
+            <div className="flex-1 grid grid-cols-12 grid-rows-3 gap-1">
+              {TABLE_ROWS.flatMap((row) =>
+                row.map((n) => (
                   <NumberCell
                     key={n}
                     n={n}
@@ -234,28 +287,35 @@ export default function RoulettePage() {
                     bets={game.bets}
                     disabled={isSpinning}
                   />
-                );
-              })
-            ).flat()}
+                ))
+              )}
+            </div>
           </div>
 
-          {/* Mises extérieures */}
-          <div className="grid grid-cols-5 gap-2">
-            <OutsideBetButton label="Rouge" type="red" value={null}
+          {/* Séparateur doré */}
+          <div className="h-px mb-3" style={{ background: "linear-gradient(90deg, transparent, #c9a84c, transparent)" }} />
+
+          {/* Mises extérieures — ligne 1 : Rouge / Noir / Vert (0) */}
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            <OutsideBetCell label="Rouge" sub="1:1" type="red" value={null}
               onClick={() => handlePlaceBet("red", null)} bets={game.bets} disabled={isSpinning}
-              className="bg-red-700 hover:bg-red-600 border-red-500 text-white" />
-            <OutsideBetButton label="Noir" type="black" value={null}
+              className="bg-red-800 hover:bg-red-700 border-yellow-600 text-white" />
+            <OutsideBetCell label="Noir" sub="1:1" type="black" value={null}
               onClick={() => handlePlaceBet("black", null)} bets={game.bets} disabled={isSpinning}
-              className="bg-gray-800 hover:bg-gray-700 border-gray-600 text-white" />
-            <OutsideBetButton label="Vert" type="green" value={null}
+              className="bg-gray-900 hover:bg-gray-800 border-yellow-600 text-white" />
+            <OutsideBetCell label="Vert (0)" sub="17:1" type="green" value={null}
               onClick={() => handlePlaceBet("green", null)} bets={game.bets} disabled={isSpinning}
-              className="bg-green-700 hover:bg-green-600 border-green-500 text-white" />
-            <OutsideBetButton label="Pair" type="even" value={null}
+              className="bg-emerald-800 hover:bg-emerald-700 border-yellow-600 text-white" />
+          </div>
+
+          {/* Mises extérieures — ligne 2 : Pair / Impair */}
+          <div className="grid grid-cols-2 gap-2">
+            <OutsideBetCell label="Pair" sub="1:1" type="even" value={null}
               onClick={() => handlePlaceBet("even", null)} bets={game.bets} disabled={isSpinning}
-              className="bg-indigo-700 hover:bg-indigo-600 border-indigo-500 text-white" />
-            <OutsideBetButton label="Impair" type="odd" value={null}
+              className="bg-indigo-900 hover:bg-indigo-800 border-yellow-600 text-white" />
+            <OutsideBetCell label="Impair" sub="1:1" type="odd" value={null}
               onClick={() => handlePlaceBet("odd", null)} bets={game.bets} disabled={isSpinning}
-              className="bg-purple-700 hover:bg-purple-600 border-purple-500 text-white" />
+              className="bg-purple-900 hover:bg-purple-800 border-yellow-600 text-white" />
           </div>
         </div>
 
@@ -311,10 +371,10 @@ export default function RoulettePage() {
             {t("games.roulette.howToPlay") || "Comment jouer"}
           </h3>
           <ul className="space-y-1 list-disc list-inside">
-            <li>{t("games.roulette.rule1") || "Choisissez votre mise (10/25/50/100 chips)"}</li>
-            <li>{t("games.roulette.rule2") || "Cliquez sur un numéro ou une couleur pour miser"}</li>
-            <li>{t("games.roulette.rule3") || "Lancez la roue et attendez le résultat"}</li>
-            <li>{t("games.roulette.rule4") || "Numéro plein : ×35 | Couleur : ×1 | Vert (0) : ×17"}</li>
+            <li>{t("games.roulette.rule1")}</li>
+            <li>{t("games.roulette.rule2")}</li>
+            <li>{t("games.roulette.rule3")}</li>
+            <li>{t("games.roulette.rule4")}</li>
           </ul>
         </div>
 
@@ -322,7 +382,7 @@ export default function RoulettePage() {
         {game.mode === "onchain" && contractAddress && (
           <div className="text-center text-xs text-gray-400 mb-6">
             <a href={getExplorerAddressUrl(chain?.id, contractAddress)} target="_blank" rel="noopener noreferrer" className="hover:text-gray-600 transition-colors">
-              {t("games.roulette.viewOnExplorer") || "Voir sur"} {getExplorerName(chain?.id)} ↗
+              {t("games.roulette.viewOnExplorer")} {getExplorerName(chain?.id)} ↗
             </a>
           </div>
         )}
