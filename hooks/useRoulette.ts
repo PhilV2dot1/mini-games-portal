@@ -521,6 +521,7 @@ export function useRoulette() {
     // Wheel end angle: enough full rotations to feel satisfying
     const extraRotations = 5 + Math.random() * 3;
     const targetAngle = -resolvedIdx * sliceAngle;
+    s.current.resultIdx = null; // clear highlight while spinning
     s.current.spinning = true;
     s.current.spinStart = performance.now();
     s.current.wheelEndAngle = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle;
@@ -568,7 +569,7 @@ export function useRoulette() {
   }, [status]);
 
   const reset = useCallback(() => {
-    s.current.resultIdx = null;
+    // Keep resultIdx so the wheel stays in last position until next spin
     s.current.particles = [];
     setBets([]);
     setResult(null);
