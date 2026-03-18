@@ -351,6 +351,7 @@ interface State {
   wheelStartAngle: number;
   wheelEndAngle: number;      // final resting angle
   ballStartAngle: number;
+  ballFinalAngle: number;     // exact angle where ball lands (center of winning slot)
   resolvedIdx: number;        // slot index (in WHEEL_ORDER) that wins
   particles: Particle[];
   resultIdx: number | null;
@@ -365,7 +366,7 @@ export function useRoulette() {
   const s = useRef<State>({
     animId: 0, spinning: false, spinStart: 0,
     wheelStartAngle: 0, wheelEndAngle: 0,
-    ballStartAngle: 0, resolvedIdx: 0,
+    ballStartAngle: 0, ballFinalAngle: 0, resolvedIdx: 0,
     particles: [], resultIdx: null,
   });
   const logosRef = useRef<(HTMLImageElement | null)[]>([]);
@@ -435,10 +436,14 @@ export function useRoulette() {
         // Wheel rotates forward (5 full turns + landing offset)
         wheelAngle = st.wheelStartAngle + (st.wheelEndAngle - st.wheelStartAngle) * ease;
 
-        // Ball spins faster at start, slows and spirals inward
-        const ballSpeed = (1 - ease) * 0.18 + ease * 0.01;
+        // Ball spirals inward and converges to the winning slot angle
         const ballProgress = easeOut(t);
-        ballAngle = st.ballStartAngle - (ts - st.spinStart) * ballSpeed * 0.06;
+        const ballSpeed = (1 - ease) * 0.18 + ease * 0.01;
+        const rawAngle = st.ballStartAngle - (ts - st.spinStart) * ballSpeed * 0.06;
+        // Blend from free rotation → final slot angle over last 30% of spin
+        const snapT = Math.max(0, (t - 0.7) / 0.3);
+        const snapEase = snapT * snapT * (3 - 2 * snapT); // smoothstep
+        ballAngle = rawAngle + snapEase * (st.ballFinalAngle - rawAngle);
         ballR = R * 0.92 - ballProgress * R * 0.12; // spiral inward
 
         if (t >= 1) {
@@ -521,10 +526,17 @@ export function useRoulette() {
     // Wheel end angle: enough full rotations to feel satisfying
     const extraRotations = 5 + Math.random() * 3;
     const targetAngle = -resolvedIdx * sliceAngle;
+    const wheelEndAngle = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle;
+
+    // Ball must land exactly at the center of the winning slot in absolute coords
+    // Slot i center in absolute = wheelEndAngle + i*sliceAngle - π/2 + sliceAngle/2
+    const ballFinalAngle = wheelEndAngle + resolvedIdx * sliceAngle - Math.PI / 2 + sliceAngle / 2;
+
     s.current.resultIdx = null; // clear highlight while spinning
     s.current.spinning = true;
     s.current.spinStart = performance.now();
-    s.current.wheelEndAngle = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle;
+    s.current.wheelEndAngle = wheelEndAngle;
+    s.current.ballFinalAngle = ballFinalAngle;
     s.current.ballStartAngle = Math.random() * Math.PI * 2;
     s.current.resolvedIdx = resolvedIdx;
     s.current.resultIdx = null;
