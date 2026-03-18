@@ -357,7 +357,7 @@ export default function RoulettePage() {
               onClick={game.endSession}
               className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:brightness-110 text-white font-semibold shadow-lg transition-all text-sm"
             >
-              {t("games.roulette.endSession") || "End & Save session"}
+              {t("games.roulette.endSession") || "⛓️ Enregistrer & Terminer"}
             </button>
           </div>
         )}

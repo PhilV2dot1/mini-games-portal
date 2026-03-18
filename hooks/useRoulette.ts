@@ -240,34 +240,52 @@ function drawBall(
   ballAngle: number,
   ballR: number,   // distance from center
   R: number,
+  isResult: boolean,
 ) {
   const bx = cx + Math.cos(ballAngle) * ballR;
   const by = cy + Math.sin(ballAngle) * ballR;
-  const r = R * 0.04;
+  const r = R * 0.045; // slightly larger when landed
 
-  // Trail
-  for (let i = 1; i <= 4; i++) {
-    const ta = ballAngle - (i * 0.12);
-    const tx = cx + Math.cos(ta) * ballR;
-    const ty = cy + Math.sin(ta) * ballR;
-    ctx.beginPath();
-    ctx.arc(tx, ty, r * (1 - i * 0.2), 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255,255,255,${0.15 - i * 0.03})`;
-    ctx.fill();
+  if (!isResult) {
+    // Trail only while spinning
+    for (let i = 1; i <= 4; i++) {
+      const ta = ballAngle - (i * 0.12);
+      const tx = cx + Math.cos(ta) * ballR;
+      const ty = cy + Math.sin(ta) * ballR;
+      ctx.beginPath();
+      ctx.arc(tx, ty, r * (1 - i * 0.2), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${0.15 - i * 0.03})`;
+      ctx.fill();
+    }
   }
 
-  // Ball
-  const ballGrad = ctx.createRadialGradient(bx - r * 0.3, by - r * 0.3, r * 0.1, bx, by, r);
-  ballGrad.addColorStop(0, "#ffffff");
-  ballGrad.addColorStop(0.5, "#e2e8f0");
-  ballGrad.addColorStop(1, "#94a3b8");
+  // Ball — gold when landed, white when spinning
+  const ballGrad = ctx.createRadialGradient(bx - r * 0.35, by - r * 0.35, r * 0.1, bx, by, r);
+  if (isResult) {
+    ballGrad.addColorStop(0, "#fff7c0");
+    ballGrad.addColorStop(0.5, "#fbbf24");
+    ballGrad.addColorStop(1, "#92400e");
+  } else {
+    ballGrad.addColorStop(0, "#ffffff");
+    ballGrad.addColorStop(0.5, "#e2e8f0");
+    ballGrad.addColorStop(1, "#94a3b8");
+  }
   ctx.beginPath();
   ctx.arc(bx, by, r, 0, Math.PI * 2);
   ctx.fillStyle = ballGrad;
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = "rgba(255,255,255,0.8)";
+  ctx.shadowBlur = isResult ? 18 : 12;
+  ctx.shadowColor = isResult ? "rgba(251,191,36,0.9)" : "rgba(255,255,255,0.8)";
   ctx.fill();
   ctx.shadowBlur = 0;
+
+  if (isResult) {
+    // Gold ring around ball
+    ctx.beginPath();
+    ctx.arc(bx, by, r + 2, 0, Math.PI * 2);
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 }
 
 function drawMarker(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: number, isDark: boolean) {
@@ -336,7 +354,7 @@ function drawFrame(
 
   // Ball (only while spinning or just landed)
   if (spinning || resultIdx !== null) {
-    drawBall(ctx, cx, cy, ballAngle, ballR, R);
+    drawBall(ctx, cx, cy, ballAngle, ballR, R, !spinning && resultIdx !== null);
   }
 }
 
@@ -352,6 +370,7 @@ interface State {
   wheelEndAngle: number;      // final resting angle
   ballStartAngle: number;
   ballFinalAngle: number;     // exact angle where ball lands (center of winning slot)
+  ballFinalR: number;         // radius where ball rests after spin
   resolvedIdx: number;        // slot index (in WHEEL_ORDER) that wins
   particles: Particle[];
   resultIdx: number | null;
@@ -366,7 +385,7 @@ export function useRoulette() {
   const s = useRef<State>({
     animId: 0, spinning: false, spinStart: 0,
     wheelStartAngle: 0, wheelEndAngle: 0,
-    ballStartAngle: 0, ballFinalAngle: 0, resolvedIdx: 0,
+    ballStartAngle: 0, ballFinalAngle: 0, ballFinalR: 0, resolvedIdx: 0,
     particles: [], resultIdx: null,
   });
   const logosRef = useRef<(HTMLImageElement | null)[]>([]);
@@ -424,9 +443,10 @@ export function useRoulette() {
     const loop = (ts: number) => {
       const st = s.current;
       let wheelAngle = st.wheelStartAngle;
-      let ballAngle = st.ballStartAngle;
       const R = Math.min(canvas.width, canvas.height) / 2 - 18;
-      let ballR = R * 0.92;
+      // After spin: freeze ball at its landing position
+      let ballAngle = st.spinning ? st.ballStartAngle : st.ballFinalAngle;
+      let ballR = st.spinning ? R * 0.92 : st.ballFinalR;
 
       if (st.spinning) {
         const elapsed = ts - st.spinStart;
@@ -449,6 +469,9 @@ export function useRoulette() {
         if (t >= 1) {
           st.spinning = false;
           st.resultIdx = st.resolvedIdx;
+          // Freeze ball at exact landing position
+          st.ballFinalAngle = ballAngle;
+          st.ballFinalR = ballR;
           const num = WHEEL_ORDER[st.resolvedIdx];
           const win = calcWin(betsRef.current, num);
           st.particles = spawnParticles(canvas.width / 2, canvas.height / 2, win > 0);
