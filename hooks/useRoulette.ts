@@ -469,8 +469,10 @@ export function useRoulette() {
         if (t >= 1) {
           st.spinning = false;
           st.resultIdx = st.resolvedIdx;
-          // Freeze ball at exact landing position
-          st.ballFinalAngle = ballAngle;
+          // Persist wheel position so next spin continues from here
+          st.wheelStartAngle = st.wheelEndAngle;
+          // Freeze ball at exact landing position (top = -π/2)
+          st.ballFinalAngle = -Math.PI / 2;
           st.ballFinalR = ballR;
           const num = WHEEL_ORDER[st.resolvedIdx];
           const win = calcWin(betsRef.current, num);
@@ -551,9 +553,9 @@ export function useRoulette() {
     const targetAngle = -resolvedIdx * sliceAngle;
     const wheelEndAngle = s.current.wheelStartAngle + Math.PI * 2 * extraRotations + targetAngle;
 
-    // Ball must land exactly at the center of the winning slot in absolute coords
-    // Slot i center in absolute = wheelEndAngle + i*sliceAngle - π/2 + sliceAngle/2
-    const ballFinalAngle = wheelEndAngle + resolvedIdx * sliceAngle - Math.PI / 2 + sliceAngle / 2;
+    // The winning slot always ends up at the top (marker at -π/2).
+    // Ball must land at the center of that slot = -π/2
+    const ballFinalAngle = -Math.PI / 2;
 
     s.current.resultIdx = null; // clear highlight while spinning
     s.current.spinning = true;
