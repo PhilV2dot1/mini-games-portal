@@ -23,11 +23,12 @@ export interface WaterSortStats {
 }
 
 export interface PourAnim {
-  from: number;    // source tube index
-  to: number;      // destination tube index
-  color: string;   // color of the segment being poured (crypto color)
-  count: number;   // number of segments being poured
-  ticker: string;  // crypto ticker for logo
+  fromIdx: number;   // source tube index
+  toIdx: number;     // destination tube index
+  color: string;     // color of the segment being poured (crypto color)
+  count: number;     // number of segments being poured
+  ticker: string;    // crypto ticker for logo
+  onComplete: () => void; // called by the page when animation finishes
 }
 
 // ========================================
@@ -318,26 +319,25 @@ export function useWaterSort() {
       const newTubes = pourLiquid(currentTubes, currentSelected, idx);
       const newMoves = currentMoves + 1;
 
-      // Trigger pour animation first, then apply state after 450ms
+      // The page's animation component will call onComplete when done
       const anim: PourAnim = {
-        from: currentSelected,
-        to: idx,
+        fromIdx: currentSelected,
+        toIdx: idx,
         color: crypto?.color ?? "#888",
         count: moveCount,
         ticker: crypto?.ticker ?? topSegId,
+        onComplete: () => {
+          setTubes(newTubes);
+          setMoves(newMoves);
+          setSelectedTube(null);
+          setPourAnim(null);
+
+          if (checkWon(newTubes)) {
+            handleWin(newMoves, currentDifficulty);
+          }
+        },
       };
       setPourAnim(anim);
-
-      setTimeout(() => {
-        setTubes(newTubes);
-        setMoves(newMoves);
-        setSelectedTube(null);
-        setPourAnim(null);
-
-        if (checkWon(newTubes)) {
-          handleWin(newMoves, currentDifficulty);
-        }
-      }, 450);
 
       return;
     }

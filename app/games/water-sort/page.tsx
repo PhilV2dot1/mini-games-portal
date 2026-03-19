@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
+import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { useWaterSort, CRYPTOS, Tube, Difficulty, PourAnim } from "@/hooks/useWaterSort";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -22,6 +22,164 @@ const NECK_Y = 28; // hauteur du col ouvert
 const SEG_H = (TH - NECK_Y - PAD) / 4; // hauteur d'un segment (fond = PAD)
 const CDN_ICONS = "https://cdn.jsdelivr.net/npm/cryptocurrency-icons@latest/svg/color/";
 
+// SVG content for a tube — reused in TubeDisplay and AnimatingTube
+function TubeSVGContent({
+  tube,
+  index,
+  isSelected,
+}: {
+  tube: Tube;
+  index: number;
+  isSelected: boolean;
+}) {
+  const innerX = PAD;
+  const innerW = TW - PAD * 2;
+  const innerTop = NECK_Y;
+  const innerH = TH - NECK_Y - PAD;
+  const slotY = (slotIdx: number) => innerTop + innerH - (slotIdx + 1) * SEG_H;
+  const clipId = `tube-clip-${index}`;
+
+  return (
+    <svg
+      width={TW}
+      height={TH + 10}
+      viewBox={`0 0 ${TW} ${TH + 10}`}
+      overflow="visible"
+    >
+      <defs>
+        <clipPath id={clipId}>
+          <rect
+            x={innerX} y={innerTop}
+            width={innerW} height={innerH}
+            rx={RX - PAD} ry={RX - PAD}
+          />
+        </clipPath>
+        <linearGradient id={`shine-${index}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%"   stopColor="white" stopOpacity="0.18" />
+          <stop offset="35%"  stopColor="white" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={`seg-top-${index}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stopColor="white" stopOpacity="0.35" />
+          <stop offset="40%"  stopColor="white" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="black" stopOpacity="0.12" />
+        </linearGradient>
+      </defs>
+
+      {/* Ombre portée sous le tube */}
+      <ellipse cx={TW / 2} cy={TH + 8} rx={TW * 0.38} ry={4} fill="rgba(0,0,0,0.20)" />
+
+      {/* Corps extérieur de l'éprouvette (verre) */}
+      <rect
+        x={0} y={NECK_Y - 8}
+        width={TW} height={TH - NECK_Y + 8 + PAD}
+        rx={RX} ry={RX}
+        fill="rgba(200,230,255,0.15)"
+        stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.70)"}
+        strokeWidth={isSelected ? 2.5 : 1.8}
+      />
+
+      {/* Segments de liquide (clippés dans l'intérieur) */}
+      <g clipPath={`url(#${clipId})`}>
+        <rect x={innerX} y={innerTop} width={innerW} height={innerH}
+          fill="rgba(255,255,255,0.04)" />
+
+        {Array.from({ length: 4 }, (_, slotIdx) => {
+          const seg = tube[slotIdx];
+          const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
+          const y = slotY(slotIdx);
+          const isTopSeg = slotIdx === tube.length - 1 && !!seg;
+
+          return (
+            <g key={slotIdx}>
+              {crypto && (
+                <>
+                  <rect
+                    x={innerX} y={y}
+                    width={innerW} height={SEG_H}
+                    fill={crypto.color}
+                  />
+                  {isTopSeg && (
+                    <rect
+                      x={innerX} y={y}
+                      width={innerW} height={SEG_H * 0.38}
+                      fill={`url(#seg-top-${index})`}
+                    />
+                  )}
+                  {isTopSeg && (
+                    <path
+                      d={`M${innerX},${y}
+                          q${innerW * 0.25},-5 ${innerW * 0.5},0
+                          q${innerW * 0.25},5  ${innerW * 0.5},0`}
+                      fill="none"
+                      stroke="rgba(255,255,255,0.5)"
+                      strokeWidth="1.5"
+                    />
+                  )}
+                  {slotIdx > 0 && tube[slotIdx - 1] && (
+                    <line
+                      x1={innerX} y1={y + SEG_H}
+                      x2={innerX + innerW} y2={y + SEG_H}
+                      stroke="rgba(0,0,0,0.2)" strokeWidth="1"
+                    />
+                  )}
+                </>
+              )}
+            </g>
+          );
+        })}
+
+        <rect
+          x={innerX} y={innerTop}
+          width={innerW * 0.28} height={innerH}
+          fill={`url(#shine-${index})`}
+        />
+      </g>
+
+      {/* Parois de verre (devant le liquide) */}
+      <rect x={0} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
+        rx={2} fill="rgba(100,160,220,0.20)" />
+      <rect x={TW - PAD} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
+        rx={2} fill="rgba(100,160,220,0.14)" />
+      <rect x={0} y={TH - PAD} width={TW} height={PAD + 10}
+        rx={RX} fill="rgba(100,160,220,0.18)" />
+
+      <rect
+        x={PAD + 2} y={NECK_Y}
+        width={3} height={TH - NECK_Y - PAD - 10}
+        rx={1.5}
+        fill="rgba(255,255,255,0.22)"
+      />
+
+      {/* Col / ouverture du tube */}
+      <rect x={PAD} y={0} width={innerW} height={NECK_Y + 2}
+        rx={3}
+        fill="rgba(200,230,255,0.15)"
+        stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.65)"}
+        strokeWidth={isSelected ? 2 : 1.2}
+      />
+
+      {/* Logos crypto */}
+      {Array.from({ length: 4 }, (_, slotIdx) => {
+        const seg = tube[slotIdx];
+        const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
+        if (!crypto) return null;
+        const y = slotY(slotIdx);
+        const cx = TW / 2;
+        const cy = y + SEG_H / 2;
+        return (
+          <image
+            key={slotIdx}
+            href={`${CDN_ICONS}${crypto.ticker}.svg`}
+            x={cx - 11} y={cy - 11}
+            width={22} height={22}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
 interface TubeDisplayProps {
   tube: Tube;
   index: number;
@@ -29,22 +187,10 @@ interface TubeDisplayProps {
   onClick: () => void;
   disabled: boolean;
   tubeRef?: React.Ref<HTMLButtonElement>;
+  invisible?: boolean;
 }
 
-function TubeDisplay({ tube, index, isSelected, onClick, disabled, tubeRef }: TubeDisplayProps) {
-  // Intérieur du tube
-  const innerX = PAD;
-  const innerW = TW - PAD * 2;
-  const innerTop = NECK_Y;
-  const innerH = TH - NECK_Y - PAD;
-
-  // Pour chaque slot 0=bas → 3=haut, on calcule y dans l'espace interne
-  // On rend de haut en bas dans le SVG (y croît vers le bas)
-  const slotY = (slotIdx: number) => innerTop + innerH - (slotIdx + 1) * SEG_H;
-
-  // Clip path pour arrondir le bas du tube (fond en U)
-  const clipId = `tube-clip-${index}`;
-
+function TubeDisplay({ tube, index, isSelected, onClick, disabled, tubeRef, invisible }: TubeDisplayProps) {
   return (
     <button
       ref={tubeRef}
@@ -56,279 +202,248 @@ function TubeDisplay({ tube, index, isSelected, onClick, disabled, tubeRef }: Tu
         isSelected ? "scale-110 drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]" : "hover:scale-105",
         disabled ? "cursor-not-allowed" : "cursor-pointer",
       ].join(" ")}
-      style={{ width: TW, height: TH + 10 }}
+      style={{ width: TW, height: TH + 10, opacity: invisible ? 0 : 1 }}
     >
-      <svg
-        width={TW}
-        height={TH + 10}
-        viewBox={`0 0 ${TW} ${TH + 10}`}
-        overflow="visible"
-      >
-        <defs>
-          {/* Clip : intérieur du tube (zone liquide) */}
-          <clipPath id={clipId}>
-            <rect
-              x={innerX} y={innerTop}
-              width={innerW} height={innerH}
-              rx={RX - PAD} ry={RX - PAD}
-            />
-          </clipPath>
-          {/* Gradient reflet latéral gauche */}
-          <linearGradient id={`shine-${index}`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%"   stopColor="white" stopOpacity="0.18" />
-            <stop offset="35%"  stopColor="white" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="white" stopOpacity="0" />
-          </linearGradient>
-          {/* Gradient reflet haut de chaque segment */}
-          <linearGradient id={`seg-top-${index}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="white" stopOpacity="0.35" />
-            <stop offset="40%"  stopColor="white" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="black" stopOpacity="0.12" />
-          </linearGradient>
-        </defs>
-
-        {/* Ombre portée sous le tube */}
-        <ellipse cx={TW / 2} cy={TH + 8} rx={TW * 0.38} ry={4} fill="rgba(0,0,0,0.20)" />
-
-        {/* Corps extérieur de l'éprouvette (verre) */}
-        <rect
-          x={0} y={NECK_Y - 8}
-          width={TW} height={TH - NECK_Y + 8 + PAD}
-          rx={RX} ry={RX}
-          fill="rgba(200,230,255,0.15)"
-          stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.70)"}
-          strokeWidth={isSelected ? 2.5 : 1.8}
-        />
-
-        {/* Segments de liquide (clippés dans l'intérieur) */}
-        <g clipPath={`url(#${clipId})`}>
-          {/* Fond (transparent si vide) */}
-          <rect x={innerX} y={innerTop} width={innerW} height={innerH}
-            fill="rgba(255,255,255,0.04)" />
-
-          {/* 4 couches de bas en haut */}
-          {Array.from({ length: 4 }, (_, slotIdx) => {
-            const seg = tube[slotIdx];
-            const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
-            const y = slotY(slotIdx);
-            const isTopSeg = slotIdx === tube.length - 1 && !!seg;
-
-            return (
-              <g key={slotIdx}>
-                {crypto && (
-                  <>
-                    {/* Bloc de couleur */}
-                    <rect
-                      x={innerX} y={y}
-                      width={innerW} height={SEG_H}
-                      fill={crypto.color}
-                    />
-                    {/* Reflet sur le dessus du segment */}
-                    {isTopSeg && (
-                      <rect
-                        x={innerX} y={y}
-                        width={innerW} height={SEG_H * 0.38}
-                        fill={`url(#seg-top-${index})`}
-                      />
-                    )}
-                    {/* Ondulation surface supérieure (si segment du dessus) */}
-                    {isTopSeg && (
-                      <path
-                        d={`M${innerX},${y}
-                            q${innerW * 0.25},-5 ${innerW * 0.5},0
-                            q${innerW * 0.25},5  ${innerW * 0.5},0`}
-                        fill="none"
-                        stroke="rgba(255,255,255,0.5)"
-                        strokeWidth="1.5"
-                      />
-                    )}
-                    {/* Séparateur entre segments */}
-                    {slotIdx > 0 && tube[slotIdx - 1] && (
-                      <line
-                        x1={innerX} y1={y + SEG_H}
-                        x2={innerX + innerW} y2={y + SEG_H}
-                        stroke="rgba(0,0,0,0.2)" strokeWidth="1"
-                      />
-                    )}
-                  </>
-                )}
-              </g>
-            );
-          })}
-
-          {/* Reflet latéral gauche (sur tout le liquide) */}
-          <rect
-            x={innerX} y={innerTop}
-            width={innerW * 0.28} height={innerH}
-            fill={`url(#shine-${index})`}
-          />
-        </g>
-
-        {/* Parois de verre (devant le liquide) */}
-        {/* Bord gauche */}
-        <rect x={0} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
-          rx={2} fill="rgba(100,160,220,0.20)" />
-        {/* Bord droit */}
-        <rect x={TW - PAD} y={NECK_Y - 8} width={PAD} height={TH - NECK_Y + 8}
-          rx={2} fill="rgba(100,160,220,0.14)" />
-        {/* Fond arrondi */}
-        <rect x={0} y={TH - PAD} width={TW} height={PAD + 10}
-          rx={RX} fill="rgba(100,160,220,0.18)" />
-
-        {/* Reflet vertical brillant gauche (rayure de verre) */}
-        <rect
-          x={PAD + 2} y={NECK_Y}
-          width={3} height={TH - NECK_Y - PAD - 10}
-          rx={1.5}
-          fill="rgba(255,255,255,0.22)"
-        />
-
-        {/* Col / ouverture du tube */}
-        <rect x={PAD} y={0} width={innerW} height={NECK_Y + 2}
-          rx={3}
-          fill="rgba(200,230,255,0.15)"
-          stroke={isSelected ? "#facc15" : "rgba(100,160,220,0.65)"}
-          strokeWidth={isSelected ? 2 : 1.2}
-        />
-
-        {/* Logos crypto — un par segment rempli */}
-        {Array.from({ length: 4 }, (_, slotIdx) => {
-          const seg = tube[slotIdx];
-          const crypto = seg ? CRYPTOS.find(c => c.id === seg) : null;
-          if (!crypto) return null;
-          const y = slotY(slotIdx);
-          const cx = TW / 2;
-          const cy = y + SEG_H / 2;
-          return (
-            <image
-              key={slotIdx}
-              href={`${CDN_ICONS}${crypto.ticker}.svg`}
-              x={cx - 11} y={cy - 11}
-              width={22} height={22}
-            />
-          );
-        })}
-      </svg>
+      <TubeSVGContent tube={tube} index={index} isSelected={isSelected} />
     </button>
   );
 }
 
 // ========================================
-// POUR OVERLAY — animated arc from source to destination tube
+// ANIMATING TUBE — overlay that performs the pour animation
 // ========================================
 
-interface PourOverlayProps {
-  pourAnim: PourAnim | null;
+interface AnimatingTubeProps {
+  pourAnim: PourAnim;
+  tubes: Tube[];
   tubeRefs: React.RefObject<(HTMLButtonElement | null)[]>;
-  containerRef: React.RefObject<HTMLDivElement>;
 }
 
-function PourOverlay({ pourAnim, tubeRefs, containerRef }: PourOverlayProps) {
-  if (!pourAnim) return null;
+function AnimatingTube({ pourAnim, tubes, tubeRefs }: AnimatingTubeProps) {
+  const [scope, animate] = useAnimate();
+  const [streamVisible, setStreamVisible] = useState(false);
+  const [streamCoords, setStreamCoords] = useState<{
+    x1: number; y1: number; x2: number; y2: number; pathLen: number;
+  } | null>(null);
+  const hasRun = useRef(false);
 
-  const refs = tubeRefs.current;
-  const container = containerRef.current;
-  if (!refs || !container) return null;
+  useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
 
-  const fromEl = refs[pourAnim.from];
-  const toEl = refs[pourAnim.to];
-  if (!fromEl || !toEl) return null;
+    const fromEl = tubeRefs.current?.[pourAnim.fromIdx];
+    const toEl = tubeRefs.current?.[pourAnim.toIdx];
+    if (!fromEl || !toEl || !scope.current) {
+      pourAnim.onComplete();
+      return;
+    }
 
-  const containerRect = container.getBoundingClientRect();
+    const fromRect = fromEl.getBoundingClientRect();
+    const toRect = toEl.getBoundingClientRect();
+
+    // Delta X: how far the animated tube must travel horizontally
+    const deltaX = toRect.left - fromRect.left;
+    const isLeft = deltaX < 0;
+
+    // Liquid stream coordinates (viewport-fixed)
+    // Stream starts at the top-center of the tube (after it's moved + tilted)
+    // and ends at the top-center of the destination tube
+    const streamX1 = toRect.left + toRect.width / 2;
+    const streamY1 = fromRect.top + 10; // near top of tube (col)
+    const streamX2 = toRect.left + toRect.width / 2;
+    const streamY2 = toRect.top + NECK_Y + 10;
+    const dy = streamY2 - streamY1;
+    const approxLen = Math.abs(dy) + 20;
+
+    setStreamCoords({ x1: streamX1, y1: streamY1, x2: streamX2, y2: streamY2, pathLen: approxLen });
+
+    async function runAnimation() {
+      try {
+        // Phase 1: lift (150ms)
+        await animate(scope.current, { y: -40 }, { duration: 0.15, ease: "easeOut" });
+
+        // Phase 2: move horizontally (250ms)
+        await animate(scope.current, { x: deltaX }, { duration: 0.25, ease: "easeInOut" });
+
+        // Phase 3: tilt (200ms)
+        const tiltAngle = isLeft ? -125 : 125;
+        await animate(scope.current, { rotate: tiltAngle }, { duration: 0.2, ease: "easeInOut" });
+
+        // Show liquid stream for 350ms
+        setStreamVisible(true);
+        await new Promise(r => setTimeout(r, 350));
+        setStreamVisible(false);
+
+        // Phase 4: un-tilt (150ms)
+        await animate(scope.current, { rotate: 0 }, { duration: 0.15, ease: "easeInOut" });
+
+        // Phase 5: move back (200ms)
+        await animate(scope.current, { x: 0 }, { duration: 0.2, ease: "easeInOut" });
+
+        // Phase 6: lower (150ms)
+        await animate(scope.current, { y: 0 }, { duration: 0.15, ease: "easeOut" });
+
+        // Apply game state
+        pourAnim.onComplete();
+      } catch {
+        pourAnim.onComplete();
+      }
+    }
+
+    runAnimation();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fromEl = tubeRefs.current?.[pourAnim.fromIdx];
+  if (!fromEl) return null;
+
   const fromRect = fromEl.getBoundingClientRect();
-  const toRect = toEl.getBoundingClientRect();
-
-  // Top-center of each tube relative to the container
-  const x1 = fromRect.left - containerRect.left + fromRect.width / 2;
-  const y1 = fromRect.top - containerRect.top + 10; // slightly below top edge
-  const x2 = toRect.left - containerRect.left + toRect.width / 2;
-  const y2 = toRect.top - containerRect.top + 10;
-
-  // Control point: arc upward between the two tubes
-  const midX = (x1 + x2) / 2;
-  const arcHeight = Math.max(60, Math.abs(x2 - x1) * 0.55);
-  const cy = Math.min(y1, y2) - arcHeight;
-
-  const pathD = `M ${x1} ${y1} Q ${midX} ${cy} ${x2} ${y2}`;
-
-  // Approximate path length for dasharray animation
-  const dx = x2 - x1;
-  const dy = y2 - y1;
-  const approxLen = Math.sqrt(dx * dx + dy * dy) + arcHeight * 1.4;
-
-  const animId = `pour-${pourAnim.from}-${pourAnim.to}`;
+  const tube = tubes[pourAnim.fromIdx];
 
   return (
-    <svg
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        overflow: "visible",
-      }}
-    >
+    <>
+      {/* Animated tube clone — fixed position, tracks original tube location */}
+      <div
+        ref={scope}
+        style={{
+          position: "fixed",
+          top: fromRect.top,
+          left: fromRect.left,
+          width: TW,
+          height: TH + 10,
+          pointerEvents: "none",
+          zIndex: 100,
+          transformOrigin: "50% 15px", // rotate around the neck/top
+        }}
+      >
+        <TubeSVGContent
+          tube={tube}
+          index={pourAnim.fromIdx + 1000} // unique clip/gradient ids to avoid conflicts
+          isSelected={true}
+        />
+      </div>
+
+      {/* Liquid stream SVG — fixed overlay */}
+      {streamVisible && streamCoords && (
+        <svg
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            pointerEvents: "none",
+            zIndex: 99,
+            overflow: "visible",
+          }}
+        >
+          <LiquidStream
+            x1={streamCoords.x1}
+            y1={streamCoords.y1}
+            x2={streamCoords.x2}
+            y2={streamCoords.y2}
+            pathLen={streamCoords.pathLen}
+            color={pourAnim.color}
+            ticker={pourAnim.ticker}
+          />
+        </svg>
+      )}
+    </>
+  );
+}
+
+// ========================================
+// LIQUID STREAM SVG — animated vertical stream
+// ========================================
+
+interface LiquidStreamProps {
+  x1: number; y1: number;
+  x2: number; y2: number;
+  pathLen: number;
+  color: string;
+  ticker: string;
+}
+
+function LiquidStream({ x1, y1, x2, y2, pathLen, color, ticker }: LiquidStreamProps) {
+  // Slight curve: control point offset horizontally
+  const cx = (x1 + x2) / 2 + (x2 - x1) * 0.1;
+  const cy = (y1 + y2) / 2;
+  const pathD = `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+  const animId = `stream-${Math.round(x1)}-${Math.round(y1)}`;
+
+  return (
+    <g>
       <defs>
         <style>{`
-          @keyframes ${animId}-flow {
-            from { stroke-dashoffset: ${approxLen}; }
-            to   { stroke-dashoffset: 0; }
+          @keyframes ${animId}-draw {
+            from { stroke-dashoffset: ${pathLen}; opacity: 0.9; }
+            to   { stroke-dashoffset: 0; opacity: 0.9; }
+          }
+          @keyframes ${animId}-drop {
+            0%   { offset-distance: 0%; opacity: 0.9; }
+            100% { offset-distance: 100%; opacity: 0.5; }
           }
         `}</style>
       </defs>
 
-      {/* Arc path — liquid stream */}
+      {/* Main stream line */}
       <path
         d={pathD}
         fill="none"
-        stroke={pourAnim.color}
-        strokeWidth={8}
+        stroke={color}
+        strokeWidth={9}
         strokeLinecap="round"
-        opacity={0.85}
-        strokeDasharray={approxLen}
-        strokeDashoffset={approxLen}
+        strokeDasharray={pathLen}
+        strokeDashoffset={pathLen}
         style={{
-          animation: `${animId}-flow 400ms ease-out forwards`,
+          animation: `${animId}-draw 280ms ease-out forwards`,
+          filter: `drop-shadow(0 0 4px ${color}88)`,
         }}
       />
 
-      {/* Drop travelling along the path */}
-      <circle r={8} fill={pourAnim.color} opacity={0.9}>
-        <animateMotion
-          dur="400ms"
-          fill="freeze"
-          path={pathD}
-        />
+      {/* Thin highlight on stream */}
+      <path
+        d={pathD}
+        fill="none"
+        stroke="rgba(255,255,255,0.45)"
+        strokeWidth={3}
+        strokeLinecap="round"
+        strokeDasharray={pathLen}
+        strokeDashoffset={pathLen}
+        style={{
+          animation: `${animId}-draw 280ms ease-out forwards`,
+        }}
+      />
+
+      {/* Travelling drop */}
+      <circle r={7} fill={color} opacity={0.95} style={{ filter: `drop-shadow(0 0 3px ${color})` }}>
+        <animateMotion dur="280ms" fill="freeze" path={pathD} />
       </circle>
 
       {/* Crypto logo on the drop */}
       <image
-        href={`${CDN_ICONS}${pourAnim.ticker}.svg`}
-        width={14}
-        height={14}
+        href={`${CDN_ICONS}${ticker}.svg`}
+        width={13}
+        height={13}
       >
         <animateMotion
-          dur="400ms"
+          dur="280ms"
           fill="freeze"
           path={pathD}
           keyPoints="0;1"
           keyTimes="0;1"
           calcMode="linear"
         />
-        {/* Offset the image so it's centered on the drop */}
         <animateTransform
           attributeName="transform"
           type="translate"
-          values="-7,-7;-7,-7"
+          values="-6.5,-6.5;-6.5,-6.5"
           keyTimes="0;1"
-          dur="400ms"
+          dur="280ms"
           fill="freeze"
           additive="sum"
         />
       </image>
-    </svg>
+    </g>
   );
 }
 
@@ -453,13 +568,10 @@ export default function WaterSortPage() {
               onClick={() => game.selectTube(idx)}
               disabled={game.status === "won"}
               tubeRef={(el) => { tubeRefs.current[idx] = el; }}
+              // Hide the source tube while it's being animated as an overlay
+              invisible={game.pourAnim !== null && game.pourAnim.fromIdx === idx}
             />
           ))}
-          <PourOverlay
-            pourAnim={game.pourAnim}
-            tubeRefs={tubeRefs}
-            containerRef={containerRef}
-          />
         </div>
 
         {/* Reset / New Game buttons */}
@@ -525,6 +637,18 @@ export default function WaterSortPage() {
         )}
 
       </div>
+
+      {/* Pour Animation Overlay (outside the max-w container so it's truly fixed) */}
+      <AnimatePresence>
+        {game.pourAnim && (
+          <AnimatingTube
+            key={`${game.pourAnim.fromIdx}-${game.pourAnim.toIdx}-${Date.now()}`}
+            pourAnim={game.pourAnim}
+            tubes={game.tubes}
+            tubeRefs={tubeRefs}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Win Overlay */}
       <AnimatePresence>
