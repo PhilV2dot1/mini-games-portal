@@ -1,128 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   useArrowEscape,
-  type Difficulty,
   type Direction,
-  type Cell,
-  type Enemy,
-  DIFFICULTY_CONFIG,
+  type Grid,
 } from "@/hooks/useArrowEscape";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { getExplorerAddressUrl, getExplorerName } from "@/lib/contracts/addresses";
+import { getExplorerAddressUrl, getExplorerName, getContractAddress } from "@/lib/contracts/addresses";
 import { useAccount } from "wagmi";
 
 // ========================================
-// ARROW EMOJI HELPERS
+// CONSTANTS
 // ========================================
 
-const ARROW_EMOJIS: Record<Direction, string> = {
+const ARROW_CHARS: Record<Direction, string> = {
   up: "↑",
   down: "↓",
   left: "←",
   right: "→",
 };
 
-const DIFFICULTY_COLORS: Record<Difficulty, string> = {
-  easy: "from-green-500 to-emerald-600",
-  medium: "from-yellow-500 to-amber-600",
-  hard: "from-red-500 to-rose-600",
+const ARROW_COLORS: Record<Direction, string> = {
+  up:    "#3B82F6", // blue-500
+  down:  "#22C55E", // green-500
+  left:  "#EC4899", // pink-500
+  right: "#F97316", // orange-500
 };
 
-// ========================================
-// GRID CELL RENDERER
-// ========================================
-
-interface GridCellProps {
-  cell: Cell;
-  isPlayer: boolean;
-  isEnemy: boolean;
-}
-
-function GridCell({ cell, isPlayer, isEnemy }: GridCellProps) {
-  // Player
-  if (isPlayer) {
-    return (
-      <motion.div
-        animate={{ scale: [1, 1.05, 1] }}
-        transition={{ repeat: Infinity, duration: 1.2 }}
-        className="w-10 h-10 rounded-full bg-cyan-500 shadow-lg shadow-cyan-500/50 flex items-center justify-center text-white font-bold text-sm"
-      >
-        ●
-      </motion.div>
-    );
+// Exit delta in "cell units" — actual pixels = delta × cellSize
+function getExitDelta(dir: Direction, row: number, col: number, rows: number, cols: number): { x: number; y: number } {
+  switch (dir) {
+    case "up":    return { x: 0, y: -(row + 1) };
+    case "down":  return { x: 0, y: (rows - row) };
+    case "left":  return { x: -(col + 1), y: 0 };
+    case "right": return { x: (cols - col), y: 0 };
   }
-
-  // Enemy
-  if (isEnemy) {
-    return (
-      <motion.div
-        animate={{ opacity: [1, 0.65, 1] }}
-        transition={{ repeat: Infinity, duration: 0.9 }}
-        className="w-10 h-10 rounded-full bg-red-500 shadow-lg shadow-red-500/50 flex items-center justify-center text-white text-sm"
-      >
-        ●
-      </motion.div>
-    );
-  }
-
-  // Exit
-  if (cell.type === "exit") {
-    return (
-      <motion.div
-        animate={{ scale: [1, 1.1, 1] }}
-        transition={{ repeat: Infinity, duration: 1.5 }}
-        className="w-10 h-10 rounded bg-green-500/20 border border-green-400/60 flex items-center justify-center text-green-400 text-xl"
-      >
-        ⬡
-      </motion.div>
-    );
-  }
-
-  // Wall
-  if (cell.type === "wall") {
-    return (
-      <div className="w-10 h-10 rounded bg-gray-600 shadow-inner border border-gray-500/50" />
-    );
-  }
-
-  // Arrow
-  if (cell.type === "arrow") {
-    return (
-      <div className="w-10 h-10 rounded bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400 text-xl font-bold">
-        {ARROW_EMOJIS[cell.arrowDir!]}
-      </div>
-    );
-  }
-
-  // Empty
-  return <div className="w-10 h-10 rounded bg-gray-800/50" />;
 }
 
 // ========================================
-// DIRECTIONAL CONTROLS
+// HEARTS
 // ========================================
 
-interface DirButtonProps {
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}
-
-function DirButton({ label, onClick, disabled }: DirButtonProps) {
+function LivesDisplay({ lives }: { lives: number }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="w-11 h-11 rounded-xl bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-xl font-bold border border-gray-600 transition-all disabled:opacity-30"
-    >
-      {label}
-    </button>
+    <div className="flex gap-1">
+      {[0, 1, 2].map(i => (
+        <motion.span
+          key={i}
+          animate={i >= lives ? { scale: [1, 1.3, 0.8, 1] } : {}}
+          className={`text-xl ${i < lives ? "opacity-100" : "opacity-20 grayscale"}`}
+        >
+          ❤️
+        </motion.span>
+      ))}
+    </div>
   );
 }
 
@@ -135,221 +71,233 @@ export default function ArrowEscapePage() {
   const { t } = useLanguage();
   const { chain } = useAccount();
 
-  const explorerUrl =
-    game.contractAddress
-      ? getExplorerAddressUrl(chain?.id, game.contractAddress)
-      : null;
+  const contractAddress = getContractAddress("arrowescape" as never, chain?.id);
+  const explorerUrl = contractAddress
+    ? getExplorerAddressUrl(chain?.id, contractAddress)
+    : null;
   const explorerName = getExplorerName(chain?.id);
 
-  const difficulties: Difficulty[] = ["easy", "medium", "hard"];
+  // Responsive cell size
+  const [cellSize, setCellSize] = useState(60);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const diffLabel = (d: Difficulty) => {
-    if (d === "easy")   return t("games.arrowescape.easy")   || "Easy";
-    if (d === "medium") return t("games.arrowescape.medium") || "Medium";
-    return               t("games.arrowescape.hard")          || "Hard";
-  };
-
-  const bestForDiff = game.stats.bestMoves[game.difficulty];
-
-  // Prevent page scroll on arrow keys while playing
   useEffect(() => {
-    const prevent = (e: KeyboardEvent) => {
-      if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
-        e.preventDefault();
-      }
-    };
-    window.addEventListener("keydown", prevent, { passive: false });
-    return () => window.removeEventListener("keydown", prevent);
-  }, []);
+    function updateSize() {
+      const w = window.innerWidth;
+      const available = Math.min(w - 48, 360);
+      const size = Math.max(40, Math.floor(available / game.cols));
+      setCellSize(size);
+    }
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, [game.cols]);
+
+  const gap = 4;
+  const gridW = game.cols * cellSize + (game.cols - 1) * gap;
+  const gridH = game.rows * cellSize + (game.rows - 1) * gap;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-rose-100 dark:from-orange-950 dark:via-red-950 dark:to-rose-950 p-4 sm:p-8">
+    <main className="min-h-screen bg-gray-950 text-white p-4 sm:p-6">
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-orange-700 dark:text-orange-300/70 hover:text-gray-900 dark:hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
         >
           ← {t("common.back") || "Back"}
         </Link>
 
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <img
             src="/icons/arrow-escape.png"
             alt="Arrow Escape"
             className="w-14 h-14 mx-auto object-contain mb-2"
           />
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-1">
+          <h1 className="text-3xl font-bold text-white mb-1">
             {t("games.arrowescape.title") || "Arrow Escape"}
           </h1>
-          <p className="text-orange-700 dark:text-orange-300/70 text-sm">
-            {t("games.arrowescape.subtitle") || "Navigate arrows to reach the exit — avoid enemies!"}
+          <p className="text-[#FCFF52] text-sm font-medium">
+            {t("games.arrowescape.subtitle") || "Tap arrows to slide them out — clear the grid!"}
           </p>
         </div>
 
-        {/* Mode Toggle + Wallet */}
+        {/* Mode Toggle */}
         <div className="flex flex-col items-center gap-3 mb-5">
-          <ModeToggle mode={game.mode} onModeChange={game.switchMode} />
+          <ModeToggle mode={game.mode} onModeChange={game.setGameMode} />
           {game.mode === "onchain" && <WalletConnect />}
         </div>
 
-        {/* Difficulty Selector */}
-        <div className="flex gap-2 justify-center mb-5">
-          {difficulties.map(d => (
-            <button
-              key={d}
-              onClick={() => {
-                game.changeDifficulty(d);
-                if (game.status === "idle") {
-                  // Just change difficulty, don't start
-                }
-              }}
-              className={[
-                "px-4 py-1.5 rounded-full text-sm font-semibold text-white transition-all",
-                `bg-gradient-to-r ${DIFFICULTY_COLORS[d]}`,
-                game.difficulty === d
-                  ? "ring-2 ring-white scale-105 shadow-lg"
-                  : "opacity-60 hover:opacity-100",
-              ].join(" ")}
-            >
-              {diffLabel(d)}
-            </button>
-          ))}
-        </div>
-
         {/* Stats Row */}
-        <div className="flex gap-6 justify-center mb-5 text-center">
-          <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{game.moves}</div>
-            <div className="text-xs text-orange-700 dark:text-orange-300/60 uppercase tracking-wider">
-              {t("games.arrowescape.moves") || "Moves"}
-            </div>
+        <div className="flex items-center justify-between mb-5 px-2">
+          <LivesDisplay lives={game.lives} />
+          <div className="text-sm font-semibold text-gray-300">
+            {t("games.arrowescape.level") || "Level"}{" "}
+            <span className="text-[#FCFF52] font-bold text-base">{game.level}</span>
+            <span className="text-gray-500">/10</span>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{game.level}</div>
-            <div className="text-xs text-orange-700 dark:text-orange-300/60 uppercase tracking-wider">
-              {t("games.arrowescape.level") || "Level"}
-            </div>
+          <div className="text-sm font-semibold text-gray-300">
+            {t("games.arrowescape.score") || "Score"}{" "}
+            <span className="text-white font-bold">{game.score}</span>
           </div>
-          {bestForDiff !== null && (
-            <div>
-              <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">{bestForDiff}</div>
-              <div className="text-xs text-orange-700 dark:text-orange-300/60 uppercase tracking-wider">
-                {t("games.arrowescape.bestLevel") || "Best"}
-              </div>
-            </div>
-          )}
+          <div className="text-sm font-semibold text-gray-300">
+            {t("games.arrowescape.arrows") || "Arrows"}{" "}
+            <span className="text-white font-bold">{game.arrowsLeft}</span>
+          </div>
         </div>
 
-        {/* Game Area */}
-        <div className="flex flex-col items-center mb-6">
-
-          {/* Idle state — Start button */}
-          {game.status === "idle" && (
-            <div className="flex flex-col items-center gap-4 py-12">
-              <div className="text-6xl">🏹</div>
-              <button
-                onClick={game.startGame}
-                className="px-8 py-3 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold text-lg hover:from-orange-400 hover:to-red-500 transition-all shadow-lg"
-              >
-                Start Game
-              </button>
-            </div>
-          )}
-
-          {/* Processing */}
-          {game.status === "processing" && (
-            <div className="py-12 text-orange-600 dark:text-orange-300 text-center">
-              <div className="text-4xl mb-3 animate-spin">⚙️</div>
-              <p className="text-sm">Starting on blockchain…</p>
-            </div>
-          )}
-
-          {/* Game Grid */}
-          {(game.status === "playing" || game.status === "won" || game.status === "lost") && game.grid.length > 0 && (
+        {/* Grid */}
+        <div className="flex justify-center mb-6" ref={containerRef}>
+          <div
+            className="relative bg-gray-900/80 rounded-2xl p-3 border border-white/10"
+            style={{ width: gridW + 24, height: gridH + 24 }}
+          >
+            {/* Grid cells */}
             <div
-              className="grid gap-0.5 p-2 bg-gray-900/80 rounded-xl border border-gray-700"
-              style={{ gridTemplateColumns: `repeat(${game.gridSize}, 2.5rem)` }}
+              className="relative"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${game.cols}, ${cellSize}px)`,
+                gridTemplateRows: `repeat(${game.rows}, ${cellSize}px)`,
+                gap: `${gap}px`,
+              }}
             >
-              {game.grid.map((row, y) =>
-                row.map((cell, x) => (
-                  <GridCell
-                    key={`${x}-${y}`}
-                    cell={cell}
-                    isPlayer={x === game.playerX && y === game.playerY}
-                    isEnemy={game.enemies.some(e => e.x === x && e.y === y)}
-                  />
-                ))
+              {game.grid.map((row, r) =>
+                row.map((cell, c) => {
+                  const isExiting =
+                    game.exitingCell !== null &&
+                    game.exitingCell[0] === r &&
+                    game.exitingCell[1] === c;
+                  const isBlocked =
+                    game.blockedCell !== null &&
+                    game.blockedCell[0] === r &&
+                    game.blockedCell[1] === c;
+                  const isHint =
+                    game.hintCell !== null &&
+                    game.hintCell[0] === r &&
+                    game.hintCell[1] === c;
+
+                  if (cell === null) {
+                    return (
+                      <div
+                        key={`${r}-${c}`}
+                        className="rounded-lg border border-white/10 bg-white/5"
+                        style={{ width: cellSize, height: cellSize }}
+                      />
+                    );
+                  }
+
+                  const exitDelta = isExiting
+                    ? getExitDelta(cell.dir, r, c, game.rows, game.cols)
+                    : { x: 0, y: 0 };
+
+                  return (
+                    <motion.div
+                      key={cell.id}
+                      onClick={() => game.tapCell(r, c)}
+                      className={[
+                        "rounded-lg flex items-center justify-center cursor-pointer select-none relative",
+                        isHint ? "ring-4 ring-[#FCFF52]/80 animate-pulse" : "",
+                      ].join(" ")}
+                      style={{
+                        width: cellSize,
+                        height: cellSize,
+                        backgroundColor: ARROW_COLORS[cell.dir],
+                      }}
+                      whileHover={{ scale: 1.06 }}
+                      whileTap={{ scale: 0.94 }}
+                      animate={
+                        isExiting
+                          ? {
+                              x: exitDelta.x * (cellSize + gap),
+                              y: exitDelta.y * (cellSize + gap),
+                              opacity: 0,
+                              scale: 0.5,
+                            }
+                          : isBlocked
+                          ? { x: [-5, 5, -5, 5, 0] }
+                          : { x: 0, y: 0, opacity: 1, scale: 1 }
+                      }
+                      transition={
+                        isExiting
+                          ? { duration: 0.35, ease: "easeIn" }
+                          : isBlocked
+                          ? { duration: 0.4, type: "tween" }
+                          : { duration: 0.1 }
+                      }
+                    >
+                      {/* Red flash overlay when blocked */}
+                      {isBlocked && (
+                        <motion.div
+                          className="absolute inset-0 rounded-lg bg-red-500"
+                          initial={{ opacity: 0.6 }}
+                          animate={{ opacity: 0 }}
+                          transition={{ duration: 0.5 }}
+                        />
+                      )}
+                      <span
+                        className="text-white font-bold select-none z-10"
+                        style={{ fontSize: Math.max(16, cellSize * 0.42) }}
+                      >
+                        {ARROW_CHARS[cell.dir]}
+                      </span>
+                    </motion.div>
+                  );
+                })
               )}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Directional Controls */}
-        {game.status === "playing" && (
-          <div className="grid grid-cols-3 gap-1 w-36 mx-auto mb-6">
-            <div />
-            <DirButton label="↑" onClick={() => game.move("up")} />
-            <div />
-            <DirButton label="←" onClick={() => game.move("left")} />
-            <button className="w-11 h-11 opacity-0" disabled />
-            <DirButton label="→" onClick={() => game.move("right")} />
-            <div />
-            <DirButton label="↓" onClick={() => game.move("down")} />
-            <div />
-          </div>
-        )}
-
         {/* Action Buttons */}
-        {game.status !== "idle" && game.status !== "processing" && (
-          <div className="flex gap-3 justify-center mb-8">
-            <button
-              onClick={game.playAgain}
-              className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm"
-            >
-              {t("games.arrowescape.playAgain") || "Try Again"}
-            </button>
-            <button
-              onClick={() => game.newGame()}
-              className="px-5 py-2 rounded-xl bg-orange-600 text-white hover:bg-orange-500 transition-all text-sm font-semibold"
-            >
-              {t("games.arrowescape.newGame") || "New Game"}
-            </button>
-          </div>
-        )}
+        <div className="flex gap-3 justify-center mb-8">
+          <button
+            onClick={game.showHint}
+            disabled={game.status !== "playing"}
+            className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all disabled:opacity-40"
+          >
+            {t("games.arrowescape.hint") || "Hint 💡"}
+          </button>
+          <button
+            onClick={game.restartLevel}
+            className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all"
+          >
+            {t("games.arrowescape.restart") || "Restart 🔄"}
+          </button>
+        </div>
 
         {/* How to Play */}
-        <div className="bg-white/70 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 mb-6">
-          <h2 className="text-gray-900 dark:text-white font-bold mb-3 text-sm uppercase tracking-wider">
+        <div className="bg-white/5 rounded-2xl border border-white/10 p-5 mb-5">
+          <h2 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">
             {t("games.arrowescape.howToPlay") || "How to Play"}
           </h2>
-          <ol className="space-y-1.5">
+          <ol className="space-y-2">
             {(["rule1", "rule2", "rule3", "rule4"] as const).map((key, i) => (
-              <li key={key} className="flex gap-2 text-sm text-gray-600 dark:text-orange-200/80">
-                <span className="text-orange-600 dark:text-orange-400 font-bold flex-shrink-0">{i + 1}.</span>
+              <li key={key} className="flex gap-2 text-sm text-gray-300">
+                <span className="text-[#FCFF52] font-bold flex-shrink-0">{i + 1}.</span>
                 {t(`games.arrowescape.${key}`) || ""}
               </li>
             ))}
           </ol>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[
-            { label: "Games",  value: game.stats.games },
-            { label: "Wins",   value: game.stats.wins },
-            { label: "Best",   value: bestForDiff ?? "—" },
-          ].map(s => (
-            <div
-              key={s.label}
-              className="bg-white/70 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 p-3 text-center"
-            >
-              <div className="text-xl font-bold text-gray-900 dark:text-white">{s.value}</div>
-              <div className="text-xs text-orange-700 dark:text-orange-300/60">{s.label}</div>
-            </div>
-          ))}
+        {/* Color legend */}
+        <div className="bg-white/5 rounded-2xl border border-white/10 p-4 mb-5">
+          <div className="flex flex-wrap gap-3 justify-center">
+            {(["up", "down", "left", "right"] as Direction[]).map(dir => (
+              <div key={dir} className="flex items-center gap-1.5 text-sm">
+                <div
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-white font-bold text-base"
+                  style={{ backgroundColor: ARROW_COLORS[dir] }}
+                >
+                  {ARROW_CHARS[dir]}
+                </div>
+                <span className="text-gray-400 capitalize">{dir}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Contract Link */}
@@ -359,7 +307,7 @@ export default function ArrowEscapePage() {
               href={explorerUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 text-xs underline"
+              className="text-[#FCFF52] hover:text-yellow-300 text-xs underline"
             >
               {t("games.arrowescape.viewOnExplorer") || `View on ${explorerName} →`}
             </a>
@@ -375,47 +323,54 @@ export default function ArrowEscapePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
           >
             <motion.div
               initial={{ scale: 0.8, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="bg-gradient-to-br from-white to-orange-50 dark:from-orange-900 dark:to-red-900 border border-orange-200 dark:border-orange-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+              className="bg-gray-900 border border-[#FCFF52]/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
             >
               <div className="text-5xl mb-3">🎉</div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {t("games.arrowescape.win") || "Escaped! You reached the exit!"}
+              <h2 className="text-2xl font-bold text-white mb-1">
+                {t("games.arrowescape.win") || "Level cleared!"}
               </h2>
+              <p className="text-[#FCFF52] text-sm font-semibold mb-4">
+                {t("games.arrowescape.level") || "Level"} {game.level} / 10
+              </p>
 
               <div className="flex gap-6 justify-center my-4">
                 <div>
-                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-300">{game.moves}</div>
-                  <div className="text-xs text-gray-500 dark:text-orange-300/60 uppercase">
-                    {t("games.arrowescape.moves") || "Moves"}
+                  <div className="text-3xl font-bold text-[#FCFF52]">{game.score}</div>
+                  <div className="text-xs text-gray-400 uppercase">
+                    {t("games.arrowescape.score") || "Score"}
                   </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-300">{game.level}</div>
-                  <div className="text-xs text-gray-500 dark:text-orange-300/60 uppercase">
-                    {t("games.arrowescape.level") || "Level"}
+                  <div className="text-3xl font-bold text-white flex gap-0.5 justify-center">
+                    {[0, 1, 2].map(i => (
+                      <span key={i} className={i < game.lives ? "opacity-100" : "opacity-20"}>❤️</span>
+                    ))}
                   </div>
+                  <div className="text-xs text-gray-400 uppercase">Lives</div>
                 </div>
               </div>
 
-              <div className="flex gap-3 justify-center mt-4">
+              <div className="flex gap-3 justify-center mt-5">
                 <button
-                  onClick={game.playAgain}
-                  className="px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/20 transition-all font-medium"
+                  onClick={game.restartLevel}
+                  className="px-5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all text-sm font-medium"
                 >
-                  {t("games.arrowescape.playAgain") || "Try Again"}
+                  {t("games.arrowescape.restart") || "Restart 🔄"}
                 </button>
                 <button
-                  onClick={() => game.newGame()}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold hover:from-orange-400 hover:to-red-500 transition-all"
+                  onClick={game.nextLevel}
+                  className="px-5 py-2.5 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all text-sm"
                 >
-                  {t("games.arrowescape.newGame") || "New Game"}
+                  {game.level < 10
+                    ? (t("games.arrowescape.nextLevel") || "Next Level →")
+                    : (t("games.arrowescape.playAgain") || "Try Again")}
                 </button>
               </div>
             </motion.div>
@@ -430,37 +385,29 @@ export default function ArrowEscapePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
           >
             <motion.div
               initial={{ scale: 0.8, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="bg-gradient-to-br from-white to-red-50 dark:from-red-900 dark:to-gray-900 border border-red-200 dark:border-red-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+              className="bg-gray-900 border border-red-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
             >
-              <div className="text-5xl mb-3">💀</div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {t("games.arrowescape.lost") || "Caught! An enemy got you."}
+              <div className="text-5xl mb-3">💔</div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                {t("games.arrowescape.lost") || "No lives left!"}
               </h2>
-              <p className="text-sm text-gray-500 dark:text-red-200/60 mb-4">
-                {game.moves} {t("games.arrowescape.moves") || "moves"} — Level {game.level}
+              <p className="text-sm text-gray-400 mb-5">
+                {t("games.arrowescape.level") || "Level"} {game.level} — {t("games.arrowescape.score") || "Score"} {game.score}
               </p>
 
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={game.playAgain}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold hover:from-orange-400 hover:to-red-500 transition-all"
-                >
-                  {t("games.arrowescape.playAgain") || "Try Again"}
-                </button>
-                <button
-                  onClick={() => game.newGame()}
-                  className="px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-200 dark:hover:bg-white/20 transition-all font-medium"
-                >
-                  {t("games.arrowescape.newGame") || "New Game"}
-                </button>
-              </div>
+              <button
+                onClick={game.restartLevel}
+                className="px-6 py-2.5 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all"
+              >
+                {t("games.arrowescape.playAgain") || "Try Again"}
+              </button>
             </motion.div>
           </motion.div>
         )}

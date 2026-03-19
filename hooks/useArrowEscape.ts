@@ -1,606 +1,571 @@
 "use client";
-
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract } from "wagmi";
-import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
+import { useState, useCallback, useRef } from "react";
 
 // ========================================
 // TYPES
 // ========================================
 
-export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "won" | "lost" | "processing";
-export type Difficulty = "easy" | "medium" | "hard";
 export type Direction = "up" | "down" | "left" | "right";
-export type CellType = "empty" | "wall" | "arrow" | "exit";
 
-export interface Cell {
-  type: CellType;
-  arrowDir?: Direction;
+export interface ArrowCell {
+  dir: Direction;
+  id: number; // unique id for animation key
 }
 
-export interface Enemy {
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
+// Grid: null = empty, ArrowCell = has arrow
+export type Grid = (ArrowCell | null)[][];
+
+export type GameStatus = "playing" | "won" | "lost";
+export type GameMode = "free" | "onchain";
+
+export interface UseArrowEscapeReturn {
+  grid: Grid;
+  rows: number;
+  cols: number;
+  lives: number;
+  score: number;
+  level: number;
+  status: GameStatus;
+  mode: GameMode;
+  arrowsLeft: number;
+  hintCell: [number, number] | null;
+  exitingCell: [number, number] | null;
+  blockedCell: [number, number] | null;
+  tapCell: (row: number, col: number) => void;
+  showHint: () => void;
+  restartLevel: () => void;
+  nextLevel: () => void;
+  setGameMode: (mode: GameMode) => void;
 }
 
-export interface PlayerStats {
-  games: number;
-  wins: number;
-  bestMoves: {
-    easy: number | null;
-    medium: number | null;
-    hard: number | null;
-  };
+// ========================================
+// LEVEL DEFINITIONS
+// ========================================
+
+interface LevelDef {
+  rows: number;
+  cols: number;
+  arrows: { row: number; col: number; dir: Direction }[];
+}
+
+// Each level is designed so there's always at least 1-2 arrows that can exit immediately,
+// and removing them unlocks others, creating a chain puzzle.
+//
+// Notation: path from [r,c] in direction d must be clear of other arrows to exit.
+// "clear path" means all cells between [r,c] and the edge in direction d are null.
+
+const LEVELS: LevelDef[] = [
+  // ────────────────────────────────────────────
+  // Level 1 — 4×4, 6 arrows — Very easy
+  // Solution chain: (0,0)→, (3,3)←, (0,2)↑, (2,3)↓, (1,1)↑, (3,0)→
+  // ────────────────────────────────────────────
+  {
+    rows: 4, cols: 4,
+    arrows: [
+      { row: 0, col: 0, dir: "right" }, // path right: col1,2,3 all empty → exits immediately ✓
+      { row: 3, col: 3, dir: "left" },  // path left: col2,1,0 — col0 has nothing blocking → exits ✓
+      { row: 0, col: 2, dir: "up" },    // path up: row-1 → exits immediately ✓
+      { row: 2, col: 3, dir: "down" },  // path down: row3 empty → exits ✓
+      { row: 1, col: 1, dir: "up" },    // path up: row0,col1 empty → exits ✓
+      { row: 3, col: 0, dir: "right" }, // path right: col1,2,3 — col3 had (3,3) but now gone → exits ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 2 — 4×4, 8 arrows
+  // Strategy: corners and edges first, then interior
+  // ────────────────────────────────────────────
+  {
+    rows: 4, cols: 4,
+    arrows: [
+      { row: 0, col: 3, dir: "right" }, // exits right immediately ✓
+      { row: 3, col: 0, dir: "left" },  // exits left immediately ✓
+      { row: 0, col: 0, dir: "up" },    // exits up immediately ✓
+      { row: 3, col: 3, dir: "down" },  // exits down immediately ✓
+      { row: 1, col: 2, dir: "right" }, // path right: col3 empty after (0,3) gone → exits ✓
+      { row: 2, col: 1, dir: "left" },  // path left: col0 empty after (3,0) gone → exits ✓
+      { row: 1, col: 0, dir: "up" },    // path up: row0,col0 had arrow but now gone → exits ✓
+      { row: 2, col: 3, dir: "down" },  // path down: row3,col3 had arrow but now gone → exits ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 3 — 4×5, 10 arrows
+  // Wider grid, mixed directions
+  // ────────────────────────────────────────────
+  {
+    rows: 4, cols: 5,
+    arrows: [
+      { row: 0, col: 4, dir: "right" }, // exits immediately ✓
+      { row: 3, col: 0, dir: "left" },  // exits immediately ✓
+      { row: 0, col: 0, dir: "up" },    // exits immediately ✓
+      { row: 3, col: 4, dir: "down" },  // exits immediately ✓
+      { row: 1, col: 3, dir: "right" }, // after (0,4) gone, col4 clear → exits ✓
+      { row: 2, col: 1, dir: "left" },  // after (3,0) gone, col0 clear → exits ✓
+      { row: 0, col: 2, dir: "up" },    // exits immediately (row-1 is edge) ✓
+      { row: 3, col: 2, dir: "down" },  // exits immediately (row4 is edge) ✓
+      { row: 1, col: 0, dir: "up" },    // after (0,0) gone → exits ✓
+      { row: 2, col: 4, dir: "down" },  // after (3,4) gone → exits ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 4 — 4×5, 12 arrows — chain dependencies
+  // ────────────────────────────────────────────
+  {
+    rows: 4, cols: 5,
+    arrows: [
+      // First wave (clear immediately)
+      { row: 0, col: 4, dir: "right" }, // ✓
+      { row: 3, col: 0, dir: "left" },  // ✓
+      { row: 2, col: 0, dir: "up" },    // path up: row0,1 col0 — row1 has nothing, row0 empty → ✓
+      { row: 1, col: 4, dir: "down" },  // path down: row2,3 col4 — row2,3 empty → ✓
+      // Second wave
+      { row: 0, col: 1, dir: "up" },    // exits immediately ✓
+      { row: 3, col: 3, dir: "down" },  // exits immediately ✓
+      { row: 1, col: 2, dir: "right" }, // path right: col3,4 — col4 had arrow but gone → ✓ after first wave
+      { row: 2, col: 2, dir: "left" },  // path left: col1,0 — after (3,0) gone → ✓
+      // Third wave
+      { row: 0, col: 3, dir: "right" }, // after (0,4) gone → ✓
+      { row: 3, col: 1, dir: "left" },  // after (3,0) gone → ✓
+      { row: 1, col: 1, dir: "up" },    // after (0,1) gone → ✓
+      { row: 2, col: 3, dir: "down" },  // after (3,3) gone → ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 5 — 5×5, 14 arrows
+  // ────────────────────────────────────────────
+  {
+    rows: 5, cols: 5,
+    arrows: [
+      // Immediate exits
+      { row: 0, col: 4, dir: "right" }, // ✓
+      { row: 4, col: 0, dir: "left" },  // ✓
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 4, col: 4, dir: "down" },  // ✓
+      { row: 2, col: 4, dir: "right" }, // ✓
+      // Wave 2 (freed after wave 1)
+      { row: 1, col: 3, dir: "right" }, // after (0,4)→ gone, col4 clear → ✓
+      { row: 3, col: 1, dir: "left" },  // after (4,0)← gone, col0 clear → ✓
+      { row: 1, col: 0, dir: "up" },    // after (0,0)↑ gone → ✓
+      { row: 3, col: 4, dir: "down" },  // after (4,4)↓ gone → ✓
+      { row: 0, col: 2, dir: "up" },    // exits immediately ✓
+      // Wave 3
+      { row: 2, col: 2, dir: "left" },  // after (4,0) cleared, path col1,0 free → ✓
+      { row: 4, col: 2, dir: "down" },  // exits immediately ✓
+      { row: 2, col: 0, dir: "left" },  // after (4,0) cleared → ✓
+      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 6 — 5×5, 16 arrows — tighter puzzle
+  // ────────────────────────────────────────────
+  {
+    rows: 5, cols: 5,
+    arrows: [
+      // Outer ring exits
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 0, col: 4, dir: "right" }, // ✓
+      { row: 4, col: 0, dir: "left" },  // ✓
+      { row: 4, col: 4, dir: "down" },  // ✓
+      { row: 2, col: 0, dir: "left" },  // ✓
+      { row: 2, col: 4, dir: "right" }, // ✓
+      { row: 0, col: 2, dir: "up" },    // ✓
+      { row: 4, col: 2, dir: "down" },  // ✓
+      // Inner ring — freed after outer
+      { row: 1, col: 1, dir: "up" },    // after (0,0) gone → ✓
+      { row: 1, col: 3, dir: "right" }, // after (0,4) gone → ✓
+      { row: 3, col: 1, dir: "left" },  // after (4,0) gone → ✓
+      { row: 3, col: 3, dir: "down" },  // after (4,4) gone → ✓
+      { row: 1, col: 2, dir: "up" },    // after (0,2) gone → ✓
+      { row: 3, col: 2, dir: "down" },  // after (4,2) gone → ✓
+      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
+      { row: 2, col: 3, dir: "right" }, // after (2,4) gone → ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 7 — 5×6, 18 arrows
+  // ────────────────────────────────────────────
+  {
+    rows: 5, cols: 6,
+    arrows: [
+      // Immediate exits
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 0, col: 5, dir: "right" }, // ✓
+      { row: 4, col: 0, dir: "left" },  // ✓
+      { row: 4, col: 5, dir: "down" },  // ✓
+      { row: 2, col: 5, dir: "right" }, // ✓
+      { row: 2, col: 0, dir: "left" },  // ✓
+      { row: 0, col: 3, dir: "up" },    // ✓
+      { row: 4, col: 2, dir: "down" },  // ✓
+      // Wave 2
+      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
+      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
+      { row: 3, col: 0, dir: "left" },  // after (4,0) → ✓
+      { row: 3, col: 5, dir: "down" },  // after (4,5) → ✓
+      { row: 0, col: 1, dir: "up" },    // exits immediately ✓
+      { row: 4, col: 4, dir: "down" },  // exits immediately ✓
+      // Wave 3
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone → ✓
+      { row: 3, col: 1, dir: "left" },  // after (3,0) gone → ✓
+      { row: 0, col: 4, dir: "up" },    // exits immediately ✓
+      { row: 4, col: 1, dir: "down" },  // exits immediately ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 8 — 5×6, 20 arrows
+  // ────────────────────────────────────────────
+  {
+    rows: 5, cols: 6,
+    arrows: [
+      // First wave
+      { row: 0, col: 5, dir: "right" }, // ✓
+      { row: 4, col: 0, dir: "left" },  // ✓
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 4, col: 5, dir: "down" },  // ✓
+      { row: 0, col: 2, dir: "up" },    // ✓
+      { row: 4, col: 3, dir: "down" },  // ✓
+      { row: 2, col: 0, dir: "left" },  // ✓
+      { row: 2, col: 5, dir: "right" }, // ✓
+      // Second wave
+      { row: 1, col: 4, dir: "right" }, // after (0,5) gone → ✓
+      { row: 3, col: 1, dir: "left" },  // after (4,0) gone → ✓
+      { row: 1, col: 0, dir: "up" },    // after (0,0) gone → ✓
+      { row: 3, col: 5, dir: "down" },  // after (4,5) gone → ✓
+      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
+      { row: 4, col: 2, dir: "down" },  // exits immediately ✓
+      // Third wave
+      { row: 1, col: 3, dir: "right" }, // after (1,4) gone → ✓
+      { row: 3, col: 2, dir: "left" },  // after (3,1) gone → ✓
+      { row: 1, col: 1, dir: "up" },    // after (0,2) gone → ✓ (path: row0,col1 clear)
+      { row: 3, col: 4, dir: "down" },  // after (4,3) gone → ✓ (path: row4,col4 clear)
+      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
+      { row: 2, col: 4, dir: "right" }, // after (2,5) gone → ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 9 — 6×6, 22 arrows
+  // ────────────────────────────────────────────
+  {
+    rows: 6, cols: 6,
+    arrows: [
+      // First wave — all exit immediately
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 0, col: 5, dir: "right" }, // ✓
+      { row: 5, col: 0, dir: "left" },  // ✓
+      { row: 5, col: 5, dir: "down" },  // ✓
+      { row: 0, col: 3, dir: "up" },    // ✓
+      { row: 5, col: 2, dir: "down" },  // ✓
+      { row: 3, col: 0, dir: "left" },  // ✓
+      { row: 2, col: 5, dir: "right" }, // ✓
+      // Second wave
+      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
+      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
+      { row: 4, col: 0, dir: "left" },  // after (5,0) → ✓
+      { row: 4, col: 5, dir: "down" },  // after (5,5) → ✓
+      { row: 0, col: 2, dir: "up" },    // exits immediately ✓
+      { row: 5, col: 3, dir: "down" },  // exits immediately ✓
+      // Third wave
+      { row: 2, col: 0, dir: "left" },  // after (3,0) gone → ✓
+      { row: 3, col: 5, dir: "right" }, // after (2,5) gone → ✓
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone → ✓
+      { row: 4, col: 1, dir: "left" },  // after (4,0) gone → ✓
+      // Fourth wave
+      { row: 2, col: 2, dir: "left" },  // after (2,0) gone → ✓
+      { row: 3, col: 3, dir: "right" }, // after (3,5) gone → ✓
+      { row: 1, col: 2, dir: "up" },    // after (0,2) gone → ✓ (path: row0 clear)
+      { row: 4, col: 3, dir: "down" },  // after (5,3) gone → ✓
+    ],
+  },
+
+  // ────────────────────────────────────────────
+  // Level 10 — 6×6, 25 arrows — hardest
+  // ────────────────────────────────────────────
+  {
+    rows: 6, cols: 6,
+    arrows: [
+      // First wave — corner + mid-edge exits
+      { row: 0, col: 5, dir: "right" }, // ✓
+      { row: 5, col: 0, dir: "left" },  // ✓
+      { row: 0, col: 0, dir: "up" },    // ✓
+      { row: 5, col: 5, dir: "down" },  // ✓
+      { row: 0, col: 2, dir: "up" },    // ✓
+      { row: 5, col: 3, dir: "down" },  // ✓
+      { row: 3, col: 0, dir: "left" },  // ✓
+      { row: 2, col: 5, dir: "right" }, // ✓
+      // Second wave
+      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
+      { row: 4, col: 0, dir: "left" },  // after (5,0) → ✓
+      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
+      { row: 4, col: 5, dir: "down" },  // after (5,5) → ✓
+      { row: 0, col: 4, dir: "up" },    // exits immediately ✓
+      { row: 5, col: 1, dir: "down" },  // exits immediately ✓
+      // Third wave
+      { row: 2, col: 0, dir: "left" },  // after (3,0) gone → ✓
+      { row: 3, col: 5, dir: "right" }, // after (2,5) gone → ✓
+      { row: 1, col: 3, dir: "right" }, // after (1,5) gone → ✓
+      { row: 4, col: 2, dir: "left" },  // after (4,0) gone → ✓
+      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
+      { row: 5, col: 2, dir: "down" },  // exits immediately ✓
+      // Fourth wave
+      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
+      { row: 3, col: 4, dir: "right" }, // after (3,5) gone → ✓
+      { row: 1, col: 1, dir: "up" },    // after (0,0) gone (row0,col1 clear) → ✓
+      { row: 4, col: 4, dir: "down" },  // after (5,5) gone (row5,col4 clear) → ✓
+      // Fifth — center last
+      { row: 2, col: 3, dir: "right" }, // after (2,5) gone + (3,4),(3,5) cleared → path col4,5 free → ✓
+    ],
+  },
+];
+
+// ========================================
+// GRID BUILDER
+// ========================================
+
+let idCounter = 1;
+
+function buildGrid(def: LevelDef): Grid {
+  const grid: Grid = Array.from({ length: def.rows }, () =>
+    Array(def.cols).fill(null)
+  );
+  for (const a of def.arrows) {
+    grid[a.row][a.col] = { dir: a.dir, id: idCounter++ };
+  }
+  return grid;
 }
 
 // ========================================
-// DIFFICULTY CONFIG
+// LOGIC HELPERS
 // ========================================
 
-export const DIFFICULTY_CONFIG: Record<
-  Difficulty,
-  { gridSize: number; arrows: [number, number]; enemies: number; walls: number }
-> = {
-  easy:   { gridSize: 6, arrows: [3, 5],  enemies: 1, walls: 6 },
-  medium: { gridSize: 7, arrows: [6, 9],  enemies: 2, walls: 10 },
-  hard:   { gridSize: 8, arrows: [10, 15], enemies: 4, walls: 14 },
-};
+function canExit(grid: Grid, row: number, col: number): boolean {
+  const cell = grid[row][col];
+  if (!cell) return false;
+  const rows = grid.length;
+  const cols = grid[0].length;
 
-// ========================================
-// CONSTANTS
-// ========================================
+  switch (cell.dir) {
+    case "up":
+      for (let r = row - 1; r >= 0; r--) {
+        if (grid[r][col] !== null) return false;
+      }
+      return true;
+    case "down":
+      for (let r = row + 1; r < rows; r++) {
+        if (grid[r][col] !== null) return false;
+      }
+      return true;
+    case "left":
+      for (let c = col - 1; c >= 0; c--) {
+        if (grid[row][c] !== null) return false;
+      }
+      return true;
+    case "right":
+      for (let c = col + 1; c < cols; c++) {
+        if (grid[row][c] !== null) return false;
+      }
+      return true;
+  }
+}
+
+function countArrows(grid: Grid): number {
+  let count = 0;
+  for (const row of grid) {
+    for (const cell of row) {
+      if (cell !== null) count++;
+    }
+  }
+  return count;
+}
+
+function findHint(grid: Grid): [number, number] | null {
+  for (let r = 0; r < grid.length; r++) {
+    for (let c = 0; c < grid[0].length; c++) {
+      if (grid[r][c] !== null && canExit(grid, r, c)) {
+        return [r, c];
+      }
+    }
+  }
+  return null;
+}
 
 const STATS_KEY = "arrowescapestats";
 
-const DEFAULT_STATS: PlayerStats = {
-  games: 0,
-  wins: 0,
-  bestMoves: { easy: null, medium: null, hard: null },
-};
-
-const DIRECTIONS: Direction[] = ["up", "down", "left", "right"];
-
-// Simple ABI for onchain interaction
-const ARROW_ESCAPE_ABI = [
-  {
-    name: "startGame",
-    type: "function",
-    stateMutability: "nonpayable",
-    inputs: [{ name: "difficulty", type: "uint8" }],
-    outputs: [],
-  },
-  {
-    name: "endGame",
-    type: "function",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "won", type: "bool" },
-      { name: "moves", type: "uint256" },
-      { name: "level", type: "uint256" },
-    ],
-    outputs: [],
-  },
-] as const;
-
-// ========================================
-// LEVEL GENERATION
-// ========================================
-
-function rng(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    return (s >>> 0) / 0x100000000;
-  };
+interface Stats {
+  gamesPlayed: number;
+  levelsCleared: number;
+  bestScore: number;
 }
 
-function generateLevel(difficulty: Difficulty, level: number): {
-  grid: Cell[][];
-  playerX: number;
-  playerY: number;
-  exitX: number;
-  exitY: number;
-  enemies: Enemy[];
-} {
-  const cfg = DIFFICULTY_CONFIG[difficulty];
-  const size = cfg.gridSize;
-  const rand = rng(level * 31337 + (difficulty === "easy" ? 0 : difficulty === "medium" ? 1000 : 2000));
-
-  // Initialize empty grid
-  const grid: Cell[][] = Array.from({ length: size }, () =>
-    Array.from({ length: size }, () => ({ type: "empty" as CellType }))
-  );
-
-  // Player always at (1,1)
-  const playerX = 1;
-  const playerY = 1;
-
-  // Exit at far corner — pick from multiple options
-  const corners = [
-    { x: size - 2, y: size - 2 },
-    { x: size - 2, y: 1 },
-    { x: 1, y: size - 2 },
-  ];
-  const exitCorner = corners[Math.floor(rand() * corners.length)];
-  const exitX = exitCorner.x;
-  const exitY = exitCorner.y;
-
-  // Place walls randomly (avoid player and exit)
-  const numWalls = cfg.walls;
-  let wallsPlaced = 0;
-  let attempts = 0;
-  while (wallsPlaced < numWalls && attempts < 200) {
-    attempts++;
-    const wx = Math.floor(rand() * size);
-    const wy = Math.floor(rand() * size);
-    if (
-      (wx === playerX && wy === playerY) ||
-      (wx === exitX && wy === exitY) ||
-      grid[wy][wx].type !== "empty"
-    ) {
-      continue;
-    }
-    grid[wy][wx] = { type: "wall" };
-    wallsPlaced++;
-  }
-
-  // BFS to ensure path from player to exit
-  function bfs(startX: number, startY: number, targetX: number, targetY: number): boolean {
-    const visited = new Set<string>();
-    const queue: [number, number][] = [[startX, startY]];
-    visited.add(`${startX},${startY}`);
-    while (queue.length > 0) {
-      const [cx, cy] = queue.shift()!;
-      if (cx === targetX && cy === targetY) return true;
-      for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-        const nx = cx + dx;
-        const ny = cy + dy;
-        if (nx >= 0 && nx < size && ny >= 0 && ny < size && !visited.has(`${nx},${ny}`) && grid[ny][nx].type !== "wall") {
-          visited.add(`${nx},${ny}`);
-          queue.push([nx, ny]);
-        }
-      }
-    }
-    return false;
-  }
-
-  // Remove walls that block the only path
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (grid[y][x].type === "wall") {
-        grid[y][x] = { type: "empty" };
-        if (!bfs(playerX, playerY, exitX, exitY)) {
-          // Keep wall removed — path was blocked
-        } else {
-          grid[y][x] = { type: "wall" };
-        }
-      }
-    }
-  }
-
-  // Final BFS to make sure path exists after all removals
-  // If still no path, clear all walls on one axis
-  if (!bfs(playerX, playerY, exitX, exitY)) {
-    for (let i = 0; i < size; i++) {
-      grid[playerY][i] = { type: "empty" };
-      grid[i][exitX] = { type: "empty" };
-    }
-  }
-
-  // Place arrows
-  const [minArrows, maxArrows] = cfg.arrows;
-  const numArrows = minArrows + Math.floor(rand() * (maxArrows - minArrows + 1));
-  let arrowsPlaced = 0;
-  attempts = 0;
-  while (arrowsPlaced < numArrows && attempts < 500) {
-    attempts++;
-    const ax = Math.floor(rand() * size);
-    const ay = Math.floor(rand() * size);
-    if (
-      (ax === playerX && ay === playerY) ||
-      (ax === exitX && ay === exitY) ||
-      grid[ay][ax].type !== "empty"
-    ) {
-      continue;
-    }
-    const dir = DIRECTIONS[Math.floor(rand() * DIRECTIONS.length)];
-    grid[ay][ax] = { type: "arrow", arrowDir: dir };
-    arrowsPlaced++;
-  }
-
-  // Place exit
-  grid[exitY][exitX] = { type: "exit" };
-
-  // Place enemies far from player
-  const enemies: Enemy[] = [];
-  const numEnemies = cfg.enemies;
-  attempts = 0;
-  while (enemies.length < numEnemies && attempts < 500) {
-    attempts++;
-    const ex = Math.floor(rand() * size);
-    const ey = Math.floor(rand() * size);
-    const dist = Math.abs(ex - playerX) + Math.abs(ey - playerY);
-    if (
-      dist < 3 ||
-      (ex === exitX && ey === exitY) ||
-      grid[ey][ex].type !== "empty" ||
-      enemies.some(e => e.x === ex && e.y === ey)
-    ) {
-      continue;
-    }
-    // Patrol direction: primarily horizontal or vertical
-    const horizontal = rand() > 0.5;
-    enemies.push({
-      x: ex,
-      y: ey,
-      dx: horizontal ? (rand() > 0.5 ? 1 : -1) : 0,
-      dy: horizontal ? 0 : (rand() > 0.5 ? 1 : -1),
-    });
-  }
-
-  return { grid, playerX, playerY, exitX, exitY, enemies };
+function loadStats(): Stats {
+  try {
+    const s = localStorage.getItem(STATS_KEY);
+    if (s) return JSON.parse(s);
+  } catch { /* ignore */ }
+  return { gamesPlayed: 0, levelsCleared: 0, bestScore: 0 };
 }
 
-// ========================================
-// MOVEMENT LOGIC
-// ========================================
-
-function dirToOffset(dir: Direction): [number, number] {
-  switch (dir) {
-    case "up":    return [0, -1];
-    case "down":  return [0, 1];
-    case "left":  return [-1, 0];
-    case "right": return [1, 0];
-  }
-}
-
-interface MoveResult {
-  newX: number;
-  newY: number;
-  hitWall: boolean;
-  reachedExit: boolean;
-}
-
-function applyPlayerMove(
-  grid: Cell[][],
-  x: number,
-  y: number,
-  dir: Direction,
-  size: number
-): MoveResult {
-  const [dx, dy] = dirToOffset(dir);
-  let nx = x + dx;
-  let ny = y + dy;
-
-  // Out of bounds or wall: no move
-  if (nx < 0 || nx >= size || ny < 0 || ny >= size) {
-    return { newX: x, newY: y, hitWall: true, reachedExit: false };
-  }
-  if (grid[ny][nx].type === "wall") {
-    return { newX: x, newY: y, hitWall: true, reachedExit: false };
-  }
-
-  // Follow arrow chain (max 20 steps to prevent infinite loops)
-  let steps = 0;
-  while (steps < 20) {
-    const cell = grid[ny][nx];
-    if (cell.type === "exit") {
-      return { newX: nx, newY: ny, hitWall: false, reachedExit: true };
-    }
-    if (cell.type !== "arrow") {
-      break;
-    }
-    // Follow the arrow
-    const [adx, ady] = dirToOffset(cell.arrowDir!);
-    const nextX = nx + adx;
-    const nextY = ny + ady;
-    if (nextX < 0 || nextX >= size || nextY < 0 || nextY >= size || grid[nextY][nextX].type === "wall") {
-      break;
-    }
-    nx = nextX;
-    ny = nextY;
-    steps++;
-  }
-
-  if (grid[ny][nx].type === "exit") {
-    return { newX: nx, newY: ny, hitWall: false, reachedExit: true };
-  }
-
-  return { newX: nx, newY: ny, hitWall: false, reachedExit: false };
-}
-
-function moveEnemies(enemies: Enemy[], grid: Cell[][], size: number): Enemy[] {
-  return enemies.map(enemy => {
-    let nx = enemy.x + enemy.dx;
-    let ny = enemy.y + enemy.dy;
-    let dx = enemy.dx;
-    let dy = enemy.dy;
-
-    // Check collision: wall or out of bounds → reverse direction
-    if (nx < 0 || nx >= size || ny < 0 || ny >= size || grid[ny][nx].type === "wall") {
-      dx = -dx;
-      dy = -dy;
-      nx = enemy.x + dx;
-      ny = enemy.y + dy;
-      // If still blocked, stay in place
-      if (nx < 0 || nx >= size || ny < 0 || ny >= size || grid[ny][nx].type === "wall") {
-        nx = enemy.x;
-        ny = enemy.y;
-        // Try perpendicular
-        const temp = dx;
-        dx = dy;
-        dy = temp;
-      }
-    }
-
-    return { x: nx, y: ny, dx, dy };
-  });
+function saveStats(s: Stats): void {
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify(s));
+  } catch { /* ignore */ }
 }
 
 // ========================================
 // HOOK
 // ========================================
 
-export function useArrowEscape() {
-  const [grid, setGrid] = useState<Cell[][]>([]);
-  const [playerX, setPlayerX] = useState(1);
-  const [playerY, setPlayerY] = useState(1);
-  const [enemies, setEnemies] = useState<Enemy[]>([]);
-  const [exitX, setExitX] = useState(5);
-  const [exitY, setExitY] = useState(5);
-  const [moves, setMoves] = useState(0);
+export function useArrowEscape(): UseArrowEscapeReturn {
   const [level, setLevel] = useState(1);
+  const [grid, setGrid] = useState<Grid>(() => buildGrid(LEVELS[0]));
+  const [lives, setLives] = useState(3);
+  const [score, setScore] = useState(0);
+  const [status, setStatus] = useState<GameStatus>("playing");
+  const [mode, setGameModeState] = useState<GameMode>("free");
+  const [hintCell, setHintCell] = useState<[number, number] | null>(null);
+  const [exitingCell, setExitingCell] = useState<[number, number] | null>(null);
+  const [blockedCell, setBlockedCell] = useState<[number, number] | null>(null);
 
-  const [mode, setMode] = useState<GameMode>("free");
-  const [status, setStatus] = useState<GameStatus>("idle");
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
-  const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
+  // Ref to block taps while animating
+  const animating = useRef(false);
+  const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Keep refs in sync for keyboard handler
-  const gridRef = useRef<Cell[][]>([]);
-  const playerXRef = useRef(1);
-  const playerYRef = useRef(1);
-  const enemiesRef = useRef<Enemy[]>([]);
-  const statusRef = useRef<GameStatus>("idle");
-  const difficultyRef = useRef<Difficulty>("easy");
-  const movesRef = useRef(0);
-  const levelRef = useRef(1);
-  const exitXRef = useRef(5);
-  const exitYRef = useRef(5);
+  const levelDef = LEVELS[level - 1];
+  const rows = levelDef.rows;
+  const cols = levelDef.cols;
+  const arrowsLeft = countArrows(grid);
 
-  useEffect(() => { gridRef.current = grid; }, [grid]);
-  useEffect(() => { playerXRef.current = playerX; }, [playerX]);
-  useEffect(() => { playerYRef.current = playerY; }, [playerY]);
-  useEffect(() => { enemiesRef.current = enemies; }, [enemies]);
-  useEffect(() => { statusRef.current = status; }, [status]);
-  useEffect(() => { difficultyRef.current = difficulty; }, [difficulty]);
-  useEffect(() => { movesRef.current = moves; }, [moves]);
-  useEffect(() => { levelRef.current = level; }, [level]);
-  useEffect(() => { exitXRef.current = exitX; }, [exitX]);
-  useEffect(() => { exitYRef.current = exitY; }, [exitY]);
-
-  // Wagmi hooks
-  const { address, isConnected, chain } = useAccount();
-  const contractAddress = getContractAddress("arrowescape" as never, chain?.id);
-  const gameAvailable = isGameAvailableOnChain("arrowescape" as never, chain?.id);
-  const { writeContractAsync, isPending } = useWriteContract();
-
-  // Load stats from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STATS_KEY);
-      if (saved) setStats(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
-
-  const saveStats = useCallback((newStats: PlayerStats) => {
-    setStats(newStats);
-    try {
-      localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
-    } catch { /* ignore */ }
-  }, []);
-
-  // Load a specific level into state
-  const loadLevel = useCallback((diff: Difficulty, lvl: number) => {
-    const { grid: g, playerX: px, playerY: py, exitX: ex, exitY: ey, enemies: en } = generateLevel(diff, lvl);
-    setGrid(g);
-    setPlayerX(px);
-    setPlayerY(py);
-    setExitX(ex);
-    setExitY(ey);
-    setEnemies(en);
-    setMoves(0);
-  }, []);
-
-  // Start game
-  const startGame = useCallback(async () => {
-    if (mode === "onchain" && (!isConnected || !address)) {
-      return;
-    }
-
-    if (mode === "onchain" && gameAvailable && contractAddress) {
-      try {
-        setStatus("processing");
-        await writeContractAsync({
-          address: contractAddress,
-          abi: ARROW_ESCAPE_ABI,
-          functionName: "startGame",
-          args: [difficulty === "easy" ? 0 : difficulty === "medium" ? 1 : 2],
-        });
-      } catch {
-        setStatus("idle");
-        return;
-      }
-    }
-
-    setLevel(1);
-    loadLevel(difficulty, 1);
-    setStatus("playing");
-  }, [mode, isConnected, address, gameAvailable, contractAddress, writeContractAsync, difficulty, loadLevel]);
-
-  // Handle player move
-  const move = useCallback((dir: Direction) => {
-    if (statusRef.current !== "playing") return;
-
-    const currentGrid = gridRef.current;
-    const size = DIFFICULTY_CONFIG[difficultyRef.current].gridSize;
-    const result = applyPlayerMove(currentGrid, playerXRef.current, playerYRef.current, dir, size);
-
-    const newMoves = movesRef.current + 1;
-
-    if (result.hitWall) {
-      return;
-    }
-
-    // Check if player lands on an enemy
-    const hitEnemy = enemiesRef.current.some(e => e.x === result.newX && e.y === result.newY);
-
-    if (hitEnemy) {
-      setPlayerX(result.newX);
-      setPlayerY(result.newY);
-      setMoves(newMoves);
-      setStatus("lost");
-      return;
-    }
-
-    if (result.reachedExit) {
-      setPlayerX(result.newX);
-      setPlayerY(result.newY);
-      setMoves(newMoves);
-      setStatus("won");
-
-      // Update stats
-      const newStats = { ...stats };
-      newStats.games += 1;
-      newStats.wins += 1;
-      if (!newStats.bestMoves[difficultyRef.current] || newMoves < newStats.bestMoves[difficultyRef.current]!) {
-        newStats.bestMoves[difficultyRef.current] = newMoves;
-      }
-      saveStats(newStats);
-
-      // Record on-chain
-      if (mode === "onchain" && gameAvailable && contractAddress) {
-        writeContractAsync({
-          address: contractAddress,
-          abi: ARROW_ESCAPE_ABI,
-          functionName: "endGame",
-          args: [true, BigInt(newMoves), BigInt(levelRef.current)],
-        }).catch(() => {});
-      }
-      return;
-    }
-
-    // Move enemies
-    const newEnemies = moveEnemies(enemiesRef.current, currentGrid, size);
-
-    // Check if any enemy moved onto player
-    const enemyCatchesPlayer = newEnemies.some(e => e.x === result.newX && e.y === result.newY);
-
-    setPlayerX(result.newX);
-    setPlayerY(result.newY);
-    setMoves(newMoves);
-    setEnemies(newEnemies);
-
-    if (enemyCatchesPlayer) {
-      setStatus("lost");
-      return;
-    }
-  }, [stats, saveStats, mode, gameAvailable, contractAddress, writeContractAsync]);
-
-  // Keyboard handler
-  useEffect(() => {
+  const tapCell = useCallback((row: number, col: number) => {
+    if (animating.current) return;
     if (status !== "playing") return;
 
-    const handleKey = (e: KeyboardEvent) => {
-      let dir: Direction | null = null;
-      switch (e.key) {
-        case "ArrowUp":    case "w": case "W": dir = "up";    break;
-        case "ArrowDown":  case "s": case "S": dir = "down";  break;
-        case "ArrowLeft":  case "a": case "A": dir = "left";  break;
-        case "ArrowRight": case "d": case "D": dir = "right"; break;
-      }
-      if (dir) {
-        e.preventDefault();
-        move(dir);
-      }
-    };
+    setGrid(currentGrid => {
+      if (currentGrid[row][col] === null) return currentGrid;
 
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [status, move]);
+      if (canExit(currentGrid, row, col)) {
+        // Start exit animation
+        animating.current = true;
+        setExitingCell([row, col]);
 
-  // Reset to idle
-  const resetGame = useCallback(() => {
-    setGrid([]);
-    setPlayerX(1);
-    setPlayerY(1);
-    setEnemies([]);
-    setMoves(0);
-    setLevel(1);
-    setStatus("idle");
+        setTimeout(() => {
+          setGrid(g => {
+            const next: Grid = g.map(r => [...r]);
+            next[row][col] = null;
+            const remaining = countArrows(next);
+            if (remaining === 0) {
+              setStatus("won");
+              // Save stats
+              setScore(prev => {
+                const newScore = prev + 10 + (lives > 0 ? lives * 5 : 0);
+                const stats = loadStats();
+                stats.levelsCleared += 1;
+                if (newScore > stats.bestScore) stats.bestScore = newScore;
+                saveStats(stats);
+                return newScore;
+              });
+            } else {
+              setScore(prev => prev + 10);
+            }
+            return next;
+          });
+          setExitingCell(null);
+          animating.current = false;
+        }, 350);
+
+        return currentGrid; // grid updated in timeout
+      } else {
+        // Blocked — shake + lose life
+        setBlockedCell([row, col]);
+        setLives(prev => {
+          const newLives = prev - 1;
+          if (newLives <= 0) {
+            setTimeout(() => {
+              setStatus("lost");
+              setBlockedCell(null);
+              const stats = loadStats();
+              stats.gamesPlayed += 1;
+              saveStats(stats);
+            }, 500);
+          } else {
+            setTimeout(() => setBlockedCell(null), 500);
+          }
+          return newLives;
+        });
+        return currentGrid;
+      }
+    });
+  }, [status, lives]);
+
+  const showHint = useCallback(() => {
+    setGrid(currentGrid => {
+      const hint = findHint(currentGrid);
+      if (hint) {
+        setHintCell(hint);
+        if (hintTimer.current) clearTimeout(hintTimer.current);
+        hintTimer.current = setTimeout(() => setHintCell(null), 2000);
+      }
+      return currentGrid;
+    });
   }, []);
 
-  // Play again (restart same level)
-  const playAgain = useCallback(() => {
-    loadLevel(difficulty, level);
+  const restartLevel = useCallback(() => {
+    if (hintTimer.current) clearTimeout(hintTimer.current);
+    animating.current = false;
+    setGrid(buildGrid(LEVELS[level - 1]));
+    setLives(3);
+    setScore(0);
     setStatus("playing");
-  }, [difficulty, level, loadLevel]);
+    setHintCell(null);
+    setExitingCell(null);
+    setBlockedCell(null);
+  }, [level]);
 
-  // New game (new level)
-  const newGame = useCallback((diff?: Difficulty) => {
-    const d = diff ?? difficulty;
-    setDifficulty(d);
-    const newLevel = level + 1;
-    setLevel(newLevel);
-    loadLevel(d, newLevel);
+  const nextLevel = useCallback(() => {
+    if (hintTimer.current) clearTimeout(hintTimer.current);
+    animating.current = false;
+    const nextLvl = level < LEVELS.length ? level + 1 : 1;
+    setLevel(nextLvl);
+    setGrid(buildGrid(LEVELS[nextLvl - 1]));
+    setLives(3);
+    setScore(0);
     setStatus("playing");
-  }, [difficulty, level, loadLevel]);
+    setHintCell(null);
+    setExitingCell(null);
+    setBlockedCell(null);
+    if (nextLvl === 1) {
+      // Completed all levels — update gamesPlayed
+      const stats = loadStats();
+      stats.gamesPlayed += 1;
+      saveStats(stats);
+    }
+  }, [level]);
 
-  // Switch mode
-  const switchMode = useCallback((newMode: GameMode) => {
-    if (status === "playing") return;
-    setMode(newMode);
-    resetGame();
-  }, [status, resetGame]);
-
-  // Change difficulty
-  const changeDifficulty = useCallback((d: Difficulty) => {
-    if (status === "playing") return;
-    setDifficulty(d);
-  }, [status]);
-
-  const gridSize = DIFFICULTY_CONFIG[difficulty].gridSize;
+  const setGameMode = useCallback((m: GameMode) => {
+    setGameModeState(m);
+  }, []);
 
   return {
-    // State
     grid,
-    playerX,
-    playerY,
-    enemies,
-    exitX,
-    exitY,
-    moves,
+    rows,
+    cols,
+    lives,
+    score,
     level,
-    mode,
     status,
-    difficulty,
-    stats,
-    gridSize,
-    isConnected,
-    isProcessing: isPending,
-    contractAddress,
-    gameAvailable,
-
-    // Actions
-    startGame,
-    move,
-    resetGame,
-    playAgain,
-    newGame,
-    switchMode,
-    changeDifficulty,
+    mode,
+    arrowsLeft,
+    hintCell,
+    exitingCell,
+    blockedCell,
+    tapCell,
+    showHint,
+    restartLevel,
+    nextLevel,
+    setGameMode,
   };
 }
