@@ -55,270 +55,215 @@ interface LevelDef {
 // "clear path" means all cells between [r,c] and the edge in direction d are null.
 
 const LEVELS: LevelDef[] = [
-  // ────────────────────────────────────────────
-  // Level 1 — 4×4, 6 arrows — Very easy
-  // Solution chain: (0,0)→, (3,3)←, (0,2)↑, (2,3)↓, (1,1)↑, (3,0)→
-  // ────────────────────────────────────────────
+  // ── Level 1 — 4×4, 6 arrows ──────────────────────────────────────────
   {
     rows: 4, cols: 4,
     arrows: [
-      { row: 0, col: 0, dir: "right" }, // path right: col1,2,3 all empty → exits immediately ✓
-      { row: 3, col: 3, dir: "left" },  // path left: col2,1,0 — col0 has nothing blocking → exits ✓
-      { row: 0, col: 2, dir: "up" },    // path up: row-1 → exits immediately ✓
-      { row: 2, col: 3, dir: "down" },  // path down: row3 empty → exits ✓
-      { row: 1, col: 1, dir: "up" },    // path up: row0,col1 empty → exits ✓
-      { row: 3, col: 0, dir: "right" }, // path right: col1,2,3 — col3 had (3,3) but now gone → exits ✓
+      { row: 0, col: 3, dir: "right" }, // exits right immediately (nothing past col3)
+      { row: 3, col: 0, dir: "left"  }, // exits left immediately
+      { row: 0, col: 0, dir: "up"    }, // exits up immediately
+      { row: 3, col: 3, dir: "down"  }, // exits down immediately
+      { row: 1, col: 3, dir: "up"    }, // after (0,3) gone → row0 col3 clear
+      { row: 2, col: 0, dir: "down"  }, // after (3,0) gone → row3 col0 clear
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 2 — 4×4, 8 arrows
-  // Strategy: corners and edges first, then interior
-  // ────────────────────────────────────────────
+  // ── Level 2 — 4×4, 8 arrows ──────────────────────────────────────────
   {
     rows: 4, cols: 4,
     arrows: [
-      { row: 0, col: 3, dir: "right" }, // exits right immediately ✓
-      { row: 3, col: 0, dir: "left" },  // exits left immediately ✓
-      { row: 0, col: 0, dir: "up" },    // exits up immediately ✓
-      { row: 3, col: 3, dir: "down" },  // exits down immediately ✓
-      { row: 1, col: 2, dir: "right" }, // path right: col3 empty after (0,3) gone → exits ✓
-      { row: 2, col: 1, dir: "left" },  // path left: col0 empty after (3,0) gone → exits ✓
-      { row: 1, col: 0, dir: "up" },    // path up: row0,col0 had arrow but now gone → exits ✓
-      { row: 2, col: 3, dir: "down" },  // path down: row3,col3 had arrow but now gone → exits ✓
+      { row: 0, col: 3, dir: "right" },
+      { row: 3, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 3, col: 3, dir: "down"  },
+      { row: 0, col: 2, dir: "up"    }, // exits up immediately
+      { row: 3, col: 1, dir: "down"  }, // exits down immediately
+      { row: 1, col: 3, dir: "right" }, // after (0,3) gone
+      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 3 — 4×5, 10 arrows
-  // Wider grid, mixed directions
-  // ────────────────────────────────────────────
+  // ── Level 3 — 4×5, 10 arrows ─────────────────────────────────────────
   {
     rows: 4, cols: 5,
     arrows: [
-      { row: 0, col: 4, dir: "right" }, // exits immediately ✓
-      { row: 3, col: 0, dir: "left" },  // exits immediately ✓
-      { row: 0, col: 0, dir: "up" },    // exits immediately ✓
-      { row: 3, col: 4, dir: "down" },  // exits immediately ✓
-      { row: 1, col: 3, dir: "right" }, // after (0,4) gone, col4 clear → exits ✓
-      { row: 2, col: 1, dir: "left" },  // after (3,0) gone, col0 clear → exits ✓
-      { row: 0, col: 2, dir: "up" },    // exits immediately (row-1 is edge) ✓
-      { row: 3, col: 2, dir: "down" },  // exits immediately (row4 is edge) ✓
-      { row: 1, col: 0, dir: "up" },    // after (0,0) gone → exits ✓
-      { row: 2, col: 4, dir: "down" },  // after (3,4) gone → exits ✓
+      { row: 0, col: 4, dir: "right" },
+      { row: 3, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 3, col: 4, dir: "down"  },
+      { row: 0, col: 2, dir: "up"    },
+      { row: 3, col: 2, dir: "down"  },
+      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
+      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 2, col: 4, dir: "down"  }, // after (3,4) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 4 — 4×5, 12 arrows — chain dependencies
-  // ────────────────────────────────────────────
+  // ── Level 4 — 4×5, 12 arrows ─────────────────────────────────────────
   {
     rows: 4, cols: 5,
     arrows: [
-      // First wave (clear immediately)
-      { row: 0, col: 4, dir: "right" }, // ✓
-      { row: 3, col: 0, dir: "left" },  // ✓
-      { row: 2, col: 0, dir: "up" },    // path up: row0,1 col0 — row1 has nothing, row0 empty → ✓
-      { row: 1, col: 4, dir: "down" },  // path down: row2,3 col4 — row2,3 empty → ✓
-      // Second wave
-      { row: 0, col: 1, dir: "up" },    // exits immediately ✓
-      { row: 3, col: 3, dir: "down" },  // exits immediately ✓
-      { row: 1, col: 2, dir: "right" }, // path right: col3,4 — col4 had arrow but gone → ✓ after first wave
-      { row: 2, col: 2, dir: "left" },  // path left: col1,0 — after (3,0) gone → ✓
-      // Third wave
-      { row: 0, col: 3, dir: "right" }, // after (0,4) gone → ✓
-      { row: 3, col: 1, dir: "left" },  // after (3,0) gone → ✓
-      { row: 1, col: 1, dir: "up" },    // after (0,1) gone → ✓
-      { row: 2, col: 3, dir: "down" },  // after (3,3) gone → ✓
+      { row: 0, col: 4, dir: "right" },
+      { row: 3, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 3, col: 4, dir: "down"  },
+      { row: 0, col: 2, dir: "up"    },
+      { row: 3, col: 2, dir: "down"  },
+      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
+      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 2, col: 4, dir: "down"  }, // after (3,4) gone
+      { row: 1, col: 2, dir: "right" }, // after (1,4) gone → col3,4 clear
+      { row: 2, col: 2, dir: "left"  }, // after (2,0) gone → col1,0 clear
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 5 — 5×5, 14 arrows
-  // ────────────────────────────────────────────
+  // ── Level 5 — 5×5, 14 arrows ─────────────────────────────────────────
   {
     rows: 5, cols: 5,
     arrows: [
-      // Immediate exits
-      { row: 0, col: 4, dir: "right" }, // ✓
-      { row: 4, col: 0, dir: "left" },  // ✓
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 4, col: 4, dir: "down" },  // ✓
-      { row: 2, col: 4, dir: "right" }, // ✓
-      // Wave 2 (freed after wave 1)
-      { row: 1, col: 3, dir: "right" }, // after (0,4)→ gone, col4 clear → ✓
-      { row: 3, col: 1, dir: "left" },  // after (4,0)← gone, col0 clear → ✓
-      { row: 1, col: 0, dir: "up" },    // after (0,0)↑ gone → ✓
-      { row: 3, col: 4, dir: "down" },  // after (4,4)↓ gone → ✓
-      { row: 0, col: 2, dir: "up" },    // exits immediately ✓
-      // Wave 3
-      { row: 2, col: 2, dir: "left" },  // after (4,0) cleared, path col1,0 free → ✓
-      { row: 4, col: 2, dir: "down" },  // exits immediately ✓
-      { row: 2, col: 0, dir: "left" },  // after (4,0) cleared → ✓
-      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
+      { row: 0, col: 4, dir: "right" },
+      { row: 4, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 4, col: 4, dir: "down"  },
+      { row: 0, col: 2, dir: "up"    },
+      { row: 4, col: 2, dir: "down"  },
+      { row: 2, col: 4, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
+      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
+      { row: 1, col: 2, dir: "up"    }, // after (0,2) gone
+      { row: 3, col: 2, dir: "down"  }, // after (4,2) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 6 — 5×5, 16 arrows — tighter puzzle
-  // ────────────────────────────────────────────
+  // ── Level 6 — 5×5, 16 arrows ─────────────────────────────────────────
   {
     rows: 5, cols: 5,
     arrows: [
-      // Outer ring exits
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 0, col: 4, dir: "right" }, // ✓
-      { row: 4, col: 0, dir: "left" },  // ✓
-      { row: 4, col: 4, dir: "down" },  // ✓
-      { row: 2, col: 0, dir: "left" },  // ✓
-      { row: 2, col: 4, dir: "right" }, // ✓
-      { row: 0, col: 2, dir: "up" },    // ✓
-      { row: 4, col: 2, dir: "down" },  // ✓
-      // Inner ring — freed after outer
-      { row: 1, col: 1, dir: "up" },    // after (0,0) gone → ✓
-      { row: 1, col: 3, dir: "right" }, // after (0,4) gone → ✓
-      { row: 3, col: 1, dir: "left" },  // after (4,0) gone → ✓
-      { row: 3, col: 3, dir: "down" },  // after (4,4) gone → ✓
-      { row: 1, col: 2, dir: "up" },    // after (0,2) gone → ✓
-      { row: 3, col: 2, dir: "down" },  // after (4,2) gone → ✓
-      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
-      { row: 2, col: 3, dir: "right" }, // after (2,4) gone → ✓
+      { row: 0, col: 4, dir: "right" },
+      { row: 4, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 4, col: 4, dir: "down"  },
+      { row: 0, col: 2, dir: "up"    },
+      { row: 4, col: 2, dir: "down"  },
+      { row: 2, col: 4, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
+      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
+      { row: 1, col: 2, dir: "up"    }, // after (0,2) gone
+      { row: 3, col: 2, dir: "down"  }, // after (4,2) gone
+      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
+      { row: 2, col: 3, dir: "right" }, // after (2,4) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 7 — 5×6, 18 arrows
-  // ────────────────────────────────────────────
+  // ── Level 7 — 5×6, 18 arrows ─────────────────────────────────────────
   {
     rows: 5, cols: 6,
     arrows: [
-      // Immediate exits
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 0, col: 5, dir: "right" }, // ✓
-      { row: 4, col: 0, dir: "left" },  // ✓
-      { row: 4, col: 5, dir: "down" },  // ✓
-      { row: 2, col: 5, dir: "right" }, // ✓
-      { row: 2, col: 0, dir: "left" },  // ✓
-      { row: 0, col: 3, dir: "up" },    // ✓
-      { row: 4, col: 2, dir: "down" },  // ✓
-      // Wave 2
-      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
-      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
-      { row: 3, col: 0, dir: "left" },  // after (4,0) → ✓
-      { row: 3, col: 5, dir: "down" },  // after (4,5) → ✓
-      { row: 0, col: 1, dir: "up" },    // exits immediately ✓
-      { row: 4, col: 4, dir: "down" },  // exits immediately ✓
-      // Wave 3
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone → ✓
-      { row: 3, col: 1, dir: "left" },  // after (3,0) gone → ✓
-      { row: 0, col: 4, dir: "up" },    // exits immediately ✓
-      { row: 4, col: 1, dir: "down" },  // exits immediately ✓
+      { row: 0, col: 5, dir: "right" },
+      { row: 4, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 4, col: 5, dir: "down"  },
+      { row: 0, col: 3, dir: "up"    },
+      { row: 4, col: 2, dir: "down"  },
+      { row: 2, col: 5, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 0, col: 1, dir: "up"    },
+      { row: 4, col: 4, dir: "down"  },
+      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
+      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 3, col: 5, dir: "down"  }, // after (4,5) gone
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
+      { row: 3, col: 1, dir: "left"  }, // after (3,0) gone
+      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
+      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 8 — 5×6, 20 arrows
-  // ────────────────────────────────────────────
+  // ── Level 8 — 5×6, 20 arrows ─────────────────────────────────────────
   {
     rows: 5, cols: 6,
     arrows: [
-      // First wave
-      { row: 0, col: 5, dir: "right" }, // ✓
-      { row: 4, col: 0, dir: "left" },  // ✓
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 4, col: 5, dir: "down" },  // ✓
-      { row: 0, col: 2, dir: "up" },    // ✓
-      { row: 4, col: 3, dir: "down" },  // ✓
-      { row: 2, col: 0, dir: "left" },  // ✓
-      { row: 2, col: 5, dir: "right" }, // ✓
-      // Second wave
-      { row: 1, col: 4, dir: "right" }, // after (0,5) gone → ✓
-      { row: 3, col: 1, dir: "left" },  // after (4,0) gone → ✓
-      { row: 1, col: 0, dir: "up" },    // after (0,0) gone → ✓
-      { row: 3, col: 5, dir: "down" },  // after (4,5) gone → ✓
-      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
-      { row: 4, col: 2, dir: "down" },  // exits immediately ✓
-      // Third wave
-      { row: 1, col: 3, dir: "right" }, // after (1,4) gone → ✓
-      { row: 3, col: 2, dir: "left" },  // after (3,1) gone → ✓
-      { row: 1, col: 1, dir: "up" },    // after (0,2) gone → ✓ (path: row0,col1 clear)
-      { row: 3, col: 4, dir: "down" },  // after (4,3) gone → ✓ (path: row4,col4 clear)
-      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
-      { row: 2, col: 4, dir: "right" }, // after (2,5) gone → ✓
+      { row: 0, col: 5, dir: "right" },
+      { row: 4, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 4, col: 5, dir: "down"  },
+      { row: 0, col: 3, dir: "up"    },
+      { row: 4, col: 2, dir: "down"  },
+      { row: 2, col: 5, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 0, col: 1, dir: "up"    },
+      { row: 4, col: 4, dir: "down"  },
+      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
+      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 3, col: 5, dir: "down"  }, // after (4,5) gone
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
+      { row: 3, col: 1, dir: "left"  }, // after (3,0) gone
+      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
+      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
+      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
+      { row: 2, col: 4, dir: "right" }, // after (2,5) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 9 — 6×6, 22 arrows
-  // ────────────────────────────────────────────
+  // ── Level 9 — 6×6, 22 arrows ─────────────────────────────────────────
   {
     rows: 6, cols: 6,
     arrows: [
-      // First wave — all exit immediately
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 0, col: 5, dir: "right" }, // ✓
-      { row: 5, col: 0, dir: "left" },  // ✓
-      { row: 5, col: 5, dir: "down" },  // ✓
-      { row: 0, col: 3, dir: "up" },    // ✓
-      { row: 5, col: 2, dir: "down" },  // ✓
-      { row: 3, col: 0, dir: "left" },  // ✓
-      { row: 2, col: 5, dir: "right" }, // ✓
-      // Second wave
-      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
-      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
-      { row: 4, col: 0, dir: "left" },  // after (5,0) → ✓
-      { row: 4, col: 5, dir: "down" },  // after (5,5) → ✓
-      { row: 0, col: 2, dir: "up" },    // exits immediately ✓
-      { row: 5, col: 3, dir: "down" },  // exits immediately ✓
-      // Third wave
-      { row: 2, col: 0, dir: "left" },  // after (3,0) gone → ✓
-      { row: 3, col: 5, dir: "right" }, // after (2,5) gone → ✓
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone → ✓
-      { row: 4, col: 1, dir: "left" },  // after (4,0) gone → ✓
-      // Fourth wave
-      { row: 2, col: 2, dir: "left" },  // after (2,0) gone → ✓
-      { row: 3, col: 3, dir: "right" }, // after (3,5) gone → ✓
-      { row: 1, col: 2, dir: "up" },    // after (0,2) gone → ✓ (path: row0 clear)
-      { row: 4, col: 3, dir: "down" },  // after (5,3) gone → ✓
+      { row: 0, col: 5, dir: "right" },
+      { row: 5, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 5, col: 5, dir: "down"  },
+      { row: 0, col: 3, dir: "up"    },
+      { row: 5, col: 2, dir: "down"  },
+      { row: 3, col: 5, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 0, col: 1, dir: "up"    },
+      { row: 5, col: 4, dir: "down"  },
+      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
+      { row: 4, col: 0, dir: "left"  }, // after (5,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 4, col: 5, dir: "down"  }, // after (5,5) gone
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
+      { row: 4, col: 1, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
+      { row: 4, col: 4, dir: "down"  }, // after (5,4) gone
+      { row: 2, col: 5, dir: "right" }, // exits immediately (col6 > cols)
+      { row: 3, col: 0, dir: "left"  }, // exits immediately (col-1 < 0)
+      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
+      { row: 3, col: 4, dir: "right" }, // after (3,5) gone
     ],
   },
-
-  // ────────────────────────────────────────────
-  // Level 10 — 6×6, 25 arrows — hardest
-  // ────────────────────────────────────────────
+  // ── Level 10 — 6×6, 25 arrows ────────────────────────────────────────
   {
     rows: 6, cols: 6,
     arrows: [
-      // First wave — corner + mid-edge exits
-      { row: 0, col: 5, dir: "right" }, // ✓
-      { row: 5, col: 0, dir: "left" },  // ✓
-      { row: 0, col: 0, dir: "up" },    // ✓
-      { row: 5, col: 5, dir: "down" },  // ✓
-      { row: 0, col: 2, dir: "up" },    // ✓
-      { row: 5, col: 3, dir: "down" },  // ✓
-      { row: 3, col: 0, dir: "left" },  // ✓
-      { row: 2, col: 5, dir: "right" }, // ✓
-      // Second wave
-      { row: 1, col: 5, dir: "right" }, // after (0,5) → ✓
-      { row: 4, col: 0, dir: "left" },  // after (5,0) → ✓
-      { row: 1, col: 0, dir: "up" },    // after (0,0) → ✓
-      { row: 4, col: 5, dir: "down" },  // after (5,5) → ✓
-      { row: 0, col: 4, dir: "up" },    // exits immediately ✓
-      { row: 5, col: 1, dir: "down" },  // exits immediately ✓
-      // Third wave
-      { row: 2, col: 0, dir: "left" },  // after (3,0) gone → ✓
-      { row: 3, col: 5, dir: "right" }, // after (2,5) gone → ✓
-      { row: 1, col: 3, dir: "right" }, // after (1,5) gone → ✓
-      { row: 4, col: 2, dir: "left" },  // after (4,0) gone → ✓
-      { row: 0, col: 3, dir: "up" },    // exits immediately ✓
-      { row: 5, col: 2, dir: "down" },  // exits immediately ✓
-      // Fourth wave
-      { row: 2, col: 1, dir: "left" },  // after (2,0) gone → ✓
-      { row: 3, col: 4, dir: "right" }, // after (3,5) gone → ✓
-      { row: 1, col: 1, dir: "up" },    // after (0,0) gone (row0,col1 clear) → ✓
-      { row: 4, col: 4, dir: "down" },  // after (5,5) gone (row5,col4 clear) → ✓
-      // Fifth — center last
-      { row: 2, col: 3, dir: "right" }, // after (2,5) gone + (3,4),(3,5) cleared → path col4,5 free → ✓
+      { row: 0, col: 5, dir: "right" },
+      { row: 5, col: 0, dir: "left"  },
+      { row: 0, col: 0, dir: "up"    },
+      { row: 5, col: 5, dir: "down"  },
+      { row: 0, col: 3, dir: "up"    },
+      { row: 5, col: 2, dir: "down"  },
+      { row: 3, col: 5, dir: "right" },
+      { row: 2, col: 0, dir: "left"  },
+      { row: 0, col: 1, dir: "up"    },
+      { row: 5, col: 4, dir: "down"  },
+      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
+      { row: 4, col: 0, dir: "left"  }, // after (5,0) gone
+      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
+      { row: 4, col: 5, dir: "down"  }, // after (5,5) gone
+      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
+      { row: 4, col: 1, dir: "left"  }, // after (4,0) gone
+      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
+      { row: 4, col: 4, dir: "down"  }, // after (5,4) gone
+      { row: 2, col: 5, dir: "right" },
+      { row: 3, col: 0, dir: "left"  },
+      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
+      { row: 3, col: 4, dir: "right" }, // after (3,5) gone
+      { row: 0, col: 4, dir: "up"    }, // exits immediately
+      { row: 5, col: 1, dir: "down"  }, // exits immediately
+      { row: 2, col: 3, dir: "right" }, // after (2,4 empty), (2,5) gone → col4,5 clear
     ],
   },
 ];
