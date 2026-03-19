@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -282,5 +282,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "medium",
+  },
+  arrowescape: {
+    id: "arrowescape",
+    name: "Arrow Escape",
+    description: "Navigate arrows to reach the exit — avoid enemies!",
+    icon: "/icons/arrow-escape.png",
+    route: "/games/arrow-escape",
+    color: "from-orange-500 to-red-600",
+    hasFee: false,
+    category: "puzzle",
+    duration: "quick",
   },
 };
