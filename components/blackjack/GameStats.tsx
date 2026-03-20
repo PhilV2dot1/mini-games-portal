@@ -35,9 +35,9 @@ export function GameStats({ stats, mode, credits, onResetCredits }: GameStatsPro
 
       {/* Game stats grid */}
       <div className="grid grid-cols-3 gap-3 mb-4">
-        <StatItem label={t('stats.wins')} value={stats.wins} color="text-green-600" />
-        <StatItem label={t('stats.losses')} value={stats.losses} color="text-red-600" />
-        <StatItem label={t('games.blackjack.pushes')} value={stats.pushes} color="text-gray-600" />
+        <StatItem label={t('stats.wins')} value={stats.wins} color="text-green-500 dark:text-green-400" />
+        <StatItem label={t('stats.losses')} value={stats.losses} color="text-red-500 dark:text-red-400" />
+        <StatItem label={t('games.blackjack.pushes')} value={stats.pushes} color="text-gray-600 dark:text-gray-300" />
       </div>
 
       {/* Blackjacks */}
