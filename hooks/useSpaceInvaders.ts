@@ -620,6 +620,10 @@ export function useSpaceInvaders() {
     keysHeld: new Set<string>(),
     lastTimestamp: 0,
     rafId: 0,
+    killsThisWave: 0,
+    bunkersUnlocked: 0,
+    bunkerFlashMsg: "",
+    bunkerFlashTimer: 0,
   });
 
   // Load stats
@@ -670,7 +674,11 @@ export function useSpaceInvaders() {
   const initWave = useCallback((w: number) => {
     const s = stateRef.current;
     s.enemies = makeEnemies(w - 1);
-    s.bunkers = makeBunkers();
+    s.bunkers = []; // bunkers start empty — unlocked by kills
+    s.killsThisWave = 0;
+    s.bunkersUnlocked = 0;
+    s.bunkerFlashMsg = "";
+    s.bunkerFlashTimer = 0;
     s.bullets = [];
     s.particles = [];
     s.ufo = { x: -UFO_W, y: 40, active: false, direction: 1 };
@@ -848,6 +856,9 @@ export function useSpaceInvaders() {
       }
     }
 
+    // Bunker unlock thresholds (kills needed per bunker: 5, 15, 30, 45)
+    const BUNKER_THRESHOLDS = [5, 15, 30, 45];
+
     // Player bullet vs enemies
     for (const b of s.bullets) {
       if (!b.fromPlayer || bulletsToRemove.has(b.id)) continue;
@@ -860,6 +871,19 @@ export function useSpaceInvaders() {
           s.score += points;
           setScore(s.score);
           spawnExplosion(e.x + ENEMY_W / 2, e.y + ENEMY_H / 2, "#00FF88");
+          s.killsThisWave++;
+
+          // Unlock next bunker if threshold reached
+          const nextThreshold = BUNKER_THRESHOLDS[s.bunkersUnlocked];
+          if (nextThreshold !== undefined && s.killsThisWave >= nextThreshold) {
+            const allBunkers = makeBunkers();
+            if (s.bunkersUnlocked < allBunkers.length) {
+              s.bunkers.push(allBunkers[s.bunkersUnlocked]);
+              s.bunkersUnlocked++;
+              s.bunkerFlashMsg = `🛡 Shield ${s.bunkersUnlocked} unlocked!`;
+              s.bunkerFlashTimer = 2000;
+            }
+          }
           break;
         }
       }
@@ -906,6 +930,12 @@ export function useSpaceInvaders() {
     }
     s.particles = s.particles.filter(p => p.life > 0);
 
+    // Bunker flash timer
+    if (s.bunkerFlashTimer > 0) {
+      s.bunkerFlashTimer -= dt;
+      if (s.bunkerFlashTimer <= 0) s.bunkerFlashMsg = "";
+    }
+
     // Check wave cleared
     if (aliveEnemies.length === 0) {
       const bonus = 100 * s.wave;
@@ -948,6 +978,20 @@ export function useSpaceInvaders() {
     // Particles
     for (const p of s.particles) {
       drawParticle(ctx, p);
+    }
+
+    // Bunker unlock flash
+    if (s.bunkerFlashMsg && s.bunkerFlashTimer > 0) {
+      const alpha = Math.min(1, s.bunkerFlashTimer / 500);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      drawGlow(ctx, "#00FF64", 16);
+      ctx.fillStyle = "#00FF64";
+      ctx.font = "bold 18px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(s.bunkerFlashMsg, CANVAS_W / 2, CANVAS_H / 2 - 20);
+      clearGlow(ctx);
+      ctx.restore();
     }
 
     // HUD
