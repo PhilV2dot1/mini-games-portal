@@ -34,7 +34,8 @@ export type GameId =
   | 'coinflip'
   | 'roulette'
   | 'watersort'
-  | 'arrowescape';
+  | 'arrowescape'
+  | 'spaceinvaders';
 
 type AddressOrNull = `0x${string}` | null;
 
@@ -155,6 +156,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   roulette:     { celo: '0xc90044f8c7c0fc8a07117d4e0f6ea33558f908e4', base: '0x03a056dc19886504778be9bfaedffff5edd4ad71', megaeth: '0x4632208Efe5b3F73eD594DC9ddAE1eC27E20F271', soneium: '0x2D22EE1d3520921E83B9E163f74349FcA9ad2517' },
   watersort:    { celo: '0x99c097df31464fe6c5068e23d4f4fe355377373f', base: '0xc4431a9322e02bb7fb985373f797a190bffeeef8', megaeth: '0x1cA290B8da47CfA150Bc1A4cCC33dc8663CCccC6', soneium: '0xa086111581A7D9d1Ae0B18D81Efb9a6f38f1B4d1' },
   arrowescape:  { celo: null, base: null, megaeth: null, soneium: null },
+  spaceinvaders: { celo: null, base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {

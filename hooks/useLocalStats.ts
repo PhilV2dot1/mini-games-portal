@@ -47,6 +47,8 @@ const DEFAULT_PROFILE: UserProfile = {
     coinflip: { ...DEFAULT_GAME_STATS },
     roulette: { ...DEFAULT_GAME_STATS },
     watersort: { ...DEFAULT_GAME_STATS },
+    arrowescape: { ...DEFAULT_GAME_STATS },
+    spaceinvaders: { ...DEFAULT_GAME_STATS },
   },
 };
 

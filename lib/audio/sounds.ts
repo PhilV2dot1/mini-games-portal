@@ -202,6 +202,15 @@ export const GAME_SOUNDS = {
     win:      { path: '/audio/watersort/win.mp3',      category: 'win'    as const },
   },
 
+  // Space Invaders
+  spaceinvaders: {
+    shoot:    { path: '/audio/spaceinvaders/shoot.mp3',    category: 'action' as const, volume: 0.5 },
+    explode:  { path: '/audio/spaceinvaders/explode.mp3',  category: 'action' as const, volume: 0.6 },
+    ufo:      { path: '/audio/spaceinvaders/ufo.mp3',      category: 'action' as const, volume: 0.4 },
+    win:      { path: '/audio/spaceinvaders/win.mp3',      category: 'win'    as const },
+    lose:     { path: '/audio/spaceinvaders/lose.mp3',     category: 'lose'   as const },
+  },
+
   // Jackpot
   jackpot: {
     spin: { path: '/audio/jackpot/spin.mp3', category: 'action' as const },
