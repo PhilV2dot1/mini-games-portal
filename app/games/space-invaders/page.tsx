@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useSpaceInvaders, CANVAS_W, CANVAS_H } from "@/hooks/useSpaceInvaders";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
@@ -102,14 +103,46 @@ export default function SpaceInvadersPage() {
 
         {/* Canvas */}
         <div className="flex justify-center mb-4">
-          <canvas
-            ref={game.canvasRef}
-            width={CANVAS_W}
-            height={CANVAS_H}
-            data-testid="space-invaders-canvas"
-            className="rounded-2xl border border-indigo-500/30 shadow-2xl touch-none w-full"
-            style={{ maxWidth: "480px", aspectRatio: `${CANVAS_W}/${CANVAS_H}` }}
-          />
+          <div className="relative w-full" style={{ maxWidth: "480px" }}>
+            <canvas
+              ref={game.canvasRef}
+              width={CANVAS_W}
+              height={CANVAS_H}
+              data-testid="space-invaders-canvas"
+              className="rounded-2xl border border-indigo-500/30 shadow-2xl touch-none w-full"
+              style={{ aspectRatio: `${CANVAS_W}/${CANVAS_H}` }}
+            />
+            {/* Countdown overlay */}
+            <AnimatePresence>
+              {game.status === "countdown" && game.countdown !== null && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-10">
+                  {game.countdown > 0 ? (
+                    <motion.div
+                      key={game.countdown}
+                      initial={{ scale: 2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className="text-9xl font-black text-[#FCFF52] drop-shadow-[0_0_30px_rgba(252,255,82,0.9)]"
+                    >
+                      {game.countdown}
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="go"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1.2, opacity: 1 }}
+                      exit={{ scale: 2, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-7xl font-black text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.9)]"
+                    >
+                      GO!
+                    </motion.div>
+                  )}
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Mobile Controls */}

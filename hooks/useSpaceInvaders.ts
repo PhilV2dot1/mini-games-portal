@@ -7,7 +7,7 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 // TYPES
 // ========================================
 
-export type GameStatus = "idle" | "playing" | "gameover" | "victory";
+export type GameStatus = "idle" | "countdown" | "playing" | "gameover" | "victory";
 export type GameMode = "free" | "onchain";
 
 export interface SpaceInvadersStats {
@@ -584,6 +584,7 @@ function drawVictory(ctx: CanvasRenderingContext2D, score: number, wave: number,
 export function useSpaceInvaders() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<GameStatus>("idle");
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [mode, setGameMode] = useState<GameMode>("free");
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
@@ -1006,7 +1007,7 @@ export function useSpaceInvaders() {
 
   const startGame = useCallback(() => {
     const s = stateRef.current;
-    s.status = "playing";
+    // Initialise the game state immediately (so the idle screen shows the grid)
     s.lives = 3;
     s.score = 0;
     s.wave = 1;
@@ -1017,16 +1018,30 @@ export function useSpaceInvaders() {
     s.stars = makeStars();
     s.lastTimestamp = 0;
     s.keysHeld = new Set();
-
     initWave(1);
 
-    setStatus("playing");
+    setStatus("countdown");
     setLives(3);
     setScore(0);
     setWave(1);
+    setCountdown(3);
 
-    cancelAnimationFrame(s.rafId);
-    s.rafId = requestAnimationFrame(gameLoop);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0); // "GO!"
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        stateRef.current.status = "playing";
+        setStatus("playing");
+        cancelAnimationFrame(stateRef.current.rafId);
+        stateRef.current.rafId = requestAnimationFrame(gameLoop);
+      }
+    }, 1000);
   }, [gameLoop, initWave]);
 
   const resetGame = useCallback(() => {
@@ -1166,6 +1181,7 @@ export function useSpaceInvaders() {
   return {
     canvasRef,
     status,
+    countdown,
     mode,
     setGameMode,
     lives,
