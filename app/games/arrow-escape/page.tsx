@@ -23,8 +23,16 @@ import { useAccount } from "wagmi";
 // CONSTANTS
 // ========================================
 
-const CELL_SIZE = 52;
+// Cell size per grid size — ensures the board fits on mobile (~380px max)
 const GAP = 3;
+// We use a fixed cell size per gridSize for consistent SSR:
+const CELL_SIZE_BY_GRID: Record<number, number> = {
+  5: 60,
+  6: 52,
+  7: 44,
+  8: 38,
+  9: 34,
+};
 
 const DIR_CHAR: Record<Direction, string> = {
   up: "↑", down: "↓", left: "←", right: "→",
@@ -56,6 +64,7 @@ function ArrowHead({ direction, color }: { direction: Direction; color: string }
 interface ArrowPieceProps {
   arrow: Arrow;
   gridSize: number;
+  cellSize: number;
   isSelected: boolean;
   isHint: boolean;
   isBlocked: boolean;
@@ -63,7 +72,7 @@ interface ArrowPieceProps {
   onTap: () => void;
 }
 
-function ArrowPiece({ arrow, gridSize, isSelected, isHint, isBlocked, isExiting, onTap }: ArrowPieceProps) {
+function ArrowPiece({ arrow, gridSize, cellSize, isSelected, isHint, isBlocked, isExiting, onTap }: ArrowPieceProps) {
   const cells = getArrowCells(arrow.direction, arrow.headRow, arrow.headCol, arrow.length);
   const isHoriz = arrow.direction === "left" || arrow.direction === "right";
 
@@ -72,14 +81,14 @@ function ArrowPiece({ arrow, gridSize, isSelected, isHint, isBlocked, isExiting,
   const maxRow = Math.max(...cells.map(([r]) => r));
   const maxCol = Math.max(...cells.map(([, c]) => c));
 
-  const left   = minCol * (CELL_SIZE + GAP);
-  const top    = minRow * (CELL_SIZE + GAP);
-  const width  = (maxCol - minCol + 1) * CELL_SIZE + (maxCol - minCol) * GAP;
-  const height = (maxRow - minRow + 1) * CELL_SIZE + (maxRow - minRow) * GAP;
+  const left   = minCol * (cellSize + GAP);
+  const top    = minRow * (cellSize + GAP);
+  const width  = (maxCol - minCol + 1) * cellSize + (maxCol - minCol) * GAP;
+  const height = (maxRow - minRow + 1) * cellSize + (maxRow - minRow) * GAP;
 
   let exitX = 0, exitY = 0;
   if (isExiting) {
-    const totalGrid = gridSize * CELL_SIZE + (gridSize - 1) * GAP + 32;
+    const totalGrid = gridSize * cellSize + (gridSize - 1) * GAP + 32;
     switch (arrow.direction) {
       case "right": exitX =  totalGrid; break;
       case "left":  exitX = -totalGrid; break;
@@ -173,6 +182,7 @@ export default function ArrowEscapePage() {
   const explorerUrl = contractAddress ? getExplorerAddressUrl(chain?.id, contractAddress) : null;
   const explorerName = getExplorerName(chain?.id);
 
+  const CELL_SIZE = CELL_SIZE_BY_GRID[game.gridSize] ?? 40;
   const gridPixels = game.gridSize * CELL_SIZE + (game.gridSize - 1) * GAP;
   const activeArrows = game.arrows.filter(a => !a.isExited);
   const exitedCount  = game.arrows.length - activeArrows.length;
@@ -271,6 +281,7 @@ export default function ArrowEscapePage() {
                     key={arrow.id}
                     arrow={arrow}
                     gridSize={game.gridSize}
+                    cellSize={CELL_SIZE}
                     isSelected={game.selectedId === arrow.id}
                     isHint={game.hintId === arrow.id}
                     isBlocked={game.blockedId === arrow.id}

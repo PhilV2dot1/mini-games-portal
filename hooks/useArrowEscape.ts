@@ -82,90 +82,117 @@ const COLORS = [
 // For direction "up":    head is topmost cell, body extends DOWN.
 
 const RAW_LEVELS: { gridSize: number; optimalMoves: number; arrows: Omit<Arrow, "isExited" | "color" | "id">[] }[] = [
-  // ── Level 1 — 5×5, 5 arrows ─────────────────────────────────────────────
-  // Solution: right@(0,4) exits, then up@(0,2) exits, down@(4,1) exits,
-  //           left@(2,0) exits, right@(3,4) exits
+
+  // ── Level 1 — 5×5 — 7 arrows — ~7 moves ─────────────────────────────────
+  // Intro: all have at most 1 blocker. Chain: clear edges → centre unlocks.
+  // right(0,4)=(0,4)(0,3)  up(0,1)=(0,1)(1,1)  down(4,3)=(4,3)(3,3)
+  // left(2,0)=(2,0)(2,1)   right(1,4)=(1,4)(1,3)  up(0,2)=(0,2)(1,2)
+  // down(4,0)=(4,0)(3,0)   — verified zero-overlap
   {
     gridSize: 5,
-    optimalMoves: 5,
+    optimalMoves: 7,
     arrows: [
-      { direction: "right", length: 2, headRow: 0, headCol: 4 }, // row0: cols3-4 → exits right
-      { direction: "up",    length: 2, headRow: 0, headCol: 2 }, // col2: rows0-1 → exits up (blocked by nothing)
-      { direction: "down",  length: 2, headRow: 4, headCol: 1 }, // col1: rows3-4 → exits down
-      { direction: "left",  length: 2, headRow: 2, headCol: 0 }, // row2: cols0-1 → exits left
-      { direction: "right", length: 2, headRow: 3, headCol: 4 }, // row3: cols3-4 → exits right
+      { direction: "right", length: 2, headRow: 0, headCol: 4 },
+      { direction: "up",    length: 2, headRow: 0, headCol: 1 },
+      { direction: "down",  length: 2, headRow: 4, headCol: 3 },
+      { direction: "left",  length: 2, headRow: 2, headCol: 0 },
+      { direction: "right", length: 2, headRow: 1, headCol: 4 },
+      { direction: "up",    length: 2, headRow: 0, headCol: 2 },
+      { direction: "down",  length: 2, headRow: 4, headCol: 0 },
     ],
   },
 
-  // ── Level 2 — 6×6, 7 arrows ─────────────────────────────────────────────
-  // Corner arrows exit first, then middle ones unblock
+  // ── Level 2 — 6×6 — 9 arrows — ~12 moves ────────────────────────────────
+  // Two waves. Lengths 2-3. Inner arrows blocked by outer ones.
+  // Verified zero-overlap with tryBuild().
   {
     gridSize: 6,
-    optimalMoves: 8,
-    arrows: [
-      { direction: "right", length: 2, headRow: 0, headCol: 5 }, // row0: cols4-5
-      { direction: "right", length: 3, headRow: 2, headCol: 5 }, // row2: cols3-5
-      { direction: "down",  length: 2, headRow: 5, headCol: 0 }, // col0: rows4-5
-      { direction: "down",  length: 3, headRow: 5, headCol: 4 }, // col4: rows3-5
-      { direction: "left",  length: 2, headRow: 4, headCol: 1 }, // row4: cols1-2 — blocked by down@col0 until it exits
-      { direction: "left",  length: 2, headRow: 1, headCol: 0 }, // row1: cols0-1 — exits left
-      { direction: "up",    length: 2, headRow: 0, headCol: 2 }, // col2: rows0-1 — exits up
-    ],
-  },
-
-  // ── Level 3 — 7×7, 9 arrows ─────────────────────────────────────────────
-  {
-    gridSize: 7,
     optimalMoves: 12,
     arrows: [
-      { direction: "right", length: 3, headRow: 0, headCol: 6 }, // row0: cols4-6
-      { direction: "right", length: 2, headRow: 3, headCol: 6 }, // row3: cols5-6
-      { direction: "down",  length: 3, headRow: 6, headCol: 2 }, // col2: rows4-6
-      { direction: "down",  length: 2, headRow: 6, headCol: 5 }, // col5: rows5-6
-      { direction: "left",  length: 3, headRow: 6, headCol: 0 }, // row6: cols0-2 — will overlap col2 down, skip
-      { direction: "left",  length: 2, headRow: 3, headCol: 1 }, // row3: cols1-2 — blocked by col2 down
-      { direction: "left",  length: 2, headRow: 6, headCol: 0 }, // row6: cols0-1
-      { direction: "up",    length: 3, headRow: 0, headCol: 4 }, // col4: rows0-2
-      { direction: "up",    length: 2, headRow: 0, headCol: 0 }, // col0: rows0-1
+      { direction: "right", length: 2, headRow: 0, headCol: 5 }, // (0,5)(0,4)
+      { direction: "right", length: 3, headRow: 2, headCol: 5 }, // (2,5)(2,4)(2,3)
+      { direction: "down",  length: 2, headRow: 5, headCol: 0 }, // (5,0)(4,0)
+      { direction: "down",  length: 3, headRow: 5, headCol: 3 }, // (5,3)(4,3)(3,3)
+      { direction: "left",  length: 2, headRow: 4, headCol: 1 }, // (4,1)(4,2)
+      { direction: "left",  length: 3, headRow: 1, headCol: 0 }, // (1,0)(1,1)(1,2)
+      { direction: "down",  length: 2, headRow: 5, headCol: 5 }, // (5,5)(4,5)
+      { direction: "right", length: 2, headRow: 3, headCol: 5 }, // (3,5)(3,4)
+      { direction: "up",    length: 2, headRow: 0, headCol: 3 }, // (0,3)(1,3)
     ],
   },
 
-  // ── Level 4 — 7×7, 11 arrows ────────────────────────────────────────────
+  // ── Level 3 — 7×7 — 12 arrows — ~18 moves ───────────────────────────────
+  // Three waves. Mix of lengths 2-3. Cross-directional dependencies.
+  // Verified zero-overlap with tryBuild().
   {
     gridSize: 7,
-    optimalMoves: 16,
+    optimalMoves: 18,
     arrows: [
-      { direction: "right", length: 3, headRow: 0, headCol: 6 },
-      { direction: "right", length: 2, headRow: 2, headCol: 6 },
-      { direction: "right", length: 2, headRow: 4, headCol: 6 },
-      { direction: "down",  length: 3, headRow: 6, headCol: 0 },
-      { direction: "down",  length: 2, headRow: 6, headCol: 3 },
-      { direction: "down",  length: 2, headRow: 6, headCol: 6 },
-      { direction: "left",  length: 2, headRow: 1, headCol: 0 },
-      { direction: "left",  length: 3, headRow: 3, headCol: 2 }, // row3: cols0-2 — blocked by down@col0
-      { direction: "left",  length: 2, headRow: 5, headCol: 1 }, // row5: cols1-2 — blocked by down@col0
-      { direction: "up",    length: 3, headRow: 0, headCol: 2 },
-      { direction: "up",    length: 2, headRow: 0, headCol: 5 },
+      { direction: "right", length: 3, headRow: 0, headCol: 6 }, // (0,6)(0,5)(0,4)
+      { direction: "right", length: 2, headRow: 2, headCol: 6 }, // (2,6)(2,5)
+      { direction: "right", length: 3, headRow: 4, headCol: 6 }, // (4,6)(4,5)(4,4)
+      { direction: "down",  length: 3, headRow: 6, headCol: 0 }, // (6,0)(5,0)(4,0)
+      { direction: "down",  length: 2, headRow: 6, headCol: 3 }, // (6,3)(5,3)
+      { direction: "down",  length: 2, headRow: 6, headCol: 5 }, // (6,5)(5,5)
+      { direction: "left",  length: 2, headRow: 3, headCol: 0 }, // (3,0)(3,1)
+      { direction: "left",  length: 2, headRow: 6, headCol: 1 }, // (6,1)(6,2)
+      { direction: "up",    length: 3, headRow: 0, headCol: 2 }, // (0,2)(1,2)(2,2)
+      { direction: "up",    length: 2, headRow: 1, headCol: 4 }, // (1,4)(2,4)
+      { direction: "right", length: 2, headRow: 5, headCol: 2 }, // (5,2)(5,1)
+      { direction: "up",    length: 2, headRow: 0, headCol: 0 }, // (0,0)(1,0)
     ],
   },
 
-  // ── Level 5 — 8×8, 12 arrows ────────────────────────────────────────────
+  // ── Level 4 — 8×8 — 15 arrows — ~25 moves ───────────────────────────────
+  // Four waves. Length 2-4. Multiple cross-dependencies.
+  // Verified zero-overlap with tryBuild().
   {
     gridSize: 8,
-    optimalMoves: 24,
+    optimalMoves: 25,
     arrows: [
-      { direction: "right", length: 3, headRow: 0, headCol: 7 },
-      { direction: "right", length: 2, headRow: 2, headCol: 7 },
-      { direction: "right", length: 3, headRow: 4, headCol: 7 },
-      { direction: "right", length: 2, headRow: 6, headCol: 7 },
-      { direction: "down",  length: 3, headRow: 7, headCol: 1 },
-      { direction: "down",  length: 2, headRow: 7, headCol: 4 },
-      { direction: "down",  length: 3, headRow: 7, headCol: 6 },
-      { direction: "left",  length: 2, headRow: 1, headCol: 0 },
-      { direction: "left",  length: 3, headRow: 5, headCol: 2 }, // row5: cols0-2 — blocked by col1 down
-      { direction: "up",    length: 2, headRow: 0, headCol: 3 },
-      { direction: "up",    length: 3, headRow: 0, headCol: 5 },
-      { direction: "up",    length: 2, headRow: 3, headCol: 0 }, // col0: rows3-4
+      { direction: "right", length: 3, headRow: 0, headCol: 7 }, // (0,7)(0,6)(0,5)
+      { direction: "right", length: 2, headRow: 2, headCol: 7 }, // (2,7)(2,6)
+      { direction: "right", length: 3, headRow: 4, headCol: 7 }, // (4,7)(4,6)(4,5)
+      { direction: "right", length: 2, headRow: 6, headCol: 7 }, // (6,7)(6,6)
+      { direction: "down",  length: 3, headRow: 7, headCol: 0 }, // (7,0)(6,0)(5,0)
+      { direction: "down",  length: 2, headRow: 7, headCol: 3 }, // (7,3)(6,3)
+      { direction: "down",  length: 3, headRow: 7, headCol: 5 }, // (7,5)(6,5)(5,5)
+      { direction: "down",  length: 3, headRow: 4, headCol: 2 }, // (4,2)(3,2)(2,2)
+      { direction: "left",  length: 3, headRow: 1, headCol: 0 }, // (1,0)(1,1)(1,2)
+      { direction: "left",  length: 2, headRow: 3, headCol: 0 }, // (3,0)(3,1)
+      { direction: "left",  length: 3, headRow: 5, headCol: 2 }, // (5,2)(5,3)(5,4)
+      { direction: "up",    length: 3, headRow: 0, headCol: 4 }, // (0,4)(1,4)(2,4)
+      { direction: "up",    length: 2, headRow: 5, headCol: 1 }, // (5,1)(6,1)
+      { direction: "right", length: 2, headRow: 7, headCol: 7 }, // (7,7)(7,6)
+      { direction: "up",    length: 2, headRow: 2, headCol: 5 }, // (2,5)(3,5)
+    ],
+  },
+
+  // ── Level 5 — 9×9 — 18 arrows — ~35 moves ───────────────────────────────
+  // Expert: length 2-4, deep 4-step chains, crowded interior.
+  // Verified zero-overlap with tryBuild().
+  {
+    gridSize: 9,
+    optimalMoves: 35,
+    arrows: [
+      { direction: "right", length: 3, headRow: 0, headCol: 8 }, // (0,8)(0,7)(0,6)
+      { direction: "right", length: 2, headRow: 2, headCol: 8 }, // (2,8)(2,7)
+      { direction: "right", length: 4, headRow: 4, headCol: 8 }, // (4,8)(4,7)(4,6)(4,5)
+      { direction: "right", length: 3, headRow: 6, headCol: 8 }, // (6,8)(6,7)(6,6)
+      { direction: "down",  length: 3, headRow: 8, headCol: 0 }, // (8,0)(7,0)(6,0)
+      { direction: "down",  length: 2, headRow: 8, headCol: 3 }, // (8,3)(7,3)
+      { direction: "down",  length: 3, headRow: 8, headCol: 5 }, // (8,5)(7,5)(6,5)
+      { direction: "down",  length: 2, headRow: 8, headCol: 8 }, // (8,8)(7,8)
+      { direction: "left",  length: 2, headRow: 0, headCol: 0 }, // (0,0)(0,1)
+      { direction: "left",  length: 3, headRow: 3, headCol: 0 }, // (3,0)(3,1)(3,2)
+      { direction: "left",  length: 4, headRow: 5, headCol: 0 }, // (5,0)(5,1)(5,2)(5,3)
+      { direction: "left",  length: 2, headRow: 8, headCol: 1 }, // (8,1)(8,2)
+      { direction: "up",    length: 3, headRow: 0, headCol: 2 }, // (0,2)(1,2)(2,2)
+      { direction: "up",    length: 4, headRow: 0, headCol: 4 }, // (0,4)(1,4)(2,4)(3,4)
+      { direction: "up",    length: 3, headRow: 1, headCol: 6 }, // (1,6)(2,6)(3,6)
+      { direction: "right", length: 2, headRow: 1, headCol: 8 }, // (1,8)(1,7)
+      { direction: "down",  length: 2, headRow: 5, headCol: 4 }, // (5,4)(4,4)
+      { direction: "up",    length: 2, headRow: 7, headCol: 7 }, // (7,7)(8,7) — up head=7,body=8 → (7,7)(8,7)
     ],
   },
 ];
