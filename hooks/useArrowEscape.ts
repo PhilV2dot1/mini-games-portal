@@ -6,32 +6,47 @@ import { useState, useCallback, useRef } from "react";
 // ========================================
 
 export type Direction = "up" | "down" | "left" | "right";
-
-export interface ArrowCell {
-  dir: Direction;
-  id: number; // unique id for animation key
-}
-
-// Grid: null = empty, ArrowCell = has arrow
-export type Grid = (ArrowCell | null)[][];
-
 export type GameStatus = "playing" | "won" | "lost";
 export type GameMode = "free" | "onchain";
 
-export interface UseArrowEscapeReturn {
-  grid: Grid;
-  rows: number;
-  cols: number;
-  lives: number;
-  score: number;
-  level: number;
+export interface Arrow {
+  id: string;
+  direction: Direction;
+  length: number;    // number of cells occupied (2, 3, or 4)
+  headRow: number;   // row of the head (tip of arrow)
+  headCol: number;   // col of the head
+  color: string;
+  isExited: boolean;
+}
+
+export interface Level {
+  gridSize: number;
+  arrows: Omit<Arrow, "isExited">[];
+  optimalMoves: number;
+}
+
+export interface GameState {
+  arrows: Arrow[];
+  gridSize: number;
+  moves: number;
+  selectedId: string | null;
   status: GameStatus;
   mode: GameMode;
-  arrowsLeft: number;
-  hintCell: [number, number] | null;
-  exitingCell: [number, number] | null;
-  blockedCell: [number, number] | null;
-  tapCell: (row: number, col: number) => void;
+  level: number;
+  score: number;
+  hintsLeft: number;
+  hintId: string | null;
+  blockedId: string | null;
+  exitingId: string | null;
+  history: Arrow[][];  // undo stack
+  stars: number;
+}
+
+export interface UseArrowEscapeReturn extends GameState {
+  selectArrow: (id: string) => void;
+  moveSelected: (steps?: number) => void;
+  tapArrow: (id: string) => void;
+  undo: () => void;
   showHint: () => void;
   restartLevel: () => void;
   nextLevel: () => void;
@@ -39,307 +54,260 @@ export interface UseArrowEscapeReturn {
 }
 
 // ========================================
-// LEVEL DEFINITIONS
+// COLORS
 // ========================================
 
-interface LevelDef {
-  rows: number;
-  cols: number;
-  arrows: { row: number; col: number; dir: Direction }[];
-}
+const COLORS = [
+  "#3B82F6", // blue
+  "#EF4444", // red
+  "#22C55E", // green
+  "#F97316", // orange
+  "#A855F7", // purple
+  "#06B6D4", // cyan
+  "#EAB308", // yellow
+  "#EC4899", // pink
+  "#14B8A6", // teal
+  "#F43F5E", // rose
+  "#84CC16", // lime
+  "#8B5CF6", // violet
+];
 
-// Each level is designed so there's always at least 1-2 arrows that can exit immediately,
-// and removing them unlocks others, creating a chain puzzle.
-//
-// Notation: path from [r,c] in direction d must be clear of other arrows to exit.
-// "clear path" means all cells between [r,c] and the edge in direction d are null.
+// ========================================
+// LEVEL DEFINITIONS
+// ========================================
+// headRow/headCol = position of the arrow TIP.
+// For direction "right": head is rightmost cell, body extends LEFT.
+// For direction "left":  head is leftmost cell, body extends RIGHT.
+// For direction "down":  head is bottommost cell, body extends UP.
+// For direction "up":    head is topmost cell, body extends DOWN.
 
-const LEVELS: LevelDef[] = [
-  // ── Level 1 — 4×4, 6 arrows ──────────────────────────────────────────
+const RAW_LEVELS: { gridSize: number; optimalMoves: number; arrows: Omit<Arrow, "isExited" | "color" | "id">[] }[] = [
+  // ── Level 1 — 5×5, 5 arrows ─────────────────────────────────────────────
+  // Solution: right@(0,4) exits, then up@(0,2) exits, down@(4,1) exits,
+  //           left@(2,0) exits, right@(3,4) exits
   {
-    rows: 4, cols: 4,
+    gridSize: 5,
+    optimalMoves: 5,
     arrows: [
-      { row: 0, col: 3, dir: "right" }, // exits right immediately (nothing past col3)
-      { row: 3, col: 0, dir: "left"  }, // exits left immediately
-      { row: 0, col: 0, dir: "up"    }, // exits up immediately
-      { row: 3, col: 3, dir: "down"  }, // exits down immediately
-      { row: 1, col: 3, dir: "up"    }, // after (0,3) gone → row0 col3 clear
-      { row: 2, col: 0, dir: "down"  }, // after (3,0) gone → row3 col0 clear
+      { direction: "right", length: 2, headRow: 0, headCol: 4 }, // row0: cols3-4 → exits right
+      { direction: "up",    length: 2, headRow: 0, headCol: 2 }, // col2: rows0-1 → exits up (blocked by nothing)
+      { direction: "down",  length: 2, headRow: 4, headCol: 1 }, // col1: rows3-4 → exits down
+      { direction: "left",  length: 2, headRow: 2, headCol: 0 }, // row2: cols0-1 → exits left
+      { direction: "right", length: 2, headRow: 3, headCol: 4 }, // row3: cols3-4 → exits right
     ],
   },
-  // ── Level 2 — 4×4, 8 arrows ──────────────────────────────────────────
+
+  // ── Level 2 — 6×6, 7 arrows ─────────────────────────────────────────────
+  // Corner arrows exit first, then middle ones unblock
   {
-    rows: 4, cols: 4,
+    gridSize: 6,
+    optimalMoves: 8,
     arrows: [
-      { row: 0, col: 3, dir: "right" },
-      { row: 3, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 3, col: 3, dir: "down"  },
-      { row: 0, col: 2, dir: "up"    }, // exits up immediately
-      { row: 3, col: 1, dir: "down"  }, // exits down immediately
-      { row: 1, col: 3, dir: "right" }, // after (0,3) gone
-      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
+      { direction: "right", length: 2, headRow: 0, headCol: 5 }, // row0: cols4-5
+      { direction: "right", length: 3, headRow: 2, headCol: 5 }, // row2: cols3-5
+      { direction: "down",  length: 2, headRow: 5, headCol: 0 }, // col0: rows4-5
+      { direction: "down",  length: 3, headRow: 5, headCol: 4 }, // col4: rows3-5
+      { direction: "left",  length: 2, headRow: 4, headCol: 1 }, // row4: cols1-2 — blocked by down@col0 until it exits
+      { direction: "left",  length: 2, headRow: 1, headCol: 0 }, // row1: cols0-1 — exits left
+      { direction: "up",    length: 2, headRow: 0, headCol: 2 }, // col2: rows0-1 — exits up
     ],
   },
-  // ── Level 3 — 4×5, 10 arrows ─────────────────────────────────────────
+
+  // ── Level 3 — 7×7, 9 arrows ─────────────────────────────────────────────
   {
-    rows: 4, cols: 5,
+    gridSize: 7,
+    optimalMoves: 12,
     arrows: [
-      { row: 0, col: 4, dir: "right" },
-      { row: 3, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 3, col: 4, dir: "down"  },
-      { row: 0, col: 2, dir: "up"    },
-      { row: 3, col: 2, dir: "down"  },
-      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
-      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 2, col: 4, dir: "down"  }, // after (3,4) gone
+      { direction: "right", length: 3, headRow: 0, headCol: 6 }, // row0: cols4-6
+      { direction: "right", length: 2, headRow: 3, headCol: 6 }, // row3: cols5-6
+      { direction: "down",  length: 3, headRow: 6, headCol: 2 }, // col2: rows4-6
+      { direction: "down",  length: 2, headRow: 6, headCol: 5 }, // col5: rows5-6
+      { direction: "left",  length: 3, headRow: 6, headCol: 0 }, // row6: cols0-2 — will overlap col2 down, skip
+      { direction: "left",  length: 2, headRow: 3, headCol: 1 }, // row3: cols1-2 — blocked by col2 down
+      { direction: "left",  length: 2, headRow: 6, headCol: 0 }, // row6: cols0-1
+      { direction: "up",    length: 3, headRow: 0, headCol: 4 }, // col4: rows0-2
+      { direction: "up",    length: 2, headRow: 0, headCol: 0 }, // col0: rows0-1
     ],
   },
-  // ── Level 4 — 4×5, 12 arrows ─────────────────────────────────────────
+
+  // ── Level 4 — 7×7, 11 arrows ────────────────────────────────────────────
   {
-    rows: 4, cols: 5,
+    gridSize: 7,
+    optimalMoves: 16,
     arrows: [
-      { row: 0, col: 4, dir: "right" },
-      { row: 3, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 3, col: 4, dir: "down"  },
-      { row: 0, col: 2, dir: "up"    },
-      { row: 3, col: 2, dir: "down"  },
-      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
-      { row: 2, col: 0, dir: "left"  }, // after (3,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 2, col: 4, dir: "down"  }, // after (3,4) gone
-      { row: 1, col: 2, dir: "right" }, // after (1,4) gone → col3,4 clear
-      { row: 2, col: 2, dir: "left"  }, // after (2,0) gone → col1,0 clear
+      { direction: "right", length: 3, headRow: 0, headCol: 6 },
+      { direction: "right", length: 2, headRow: 2, headCol: 6 },
+      { direction: "right", length: 2, headRow: 4, headCol: 6 },
+      { direction: "down",  length: 3, headRow: 6, headCol: 0 },
+      { direction: "down",  length: 2, headRow: 6, headCol: 3 },
+      { direction: "down",  length: 2, headRow: 6, headCol: 6 },
+      { direction: "left",  length: 2, headRow: 1, headCol: 0 },
+      { direction: "left",  length: 3, headRow: 3, headCol: 2 }, // row3: cols0-2 — blocked by down@col0
+      { direction: "left",  length: 2, headRow: 5, headCol: 1 }, // row5: cols1-2 — blocked by down@col0
+      { direction: "up",    length: 3, headRow: 0, headCol: 2 },
+      { direction: "up",    length: 2, headRow: 0, headCol: 5 },
     ],
   },
-  // ── Level 5 — 5×5, 14 arrows ─────────────────────────────────────────
+
+  // ── Level 5 — 8×8, 12 arrows ────────────────────────────────────────────
   {
-    rows: 5, cols: 5,
+    gridSize: 8,
+    optimalMoves: 24,
     arrows: [
-      { row: 0, col: 4, dir: "right" },
-      { row: 4, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 4, col: 4, dir: "down"  },
-      { row: 0, col: 2, dir: "up"    },
-      { row: 4, col: 2, dir: "down"  },
-      { row: 2, col: 4, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
-      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
-      { row: 1, col: 2, dir: "up"    }, // after (0,2) gone
-      { row: 3, col: 2, dir: "down"  }, // after (4,2) gone
-    ],
-  },
-  // ── Level 6 — 5×5, 16 arrows ─────────────────────────────────────────
-  {
-    rows: 5, cols: 5,
-    arrows: [
-      { row: 0, col: 4, dir: "right" },
-      { row: 4, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 4, col: 4, dir: "down"  },
-      { row: 0, col: 2, dir: "up"    },
-      { row: 4, col: 2, dir: "down"  },
-      { row: 2, col: 4, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 1, col: 4, dir: "right" }, // after (0,4) gone
-      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
-      { row: 1, col: 2, dir: "up"    }, // after (0,2) gone
-      { row: 3, col: 2, dir: "down"  }, // after (4,2) gone
-      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
-      { row: 2, col: 3, dir: "right" }, // after (2,4) gone
-    ],
-  },
-  // ── Level 7 — 5×6, 18 arrows ─────────────────────────────────────────
-  {
-    rows: 5, cols: 6,
-    arrows: [
-      { row: 0, col: 5, dir: "right" },
-      { row: 4, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 4, col: 5, dir: "down"  },
-      { row: 0, col: 3, dir: "up"    },
-      { row: 4, col: 2, dir: "down"  },
-      { row: 2, col: 5, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 0, col: 1, dir: "up"    },
-      { row: 4, col: 4, dir: "down"  },
-      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
-      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 3, col: 5, dir: "down"  }, // after (4,5) gone
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
-      { row: 3, col: 1, dir: "left"  }, // after (3,0) gone
-      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
-      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
-    ],
-  },
-  // ── Level 8 — 5×6, 20 arrows ─────────────────────────────────────────
-  {
-    rows: 5, cols: 6,
-    arrows: [
-      { row: 0, col: 5, dir: "right" },
-      { row: 4, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 4, col: 5, dir: "down"  },
-      { row: 0, col: 3, dir: "up"    },
-      { row: 4, col: 2, dir: "down"  },
-      { row: 2, col: 5, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 0, col: 1, dir: "up"    },
-      { row: 4, col: 4, dir: "down"  },
-      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
-      { row: 3, col: 0, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 3, col: 5, dir: "down"  }, // after (4,5) gone
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
-      { row: 3, col: 1, dir: "left"  }, // after (3,0) gone
-      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
-      { row: 3, col: 4, dir: "down"  }, // after (4,4) gone
-      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
-      { row: 2, col: 4, dir: "right" }, // after (2,5) gone
-    ],
-  },
-  // ── Level 9 — 6×6, 22 arrows ─────────────────────────────────────────
-  {
-    rows: 6, cols: 6,
-    arrows: [
-      { row: 0, col: 5, dir: "right" },
-      { row: 5, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 5, col: 5, dir: "down"  },
-      { row: 0, col: 3, dir: "up"    },
-      { row: 5, col: 2, dir: "down"  },
-      { row: 3, col: 5, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 0, col: 1, dir: "up"    },
-      { row: 5, col: 4, dir: "down"  },
-      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
-      { row: 4, col: 0, dir: "left"  }, // after (5,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 4, col: 5, dir: "down"  }, // after (5,5) gone
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
-      { row: 4, col: 1, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
-      { row: 4, col: 4, dir: "down"  }, // after (5,4) gone
-      { row: 2, col: 5, dir: "right" }, // exits immediately (col6 > cols)
-      { row: 3, col: 0, dir: "left"  }, // exits immediately (col-1 < 0)
-      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
-      { row: 3, col: 4, dir: "right" }, // after (3,5) gone
-    ],
-  },
-  // ── Level 10 — 6×6, 25 arrows ────────────────────────────────────────
-  {
-    rows: 6, cols: 6,
-    arrows: [
-      { row: 0, col: 5, dir: "right" },
-      { row: 5, col: 0, dir: "left"  },
-      { row: 0, col: 0, dir: "up"    },
-      { row: 5, col: 5, dir: "down"  },
-      { row: 0, col: 3, dir: "up"    },
-      { row: 5, col: 2, dir: "down"  },
-      { row: 3, col: 5, dir: "right" },
-      { row: 2, col: 0, dir: "left"  },
-      { row: 0, col: 1, dir: "up"    },
-      { row: 5, col: 4, dir: "down"  },
-      { row: 1, col: 5, dir: "right" }, // after (0,5) gone
-      { row: 4, col: 0, dir: "left"  }, // after (5,0) gone
-      { row: 1, col: 0, dir: "up"    }, // after (0,0) gone
-      { row: 4, col: 5, dir: "down"  }, // after (5,5) gone
-      { row: 1, col: 4, dir: "right" }, // after (1,5) gone
-      { row: 4, col: 1, dir: "left"  }, // after (4,0) gone
-      { row: 1, col: 1, dir: "up"    }, // after (0,1) gone
-      { row: 4, col: 4, dir: "down"  }, // after (5,4) gone
-      { row: 2, col: 5, dir: "right" },
-      { row: 3, col: 0, dir: "left"  },
-      { row: 2, col: 1, dir: "left"  }, // after (2,0) gone
-      { row: 3, col: 4, dir: "right" }, // after (3,5) gone
-      { row: 0, col: 4, dir: "up"    }, // exits immediately
-      { row: 5, col: 1, dir: "down"  }, // exits immediately
-      { row: 2, col: 3, dir: "right" }, // after (2,4 empty), (2,5) gone → col4,5 clear
+      { direction: "right", length: 3, headRow: 0, headCol: 7 },
+      { direction: "right", length: 2, headRow: 2, headCol: 7 },
+      { direction: "right", length: 3, headRow: 4, headCol: 7 },
+      { direction: "right", length: 2, headRow: 6, headCol: 7 },
+      { direction: "down",  length: 3, headRow: 7, headCol: 1 },
+      { direction: "down",  length: 2, headRow: 7, headCol: 4 },
+      { direction: "down",  length: 3, headRow: 7, headCol: 6 },
+      { direction: "left",  length: 2, headRow: 1, headCol: 0 },
+      { direction: "left",  length: 3, headRow: 5, headCol: 2 }, // row5: cols0-2 — blocked by col1 down
+      { direction: "up",    length: 2, headRow: 0, headCol: 3 },
+      { direction: "up",    length: 3, headRow: 0, headCol: 5 },
+      { direction: "up",    length: 2, headRow: 3, headCol: 0 }, // col0: rows3-4
     ],
   },
 ];
 
 // ========================================
-// GRID BUILDER
+// BUILD LEVELS — assign ids, colors, validate & fix overlaps
 // ========================================
 
-let idCounter = 1;
+function buildLevel(raw: typeof RAW_LEVELS[0]): Level {
+  const occupied = new Set<string>();
 
-function buildGrid(def: LevelDef): Grid {
-  const grid: Grid = Array.from({ length: def.rows }, () =>
-    Array(def.cols).fill(null)
-  );
-  for (const a of def.arrows) {
-    grid[a.row][a.col] = { dir: a.dir, id: idCounter++ };
-  }
-  return grid;
-}
+  const arrows: Omit<Arrow, "isExited">[] = [];
 
-// ========================================
-// LOGIC HELPERS
-// ========================================
+  for (let i = 0; i < raw.arrows.length; i++) {
+    const a = raw.arrows[i];
+    const arrowCells = getArrowCells(a.direction, a.headRow, a.headCol, a.length);
 
-function canExit(grid: Grid, row: number, col: number): boolean {
-  const cell = grid[row][col];
-  if (!cell) return false;
-  const rows = grid.length;
-  const cols = grid[0].length;
+    // Skip arrows that would be out of bounds or overlap
+    const valid = arrowCells.every(([r, c]) =>
+      r >= 0 && r < raw.gridSize && c >= 0 && c < raw.gridSize
+    );
+    const noOverlap = arrowCells.every(([r, c]) => !occupied.has(`${r},${c}`));
 
-  switch (cell.dir) {
-    case "up":
-      for (let r = row - 1; r >= 0; r--) {
-        if (grid[r][col] !== null) return false;
-      }
-      return true;
-    case "down":
-      for (let r = row + 1; r < rows; r++) {
-        if (grid[r][col] !== null) return false;
-      }
-      return true;
-    case "left":
-      for (let c = col - 1; c >= 0; c--) {
-        if (grid[row][c] !== null) return false;
-      }
-      return true;
-    case "right":
-      for (let c = col + 1; c < cols; c++) {
-        if (grid[row][c] !== null) return false;
-      }
-      return true;
-  }
-}
-
-function countArrows(grid: Grid): number {
-  let count = 0;
-  for (const row of grid) {
-    for (const cell of row) {
-      if (cell !== null) count++;
+    if (valid && noOverlap) {
+      arrowCells.forEach(([r, c]) => occupied.add(`${r},${c}`));
+      arrows.push({
+        id: `a${i + 1}`,
+        direction: a.direction,
+        length: a.length,
+        headRow: a.headRow,
+        headCol: a.headCol,
+        color: COLORS[i % COLORS.length],
+      });
     }
   }
-  return count;
+
+  return {
+    gridSize: raw.gridSize,
+    optimalMoves: raw.optimalMoves,
+    arrows,
+  };
 }
 
-function findHint(grid: Grid): [number, number] | null {
-  for (let r = 0; r < grid.length; r++) {
-    for (let c = 0; c < grid[0].length; c++) {
-      if (grid[r][c] !== null && canExit(grid, r, c)) {
-        return [r, c];
-      }
+export const LEVELS: Level[] = RAW_LEVELS.map(buildLevel);
+
+// ========================================
+// ARROW CELL HELPERS
+// ========================================
+
+// Returns all [row, col] cells occupied by an arrow
+export function getArrowCells(
+  direction: Direction,
+  headRow: number,
+  headCol: number,
+  length: number
+): [number, number][] {
+  const cells: [number, number][] = [];
+  for (let i = 0; i < length; i++) {
+    switch (direction) {
+      case "right": cells.push([headRow, headCol - i]); break;
+      case "left":  cells.push([headRow, headCol + i]); break;
+      case "down":  cells.push([headRow - i, headCol]); break;
+      case "up":    cells.push([headRow + i, headCol]); break;
     }
   }
-  return null;
+  return cells;
 }
 
-const STATS_KEY = "arrowescapestats";
+// How many steps can this arrow move in its direction before hitting a wall or another arrow?
+function maxSteps(arrow: Arrow, others: Arrow[], gridSize: number): number {
+  // Build occupied set (excluding this arrow)
+  const occupied = new Set<string>();
+  for (const other of others) {
+    if (other.id === arrow.id || other.isExited) continue;
+    getArrowCells(other.direction, other.headRow, other.headCol, other.length)
+      .forEach(([r, c]) => occupied.add(`${r},${c}`));
+  }
+
+  let steps = 0;
+  while (true) {
+    const nextHead = nextHeadPos(arrow.direction, arrow.headRow + 0, arrow.headCol + 0, steps + 1);
+    const nextCells = getArrowCells(arrow.direction, nextHead[0], nextHead[1], arrow.length);
+
+    // Check bounds
+    const inBounds = nextCells.every(([r, c]) => r >= 0 && r < gridSize && c >= 0 && c < gridSize);
+    if (!inBounds) {
+      // Check if the head is past the edge (can exit)
+      const headOut = isHeadOutOfBounds(arrow.direction, nextHead[0], nextHead[1], gridSize);
+      if (headOut) steps++; // can exit — count one more step
+      break;
+    }
+
+    // Check collision
+    const blocked = nextCells.some(([r, c]) => occupied.has(`${r},${c}`));
+    if (blocked) break;
+
+    steps++;
+  }
+  return steps;
+}
+
+function nextHeadPos(dir: Direction, row: number, col: number, steps: number): [number, number] {
+  switch (dir) {
+    case "right": return [row, col + steps];
+    case "left":  return [row, col - steps];
+    case "down":  return [row + steps, col];
+    case "up":    return [row - steps, col];
+  }
+}
+
+function isHeadOutOfBounds(dir: Direction, headRow: number, headCol: number, gridSize: number): boolean {
+  switch (dir) {
+    case "right": return headCol >= gridSize;
+    case "left":  return headCol < 0;
+    case "down":  return headRow >= gridSize;
+    case "up":    return headRow < 0;
+  }
+}
+
+// Can this arrow exit in one move (path is clear all the way to the edge)?
+function canExitDirectly(arrow: Arrow, others: Arrow[], gridSize: number): boolean {
+  return maxSteps(arrow, others, gridSize) >= stepsToExit(arrow, gridSize);
+}
+
+function stepsToExit(arrow: Arrow, gridSize: number): number {
+  switch (arrow.direction) {
+    case "right": return gridSize - arrow.headCol;
+    case "left":  return arrow.headCol + 1;
+    case "down":  return gridSize - arrow.headRow;
+    case "up":    return arrow.headRow + 1;
+  }
+}
+
+// ========================================
+// INITIAL STATE
+// ========================================
+
+function initArrows(level: Level): Arrow[] {
+  return level.arrows.map(a => ({ ...a, isExited: false }));
+}
+
+const STATS_KEY = "arrowescape2stats";
 
 interface Stats {
   gamesPlayed: number;
@@ -356,9 +324,20 @@ function loadStats(): Stats {
 }
 
 function saveStats(s: Stats): void {
-  try {
-    localStorage.setItem(STATS_KEY, JSON.stringify(s));
-  } catch { /* ignore */ }
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch { /* ignore */ }
+}
+
+function calcScore(moves: number, optimalMoves: number, hintsUsed: number): number {
+  const base = 1000;
+  const movePenalty = Math.max(0, moves - optimalMoves) * 10;
+  const hintPenalty = hintsUsed * 50;
+  return Math.max(100, base - movePenalty - hintPenalty);
+}
+
+function calcStars(moves: number, optimalMoves: number): number {
+  if (moves <= optimalMoves) return 3;
+  if (moves <= Math.floor(optimalMoves * 1.5)) return 2;
+  return 1;
 }
 
 // ========================================
@@ -367,147 +346,212 @@ function saveStats(s: Stats): void {
 
 export function useArrowEscape(): UseArrowEscapeReturn {
   const [level, setLevel] = useState(1);
-  const [grid, setGrid] = useState<Grid>(() => buildGrid(LEVELS[0]));
-  const [lives, setLives] = useState(3);
-  const [score, setScore] = useState(0);
+  const [arrows, setArrows] = useState<Arrow[]>(() => initArrows(LEVELS[0]));
+  const [moves, setMoves] = useState(0);
   const [status, setStatus] = useState<GameStatus>("playing");
-  const [mode, setGameModeState] = useState<GameMode>("free");
-  const [hintCell, setHintCell] = useState<[number, number] | null>(null);
-  const [exitingCell, setExitingCell] = useState<[number, number] | null>(null);
-  const [blockedCell, setBlockedCell] = useState<[number, number] | null>(null);
+  const [mode, setMode] = useState<GameMode>("free");
+  const [score, setScore] = useState(0);
+  const [hintsLeft, setHintsLeft] = useState(3);
+  const [hintId, setHintId] = useState<string | null>(null);
+  const [blockedId, setBlockedId] = useState<string | null>(null);
+  const [exitingId, setExitingId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [history, setHistory] = useState<Arrow[][]>([]);
+  const [stars, setStars] = useState(0);
 
-  // Ref to block taps while animating
-  const animating = useRef(false);
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animating = useRef(false);
+  const hintsUsedRef = useRef(0);
+  const levelRef = useRef(level);
+  levelRef.current = level;
 
-  const levelDef = LEVELS[level - 1];
-  const rows = levelDef.rows;
-  const cols = levelDef.cols;
-  const arrowsLeft = countArrows(grid);
+  const gridSize = LEVELS[level - 1].gridSize;
+  const optimalMoves = LEVELS[level - 1].optimalMoves;
+  const gridSizeRef = useRef(gridSize);
+  gridSizeRef.current = gridSize;
+  const optimalMovesRef = useRef(optimalMoves);
+  optimalMovesRef.current = optimalMoves;
 
-  const tapCell = useCallback((row: number, col: number) => {
+  // ── Move an arrow N steps (or to exit) ────────────────────────────────
+  const doMove = useCallback((arrowId: string, steps: number) => {
     if (animating.current) return;
     if (status !== "playing") return;
 
-    setGrid(currentGrid => {
-      if (currentGrid[row][col] === null) return currentGrid;
+    setArrows(prev => {
+      const arrow = prev.find(a => a.id === arrowId);
+      if (!arrow || arrow.isExited) return prev;
 
-      if (canExit(currentGrid, row, col)) {
-        // Start exit animation
+      const gs = gridSizeRef.current;
+      const available = maxSteps(arrow, prev, gs);
+      if (available === 0) {
+        setBlockedId(arrowId);
+        setTimeout(() => setBlockedId(null), 500);
+        return prev;
+      }
+
+      const actualSteps = Math.min(steps, available);
+      const exitSteps = stepsToExit(arrow, gs);
+      const willExit = actualSteps >= exitSteps;
+
+      setHistory(h => [...h.slice(-19), prev]);
+      setMoves(m => m + 1);
+
+      if (willExit) {
         animating.current = true;
-        setExitingCell([row, col]);
+        setExitingId(arrowId);
+
+        const newHead = nextHeadPos(arrow.direction, arrow.headRow, arrow.headCol, actualSteps);
+        const updated = prev.map(a =>
+          a.id === arrowId ? { ...a, headRow: newHead[0], headCol: newHead[1] } : a
+        );
 
         setTimeout(() => {
-          setGrid(g => {
-            const next: Grid = g.map(r => [...r]);
-            next[row][col] = null;
-            const remaining = countArrows(next);
+          setArrows(curr => {
+            const next = curr.map(a =>
+              a.id === arrowId ? { ...a, isExited: true } : a
+            );
+            const remaining = next.filter(a => !a.isExited).length;
             if (remaining === 0) {
-              setStatus("won");
-              // Save stats
-              setScore(prev => {
-                const newScore = prev + 10 + (lives > 0 ? lives * 5 : 0);
+              setMoves(m => {
+                const opt = optimalMovesRef.current;
+                const s = calcScore(m, opt, hintsUsedRef.current);
+                setScore(s);
+                setStars(calcStars(m, opt));
+                setStatus("won");
                 const stats = loadStats();
                 stats.levelsCleared += 1;
-                if (newScore > stats.bestScore) stats.bestScore = newScore;
+                if (s > stats.bestScore) stats.bestScore = s;
                 saveStats(stats);
-                return newScore;
+                return m;
               });
-            } else {
-              setScore(prev => prev + 10);
             }
             return next;
           });
-          setExitingCell(null);
+          setExitingId(null);
           animating.current = false;
-        }, 350);
+        }, 400);
 
-        return currentGrid; // grid updated in timeout
+        return updated;
       } else {
-        // Blocked — shake + lose life
-        setBlockedCell([row, col]);
-        setLives(prev => {
-          const newLives = prev - 1;
-          if (newLives <= 0) {
-            setTimeout(() => {
-              setStatus("lost");
-              setBlockedCell(null);
-              const stats = loadStats();
-              stats.gamesPlayed += 1;
-              saveStats(stats);
-            }, 500);
-          } else {
-            setTimeout(() => setBlockedCell(null), 500);
-          }
-          return newLives;
-        });
-        return currentGrid;
+        const newHead = nextHeadPos(arrow.direction, arrow.headRow, arrow.headCol, actualSteps);
+        return prev.map(a =>
+          a.id === arrowId ? { ...a, headRow: newHead[0], headCol: newHead[1] } : a
+        );
       }
     });
-  }, [status, lives]);
+  }, [status]);
 
-  const showHint = useCallback(() => {
-    setGrid(currentGrid => {
-      const hint = findHint(currentGrid);
-      if (hint) {
-        setHintCell(hint);
-        if (hintTimer.current) clearTimeout(hintTimer.current);
-        hintTimer.current = setTimeout(() => setHintCell(null), 2000);
-      }
-      return currentGrid;
+  // ── Tap/click an arrow ────────────────────────────────────────────────
+  const tapArrow = useCallback((id: string) => {
+    doMove(id, 999); // move as far as possible (maxSteps clamped internally)
+  }, [doMove]);
+
+  // ── Select for directional input ──────────────────────────────────────
+  const selectArrow = useCallback((id: string) => {
+    setSelectedId(prev => prev === id ? null : id);
+  }, []);
+
+  // ── Move selected arrow one step ──────────────────────────────────────
+  const moveSelected = useCallback((steps = 1) => {
+    if (selectedId) doMove(selectedId, steps);
+  }, [selectedId, doMove]);
+
+  // ── Undo ──────────────────────────────────────────────────────────────
+  const undo = useCallback(() => {
+    if (animating.current) return;
+    setHistory(h => {
+      if (h.length === 0) return h;
+      const prev = h[h.length - 1];
+      setArrows(prev);
+      setMoves(m => Math.max(0, m - 1));
+      setStatus("playing");
+      return h.slice(0, -1);
     });
   }, []);
 
+  // ── Hint ──────────────────────────────────────────────────────────────
+  const showHint = useCallback(() => {
+    if (hintsLeft <= 0) return;
+    setArrows(prev => {
+      const gs = gridSizeRef.current;
+      const canExit = prev.find(a => !a.isExited && canExitDirectly(a, prev, gs));
+      const canMove = prev.find(a => !a.isExited && maxSteps(a, prev, gs) > 0);
+      const target = canExit || canMove;
+      if (target) {
+        setHintId(target.id);
+        setHintsLeft(h => h - 1);
+        hintsUsedRef.current += 1;
+        if (hintTimer.current) clearTimeout(hintTimer.current);
+        hintTimer.current = setTimeout(() => setHintId(null), 2500);
+      }
+      return prev;
+    });
+  }, [hintsLeft, gridSize]);
+
+  // ── Restart ───────────────────────────────────────────────────────────
   const restartLevel = useCallback(() => {
     if (hintTimer.current) clearTimeout(hintTimer.current);
     animating.current = false;
-    setGrid(buildGrid(LEVELS[level - 1]));
-    setLives(3);
+    setArrows(initArrows(LEVELS[level - 1]));
+    setMoves(0);
     setScore(0);
     setStatus("playing");
-    setHintCell(null);
-    setExitingCell(null);
-    setBlockedCell(null);
+    setHintsLeft(3);
+    setHintId(null);
+    setBlockedId(null);
+    setExitingId(null);
+    setSelectedId(null);
+    setHistory([]);
+    setStars(0);
+    hintsUsedRef.current = 0;
   }, [level]);
 
+  // ── Next Level ────────────────────────────────────────────────────────
   const nextLevel = useCallback(() => {
     if (hintTimer.current) clearTimeout(hintTimer.current);
     animating.current = false;
     const nextLvl = level < LEVELS.length ? level + 1 : 1;
     setLevel(nextLvl);
-    setGrid(buildGrid(LEVELS[nextLvl - 1]));
-    setLives(3);
+    setArrows(initArrows(LEVELS[nextLvl - 1]));
+    setMoves(0);
     setScore(0);
     setStatus("playing");
-    setHintCell(null);
-    setExitingCell(null);
-    setBlockedCell(null);
+    setHintsLeft(3);
+    setHintId(null);
+    setBlockedId(null);
+    setExitingId(null);
+    setSelectedId(null);
+    setHistory([]);
+    setStars(0);
+    hintsUsedRef.current = 0;
     if (nextLvl === 1) {
-      // Completed all levels — update gamesPlayed
       const stats = loadStats();
       stats.gamesPlayed += 1;
       saveStats(stats);
     }
   }, [level]);
 
-  const setGameMode = useCallback((m: GameMode) => {
-    setGameModeState(m);
-  }, []);
+  const setGameMode = useCallback((m: GameMode) => setMode(m), []);
 
   return {
-    grid,
-    rows,
-    cols,
-    lives,
-    score,
-    level,
+    arrows,
+    gridSize,
+    moves,
+    selectedId,
     status,
     mode,
-    arrowsLeft,
-    hintCell,
-    exitingCell,
-    blockedCell,
-    tapCell,
+    level,
+    score,
+    hintsLeft,
+    hintId,
+    blockedId,
+    exitingId,
+    history,
+    stars,
+    selectArrow,
+    moveSelected,
+    tapArrow,
+    undo,
     showHint,
     restartLevel,
     nextLevel,

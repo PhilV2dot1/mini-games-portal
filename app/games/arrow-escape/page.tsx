@@ -1,62 +1,160 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   useArrowEscape,
+  getArrowCells,
+  type Arrow,
   type Direction,
-  type Grid,
 } from "@/hooks/useArrowEscape";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
-import { getExplorerAddressUrl, getExplorerName, getContractAddress } from "@/lib/contracts/addresses";
+import {
+  getExplorerAddressUrl,
+  getExplorerName,
+  getContractAddress,
+} from "@/lib/contracts/addresses";
 import { useAccount } from "wagmi";
 
 // ========================================
 // CONSTANTS
 // ========================================
 
-const ARROW_CHARS: Record<Direction, string> = {
-  up: "↑",
-  down: "↓",
-  left: "←",
-  right: "→",
+const CELL_SIZE = 52;
+const GAP = 3;
+
+const DIR_CHAR: Record<Direction, string> = {
+  up: "↑", down: "↓", left: "←", right: "→",
 };
 
-const ARROW_COLORS: Record<Direction, string> = {
-  up:    "#3B82F6", // blue-500
-  down:  "#22C55E", // green-500
-  left:  "#EC4899", // pink-500
-  right: "#F97316", // orange-500
-};
+// ========================================
+// ARROW HEAD triangle
+// ========================================
 
-// Exit delta in "cell units" — actual pixels = delta × cellSize
-function getExitDelta(dir: Direction, row: number, col: number, rows: number, cols: number): { x: number; y: number } {
-  switch (dir) {
-    case "up":    return { x: 0, y: -(row + 1) };
-    case "down":  return { x: 0, y: (rows - row) };
-    case "left":  return { x: -(col + 1), y: 0 };
-    case "right": return { x: (cols - col), y: 0 };
+function ArrowHead({ direction, color }: { direction: Direction; color: string }) {
+  const s = 9;
+  const base: React.CSSProperties = { position: "absolute", width: 0, height: 0, zIndex: 20 };
+  switch (direction) {
+    case "right": return <div style={{ ...base, right: -s, top: "50%", transform: "translateY(-50%)",
+      borderTop: `${s}px solid transparent`, borderBottom: `${s}px solid transparent`, borderLeft: `${s}px solid ${color}` }} />;
+    case "left":  return <div style={{ ...base, left: -s, top: "50%", transform: "translateY(-50%)",
+      borderTop: `${s}px solid transparent`, borderBottom: `${s}px solid transparent`, borderRight: `${s}px solid ${color}` }} />;
+    case "down":  return <div style={{ ...base, bottom: -s, left: "50%", transform: "translateX(-50%)",
+      borderLeft: `${s}px solid transparent`, borderRight: `${s}px solid transparent`, borderTop: `${s}px solid ${color}` }} />;
+    case "up":    return <div style={{ ...base, top: -s, left: "50%", transform: "translateX(-50%)",
+      borderLeft: `${s}px solid transparent`, borderRight: `${s}px solid transparent`, borderBottom: `${s}px solid ${color}` }} />;
   }
 }
 
 // ========================================
-// HEARTS
+// ARROW PIECE
 // ========================================
 
-function LivesDisplay({ lives }: { lives: number }) {
+interface ArrowPieceProps {
+  arrow: Arrow;
+  gridSize: number;
+  isSelected: boolean;
+  isHint: boolean;
+  isBlocked: boolean;
+  isExiting: boolean;
+  onTap: () => void;
+}
+
+function ArrowPiece({ arrow, gridSize, isSelected, isHint, isBlocked, isExiting, onTap }: ArrowPieceProps) {
+  const cells = getArrowCells(arrow.direction, arrow.headRow, arrow.headCol, arrow.length);
+  const isHoriz = arrow.direction === "left" || arrow.direction === "right";
+
+  const minRow = Math.min(...cells.map(([r]) => r));
+  const minCol = Math.min(...cells.map(([, c]) => c));
+  const maxRow = Math.max(...cells.map(([r]) => r));
+  const maxCol = Math.max(...cells.map(([, c]) => c));
+
+  const left   = minCol * (CELL_SIZE + GAP);
+  const top    = minRow * (CELL_SIZE + GAP);
+  const width  = (maxCol - minCol + 1) * CELL_SIZE + (maxCol - minCol) * GAP;
+  const height = (maxRow - minRow + 1) * CELL_SIZE + (maxRow - minRow) * GAP;
+
+  let exitX = 0, exitY = 0;
+  if (isExiting) {
+    const totalGrid = gridSize * CELL_SIZE + (gridSize - 1) * GAP + 32;
+    switch (arrow.direction) {
+      case "right": exitX =  totalGrid; break;
+      case "left":  exitX = -totalGrid; break;
+      case "down":  exitY =  totalGrid; break;
+      case "up":    exitY = -totalGrid; break;
+    }
+  }
+
+  const boxShadow = isSelected
+    ? `0 0 0 3px white, 0 4px 12px rgba(0,0,0,0.5)`
+    : isHint
+    ? `0 0 0 3px #FCFF52, 0 4px 12px rgba(0,0,0,0.5)`
+    : `0 2px 8px rgba(0,0,0,0.4)`;
+
   return (
-    <div className="flex gap-1">
-      {[0, 1, 2].map(i => (
-        <motion.span
-          key={i}
-          animate={i >= lives ? { scale: [1, 1.3, 0.8, 1] } : {}}
-          className={`text-xl ${i < lives ? "opacity-100" : "opacity-20 grayscale"}`}
+    <motion.div
+      key={arrow.id}
+      onClick={onTap}
+      className="absolute cursor-pointer select-none"
+      style={{ left, top, width, height }}
+      animate={
+        isBlocked
+          ? { x: [0, -6, 6, -4, 4, 0] }
+          : isExiting
+          ? { x: exitX, y: exitY, opacity: 0 }
+          : { x: 0, y: 0, opacity: 1 }
+      }
+      transition={
+        isBlocked
+          ? { duration: 0.4 }
+          : isExiting
+          ? { duration: 0.38, ease: "easeIn" }
+          : { type: "spring", stiffness: 350, damping: 28, duration: 0.18 }
+      }
+      whileHover={{ scale: 1.04, transition: { duration: 0.1 } }}
+      whileTap={{ scale: 0.96 }}
+    >
+      <div
+        className="w-full h-full relative flex items-center justify-center rounded-xl overflow-visible"
+        style={{
+          background: arrow.color,
+          boxShadow,
+          filter: isHint ? "brightness(1.15)" : undefined,
+        }}
+      >
+        <span
+          className="text-white font-black select-none z-10 drop-shadow"
+          style={{ fontSize: Math.min(26, (isHoriz ? height : width) * 0.52) }}
         >
-          ❤️
-        </motion.span>
+          {DIR_CHAR[arrow.direction]}
+        </span>
+        <ArrowHead direction={arrow.direction} color={arrow.color} />
+      </div>
+
+      {isBlocked && (
+        <motion.div
+          className="absolute inset-0 rounded-xl bg-red-500/60 pointer-events-none"
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.45 }}
+        />
+      )}
+    </motion.div>
+  );
+}
+
+// ========================================
+// STARS
+// ========================================
+
+function Stars({ count }: { count: number }) {
+  return (
+    <div className="flex gap-1 justify-center text-2xl">
+      {[1, 2, 3].map(i => (
+        <span key={i} className={i <= count ? "opacity-100" : "opacity-20 grayscale"}>⭐</span>
       ))}
     </div>
   );
@@ -72,55 +170,44 @@ export default function ArrowEscapePage() {
   const { chain } = useAccount();
 
   const contractAddress = getContractAddress("arrowescape" as never, chain?.id);
-  const explorerUrl = contractAddress
-    ? getExplorerAddressUrl(chain?.id, contractAddress)
-    : null;
+  const explorerUrl = contractAddress ? getExplorerAddressUrl(chain?.id, contractAddress) : null;
   const explorerName = getExplorerName(chain?.id);
 
-  // Responsive cell size
-  const [cellSize, setCellSize] = useState(60);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const gridPixels = game.gridSize * CELL_SIZE + (game.gridSize - 1) * GAP;
+  const activeArrows = game.arrows.filter(a => !a.isExited);
+  const exitedCount  = game.arrows.length - activeArrows.length;
 
+  // Keyboard: arrow keys move selected
   useEffect(() => {
-    function updateSize() {
-      const w = window.innerWidth;
-      const available = Math.min(w - 48, 360);
-      const size = Math.max(40, Math.floor(available / game.cols));
-      setCellSize(size);
-    }
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, [game.cols]);
-
-  const gap = 4;
-  const gridW = game.cols * cellSize + (game.cols - 1) * gap;
-  const gridH = game.rows * cellSize + (game.rows - 1) * gap;
+    const handler = (e: KeyboardEvent) => {
+      if (!game.selectedId) return;
+      if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        game.moveSelected(1);
+      }
+      if (e.key === "Escape") game.selectArrow(game.selectedId);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [game]);
 
   return (
     <main className="min-h-screen bg-gray-950 text-white p-4 sm:p-6">
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
-        >
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
           ← {t("common.back") || "Back"}
         </Link>
 
         {/* Header */}
         <div className="text-center mb-5">
-          <img
-            src="/icons/arrow-escape.png"
-            alt="Arrow Escape"
-            className="w-14 h-14 mx-auto object-contain mb-2"
-          />
+          <img src="/icons/arrow-escape.png" alt="Arrow Escape" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-3xl font-bold text-white mb-1">
             {t("games.arrowescape.title") || "Arrow Escape"}
           </h1>
           <p className="text-[#FCFF52] text-sm font-medium">
-            {t("games.arrowescape.subtitle") || "Tap arrows to slide them out — clear the grid!"}
+            {t("games.arrowescape.subtitle") || "Slide the arrows out — clear the grid!"}
           </p>
         </div>
 
@@ -131,140 +218,106 @@ export default function ArrowEscapePage() {
         </div>
 
         {/* Stats Row */}
-        <div className="flex items-center justify-between mb-5 px-2">
-          <LivesDisplay lives={game.lives} />
+        <div className="flex items-center justify-between mb-3 px-2">
           <div className="text-sm font-semibold text-gray-300">
             {t("games.arrowescape.level") || "Level"}{" "}
             <span className="text-[#FCFF52] font-bold text-base">{game.level}</span>
-            <span className="text-gray-500">/10</span>
+            <span className="text-gray-500">/5</span>
           </div>
           <div className="text-sm font-semibold text-gray-300">
-            {t("games.arrowescape.score") || "Score"}{" "}
-            <span className="text-white font-bold">{game.score}</span>
+            <span className="text-white font-bold">{exitedCount}</span>
+            <span className="text-gray-500">/{game.arrows.length} out</span>
           </div>
           <div className="text-sm font-semibold text-gray-300">
-            {t("games.arrowescape.arrows") || "Arrows"}{" "}
-            <span className="text-white font-bold">{game.arrowsLeft}</span>
+            {t("games.arrowescape.moves") || "Moves"}{" "}
+            <span className="text-white font-bold">{game.moves}</span>
           </div>
         </div>
 
+        {/* Progress bar */}
+        <div className="w-full bg-white/10 rounded-full h-1.5 mb-5 overflow-hidden">
+          <motion.div
+            className="h-full bg-[#FCFF52] rounded-full"
+            animate={{ width: `${game.arrows.length > 0 ? (exitedCount / game.arrows.length) * 100 : 0}%` }}
+            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+          />
+        </div>
+
         {/* Grid */}
-        <div className="flex justify-center mb-6" ref={containerRef}>
+        <div className="flex justify-center mb-5">
           <div
-            className="relative bg-gray-900/80 rounded-2xl p-3 border border-white/10"
-            style={{ width: gridW + 24, height: gridH + 24 }}
+            className="relative rounded-2xl bg-gray-900/80 border border-white/10"
+            style={{ width: gridPixels + 32, height: gridPixels + 32, padding: 16 }}
           >
-            {/* Grid cells */}
-            <div
-              className="relative"
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${game.cols}, ${cellSize}px)`,
-                gridTemplateRows: `repeat(${game.rows}, ${cellSize}px)`,
-                gap: `${gap}px`,
-              }}
-            >
-              {game.grid.map((row, r) =>
-                row.map((cell, c) => {
-                  const isExiting =
-                    game.exitingCell !== null &&
-                    game.exitingCell[0] === r &&
-                    game.exitingCell[1] === c;
-                  const isBlocked =
-                    game.blockedCell !== null &&
-                    game.blockedCell[0] === r &&
-                    game.blockedCell[1] === c;
-                  const isHint =
-                    game.hintCell !== null &&
-                    game.hintCell[0] === r &&
-                    game.hintCell[1] === c;
-
-                  if (cell === null) {
-                    return (
-                      <div
-                        key={`${r}-${c}`}
-                        className="rounded-lg border border-white/10 bg-white/5"
-                        style={{ width: cellSize, height: cellSize }}
-                      />
-                    );
-                  }
-
-                  const exitDelta = isExiting
-                    ? getExitDelta(cell.dir, r, c, game.rows, game.cols)
-                    : { x: 0, y: 0 };
-
-                  return (
-                    <motion.div
-                      key={cell.id}
-                      onClick={() => game.tapCell(r, c)}
-                      className={[
-                        "rounded-lg flex items-center justify-center cursor-pointer select-none relative",
-                        isHint ? "ring-4 ring-[#FCFF52]/80 animate-pulse" : "",
-                      ].join(" ")}
-                      style={{
-                        width: cellSize,
-                        height: cellSize,
-                        backgroundColor: ARROW_COLORS[cell.dir],
-                      }}
-                      whileHover={{ scale: 1.06 }}
-                      whileTap={{ scale: 0.94 }}
-                      animate={
-                        isExiting
-                          ? {
-                              x: exitDelta.x * (cellSize + gap),
-                              y: exitDelta.y * (cellSize + gap),
-                              opacity: 0,
-                              scale: 0.5,
-                            }
-                          : isBlocked
-                          ? { x: [-5, 5, -5, 5, 0] }
-                          : { x: 0, y: 0, opacity: 1, scale: 1 }
-                      }
-                      transition={
-                        isExiting
-                          ? { duration: 0.35, ease: "easeIn" }
-                          : isBlocked
-                          ? { duration: 0.4, type: "tween" }
-                          : { duration: 0.1 }
-                      }
-                    >
-                      {/* Red flash overlay when blocked */}
-                      {isBlocked && (
-                        <motion.div
-                          className="absolute inset-0 rounded-lg bg-red-500"
-                          initial={{ opacity: 0.6 }}
-                          animate={{ opacity: 0 }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      )}
-                      <span
-                        className="text-white font-bold select-none z-10"
-                        style={{ fontSize: Math.max(16, cellSize * 0.42) }}
-                      >
-                        {ARROW_CHARS[cell.dir]}
-                      </span>
-                    </motion.div>
-                  );
-                })
-              )}
+            {/* Background cells */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${game.gridSize}, ${CELL_SIZE}px)`,
+              gridTemplateRows: `repeat(${game.gridSize}, ${CELL_SIZE}px)`,
+              gap: `${GAP}px`,
+            }}>
+              {Array.from({ length: game.gridSize * game.gridSize }).map((_, i) => (
+                <div key={i} className="rounded-md border border-white/[0.06] bg-white/[0.03]"
+                  style={{ width: CELL_SIZE, height: CELL_SIZE }} />
+              ))}
             </div>
+
+            {/* Arrow pieces */}
+            <div className="absolute inset-4 overflow-visible">
+              {game.arrows.map(arrow => {
+                if (arrow.isExited && game.exitingId !== arrow.id) return null;
+                return (
+                  <ArrowPiece
+                    key={arrow.id}
+                    arrow={arrow}
+                    gridSize={game.gridSize}
+                    isSelected={game.selectedId === arrow.id}
+                    isHint={game.hintId === arrow.id}
+                    isBlocked={game.blockedId === arrow.id}
+                    isExiting={game.exitingId === arrow.id}
+                    onTap={() => game.tapArrow(arrow.id)}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Edge indicators */}
+            {Array.from({ length: game.gridSize }).map((_, i) => {
+              const pos = i * (CELL_SIZE + GAP) + CELL_SIZE / 2;
+              return (
+                <span key={i}>
+                  <span className="absolute text-gray-600 text-[9px] font-bold" style={{ top: 2, left: 16 + pos - 4 }}>↑</span>
+                  <span className="absolute text-gray-600 text-[9px] font-bold" style={{ bottom: 2, left: 16 + pos - 4 }}>↓</span>
+                  <span className="absolute text-gray-600 text-[9px] font-bold" style={{ left: 2, top: 16 + pos - 6 }}>←</span>
+                  <span className="absolute text-gray-600 text-[9px] font-bold" style={{ right: 2, top: 16 + pos - 6 }}>→</span>
+                </span>
+              );
+            })}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 justify-center mb-8">
+        <div className="flex gap-3 justify-center mb-6">
+          <button
+            onClick={game.undo}
+            disabled={game.history.length === 0 || game.status !== "playing"}
+            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all disabled:opacity-30"
+          >
+            ↩ {t("games.arrowescape.undo") || "Undo"}
+          </button>
           <button
             onClick={game.showHint}
-            disabled={game.status !== "playing"}
-            className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all disabled:opacity-40"
+            disabled={game.hintsLeft === 0 || game.status !== "playing"}
+            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all disabled:opacity-30"
           >
-            {t("games.arrowescape.hint") || "Hint 💡"}
+            💡 {t("games.arrowescape.hint") || "Hint"}{" "}
+            <span className="text-[#FCFF52]">({game.hintsLeft})</span>
           </button>
           <button
             onClick={game.restartLevel}
-            className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all"
+            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-sm font-medium transition-all"
           >
-            {t("games.arrowescape.restart") || "Restart 🔄"}
+            🔄 {t("games.arrowescape.restart") || "Restart"}
           </button>
         </div>
 
@@ -274,43 +327,31 @@ export default function ArrowEscapePage() {
             {t("games.arrowescape.howToPlay") || "How to Play"}
           </h2>
           <ol className="space-y-2">
-            {(["rule1", "rule2", "rule3", "rule4"] as const).map((key, i) => (
-              <li key={key} className="flex gap-2 text-sm text-gray-300">
+            {[
+              t("games.arrowescape.rule1") || "Tap an arrow to slide it in its direction.",
+              t("games.arrowescape.rule2") || "Arrows move as far as possible until blocked.",
+              t("games.arrowescape.rule3") || "When the path to the edge is clear, the arrow exits!",
+              t("games.arrowescape.rule4") || "Clear all arrows. Fewer moves = more stars!",
+            ].map((rule, i) => (
+              <li key={i} className="flex gap-2 text-sm text-gray-300">
                 <span className="text-[#FCFF52] font-bold flex-shrink-0">{i + 1}.</span>
-                {t(`games.arrowescape.${key}`) || ""}
+                {rule}
               </li>
             ))}
           </ol>
         </div>
 
-        {/* Color legend */}
-        <div className="bg-white/5 rounded-2xl border border-white/10 p-4 mb-5">
-          <div className="flex flex-wrap gap-3 justify-center">
-            {(["up", "down", "left", "right"] as Direction[]).map(dir => (
-              <div key={dir} className="flex items-center gap-1.5 text-sm">
-                <div
-                  className="w-7 h-7 rounded-md flex items-center justify-center text-white font-bold text-base"
-                  style={{ backgroundColor: ARROW_COLORS[dir] }}
-                >
-                  {ARROW_CHARS[dir]}
-                </div>
-                <span className="text-gray-400 capitalize">{dir}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Contract Link */}
-        {game.mode === "onchain" && explorerUrl && (
-          <div className="text-center mb-4">
-            <a
-              href={explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#FCFF52] hover:text-yellow-300 text-xs underline"
-            >
-              {t("games.arrowescape.viewOnExplorer") || `View on ${explorerName} →`}
-            </a>
+        {game.mode === "onchain" && (
+          <div className="text-center mb-6 text-xs">
+            {explorerUrl ? (
+              <a href={explorerUrl} target="_blank" rel="noopener noreferrer"
+                className="text-[#FCFF52] hover:text-yellow-300 underline">
+                {`View on ${explorerName} →`}
+              </a>
+            ) : (
+              <span className="text-gray-600">{t("chain.comingSoon") || "On-chain coming soon"}</span>
+            )}
           </div>
         )}
 
@@ -320,94 +361,47 @@ export default function ArrowEscapePage() {
       <AnimatePresence>
         {game.status === "won" && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
           >
             <motion.div
-              initial={{ scale: 0.8, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 30 }}
+              initial={{ scale: 0.8, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 30 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="bg-gray-900 border border-[#FCFF52]/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
             >
               <div className="text-5xl mb-3">🎉</div>
-              <h2 className="text-2xl font-bold text-white mb-1">
-                {t("games.arrowescape.win") || "Level cleared!"}
+              <h2 className="text-2xl font-bold text-white mb-2">
+                {t("games.arrowescape.win") || "Level Cleared!"}
               </h2>
-              <p className="text-[#FCFF52] text-sm font-semibold mb-4">
-                {t("games.arrowescape.level") || "Level"} {game.level} / 10
-              </p>
-
-              <div className="flex gap-6 justify-center my-4">
+              <Stars count={game.stars} />
+              <div className="flex gap-8 justify-center my-5">
                 <div>
                   <div className="text-3xl font-bold text-[#FCFF52]">{game.score}</div>
-                  <div className="text-xs text-gray-400 uppercase">
-                    {t("games.arrowescape.score") || "Score"}
-                  </div>
+                  <div className="text-xs text-gray-400 uppercase mt-1">Score</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white flex gap-0.5 justify-center">
-                    {[0, 1, 2].map(i => (
-                      <span key={i} className={i < game.lives ? "opacity-100" : "opacity-20"}>❤️</span>
-                    ))}
+                  <div className="text-3xl font-bold text-white">{game.moves}</div>
+                  <div className="text-xs text-gray-400 uppercase mt-1">
+                    {t("games.arrowescape.moves") || "Moves"}
                   </div>
-                  <div className="text-xs text-gray-400 uppercase">Lives</div>
                 </div>
               </div>
-
-              <div className="flex gap-3 justify-center mt-5">
+              <div className="flex gap-3 justify-center">
                 <button
                   onClick={game.restartLevel}
                   className="px-5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all text-sm font-medium"
                 >
-                  {t("games.arrowescape.restart") || "Restart 🔄"}
+                  🔄 {t("games.arrowescape.restart") || "Restart"}
                 </button>
                 <button
                   onClick={game.nextLevel}
                   className="px-5 py-2.5 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all text-sm"
                 >
-                  {game.level < 10
+                  {game.level < 5
                     ? (t("games.arrowescape.nextLevel") || "Next Level →")
-                    : (t("games.arrowescape.playAgain") || "Try Again")}
+                    : (t("games.arrowescape.playAgain") || "Play Again")}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* LOST OVERLAY */}
-      <AnimatePresence>
-        {game.status === "lost" && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.8, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.8, y: 30 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="bg-gray-900 border border-red-500/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
-            >
-              <div className="text-5xl mb-3">💔</div>
-              <h2 className="text-2xl font-bold text-white mb-2">
-                {t("games.arrowescape.lost") || "No lives left!"}
-              </h2>
-              <p className="text-sm text-gray-400 mb-5">
-                {t("games.arrowescape.level") || "Level"} {game.level} — {t("games.arrowescape.score") || "Score"} {game.score}
-              </p>
-
-              <button
-                onClick={game.restartLevel}
-                className="px-6 py-2.5 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all"
-              >
-                {t("games.arrowescape.playAgain") || "Try Again"}
-              </button>
             </motion.div>
           </motion.div>
         )}
