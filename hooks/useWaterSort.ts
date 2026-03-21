@@ -61,9 +61,12 @@ const LEVEL_CONFIGS: Record<Difficulty, { numCryptos: number; numTubes: number }
 // ========================================
 
 const WATERSORT_ABI = [
-  { type: "function", name: "startGame", inputs: [{ name: "difficulty", type: "string" }], outputs: [], stateMutability: "nonpayable" },
-  { type: "function", name: "endGame", inputs: [{ name: "difficulty", type: "string" }, { name: "moves", type: "uint256" }], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "startSession",  inputs: [], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "endSession",    inputs: [{ name: "puzzlesPlayed", type: "uint256" }, { name: "puzzlesSolved", type: "uint256" }, { name: "bestMoves", type: "uint256" }, { name: "difficulty", type: "uint8" }], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "abandonSession", inputs: [], outputs: [], stateMutability: "nonpayable" },
 ] as const;
+
+const DIFFICULTY_TO_UINT8: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
 
 // ========================================
 // STATS
@@ -209,6 +212,7 @@ export function useWaterSort() {
   const modeRef = useRef<GameMode>("free");
   const difficultyRef = useRef<Difficulty>("easy");
   const pourAnimRef = useRef<PourAnim | null>(null);
+  const sessionActiveRef = useRef(false);
 
   tubesRef.current = tubes;
   selectedTubeRef.current = selectedTube;
@@ -230,15 +234,16 @@ export function useWaterSort() {
     setSelectedTube(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const startOnchain = useCallback(async (diff: Difficulty) => {
+  const startOnchain = useCallback(async () => {
     if (modeRef.current !== "onchain" || !contractAddressRef.current) return;
     try {
       await writeContractAsync({
         address: contractAddressRef.current as `0x${string}`,
         abi: WATERSORT_ABI,
-        functionName: "startGame",
-        args: [diff],
+        functionName: "startSession",
+        args: [],
       });
+      sessionActiveRef.current = true;
     } catch {
       // non-blocking
     }
@@ -262,12 +267,13 @@ export function useWaterSort() {
       return newStats;
     });
     recordGameRef.current("watersort", modeRef.current, "win", undefined);
-    if (modeRef.current === "onchain" && contractAddressRef.current) {
+    if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
+      sessionActiveRef.current = false;
       writeContractAsync({
         address: contractAddressRef.current as `0x${string}`,
         abi: WATERSORT_ABI,
-        functionName: "endGame",
-        args: [diff, BigInt(newMoves)],
+        functionName: "endSession",
+        args: [BigInt(1), BigInt(1), BigInt(newMoves), DIFFICULTY_TO_UINT8[diff]],
       }).catch(() => {});
     }
   }, [writeContractAsync]);
@@ -285,7 +291,7 @@ export function useWaterSort() {
     // Start game on first interaction
     if (currentStatus === "idle") {
       setStatus("playing");
-      startOnchain(currentDifficulty);
+      startOnchain();
     }
 
     if (currentSelected === null) {
@@ -351,13 +357,22 @@ export function useWaterSort() {
   }, [startOnchain, handleWin]);
 
   const resetGame = useCallback(() => {
+    if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
+      sessionActiveRef.current = false;
+      writeContractAsync({
+        address: contractAddressRef.current as `0x${string}`,
+        abi: WATERSORT_ABI,
+        functionName: "abandonSession",
+        args: [],
+      }).catch(() => {});
+    }
     const config = LEVEL_CONFIGS[difficultyRef.current];
     setTubes(generatePuzzle(config.numCryptos, config.numTubes));
     setStatus("idle");
     setMoves(0);
     setSelectedTube(null);
     setPourAnim(null);
-  }, []);
+  }, [writeContractAsync]);
 
   const newGame = useCallback((diff: Difficulty) => {
     const config = LEVEL_CONFIGS[diff];
