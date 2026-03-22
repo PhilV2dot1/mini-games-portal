@@ -375,6 +375,15 @@ export function useWaterSort() {
   }, [writeContractAsync]);
 
   const newGame = useCallback((diff: Difficulty) => {
+    if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
+      sessionActiveRef.current = false;
+      writeContractAsync({
+        address: contractAddressRef.current as `0x${string}`,
+        abi: WATERSORT_ABI,
+        functionName: "abandonSession",
+        args: [],
+      }).catch(() => {});
+    }
     const config = LEVEL_CONFIGS[diff];
     setDifficulty(diff);
     setTubes(generatePuzzle(config.numCryptos, config.numTubes));
@@ -382,7 +391,7 @@ export function useWaterSort() {
     setMoves(0);
     setSelectedTube(null);
     setPourAnim(null);
-  }, []);
+  }, [writeContractAsync]);
 
   return {
     tubes,

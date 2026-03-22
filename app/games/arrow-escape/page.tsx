@@ -32,6 +32,11 @@ const CELL_SIZE_BY_GRID: Record<number, number> = {
   7: 44,
   8: 38,
   9: 34,
+  10: 30,
+  11: 27,
+  12: 24,
+  13: 22,
+  14: 20,
 };
 
 const DIR_CHAR: Record<Direction, string> = {
