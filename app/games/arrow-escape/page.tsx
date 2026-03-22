@@ -37,6 +37,11 @@ const CELL_SIZE_BY_GRID: Record<number, number> = {
   12: 24,
   13: 22,
   14: 20,
+  15: 18,
+  16: 17,
+  17: 16,
+  18: 15,
+  19: 14,
 };
 
 const DIR_CHAR: Record<Direction, string> = {
@@ -237,7 +242,7 @@ export default function ArrowEscapePage() {
           <div className="text-sm font-semibold text-gray-300">
             {t("games.arrowescape.level") || "Level"}{" "}
             <span className="text-[#FCFF52] font-bold text-base">{game.level}</span>
-            <span className="text-gray-500">/10</span>
+            <span className="text-gray-500">/15</span>
           </div>
           <div className="text-sm font-semibold text-gray-300">
             <span className="text-white font-bold">{exitedCount}</span>
@@ -413,7 +418,7 @@ export default function ArrowEscapePage() {
                   onClick={game.nextLevel}
                   className="px-5 py-2.5 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all text-sm"
                 >
-                  {game.level < 10
+                  {game.level < 15
                     ? (t("games.arrowescape.nextLevel") || "Next Level →")
                     : (t("games.arrowescape.playAgain") || "Play Again")}
                 </button>
