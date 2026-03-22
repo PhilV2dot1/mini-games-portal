@@ -32,8 +32,8 @@ export interface SpaceInvadersStats {
 export const CANVAS_W = 480;
 export const CANVAS_H = 560;
 
-const ROWS = 5;
-const COLS = 10;
+const MAX_ROWS = 5;
+const MAX_COLS = 10;
 const ENEMY_W = 32;
 const ENEMY_H = 24;
 const ENEMY_H_GAP = 20;
@@ -44,7 +44,7 @@ const ENEMY_LEFT_MARGIN = 20;
 const PLAYER_W = 42;
 const PLAYER_H = 24;
 const PLAYER_Y_OFFSET = 30;
-const PLAYER_SPEED = 4;
+const PLAYER_SPEED = 280;         // pixels/second (dt-based, was 4/frame)
 const PLAYER_BULLET_SPEED = 8;
 const PLAYER_BULLET_COOLDOWN = 300; // ms
 
@@ -167,17 +167,25 @@ function makeBunkers(): BunkerBlock[][] {
   return bunkers;
 }
 
+// Wave-based grid size: starts small, grows to MAX_ROWS x MAX_COLS by wave 5
+function waveGrid(wave: number): { rows: number; cols: number } {
+  const rows = Math.min(MAX_ROWS, 1 + Math.floor((wave - 1) / 2));
+  const cols = Math.min(MAX_COLS, 4 + (wave - 1) * 2);
+  return { rows, cols };
+}
+
 function makeEnemies(wave: number): Enemy[] {
   const enemies: Enemy[] = [];
   let id = 0;
-  const totalW = COLS * ENEMY_W + (COLS - 1) * ENEMY_H_GAP;
+  const { rows, cols } = waveGrid(wave);
+  const totalW = cols * ENEMY_W + (cols - 1) * ENEMY_H_GAP;
   const startX = (CANVAS_W - totalW) / 2;
 
   // Push down on later waves (capped)
   const waveOffset = Math.min(wave * 4, 40);
 
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
       const type: 0 | 1 | 2 = row < 1 ? 0 : row < 3 ? 1 : 2;
       enemies.push({
         id: id++,
@@ -754,12 +762,13 @@ export function useSpaceInvaders() {
       }
     }
 
-    // Player movement
+    // Player movement (dt-based for consistent speed at any framerate)
+    const moveAmount = PLAYER_SPEED * (dt / 1000);
     if (s.keysHeld.has("ArrowLeft") || s.keysHeld.has("KeyA")) {
-      s.playerX = Math.max(0, s.playerX - PLAYER_SPEED);
+      s.playerX = Math.max(0, s.playerX - moveAmount);
     }
     if (s.keysHeld.has("ArrowRight") || s.keysHeld.has("KeyD")) {
-      s.playerX = Math.min(CANVAS_W - PLAYER_W, s.playerX + PLAYER_SPEED);
+      s.playerX = Math.min(CANVAS_W - PLAYER_W, s.playerX + moveAmount);
     }
 
     // UFO movement
