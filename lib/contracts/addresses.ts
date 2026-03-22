@@ -155,7 +155,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   coinflip:     { celo: '0x57912445add80bbf98802ec7ebc281f554e91380', base: '0x21153a79E0d788D13EAbE7f6B28375DFd678f839', megaeth: '0x0e60f4cf609d1c6f1a67639517bf0cd2110fa09e', soneium: '0x15905bf6Cf99569552e197b3e829D640afA9F1F8' },
   roulette:     { celo: '0xc90044f8c7c0fc8a07117d4e0f6ea33558f908e4', base: '0x03a056dc19886504778be9bfaedffff5edd4ad71', megaeth: '0x4632208Efe5b3F73eD594DC9ddAE1eC27E20F271', soneium: '0x2D22EE1d3520921E83B9E163f74349FcA9ad2517' },
   watersort:    { celo: '0x99c097df31464fe6c5068e23d4f4fe355377373f', base: '0xc4431a9322e02bb7fb985373f797a190bffeeef8', megaeth: '0x1cA290B8da47CfA150Bc1A4cCC33dc8663CCccC6', soneium: '0xa086111581A7D9d1Ae0B18D81Efb9a6f38f1B4d1' },
-  arrowescape:  { celo: '0x572339a93287372325cf6da2099730fe65b06a2d', base: null, megaeth: null, soneium: null },
+  arrowescape:  { celo: '0x572339a93287372325cf6da2099730fe65b06a2d', base: '0x2e76876662450756243D03A25F22119e3295fE67', megaeth: '0xB76165E5B3B9E414114F9ECC1fC0127fa3FfE20b', soneium: '0xc0fb25D9000D561d15F4a8E77A4109c584bC56fa' },
   spaceinvaders: { celo: '0x6b9c1178fb6fdd3f043bf88553fe53f42d4ab704', base: null, megaeth: null, soneium: null },
 };
 
