@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAccount, useWriteContract } from "wagmi";
 import { useLocalStats } from "@/hooks/useLocalStats";
+import { getContractAddress } from "@/lib/contracts/addresses";
+
+const SPACEINVADERS_ABI = [
+  { type: "function", name: "startSession",  inputs: [], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "endSession",    inputs: [{ name: "gamesPlayed", type: "uint256" }, { name: "gamesWon", type: "uint256" }, { name: "bestScore", type: "uint256" }, { name: "bestWave", type: "uint256" }], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "abandonSession", inputs: [], outputs: [], stateMutability: "nonpayable" },
+] as const;
 
 // ========================================
 // TYPES
@@ -585,7 +593,11 @@ export function useSpaceInvaders() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<GameStatus>("idle");
   const [countdown, setCountdown] = useState<number | null>(null);
-  const [mode, setGameMode] = useState<GameMode>("free");
+  const [mode, setGameModeState] = useState<GameMode>("free");
+  const setGameMode = useCallback((m: GameMode) => {
+    modeRef.current = m;
+    setGameModeState(m);
+  }, []);
   const [lives, setLives] = useState(3);
   const [score, setScore] = useState(0);
   const [wave, setWave] = useState(1);
@@ -593,6 +605,17 @@ export function useSpaceInvaders() {
   const [stats, setStats] = useState<SpaceInvadersStats>(DEFAULT_STATS);
 
   const { recordGame } = useLocalStats();
+  const { chain } = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  const contractAddress = getContractAddress("spaceinvaders", chain?.id);
+  const contractAddressRef = useRef(contractAddress);
+  contractAddressRef.current = contractAddress;
+  const modeRef = useRef<GameMode>("free");
+  const sessionActiveRef = useRef(false);
+  const sessionGamesRef = useRef(0);
+  const sessionWinsRef = useRef(0);
+  const sessionBestScoreRef = useRef(0);
+  const sessionBestWaveRef = useRef(0);
 
   // Game state refs (avoid re-render on every frame)
   const stateRef = useRef({
@@ -1006,6 +1029,21 @@ export function useSpaceInvaders() {
   // ----------------------------------------
 
   const startGame = useCallback(() => {
+    // Start on-chain session on first game of the session
+    if (modeRef.current === "onchain" && contractAddressRef.current && !sessionActiveRef.current) {
+      sessionActiveRef.current = true;
+      sessionGamesRef.current = 0;
+      sessionWinsRef.current = 0;
+      sessionBestScoreRef.current = 0;
+      sessionBestWaveRef.current = 0;
+      writeContractAsync({
+        address: contractAddressRef.current as `0x${string}`,
+        abi: SPACEINVADERS_ABI,
+        functionName: "startSession",
+        args: [],
+      }).catch(() => { sessionActiveRef.current = false; });
+    }
+
     const s = stateRef.current;
     // Initialise the game state immediately (so the idle screen shows the grid)
     s.lives = 3;
@@ -1045,6 +1083,15 @@ export function useSpaceInvaders() {
   }, [gameLoop, initWave]);
 
   const resetGame = useCallback(() => {
+    if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
+      sessionActiveRef.current = false;
+      writeContractAsync({
+        address: contractAddressRef.current as `0x${string}`,
+        abi: SPACEINVADERS_ABI,
+        functionName: "abandonSession",
+        args: [],
+      }).catch(() => {});
+    }
     const s = stateRef.current;
     cancelAnimationFrame(s.rafId);
     s.status = "idle";
@@ -1094,7 +1141,29 @@ export function useSpaceInvaders() {
       };
       saveStats(newStats);
       setHighScore(newHighScore);
-      recordGame("spaceinvaders" as never, mode, isWin ? "win" : "lose");
+      recordGame("spaceinvaders" as never, modeRef.current, isWin ? "win" : "lose");
+
+      // Accumulate session stats
+      sessionGamesRef.current += 1;
+      if (isWin) sessionWinsRef.current += 1;
+      if (s.score > sessionBestScoreRef.current) sessionBestScoreRef.current = s.score;
+      if (s.wave > sessionBestWaveRef.current) sessionBestWaveRef.current = s.wave;
+
+      // Commit session on-chain after each game
+      if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
+        sessionActiveRef.current = false;
+        writeContractAsync({
+          address: contractAddressRef.current as `0x${string}`,
+          abi: SPACEINVADERS_ABI,
+          functionName: "endSession",
+          args: [
+            BigInt(sessionGamesRef.current),
+            BigInt(sessionWinsRef.current),
+            BigInt(sessionBestScoreRef.current),
+            BigInt(sessionBestWaveRef.current),
+          ],
+        }).catch(() => {});
+      }
     }
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
