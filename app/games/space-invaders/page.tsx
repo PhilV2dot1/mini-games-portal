@@ -48,9 +48,9 @@ export default function SpaceInvadersPage() {
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-xl text-sm font-semibold mb-6 transition-all"
         >
-          ← {t("common.back") || "Back"}
+          ← {t("common.backToPortal") || "Back to Portal"}
         </Link>
 
         {/* Header */}
