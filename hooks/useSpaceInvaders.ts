@@ -15,7 +15,7 @@ const SPACEINVADERS_ABI = [
 // TYPES
 // ========================================
 
-export type GameStatus = "idle" | "countdown" | "playing" | "gameover" | "victory";
+export type GameStatus = "idle" | "waiting_tx" | "countdown" | "playing" | "gameover" | "victory";
 export type GameMode = "free" | "onchain";
 
 export interface SpaceInvadersStats {
@@ -1037,42 +1037,9 @@ export function useSpaceInvaders() {
   // START / RESET
   // ----------------------------------------
 
-  const startGame = useCallback(() => {
-    // Start on-chain session on first game of the session
-    if (modeRef.current === "onchain" && contractAddressRef.current && !sessionActiveRef.current) {
-      sessionActiveRef.current = true;
-      sessionGamesRef.current = 0;
-      sessionWinsRef.current = 0;
-      sessionBestScoreRef.current = 0;
-      sessionBestWaveRef.current = 0;
-      writeContractAsync({
-        address: contractAddressRef.current as `0x${string}`,
-        abi: SPACEINVADERS_ABI,
-        functionName: "startSession",
-        args: [],
-      }).catch(() => { sessionActiveRef.current = false; });
-    }
-
-    const s = stateRef.current;
-    // Initialise the game state immediately (so the idle screen shows the grid)
-    s.lives = 3;
-    s.score = 0;
-    s.wave = 1;
-    s.playerX = CANVAS_W / 2 - PLAYER_W / 2;
-    s.playerY = CANVAS_H - PLAYER_Y_OFFSET - PLAYER_H;
-    s.bullets = [];
-    s.particles = [];
-    s.stars = makeStars();
-    s.lastTimestamp = 0;
-    s.keysHeld = new Set();
-    initWave(1);
-
+  const startCountdown = useCallback(() => {
     setStatus("countdown");
-    setLives(3);
-    setScore(0);
-    setWave(1);
     setCountdown(3);
-
     let count = 3;
     const interval = setInterval(() => {
       count -= 1;
@@ -1089,7 +1056,51 @@ export function useSpaceInvaders() {
         stateRef.current.rafId = requestAnimationFrame(gameLoop);
       }
     }, 1000);
-  }, [gameLoop, initWave]);
+  }, [gameLoop]);
+
+  const startGame = useCallback(() => {
+    const s = stateRef.current;
+    // Initialise game state
+    s.lives = 3;
+    s.score = 0;
+    s.wave = 1;
+    s.playerX = CANVAS_W / 2 - PLAYER_W / 2;
+    s.playerY = CANVAS_H - PLAYER_Y_OFFSET - PLAYER_H;
+    s.bullets = [];
+    s.particles = [];
+    s.stars = makeStars();
+    s.lastTimestamp = 0;
+    s.keysHeld = new Set();
+    initWave(1);
+    setLives(3);
+    setScore(0);
+    setWave(1);
+
+    // On-chain mode: send tx first, then start countdown on confirmation
+    if (modeRef.current === "onchain" && contractAddressRef.current && !sessionActiveRef.current) {
+      sessionActiveRef.current = true;
+      sessionGamesRef.current = 0;
+      sessionWinsRef.current = 0;
+      sessionBestScoreRef.current = 0;
+      sessionBestWaveRef.current = 0;
+      setStatus("waiting_tx");
+      writeContractAsync({
+        address: contractAddressRef.current as `0x${string}`,
+        abi: SPACEINVADERS_ABI,
+        functionName: "startSession",
+        args: [],
+      }).then(() => {
+        startCountdown();
+      }).catch(() => {
+        sessionActiveRef.current = false;
+        setStatus("idle");
+      });
+      return;
+    }
+
+    // Free mode or already has active session: start countdown immediately
+    startCountdown();
+  }, [gameLoop, initWave, startCountdown]);
 
   const resetGame = useCallback(() => {
     if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {

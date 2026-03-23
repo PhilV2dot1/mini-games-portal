@@ -112,6 +112,28 @@ export default function SpaceInvadersPage() {
               className="rounded-2xl border border-indigo-500/30 shadow-2xl touch-none w-full"
               style={{ aspectRatio: `${CANVAS_W}/${CANVAS_H}` }}
             />
+            {/* Waiting for tx overlay */}
+            <AnimatePresence>
+              {game.status === "waiting_tx" && (
+                <motion.div
+                  key="waiting_tx"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/70 backdrop-blur-sm z-10 gap-4"
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                    className="w-12 h-12 border-4 border-indigo-400 border-t-transparent rounded-full"
+                  />
+                  <p className="text-white font-bold text-lg text-center px-4">
+                    {t("games.spaceinvaders.waitingTx") || "Confirm transaction in your wallet…"}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Countdown overlay */}
             <AnimatePresence>
               {game.status === "countdown" && game.countdown !== null && (
@@ -183,6 +205,11 @@ export default function SpaceInvadersPage() {
               {game.status === "idle"
                 ? (t("games.spaceinvaders.startGame") || "Start Game")
                 : (t("games.spaceinvaders.playAgain") || "Play Again")}
+            </button>
+          )}
+          {game.status === "waiting_tx" && (
+            <button disabled className="px-8 py-3 rounded-xl bg-indigo-800/50 text-indigo-300 font-bold text-lg cursor-not-allowed">
+              {t("games.spaceinvaders.waitingTx") || "Confirm transaction…"}
             </button>
           )}
           {game.status === "playing" && (
