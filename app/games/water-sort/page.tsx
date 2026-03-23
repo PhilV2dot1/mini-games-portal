@@ -491,9 +491,9 @@ export default function WaterSortPage() {
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-cyan-700 dark:text-cyan-300/70 hover:text-gray-900 dark:hover:text-white text-sm mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 px-4 py-2 rounded-xl text-sm font-semibold mb-6 transition-all"
         >
-          ← {t("common.back") || "Back"}
+          {t("games.backToPortal")}
         </Link>
 
         {/* Header */}

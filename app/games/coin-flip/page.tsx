@@ -64,8 +64,8 @@ export default function CoinFlipPage() {
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm mb-6 transition-colors">
-          ← {t("common.back") || "Retour"}
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 px-4 py-2 rounded-xl text-sm font-semibold mb-6 transition-all">
+          {t("games.backToPortal")}
         </Link>
 
         {/* Header */}

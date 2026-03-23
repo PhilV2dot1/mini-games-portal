@@ -48,9 +48,9 @@ export default function SpaceInvadersPage() {
         {/* Back */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-xl text-sm font-semibold mb-6 transition-all"
+          className="inline-flex items-center gap-2 text-gray-700 dark:text-white/80 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 px-4 py-2 rounded-xl text-sm font-semibold mb-6 transition-all"
         >
-          {t("games.backToPortal") || "← Back to Portal"}
+          {t("games.backToPortal")}
         </Link>
 
         {/* Header */}
