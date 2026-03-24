@@ -98,7 +98,7 @@ export default function MinesweeperPage() {
   const isFinished = status === "finished";
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto space-y-4">
         {/* Back to Portal Link */}
         <Link
