@@ -84,7 +84,7 @@ export default function MazePage() {
 
   // Swipe controls for mobile
   const swipeRef = useSwipe({
-    onSwipe: (dir) => game.move(dir),
+    onSwipe: (dir) => game.move(dir.toUpperCase() as Parameters<typeof game.move>[0]),
     enabled: game.status === "playing",
   });
 

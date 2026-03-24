@@ -97,9 +97,9 @@ export async function POST(request: NextRequest) {
           challenge_id: challengeId,
           progress: newProgress,
           completed: nowCompleted,
-          completed_at: newlyCompleted ? new Date().toISOString() : (existing?.completed ? existing.completed_at : null),
+          completed_at: newlyCompleted ? new Date().toISOString() : (existing?.completed ? (existing as Record<string, unknown>).completed_at as string | null : null),
           rewarded: false,
-        }, { onConflict: 'user_id,challenge_date' });
+        } as never, { onConflict: 'user_id,challenge_date' });
 
       if (newlyCompleted) {
         // Award bonus points — direct increment

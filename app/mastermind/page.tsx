@@ -518,7 +518,7 @@ export default function MastermindPage() {
                             backgroundColor: color === 'btc' ? '#F7931A' :
                               color === 'eth' ? '#D1D5DB' :
                               color === 'avax' ? '#E84142' :
-                              color === 'celo' ? '#FBCC5C' :
+                              color === 'sol' ? '#FBCC5C' :
                               color === 'near' ? '#00C08B' : '#60A5FA',
                           }}
                           title={color.toUpperCase()}
