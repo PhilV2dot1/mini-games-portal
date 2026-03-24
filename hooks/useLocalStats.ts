@@ -49,6 +49,7 @@ const DEFAULT_PROFILE: UserProfile = {
     watersort: { ...DEFAULT_GAME_STATS },
     arrowescape: { ...DEFAULT_GAME_STATS },
     spaceinvaders: { ...DEFAULT_GAME_STATS },
+    hilo: { ...DEFAULT_GAME_STATS },
   },
 };
 

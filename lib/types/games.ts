@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape" | "spaceinvaders";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape" | "spaceinvaders" | "hilo";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -304,5 +304,16 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+  },
+  hilo: {
+    id: "hilo",
+    name: "Hi-Lo",
+    description: "Higher or Lower — ride your streak, cash out before you fall!",
+    icon: "/icons/hilo.png",
+    route: "/games/hi-lo",
+    color: "from-emerald-500 to-green-700",
+    hasFee: false,
+    category: "casino",
+    duration: "quick",
   },
 };
