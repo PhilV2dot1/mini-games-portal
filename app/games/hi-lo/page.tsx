@@ -31,41 +31,151 @@ function PlayingCard({
   className?: string;
 }) {
   const isRed = card?.suit === "♥" || card?.suit === "♦";
-  const w = size === "sm" ? "w-10 h-14" : "w-24 h-36";
-  const rankSize = size === "sm" ? "text-xs" : "text-2xl";
-  const suitSize = size === "sm" ? "text-sm" : "text-3xl";
 
-  const glowClass = glow === "green"
-    ? "shadow-[0_0_20px_4px_rgba(74,222,128,0.7)] border-green-400"
+  // Dimensions
+  const dims = size === "sm"
+    ? { card: "w-12 h-[68px]", rank: "text-[11px]", suit: "text-[10px]", corner: "p-1" }
+    : { card: "w-28 h-40", rank: "text-xl", suit: "text-lg", corner: "p-2" };
+
+  const glowStyle = glow === "green"
+    ? "shadow-[0_0_24px_6px_rgba(74,222,128,0.65)] ring-2 ring-green-400"
     : glow === "red"
-    ? "shadow-[0_0_20px_4px_rgba(248,113,113,0.7)] border-red-400"
+    ? "shadow-[0_0_24px_6px_rgba(248,113,113,0.65)] ring-2 ring-red-400"
     : glow === "yellow"
-    ? "shadow-[0_0_20px_4px_rgba(250,204,21,0.7)] border-yellow-400"
-    : "border-gray-200 dark:border-gray-600";
+    ? "shadow-[0_0_24px_6px_rgba(250,204,21,0.65)] ring-2 ring-yellow-400"
+    : "shadow-[0_4px_20px_rgba(0,0,0,0.35)]";
 
+  // Face-down card — premium back pattern
   if (faceDown || !card) {
     return (
-      <div className={`${w} rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-gradient-to-br from-indigo-700 to-indigo-900 flex items-center justify-center shadow-lg ${className}`}>
-        <span className="text-white/40 text-2xl">🂠</span>
+      <div
+        className={`${dims.card} rounded-xl overflow-hidden ${glowStyle} ${className} select-none relative`}
+        style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2d5a8f 50%, #1e3a5f 100%)" }}
+      >
+        {/* Decorative border inset */}
+        <div className="absolute inset-[3px] rounded-lg border border-white/20" />
+        {/* Crosshatch pattern */}
+        <div className="w-full h-full flex items-center justify-center relative">
+          <svg width="100%" height="100%" className="absolute inset-0 opacity-20">
+            <pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1"/>
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#hatch)"/>
+          </svg>
+          <div className="w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center z-10">
+            <span className="text-white/60 text-lg">🂠</span>
+          </div>
+        </div>
       </div>
     );
   }
 
+  const rankColor = isRed ? "#dc2626" : "#111827";
+  const suit = card.suit;
+
   return (
     <div
-      className={`${w} rounded-xl border-2 ${glowClass} bg-white dark:bg-gray-800 flex flex-col justify-between p-1.5 shadow-xl select-none transition-all ${className}`}
+      className={`${dims.card} rounded-xl overflow-hidden bg-white ${glowStyle} ${className} select-none transition-all duration-200 relative flex flex-col`}
+      style={{ border: "1px solid rgba(0,0,0,0.12)" }}
     >
-      <div className={`${rankSize} font-black leading-none ${isRed ? "text-red-500" : "text-gray-900 dark:text-white"}`}>
-        {card.rank}
-        <span className={`block ${size === "sm" ? "text-xs" : "text-base"}`}>{card.suit}</span>
+      {/* Subtle inner gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100 pointer-events-none" />
+
+      {/* Top-left corner */}
+      <div className={`${dims.corner} flex flex-col items-center leading-none z-10 relative`}>
+        <span className={`${dims.rank} font-black`} style={{ color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
+          {card.rank}
+        </span>
+        <span className={`${dims.suit} leading-none mt-0.5`} style={{ color: rankColor }}>
+          {suit}
+        </span>
       </div>
-      <div className={`${suitSize} text-center leading-none ${isRed ? "text-red-500" : "text-gray-900 dark:text-white"}`}>
-        {card.suit}
+
+      {/* Center pips / face */}
+      {size === "lg" && (
+        <div className="flex-1 flex flex-col items-center justify-center z-10 relative px-1" style={{ color: rankColor }}>
+          {["J","Q","K"].includes(card.rank) ? (
+            <div className={`w-full flex-1 mx-1 mb-1 flex items-center justify-center rounded-md ${
+              card.rank === "K" ? "bg-gradient-to-br from-amber-50 to-amber-100" :
+              card.rank === "Q" ? "bg-gradient-to-br from-pink-50 to-pink-100" :
+              "bg-gradient-to-br from-blue-50 to-blue-100"
+            }`}>
+              <span className={`font-black select-none`} style={{
+                fontSize: 44,
+                color: rankColor,
+                fontFamily: "Georgia, serif",
+                textShadow: "0 2px 4px rgba(0,0,0,0.12)",
+              }}>
+                {card.rank}
+              </span>
+            </div>
+          ) : card.rank === "A" ? (
+            <span style={{ fontSize: 52, color: rankColor, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.15))", lineHeight: 1 }}>
+              {suit}
+            </span>
+          ) : (
+            // Pip grid
+            <PipGrid rank={card.rank} suit={suit} isRed={isRed} />
+          )}
+        </div>
+      )}
+
+      {/* Bottom-right corner (rotated) */}
+      <div className={`${dims.corner} flex flex-col items-center leading-none z-10 relative self-end rotate-180`}>
+        <span className={`${dims.rank} font-black`} style={{ color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
+          {card.rank}
+        </span>
+        <span className={`${dims.suit} leading-none mt-0.5`} style={{ color: rankColor }}>
+          {suit}
+        </span>
       </div>
-      <div className={`${rankSize} font-black leading-none text-right rotate-180 ${isRed ? "text-red-500" : "text-gray-900 dark:text-white"}`}>
-        {card.rank}
-        <span className={`block ${size === "sm" ? "text-xs" : "text-base"}`}>{card.suit}</span>
-      </div>
+    </div>
+  );
+}
+
+// ─── Pip Grid ────────────────────────────────────────────────────────────────
+
+const PIP_GRIDS: Record<string, { positions: [number, number][]; cols: number; rows: number }> = {
+  "2":  { cols: 1, rows: 2, positions: [[0,0],[0,1]] },
+  "3":  { cols: 1, rows: 3, positions: [[0,0],[0,1],[0,2]] },
+  "4":  { cols: 2, rows: 2, positions: [[0,0],[1,0],[0,1],[1,1]] },
+  "5":  { cols: 2, rows: 3, positions: [[0,0],[1,0],[0.5,1],[0,2],[1,2]] },
+  "6":  { cols: 2, rows: 3, positions: [[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]] },
+  "7":  { cols: 2, rows: 4, positions: [[0,0],[1,0],[0,1],[1,1],[0.5,1.5],[0,2],[1,2]] },
+  "8":  { cols: 2, rows: 4, positions: [[0,0],[1,0],[0,1],[1,1],[0,2],[1,2],[0.5,1.5],[0.5,0.5]] },
+  "9":  { cols: 2, rows: 5, positions: [[0,0],[1,0],[0,1],[1,1],[0.5,2],[0,3],[1,3],[0,4],[1,4]] },
+  "10": { cols: 2, rows: 5, positions: [[0,0],[1,0],[0.5,0.5],[0,1],[1,1],[0,3],[1,3],[0.5,3.5],[0,4],[1,4]] },
+};
+
+function PipGrid({ rank, suit, isRed }: { rank: string; suit: string; isRed: boolean }) {
+  const color = isRed ? "#dc2626" : "#111827";
+  const grid = PIP_GRIDS[rank];
+  if (!grid) return null;
+  const { cols, rows, positions } = grid;
+  const pipSize = positions.length <= 4 ? 18 : positions.length <= 6 ? 15 : 13;
+  const cellW = 32;
+  const cellH = 20;
+  const totalW = cellW * (cols - 1) + pipSize;
+  const totalH = cellH * (rows - 1) + pipSize;
+
+  return (
+    <div className="relative" style={{ width: totalW + 8, height: totalH + 8 }}>
+      {positions.map(([cx, cy], i) => (
+        <span
+          key={i}
+          style={{
+            position: "absolute",
+            left: cx * cellW,
+            top: cy * cellH,
+            fontSize: pipSize,
+            color,
+            lineHeight: 1,
+            filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.1))",
+          }}
+        >
+          {suit}
+        </span>
+      ))}
     </div>
   );
 }
