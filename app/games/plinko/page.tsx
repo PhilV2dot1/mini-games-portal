@@ -68,7 +68,7 @@ export default function PlinkoPage() {
   }, [game, vibrate]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-gray-900 dark:from-gray-950 dark:via-indigo-950 dark:to-gray-950 p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
       <div className="max-w-xl mx-auto space-y-4">
         {/* Back */}
         <Link
@@ -82,13 +82,13 @@ export default function PlinkoPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/10 dark:bg-white/5 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-yellow-400/60 text-center space-y-1"
+          className="bg-white/80 dark:bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl border-2 border-yellow-400/60 text-center space-y-1"
         >
           <img src="/icons/plinko.png" alt="Plinko" className="w-14 h-14 mx-auto object-contain mb-2" />
-          <h1 className="text-4xl font-black text-white">
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white">
             {t("games.plinko.title")}
           </h1>
-          <p className="text-sm text-white/70">
+          <p className="text-sm text-gray-600 dark:text-white/70">
             {t("games.plinko.subtitle")}
           </p>
         </motion.div>
@@ -103,12 +103,12 @@ export default function PlinkoPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/10 dark:bg-white/5 backdrop-blur rounded-xl p-4 shadow-lg border border-white/20"
+          className="bg-white/80 dark:bg-white/10 backdrop-blur rounded-xl p-4 shadow-lg border border-gray-300 dark:border-white/20"
         >
-          <h2 className="font-bold text-lg mb-2 text-white">
+          <h2 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">
             {t("games.plinko.howToPlay")}
           </h2>
-          <ul className="text-sm text-white/70 space-y-1">
+          <ul className="text-sm text-gray-600 dark:text-white/70 space-y-1">
             <li>• {t("games.plinko.rule1")}</li>
             <li>• {t("games.plinko.rule2")}</li>
             <li>• {t("games.plinko.rule3")}</li>
@@ -124,9 +124,9 @@ export default function PlinkoPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-center gap-2 bg-white/10 dark:bg-white/5 rounded-xl py-3 px-4 border border-white/20"
+            className="flex items-center justify-center gap-2 bg-white/80 dark:bg-white/10 rounded-xl py-3 px-4 border border-gray-300 dark:border-white/20"
           >
-            <span className="text-white/60 text-sm font-medium mr-1">
+            <span className="text-gray-500 dark:text-white/60 text-sm font-medium mr-1">
               {t("games.plinko.bet")}:
             </span>
             {BET_OPTIONS.map((bet) => (
@@ -136,7 +136,7 @@ export default function PlinkoPage() {
                 className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${
                   game.currentBet === bet
                     ? "bg-yellow-400 text-gray-900 shadow-lg scale-105"
-                    : "bg-white/10 text-white/70 hover:bg-white/20"
+                    : "bg-gray-200 dark:bg-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-300 dark:hover:bg-white/20"
                 }`}
               >
                 {bet}
@@ -150,19 +150,19 @@ export default function PlinkoPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex justify-center gap-8 bg-white/10 dark:bg-white/5 rounded-xl py-3 px-6 border border-white/20"
+            className="flex justify-center gap-8 bg-white/80 dark:bg-white/10 rounded-xl py-3 px-6 border border-gray-300 dark:border-white/20"
           >
             <div className="text-center">
-              <p className="text-white/60 text-xs font-medium">{t("games.plinko.coins")}</p>
-              <p className="text-yellow-300 font-black text-2xl">{coinsToBTC(game.coins)}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs font-medium">{t("games.plinko.coins")}</p>
+              <p className="text-yellow-600 dark:text-yellow-300 font-black text-2xl">{coinsToBTC(game.coins)}</p>
             </div>
             <div className="text-center">
-              <p className="text-white/60 text-xs font-medium">{t("games.plinko.bet")}</p>
-              <p className="text-orange-300 font-black text-2xl">{game.currentBet}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs font-medium">{t("games.plinko.bet")}</p>
+              <p className="text-orange-500 dark:text-orange-300 font-black text-2xl">{game.currentBet}</p>
             </div>
             <div className="text-center">
-              <p className="text-white/60 text-xs font-medium">{t("games.plinko.best")}</p>
-              <p className="text-white font-black text-2xl">{game.stats.highScore}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs font-medium">{t("games.plinko.best")}</p>
+              <p className="text-gray-900 dark:text-white font-black text-2xl">{game.stats.highScore}</p>
             </div>
           </motion.div>
         )}
@@ -177,10 +177,10 @@ export default function PlinkoPage() {
               exit={{ opacity: 0 }}
               className={`text-center py-3 px-4 rounded-xl font-semibold shadow-lg ${
                 game.result === "win"
-                  ? "bg-green-500/20 text-green-300 border-2 border-green-400"
+                  ? "bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 border-2 border-green-400"
                   : game.result === "lose"
-                    ? "bg-red-500/20 text-red-300 border-2 border-red-400"
-                    : "bg-white/10 text-white border-2 border-yellow-400"
+                    ? "bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-2 border-red-400"
+                    : "bg-white/80 dark:bg-white/10 text-gray-900 dark:text-white border-2 border-yellow-400"
               }`}
             >
               {game.message}
@@ -279,7 +279,7 @@ export default function PlinkoPage() {
 
         {/* Controls hint */}
         {(isPlaying || isCountdown) && (
-          <p className="text-center text-white/50 text-xs">
+          <p className="text-center text-gray-500 dark:text-white/50 text-xs">
             {t("games.plinko.controls")}
           </p>
         )}
@@ -329,25 +329,25 @@ export default function PlinkoPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white/10 dark:bg-white/5 backdrop-blur rounded-xl p-4 shadow-lg border border-white/20"
+          className="bg-white/80 dark:bg-white/10 backdrop-blur rounded-xl p-4 shadow-lg border border-gray-300 dark:border-white/20"
         >
-          <h3 className="font-bold text-white mb-3">{t("games.plinko.stats")}</h3>
+          <h3 className="font-bold text-gray-900 dark:text-white mb-3">{t("games.plinko.stats")}</h3>
           <div className="grid grid-cols-4 gap-3 text-center">
             <div>
-              <p className="text-white/60 text-xs">{t("stats.played")}</p>
-              <p className="text-white font-bold text-lg">{game.stats.games}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs">{t("stats.played")}</p>
+              <p className="text-gray-900 dark:text-white font-bold text-lg">{game.stats.games}</p>
             </div>
             <div>
-              <p className="text-white/60 text-xs">{t("stats.wins")}</p>
-              <p className="text-green-400 font-bold text-lg">{game.stats.wins}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs">{t("stats.wins")}</p>
+              <p className="text-green-600 dark:text-green-400 font-bold text-lg">{game.stats.wins}</p>
             </div>
             <div>
-              <p className="text-white/60 text-xs">{t("games.plinko.best")}</p>
-              <p className="text-yellow-300 font-bold text-lg">{coinsToBTC(game.stats.highScore)}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs">{t("games.plinko.best")}</p>
+              <p className="text-yellow-600 dark:text-yellow-300 font-bold text-lg">{coinsToBTC(game.stats.highScore)}</p>
             </div>
             <div>
-              <p className="text-white/60 text-xs">{t("games.plinko.coins")}</p>
-              <p className="text-orange-300 font-bold text-lg">{coinsToBTC(game.stats.totalScore)}</p>
+              <p className="text-gray-500 dark:text-white/60 text-xs">{t("games.plinko.coins")}</p>
+              <p className="text-orange-500 dark:text-orange-300 font-bold text-lg">{coinsToBTC(game.stats.totalScore)}</p>
             </div>
           </div>
         </motion.div>
@@ -357,7 +357,7 @@ export default function PlinkoPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-xs text-white/40 pt-2 space-y-1"
+          className="text-center text-xs text-gray-500 dark:text-white/40 pt-2 space-y-1"
         >
           <p className="font-semibold">{t("games.plinko.footer")}</p>
           {isGameAvailableOnChain("plinko", chain?.id) && contractAddress ? (
@@ -382,7 +382,7 @@ export default function PlinkoPage() {
               </a>
             </p>
           ) : (
-            <p className="text-white/30">{t("chain.comingSoon")}</p>
+            <p className="text-gray-400 dark:text-white/30">{t("chain.comingSoon")}</p>
           )}
         </motion.div>
       </div>

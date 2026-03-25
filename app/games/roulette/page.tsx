@@ -144,7 +144,7 @@ export default function RoulettePage() {
   const winColor = game.winningNumber !== null ? getNumberColor(game.winningNumber) : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-gray-100 dark:from-gray-900 dark:via-indigo-950 dark:to-gray-900 p-4 sm:p-6">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-6">
       <div className="max-w-3xl mx-auto">
 
         {/* Back */}

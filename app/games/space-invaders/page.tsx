@@ -42,7 +42,7 @@ export default function SpaceInvadersPage() {
   }, [game]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-indigo-950 to-gray-900 dark:from-gray-950 dark:via-indigo-950 dark:to-gray-900 text-white p-4 sm:p-6">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-6">
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
@@ -60,10 +60,10 @@ export default function SpaceInvadersPage() {
             alt="Space Invaders"
             className="w-14 h-14 mx-auto object-contain mb-2"
           />
-          <h1 className="text-3xl font-bold text-white mb-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
             {t("games.spaceinvaders.title") || "Space Invaders"}
           </h1>
-          <p className="text-indigo-300 text-sm font-medium">
+          <p className="text-indigo-700 dark:text-indigo-300 text-sm font-medium">
             {t("games.spaceinvaders.subtitle") || "Defend Earth from the crypto invasion!"}
           </p>
         </div>
@@ -77,8 +77,8 @@ export default function SpaceInvadersPage() {
         {/* Stats Row */}
         <div className="flex items-center justify-between mb-4 px-2">
           {/* Lives */}
-          <div className="flex items-center gap-1 text-sm font-semibold text-gray-300">
-            <span className="text-gray-400 text-xs uppercase mr-1">
+          <div className="flex items-center gap-1 text-sm font-semibold text-gray-600 dark:text-gray-300">
+            <span className="text-gray-500 dark:text-gray-400 text-xs uppercase mr-1">
               {t("games.spaceinvaders.lives") || "Lives"}
             </span>
             {[0, 1, 2].map(i => (
@@ -87,17 +87,17 @@ export default function SpaceInvadersPage() {
               </span>
             ))}
           </div>
-          <div className="text-sm font-semibold text-gray-300">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
             {t("games.spaceinvaders.wave") || "Wave"}{" "}
-            <span className="text-indigo-300 font-bold text-base">{game.wave}</span>
+            <span className="text-indigo-600 dark:text-indigo-300 font-bold text-base">{game.wave}</span>
           </div>
-          <div className="text-sm font-semibold text-gray-300">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
             {t("games.spaceinvaders.score") || "Score"}{" "}
-            <span className="text-white font-bold">{game.score}</span>
+            <span className="text-gray-900 dark:text-white font-bold">{game.score}</span>
           </div>
-          <div className="text-sm font-semibold text-gray-300">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
             {t("games.spaceinvaders.highScore") || "Best"}{" "}
-            <span className="text-[#FCFF52] font-bold">{game.highScore}</span>
+            <span className="text-yellow-600 dark:text-[#FCFF52] font-bold">{game.highScore}</span>
           </div>
         </div>
 
@@ -170,7 +170,7 @@ export default function SpaceInvadersPage() {
         {/* Mobile Controls */}
         <div className="flex items-center justify-between gap-3 mb-5 px-2">
           <button
-            className="flex-1 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xl font-bold transition-all active:scale-95 select-none"
+            className="flex-1 py-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white text-xl font-bold transition-all active:scale-95 select-none"
             onPointerDown={game.mobileLeft}
             onPointerUp={game.mobileLeftEnd}
             onPointerLeave={game.mobileLeftEnd}
@@ -185,7 +185,7 @@ export default function SpaceInvadersPage() {
             🔫 {t("games.spaceinvaders.fire") || "FIRE"}
           </button>
           <button
-            className="flex-1 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xl font-bold transition-all active:scale-95 select-none"
+            className="flex-1 py-4 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white text-xl font-bold transition-all active:scale-95 select-none"
             onPointerDown={game.mobileRight}
             onPointerUp={game.mobileRightEnd}
             onPointerLeave={game.mobileRightEnd}
@@ -215,7 +215,7 @@ export default function SpaceInvadersPage() {
           {game.status === "playing" && (
             <button
               onClick={game.resetGame}
-              className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium transition-all"
+              className="px-6 py-3 rounded-xl bg-gray-200 dark:bg-white/10 hover:bg-gray-300 dark:hover:bg-white/20 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white font-medium transition-all"
             >
               {t("games.reset") || "Reset"}
             </button>
@@ -224,68 +224,68 @@ export default function SpaceInvadersPage() {
 
         {/* Status Messages */}
         {game.status === "gameover" && (
-          <div className="text-center mb-5 p-4 rounded-xl bg-red-900/30 border border-red-500/40">
-            <p className="text-red-400 font-bold text-xl">
+          <div className="text-center mb-5 p-4 rounded-xl bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-500/40">
+            <p className="text-red-600 dark:text-red-400 font-bold text-xl">
               {t("games.spaceinvaders.gameOver") || "Game Over!"}
             </p>
-            <p className="text-gray-300 text-sm mt-1">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
               {t("games.spaceinvaders.score") || "Score"}: {game.score}
             </p>
           </div>
         )}
         {game.status === "victory" && (
-          <div className="text-center mb-5 p-4 rounded-xl bg-yellow-900/30 border border-yellow-500/40">
-            <p className="text-[#FCFF52] font-bold text-xl">
+          <div className="text-center mb-5 p-4 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-400 dark:border-yellow-500/40">
+            <p className="text-yellow-700 dark:text-[#FCFF52] font-bold text-xl">
               {t("games.spaceinvaders.victory") || "Earth Saved!"}
             </p>
-            <p className="text-gray-300 text-sm mt-1">
+            <p className="text-gray-600 dark:text-gray-300 text-sm mt-1">
               {t("games.spaceinvaders.score") || "Score"}: {game.score}
             </p>
           </div>
         )}
 
         {/* Stats Grid */}
-        <div className="bg-white/5 rounded-2xl border border-white/10 p-5 mb-5">
-          <h2 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">
+        <div className="bg-white/80 dark:bg-white/5 rounded-2xl border border-gray-300 dark:border-white/10 p-5 mb-5 shadow-lg">
+          <h2 className="text-gray-900 dark:text-white font-bold mb-3 text-sm uppercase tracking-wider">
             {t("games.spaceinvaders.stats") || "My Stats"}
           </h2>
           <div className="grid grid-cols-4 gap-3 text-center">
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">
+              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">
                 {t("stats.played") || "Games"}
               </p>
-              <p className="text-white font-bold text-lg">{game.stats.games}</p>
+              <p className="text-gray-900 dark:text-white font-bold text-lg">{game.stats.games}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">
+              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">
                 {t("stats.wins") || "Wins"}
               </p>
-              <p className="text-green-400 font-bold text-lg">{game.stats.wins}</p>
+              <p className="text-green-600 dark:text-green-400 font-bold text-lg">{game.stats.wins}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">
+              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">
                 {t("games.spaceinvaders.highScore") || "Best"}
               </p>
-              <p className="text-[#FCFF52] font-bold text-lg">{game.stats.highScore}</p>
+              <p className="text-yellow-600 dark:text-[#FCFF52] font-bold text-lg">{game.stats.highScore}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase mb-1">
+              <p className="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">
                 {t("games.spaceinvaders.wave") || "Wave"}
               </p>
-              <p className="text-indigo-300 font-bold text-lg">{game.stats.wave}</p>
+              <p className="text-indigo-600 dark:text-indigo-300 font-bold text-lg">{game.stats.wave}</p>
             </div>
           </div>
         </div>
 
         {/* How to Play */}
-        <div className="bg-white/5 rounded-2xl border border-white/10 p-5 mb-5">
-          <h2 className="text-white font-bold mb-3 text-sm uppercase tracking-wider">
+        <div className="bg-white/80 dark:bg-white/5 rounded-2xl border border-gray-300 dark:border-white/10 p-5 mb-5 shadow-lg">
+          <h2 className="text-gray-900 dark:text-white font-bold mb-3 text-sm uppercase tracking-wider">
             {t("games.spaceinvaders.howToPlay") || "How to Play"}
           </h2>
           <ol className="space-y-2">
             {(["rule1", "rule2", "rule3", "rule4"] as const).map((key, i) => (
-              <li key={key} className="flex gap-2 text-sm text-gray-300">
-                <span className="text-indigo-400 font-bold flex-shrink-0">{i + 1}.</span>
+              <li key={key} className="flex gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <span className="text-indigo-600 dark:text-indigo-400 font-bold flex-shrink-0">{i + 1}.</span>
                 {t(`games.spaceinvaders.${key}`) || ""}
               </li>
             ))}
