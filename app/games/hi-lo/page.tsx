@@ -46,7 +46,7 @@ function PlayingCard({
   if (faceDown || !card) {
     return (
       <div
-        className={`${dims.card} rounded-xl overflow-hidden ${glowStyle} ${className} select-none`}
+        className={`${dims.card} rounded-xl overflow-hidden relative ${glowStyle} ${className} select-none`}
         style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2d5a8f 50%, #1e3a5f 100%)" }}
       >
         {/* Decorative border inset */}
