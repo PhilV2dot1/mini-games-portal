@@ -51,6 +51,38 @@ function getMultiplier(streak: number): number {
 }
 
 // ========================================
+// ABI — HiLoSession.sol
+// ========================================
+
+const HILO_ABI = [
+  {
+    name: "startSession",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: "endSession",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "outcome", type: "uint8" },   // 0 = WIN, 1 = LOSE
+      { name: "streak",  type: "uint256" },
+      { name: "score",   type: "uint256" },  // streak × multiplier
+    ],
+    outputs: [],
+  },
+  {
+    name: "abandonSession",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+] as const;
+
+// ========================================
 // HELPERS
 // ========================================
 
@@ -93,12 +125,12 @@ function calcProbabilities(remainingDeck: Card[], currentValue: number) {
   const total = remainingDeck.length;
   if (total === 0) return { higher: 0, lower: 0, equal: 0 };
   const higher = remainingDeck.filter(c => c.value > currentValue).length;
-  const lower = remainingDeck.filter(c => c.value < currentValue).length;
-  const equal = total - higher - lower;
+  const lower  = remainingDeck.filter(c => c.value < currentValue).length;
+  const equal  = total - higher - lower;
   return {
     higher: Math.round((higher / total) * 100),
-    lower: Math.round((lower / total) * 100),
-    equal: Math.round((equal / total) * 100),
+    lower:  Math.round((lower  / total) * 100),
+    equal:  Math.round((equal  / total) * 100),
   };
 }
 
@@ -113,8 +145,8 @@ export function useHiLo() {
   // Deck state
   const [deck, setDeck] = useState<Card[]>([]);
   const [currentCard, setCurrentCard] = useState<Card | null>(null);
-  const [history, setHistory] = useState<Card[]>([]); // last 5 shown cards
-  const [nextCard, setNextCard] = useState<Card | null>(null); // revealed after guess
+  const [history, setHistory] = useState<Card[]>([]);
+  const [nextCard, setNextCard] = useState<Card | null>(null);
 
   // Game progress
   const [streak, setStreak] = useState(0);
@@ -140,6 +172,15 @@ export function useHiLo() {
     }
   }, [currentCard, deck]);
 
+  // ---- On-chain helpers ----
+
+  const getContract = useCallback(() => {
+    if (mode !== "onchain" || !address || !chain) return null;
+    const contractAddress = getContractAddress("hilo", chain.id);
+    if (!contractAddress) return null;
+    return contractAddress as `0x${string}`;
+  }, [mode, address, chain]);
+
   // ---- Actions ----
 
   const startGame = useCallback(() => {
@@ -156,18 +197,16 @@ export function useHiLo() {
     setStatus("playing");
     setProbabilities(calcProbabilities(remaining, first.value));
 
-    // On-chain: record game start
-    if (mode === "onchain" && address && chain) {
-      const contractAddress = getContractAddress("hilo", chain.id);
-      if (contractAddress) {
-        writeContract({
-          address: contractAddress as `0x${string}`,
-          abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
-          functionName: "startGame",
-        });
-      }
+    // On-chain: open session
+    const contractAddress = getContract();
+    if (contractAddress) {
+      writeContract({
+        address: contractAddress,
+        abi: HILO_ABI,
+        functionName: "startSession",
+      });
     }
-  }, [mode, address, chain, writeContract]);
+  }, [getContract, writeContract]);
 
   const guess = useCallback((direction: "higher" | "lower") => {
     if (status !== "playing" || !currentCard || deck.length === 0) return;
@@ -177,7 +216,7 @@ export function useHiLo() {
 
     let result: GuessResult;
     if (next.value === currentCard.value) {
-      result = "push"; // equal = push (no change to streak)
+      result = "push";
     } else if (direction === "higher" && next.value > currentCard.value) {
       result = "correct";
     } else if (direction === "lower" && next.value < currentCard.value) {
@@ -190,21 +229,31 @@ export function useHiLo() {
     setGuessResult(result);
 
     if (result === "wrong") {
-      // Game over
+      // Game over — save local stats
       const saved = loadStats();
       const updated: PlayerStats = {
-        games: saved.games + 1,
-        wins: saved.wins,
-        bestStreak: Math.max(saved.bestStreak, streak),
+        games:        saved.games + 1,
+        wins:         saved.wins,
+        bestStreak:   Math.max(saved.bestStreak, streak),
         totalCorrect: saved.totalCorrect + streak,
       };
       saveStats(updated);
       setStats(updated);
 
-      // Delay status change to show the flipped card
-      setTimeout(() => {
-        setStatus("gameover");
-      }, 900);
+      // On-chain: endSession(LOSE=1, streak, score)
+      const contractAddress = getContract();
+      if (contractAddress) {
+        const score = streak * multiplier;
+        writeContract({
+          address: contractAddress,
+          abi: HILO_ABI,
+          functionName: "endSession",
+          args: [1, BigInt(streak), BigInt(score)],
+        });
+      }
+
+      setTimeout(() => setStatus("gameover"), 900);
+
     } else {
       const newStreak = result === "push" ? streak : streak + 1;
       const newMult = getMultiplier(newStreak);
@@ -212,59 +261,83 @@ export function useHiLo() {
       setMultiplier(newMult);
       setDeck(remaining);
 
-      // Advance after brief animation
       setTimeout(() => {
         setCurrentCard(next);
         setHistory(prev => [...prev.slice(-4), next]);
         setNextCard(null);
         setGuessResult(null);
+
         if (remaining.length === 0) {
-          // Deck exhausted = win!
+          // Deck exhausted = auto-cashout win
           const saved = loadStats();
           const updated: PlayerStats = {
-            games: saved.games + 1,
-            wins: saved.wins + 1,
-            bestStreak: Math.max(saved.bestStreak, newStreak),
+            games:        saved.games + 1,
+            wins:         saved.wins + 1,
+            bestStreak:   Math.max(saved.bestStreak, newStreak),
             totalCorrect: saved.totalCorrect + newStreak,
           };
           saveStats(updated);
           setStats(updated);
-          setStatus("cashout"); // treat deck-exhausted as auto cashout win
+
+          // On-chain: endSession(WIN=0, streak, score)
+          const contractAddress = getContract();
+          if (contractAddress) {
+            const score = newStreak * newMult;
+            writeContract({
+              address: contractAddress,
+              abi: HILO_ABI,
+              functionName: "endSession",
+              args: [0, BigInt(newStreak), BigInt(score)],
+            });
+          }
+
+          setStatus("cashout");
         }
       }, 700);
     }
-  }, [status, currentCard, deck, streak]);
+  }, [status, currentCard, deck, streak, multiplier, getContract, writeContract]);
 
   const cashOut = useCallback(() => {
     if (status !== "playing" || streak < 2) return;
 
     const saved = loadStats();
     const updated: PlayerStats = {
-      games: saved.games + 1,
-      wins: saved.wins + 1,
-      bestStreak: Math.max(saved.bestStreak, streak),
+      games:        saved.games + 1,
+      wins:         saved.wins + 1,
+      bestStreak:   Math.max(saved.bestStreak, streak),
       totalCorrect: saved.totalCorrect + streak,
     };
     saveStats(updated);
     setStats(updated);
 
-    // On-chain: record win
-    if (mode === "onchain" && address && chain) {
-      const contractAddress = getContractAddress("hilo", chain.id);
+    // On-chain: endSession(WIN=0, streak, score)
+    const contractAddress = getContract();
+    if (contractAddress) {
+      const score = streak * multiplier;
+      writeContract({
+        address: contractAddress,
+        abi: HILO_ABI,
+        functionName: "endSession",
+        args: [0, BigInt(streak), BigInt(score)],
+      });
+    }
+
+    setStatus("cashout");
+  }, [status, streak, multiplier, getContract, writeContract]);
+
+  const resetGame = useCallback(() => {
+    // If abandoning mid-game, close the on-chain session
+    if (status === "playing") {
+      const contractAddress = getContract();
       if (contractAddress) {
         writeContract({
-          address: contractAddress as `0x${string}`,
-          abi: [{ name: "recordWin", type: "function", stateMutability: "nonpayable", inputs: [{ name: "score", type: "uint256" }], outputs: [] }],
-          functionName: "recordWin",
-          args: [BigInt(streak * multiplier)],
+          address: contractAddress,
+          abi: HILO_ABI,
+          functionName: "abandonSession",
         });
       }
     }
 
-    setStatus("cashout");
-  }, [status, streak, multiplier, mode, address, chain, writeContract]);
-
-  const resetGame = useCallback(() => {
     setStatus("idle");
     setCurrentCard(null);
     setNextCard(null);
@@ -273,7 +346,7 @@ export function useHiLo() {
     setMultiplier(1);
     setGuessResult(null);
     setDeck([]);
-  }, []);
+  }, [status, getContract, writeContract]);
 
   const setGameMode = useCallback((m: GameMode) => {
     setMode(m);

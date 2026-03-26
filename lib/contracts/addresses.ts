@@ -158,7 +158,7 @@ export const CONTRACT_ADDRESSES: Record<GameId, ChainAddresses> = {
   watersort:    { celo: '0x99c097df31464fe6c5068e23d4f4fe355377373f', base: '0xc4431a9322e02bb7fb985373f797a190bffeeef8', megaeth: '0x1cA290B8da47CfA150Bc1A4cCC33dc8663CCccC6', soneium: '0xa086111581A7D9d1Ae0B18D81Efb9a6f38f1B4d1' },
   arrowescape:  { celo: '0x572339a93287372325cf6da2099730fe65b06a2d', base: '0x2e76876662450756243D03A25F22119e3295fE67', megaeth: '0xB76165E5B3B9E414114F9ECC1fC0127fa3FfE20b', soneium: '0xc0fb25D9000D561d15F4a8E77A4109c584bC56fa' },
   spaceinvaders: { celo: '0x6b9c1178fb6fdd3f043bf88553fe53f42d4ab704', base: '0x1a3d14f8a64497f78a9f56cc65386da634a111de', megaeth: '0x275B2440971dB1a3308C5F455703fe37F1f388E4', soneium: '0xf6c734f136041dD7C920557219f8B2939E574F29' },
-  hilo:         { celo: null, base: null, megaeth: null, soneium: null },
+  hilo:         { celo: '0x193976f5c644ad1bd9ac83f2ad159234c260b9fe', base: null, megaeth: null, soneium: null },
 };
 
 const CHAIN_ID_TO_NAME: Record<number, SupportedChain> = {
