@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export const runtime = 'edge';
+// Must use Node.js runtime — Supabase Admin (listUsers, generateLink) requires it
+export const runtime = 'nodejs';
 
 /**
  * POST /api/auth/ethos
@@ -27,17 +28,11 @@ export async function POST(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Try to find existing Supabase Auth user by synthetic email
-    const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
-    const existingAuthUser = listData?.users?.find(
-      (u) => u.email === syntheticEmail
-    );
+    // Try to find existing Supabase Auth user by listing with email filter
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const existingAuthUser = listData?.users?.find(u => u.email === syntheticEmail);
 
-    let supabaseUserId: string;
-
-    if (existingAuthUser) {
-      supabaseUserId = existingAuthUser.id;
-    } else {
+    if (!existingAuthUser) {
       // Create new Supabase Auth user
       const { data: newAuthUser, error: createError } =
         await supabaseAdmin.auth.admin.createUser({
@@ -55,8 +50,6 @@ export async function POST(request: NextRequest) {
         console.error('Error creating Supabase auth user:', createError);
         return NextResponse.json({ error: 'Failed to create auth user' }, { status: 500 });
       }
-
-      supabaseUserId = newAuthUser.user.id;
     }
 
     // Ensure users table record exists
