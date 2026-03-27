@@ -60,19 +60,25 @@ export function PlayingCard({
     ? "drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]"
     : "drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]";
 
-  const sizeClass = size === "sm"
-    ? "w-12"
-    : size === "md"
-    ? "w-20"
-    : "w-28";
+  // Card natural dimensions: 169.075 × 244.640 → aspect ratio ≈ 0.691
+  const sizes = {
+    sm: { w: 56,  h: 81  },   // ~w-14
+    md: { w: 80,  h: 116 },   // ~w-20
+    lg: { w: 112, h: 162 },   // ~w-28
+  };
+  const { w, h } = sizes[size];
 
   return (
-    <div className={`${sizeClass} ${glowClass} ${className} select-none`}>
+    <div
+      className={`${glowClass} ${className} select-none shrink-0`}
+      style={{ width: w, height: h }}
+    >
       <svg
         viewBox="0 0 169.075 244.640"
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
-        className="w-full h-auto rounded-lg"
+        width={w}
+        height={h}
         style={{ display: "block" }}
       >
         <use href={`/svg-cards.svg#${cardId}`} />
