@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { readFileSync } from "fs";
+import { join } from "path";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
@@ -76,6 +78,9 @@ export const metadata: Metadata = {
   },
 };
 
+// Inline the SVG sprite at build/request time so <use href="#cardId"> works
+const svgSprite = readFileSync(join(process.cwd(), "public/svg-cards.svg"), "utf8");
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -86,6 +91,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased has-bottom-nav`}
       >
+        {/* SVG cards sprite — hidden, referenced by PlayingCard via #id */}
+        <div
+          aria-hidden="true"
+          style={{ display: "none" }}
+          dangerouslySetInnerHTML={{ __html: svgSprite }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

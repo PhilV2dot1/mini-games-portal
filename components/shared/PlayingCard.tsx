@@ -151,7 +151,7 @@ export function PlayingCard({
         height={h}
         style={{ display: "block" }}
       >
-        <use href={`/svg-cards.svg#${cardId}`} />
+        <use href={`#${cardId}`} />
       </svg>
     </div>
   );
