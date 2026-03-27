@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHiLo } from "@/hooks/useHiLo";
 import type { Card } from "@/hooks/useHiLo";
+import { PlayingCard } from "@/components/shared/PlayingCard";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
@@ -14,179 +15,37 @@ import {
   getExplorerName,
 } from "@/lib/contracts/addresses";
 
-function PlayingCard({
+// ─── Page ───────────────────────────────────────────────────────────────────
+
+function HiLoCard({
   card,
   faceDown = false,
   size = "lg",
   glow,
-  className = "",
 }: {
   card: Card | null;
   faceDown?: boolean;
   size?: "sm" | "lg";
   glow?: "green" | "red" | "yellow";
-  className?: string;
 }) {
-  const isRed = card?.suit === "♥" || card?.suit === "♦";
-
-  // Dimensions
-  const dims = size === "sm"
-    ? { card: "w-16 h-[92px]", rank: "text-sm", suit: "text-xs", corner: "p-1" }
-    : { card: "w-28 h-40", rank: "text-xl", suit: "text-lg", corner: "p-2" };
-
-  const glowStyle = glow === "green"
-    ? "shadow-[0_0_24px_6px_rgba(74,222,128,0.65)] ring-2 ring-green-400"
-    : glow === "red"
-    ? "shadow-[0_0_24px_6px_rgba(248,113,113,0.65)] ring-2 ring-red-400"
-    : glow === "yellow"
-    ? "shadow-[0_0_24px_6px_rgba(250,204,21,0.65)] ring-2 ring-yellow-400"
-    : "shadow-[0_4px_20px_rgba(0,0,0,0.35)]";
-
-  // Face-down card — premium back pattern
   if (faceDown || !card) {
     return (
-      <div
-        className={`${dims.card} rounded-xl overflow-hidden relative ${glowStyle} ${className} select-none`}
-        style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #2d5a8f 50%, #1e3a5f 100%)" }}
-      >
-        {/* Decorative border inset */}
-        <div className="absolute inset-[3px] rounded-lg border border-white/20" />
-        {/* Crosshatch pattern */}
-        <div className="w-full h-full flex items-center justify-center relative">
-          <svg width="100%" height="100%" className="absolute inset-0 opacity-20">
-            <pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="8" stroke="white" strokeWidth="1"/>
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#hatch)"/>
-          </svg>
-          <div className={`${size === "sm" ? "w-6 h-6" : "w-8 h-8"} rounded-full border-2 border-white/40 flex items-center justify-center z-10`}>
-            <span className={`text-white/60 ${size === "sm" ? "text-sm" : "text-lg"}`}>🂠</span>
-          </div>
-        </div>
-      </div>
+      <PlayingCard
+        faceDown
+        size={size === "lg" ? "lg" : "sm"}
+        glow={glow}
+      />
     );
   }
-
-  const rankColor = isRed ? "#dc2626" : "#111827";
-  const suit = card.suit;
-
   return (
-    <div
-      className={`${dims.card} rounded-xl overflow-hidden bg-white ${glowStyle} ${className} select-none transition-all duration-200 relative flex flex-col`}
-      style={{ border: "1px solid rgba(0,0,0,0.12)" }}
-    >
-      {/* Subtle inner gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-gray-100 pointer-events-none" />
-
-      {/* Top-left corner */}
-      <div className={`${dims.corner} flex flex-col items-center leading-none z-10 relative`}>
-        <span className={`${dims.rank} font-black`} style={{ color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
-          {card.rank}
-        </span>
-        <span className={`${dims.suit} leading-none mt-0.5`} style={{ color: rankColor }}>
-          {suit}
-        </span>
-      </div>
-
-      {/* Center symbol for small cards */}
-      {size === "sm" && (
-        <div className="flex-1 flex items-center justify-center z-10 relative">
-          <span className="font-black" style={{ fontSize: 18, color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
-            {["J","Q","K"].includes(card.rank) ? card.rank : suit}
-          </span>
-        </div>
-      )}
-
-      {/* Center pips / face */}
-      {size === "lg" && (
-        <div className="flex-1 flex flex-col items-center justify-center z-10 relative px-1" style={{ color: rankColor }}>
-          {["J","Q","K"].includes(card.rank) ? (
-            <div className={`w-full flex-1 mx-1 mb-1 flex items-center justify-center rounded-md ${
-              card.rank === "K" ? "bg-gradient-to-br from-amber-50 to-amber-100" :
-              card.rank === "Q" ? "bg-gradient-to-br from-pink-50 to-pink-100" :
-              "bg-gradient-to-br from-blue-50 to-blue-100"
-            }`}>
-              <span className={`font-black select-none`} style={{
-                fontSize: 52,
-                color: rankColor,
-                fontFamily: "Georgia, serif",
-                textShadow: "0 2px 6px rgba(0,0,0,0.18)",
-              }}>
-                {card.rank}
-              </span>
-            </div>
-          ) : card.rank === "A" ? (
-            <span style={{ fontSize: 62, color: rankColor, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.18))", lineHeight: 1 }}>
-              {suit}
-            </span>
-          ) : (
-            // Pip grid
-            <PipGrid rank={card.rank} suit={suit} isRed={isRed} />
-          )}
-        </div>
-      )}
-
-      {/* Bottom-right corner (rotated) */}
-      <div className={`${dims.corner} flex flex-col items-center leading-none z-10 relative self-end rotate-180`}>
-        <span className={`${dims.rank} font-black`} style={{ color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
-          {card.rank}
-        </span>
-        <span className={`${dims.suit} leading-none mt-0.5`} style={{ color: rankColor }}>
-          {suit}
-        </span>
-      </div>
-    </div>
+    <PlayingCard
+      suit={card.suit}
+      value={card.value}
+      size={size === "lg" ? "lg" : "sm"}
+      glow={glow}
+    />
   );
 }
-
-// ─── Pip Grid ────────────────────────────────────────────────────────────────
-
-const PIP_GRIDS: Record<string, { positions: [number, number][]; cols: number; rows: number }> = {
-  "2":  { cols: 1, rows: 2, positions: [[0,0],[0,1]] },
-  "3":  { cols: 1, rows: 3, positions: [[0,0],[0,1],[0,2]] },
-  "4":  { cols: 2, rows: 2, positions: [[0,0],[1,0],[0,1],[1,1]] },
-  "5":  { cols: 2, rows: 3, positions: [[0,0],[1,0],[0.5,1],[0,2],[1,2]] },
-  "6":  { cols: 2, rows: 3, positions: [[0,0],[1,0],[0,1],[1,1],[0,2],[1,2]] },
-  "7":  { cols: 2, rows: 4, positions: [[0,0],[1,0],[0,1],[1,1],[0.5,1.5],[0,2],[1,2]] },
-  "8":  { cols: 2, rows: 4, positions: [[0,0],[1,0],[0,1],[1,1],[0,2],[1,2],[0.5,1.5],[0.5,0.5]] },
-  "9":  { cols: 2, rows: 5, positions: [[0,0],[1,0],[0,1],[1,1],[0.5,2],[0,3],[1,3],[0,4],[1,4]] },
-  "10": { cols: 2, rows: 5, positions: [[0,0],[1,0],[0.5,0.5],[0,1],[1,1],[0,3],[1,3],[0.5,3.5],[0,4],[1,4]] },
-};
-
-function PipGrid({ rank, suit, isRed }: { rank: string; suit: string; isRed: boolean }) {
-  const color = isRed ? "#dc2626" : "#111827";
-  const grid = PIP_GRIDS[rank];
-  if (!grid) return null;
-  const { cols, rows, positions } = grid;
-  const pipSize = positions.length <= 4 ? 22 : positions.length <= 6 ? 18 : 15;
-  const cellW = 36;
-  const cellH = 24;
-  const totalW = cellW * (cols - 1) + pipSize;
-  const totalH = cellH * (rows - 1) + pipSize;
-
-  return (
-    <div className="relative" style={{ width: totalW + 8, height: totalH + 8 }}>
-      {positions.map(([cx, cy], i) => (
-        <span
-          key={i}
-          style={{
-            position: "absolute",
-            left: cx * cellW,
-            top: cy * cellH,
-            fontSize: pipSize,
-            color,
-            lineHeight: 1,
-            filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.1))",
-          }}
-        >
-          {suit}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-// ─── Page ───────────────────────────────────────────────────────────────────
 
 export default function HiLoPage() {
   const game = useHiLo();
@@ -259,7 +118,7 @@ export default function HiLoPage() {
             <div className="flex items-center gap-2 mb-5 overflow-x-auto pb-1">
               <span className="text-gray-500 dark:text-gray-500 text-xs uppercase shrink-0">{t("games.hilo.history") || "History"}:</span>
               {game.history.slice(0, -1).map((card, i) => (
-                <PlayingCard key={i} card={card} size="sm" />
+                <HiLoCard key={i} card={card} size="sm" />
               ))}
             </div>
           )}
@@ -277,7 +136,7 @@ export default function HiLoPage() {
                   exit={{ rotateY: -90, opacity: 0 }}
                   transition={{ duration: 0.25 }}
                 >
-                  <PlayingCard card={game.currentCard} glow={currentGlow} />
+                  <HiLoCard card={game.currentCard} glow={currentGlow} />
                 </motion.div>
               </AnimatePresence>
               {game.currentCard && (
@@ -303,14 +162,14 @@ export default function HiLoPage() {
                     animate={{ rotateY: 0, opacity: 1 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <PlayingCard
+                    <HiLoCard
                       card={game.nextCard}
                       glow={game.guessResult === "correct" ? "green" : game.guessResult === "wrong" ? "red" : game.guessResult === "push" ? "yellow" : undefined}
                     />
                   </motion.div>
                 ) : (
                   <motion.div key="facedown">
-                    <PlayingCard card={null} faceDown />
+                    <HiLoCard card={null} faceDown />
                   </motion.div>
                 )}
               </AnimatePresence>
