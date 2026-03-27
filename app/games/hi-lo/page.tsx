@@ -31,7 +31,7 @@ function PlayingCard({
 
   // Dimensions
   const dims = size === "sm"
-    ? { card: "w-12 h-[68px]", rank: "text-[11px]", suit: "text-[10px]", corner: "p-1" }
+    ? { card: "w-16 h-[92px]", rank: "text-sm", suit: "text-xs", corner: "p-1" }
     : { card: "w-28 h-40", rank: "text-xl", suit: "text-lg", corner: "p-2" };
 
   const glowStyle = glow === "green"
@@ -59,8 +59,8 @@ function PlayingCard({
             </pattern>
             <rect width="100%" height="100%" fill="url(#hatch)"/>
           </svg>
-          <div className="w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center z-10">
-            <span className="text-white/60 text-lg">🂠</span>
+          <div className={`${size === "sm" ? "w-6 h-6" : "w-8 h-8"} rounded-full border-2 border-white/40 flex items-center justify-center z-10`}>
+            <span className={`text-white/60 ${size === "sm" ? "text-sm" : "text-lg"}`}>🂠</span>
           </div>
         </div>
       </div>
@@ -88,6 +88,15 @@ function PlayingCard({
         </span>
       </div>
 
+      {/* Center symbol for small cards */}
+      {size === "sm" && (
+        <div className="flex-1 flex items-center justify-center z-10 relative">
+          <span className="font-black" style={{ fontSize: 18, color: rankColor, fontFamily: "Georgia, serif", lineHeight: 1 }}>
+            {["J","Q","K"].includes(card.rank) ? card.rank : suit}
+          </span>
+        </div>
+      )}
+
       {/* Center pips / face */}
       {size === "lg" && (
         <div className="flex-1 flex flex-col items-center justify-center z-10 relative px-1" style={{ color: rankColor }}>
@@ -98,16 +107,16 @@ function PlayingCard({
               "bg-gradient-to-br from-blue-50 to-blue-100"
             }`}>
               <span className={`font-black select-none`} style={{
-                fontSize: 44,
+                fontSize: 52,
                 color: rankColor,
                 fontFamily: "Georgia, serif",
-                textShadow: "0 2px 4px rgba(0,0,0,0.12)",
+                textShadow: "0 2px 6px rgba(0,0,0,0.18)",
               }}>
                 {card.rank}
               </span>
             </div>
           ) : card.rank === "A" ? (
-            <span style={{ fontSize: 52, color: rankColor, filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.15))", lineHeight: 1 }}>
+            <span style={{ fontSize: 62, color: rankColor, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.18))", lineHeight: 1 }}>
               {suit}
             </span>
           ) : (
@@ -149,9 +158,9 @@ function PipGrid({ rank, suit, isRed }: { rank: string; suit: string; isRed: boo
   const grid = PIP_GRIDS[rank];
   if (!grid) return null;
   const { cols, rows, positions } = grid;
-  const pipSize = positions.length <= 4 ? 18 : positions.length <= 6 ? 15 : 13;
-  const cellW = 32;
-  const cellH = 20;
+  const pipSize = positions.length <= 4 ? 22 : positions.length <= 6 ? 18 : 15;
+  const cellW = 36;
+  const cellH = 24;
   const totalW = cellW * (cols - 1) + pipSize;
   const totalH = cellH * (rows - 1) + pipSize;
 
