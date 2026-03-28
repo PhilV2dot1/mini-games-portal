@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -9,7 +9,13 @@ import { getContractAddress } from "@/lib/contracts/addresses";
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "gameover" | "cashout";
+export type GameStatus =
+  | "idle"
+  | "waiting_start"   // waiting for startSession tx signature + confirmation
+  | "playing"
+  | "waiting_end"     // waiting for endSession tx signature + confirmation
+  | "gameover"
+  | "cashout";
 export type GuessResult = "correct" | "wrong" | "push" | null;
 
 export type Suit = "♠" | "♥" | "♦" | "♣";
@@ -43,7 +49,6 @@ const RANK_VALUES: Record<Rank, number> = {
   "9": 9, "10": 10, J: 11, Q: 12, K: 13,
 };
 
-// Streak multipliers: streak 0-1 = ×1, 2 = ×2, 3 = ×3, 4 = ×5, 5+ = ×10
 const MULTIPLIERS = [1, 1, 2, 3, 5, 10];
 
 function getMultiplier(streak: number): number {
@@ -69,7 +74,7 @@ const HILO_ABI = [
     inputs: [
       { name: "outcome", type: "uint8" },   // 0 = WIN, 1 = LOSE
       { name: "streak",  type: "uint256" },
-      { name: "score",   type: "uint256" },  // streak × multiplier
+      { name: "score",   type: "uint256" },
     ],
     outputs: [],
   },
@@ -117,10 +122,6 @@ function saveStats(s: PlayerStats) {
   try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch { /* noop */ }
 }
 
-/**
- * Among the remaining deck cards, what % are strictly higher than currentValue?
- * Also returns % strictly lower.
- */
 function calcProbabilities(remainingDeck: Card[], currentValue: number) {
   const total = remainingDeck.length;
   if (total === 0) return { higher: 0, lower: 0, equal: 0 };
@@ -157,8 +158,31 @@ export function useHiLo() {
   // Stats
   const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash]     = useState<`0x${string}` | undefined>(undefined);
+
+  // Pending end args — computed when game ends, sent after confirmation
+  const pendingEndRef = useRef<{
+    outcome: 0 | 1;
+    streak: number;
+    score: number;
+    finalStatus: "gameover" | "cashout";
+    statsUpdate: PlayerStats;
+  } | null>(null);
+
   const { address, chain } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+
+  // Wait for startSession confirmation
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({
+    hash: startTxHash,
+  });
+
+  // Wait for endSession confirmation
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({
+    hash: endTxHash,
+  });
 
   // Load stats on mount
   useEffect(() => {
@@ -172,18 +196,56 @@ export function useHiLo() {
     }
   }, [currentCard, deck]);
 
+  // ── startSession confirmed → start playing ──────────────────────────────────
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setStatus("playing");
+      setStartTxHash(undefined);
+    }
+  }, [startConfirmed, status]);
+
+  // startSession failed → back to idle
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // ── endSession confirmed → show final result ────────────────────────────────
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { finalStatus, statsUpdate } = pendingEndRef.current;
+      saveStats(statsUpdate);
+      setStats(statsUpdate);
+      setStatus(finalStatus);
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]);
+
+  // endSession failed → still show result (game played, just not recorded)
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { finalStatus, statsUpdate } = pendingEndRef.current;
+      saveStats(statsUpdate);
+      setStats(statsUpdate);
+      setStatus(finalStatus);
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]);
+
   // ---- On-chain helpers ----
 
-  const getContract = useCallback(() => {
+  const getContractAddress_ = useCallback((): `0x${string}` | null => {
     if (mode !== "onchain" || !address || !chain) return null;
-    const contractAddress = getContractAddress("hilo", chain.id);
-    if (!contractAddress) return null;
-    return contractAddress as `0x${string}`;
+    return getContractAddress("hilo", chain.id);
   }, [mode, address, chain]);
 
-  // ---- Actions ----
+  // ---- Prepare deck (shared between free and onchain) ----
 
-  const startGame = useCallback(() => {
+  const prepareDeck = useCallback(() => {
     const shuffled = shuffle(buildDeck());
     const first = shuffled[0];
     const remaining = shuffled.slice(1);
@@ -194,19 +256,79 @@ export function useHiLo() {
     setStreak(0);
     setMultiplier(1);
     setGuessResult(null);
-    setStatus("playing");
     setProbabilities(calcProbabilities(remaining, first.value));
+    return { first, remaining };
+  }, []);
 
-    // On-chain: open session
-    const contractAddress = getContract();
+  // ---- Actions ----
+
+  const startGame = useCallback(async () => {
+    const contractAddress = getContractAddress_();
+
     if (contractAddress) {
-      writeContract({
-        address: contractAddress,
-        abi: HILO_ABI,
-        functionName: "startSession",
-      });
+      // On-chain: sign startSession first, then play on confirmation
+      setStatus("waiting_start");
+      prepareDeck();
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: HILO_ABI,
+          functionName: "startSession",
+        });
+        setStartTxHash(hash);
+      } catch {
+        // User rejected or error — back to idle
+        setStatus("idle");
+      }
+    } else {
+      // Free mode: start immediately
+      prepareDeck();
+      setStatus("playing");
     }
-  }, [getContract, writeContract]);
+  }, [getContractAddress_, prepareDeck, writeContractAsync]);
+
+  const _finishGame = useCallback(async (
+    outcome: 0 | 1,
+    finalStreak: number,
+    finalMultiplier: number,
+    finalStatus: "gameover" | "cashout",
+  ) => {
+    const score = finalStreak * finalMultiplier;
+    const saved = loadStats();
+    const statsUpdate: PlayerStats = {
+      games:        saved.games + 1,
+      wins:         outcome === 0 ? saved.wins + 1 : saved.wins,
+      bestStreak:   Math.max(saved.bestStreak, finalStreak),
+      totalCorrect: saved.totalCorrect + finalStreak,
+    };
+
+    const contractAddress = getContractAddress_();
+    if (contractAddress) {
+      // On-chain: send endSession, wait for confirmation before showing result
+      setStatus("waiting_end");
+      pendingEndRef.current = { outcome, streak: finalStreak, score, finalStatus, statsUpdate };
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: HILO_ABI,
+          functionName: "endSession",
+          args: [outcome, BigInt(finalStreak), BigInt(score)],
+        });
+        setEndTxHash(hash);
+      } catch {
+        // User rejected or error — still show result
+        saveStats(statsUpdate);
+        setStats(statsUpdate);
+        setStatus(finalStatus);
+        pendingEndRef.current = null;
+      }
+    } else {
+      // Free mode: update stats and show result immediately
+      saveStats(statsUpdate);
+      setStats(statsUpdate);
+      setStatus(finalStatus);
+    }
+  }, [getContractAddress_, writeContractAsync]);
 
   const guess = useCallback((direction: "higher" | "lower") => {
     if (status !== "playing" || !currentCard || deck.length === 0) return;
@@ -229,31 +351,9 @@ export function useHiLo() {
     setGuessResult(result);
 
     if (result === "wrong") {
-      // Game over — save local stats
-      const saved = loadStats();
-      const updated: PlayerStats = {
-        games:        saved.games + 1,
-        wins:         saved.wins,
-        bestStreak:   Math.max(saved.bestStreak, streak),
-        totalCorrect: saved.totalCorrect + streak,
-      };
-      saveStats(updated);
-      setStats(updated);
-
-      // On-chain: endSession(LOSE=1, streak, score)
-      const contractAddress = getContract();
-      if (contractAddress) {
-        const score = streak * multiplier;
-        writeContract({
-          address: contractAddress,
-          abi: HILO_ABI,
-          functionName: "endSession",
-          args: [1, BigInt(streak), BigInt(score)],
-        });
-      }
-
-      setTimeout(() => setStatus("gameover"), 900);
-
+      setTimeout(() => {
+        _finishGame(1, streak, multiplier, "gameover");
+      }, 900);
     } else {
       const newStreak = result === "push" ? streak : streak + 1;
       const newMult = getMultiplier(newStreak);
@@ -268,73 +368,27 @@ export function useHiLo() {
         setGuessResult(null);
 
         if (remaining.length === 0) {
-          // Deck exhausted = auto-cashout win
-          const saved = loadStats();
-          const updated: PlayerStats = {
-            games:        saved.games + 1,
-            wins:         saved.wins + 1,
-            bestStreak:   Math.max(saved.bestStreak, newStreak),
-            totalCorrect: saved.totalCorrect + newStreak,
-          };
-          saveStats(updated);
-          setStats(updated);
-
-          // On-chain: endSession(WIN=0, streak, score)
-          const contractAddress = getContract();
-          if (contractAddress) {
-            const score = newStreak * newMult;
-            writeContract({
-              address: contractAddress,
-              abi: HILO_ABI,
-              functionName: "endSession",
-              args: [0, BigInt(newStreak), BigInt(score)],
-            });
-          }
-
-          setStatus("cashout");
+          _finishGame(0, newStreak, newMult, "cashout");
         }
       }, 700);
     }
-  }, [status, currentCard, deck, streak, multiplier, getContract, writeContract]);
+  }, [status, currentCard, deck, streak, multiplier, _finishGame]);
 
   const cashOut = useCallback(() => {
     if (status !== "playing" || streak < 2) return;
-
-    const saved = loadStats();
-    const updated: PlayerStats = {
-      games:        saved.games + 1,
-      wins:         saved.wins + 1,
-      bestStreak:   Math.max(saved.bestStreak, streak),
-      totalCorrect: saved.totalCorrect + streak,
-    };
-    saveStats(updated);
-    setStats(updated);
-
-    // On-chain: endSession(WIN=0, streak, score)
-    const contractAddress = getContract();
-    if (contractAddress) {
-      const score = streak * multiplier;
-      writeContract({
-        address: contractAddress,
-        abi: HILO_ABI,
-        functionName: "endSession",
-        args: [0, BigInt(streak), BigInt(score)],
-      });
-    }
-
-    setStatus("cashout");
-  }, [status, streak, multiplier, getContract, writeContract]);
+    _finishGame(0, streak, multiplier, "cashout");
+  }, [status, streak, multiplier, _finishGame]);
 
   const resetGame = useCallback(() => {
-    // If abandoning mid-game, close the on-chain session
+    // If abandoning mid-game on-chain, send abandonSession (fire & forget)
     if (status === "playing") {
-      const contractAddress = getContract();
+      const contractAddress = getContractAddress_();
       if (contractAddress) {
-        writeContract({
+        writeContractAsync({
           address: contractAddress,
           abi: HILO_ABI,
           functionName: "abandonSession",
-        });
+        }).catch(() => {/* noop */});
       }
     }
 
@@ -346,7 +400,10 @@ export function useHiLo() {
     setMultiplier(1);
     setGuessResult(null);
     setDeck([]);
-  }, [status, getContract, writeContract]);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+  }, [status, getContractAddress_, writeContractAsync]);
 
   const setGameMode = useCallback((m: GameMode) => {
     setMode(m);

@@ -201,6 +201,34 @@ export default function HiLoPage() {
             </p>
           )}
 
+          {/* Waiting for startSession tx */}
+          {game.status === "waiting_start" && (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full"
+              />
+              <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold text-center">
+                {t("games.hilo.waitingStart") || "Sign the transaction to start your on-chain session…"}
+              </p>
+            </div>
+          )}
+
+          {/* Waiting for endSession tx */}
+          {game.status === "waiting_end" && (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"
+              />
+              <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold text-center">
+                {t("games.hilo.waitingEnd") || "Recording result on-chain…"}
+              </p>
+            </div>
+          )}
+
           {/* Action Buttons — Playing */}
           {game.status === "playing" && (
             <div className="flex gap-3">
