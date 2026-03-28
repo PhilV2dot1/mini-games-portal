@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { readFileSync } from "fs";
-import { join } from "path";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 
@@ -78,8 +76,6 @@ export const metadata: Metadata = {
   },
 };
 
-const svgSprite = readFileSync(join(process.cwd(), "public/svg-cards.svg"), "utf8");
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -90,8 +86,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased has-bottom-nav`}
       >
-        {/* SVG cards sprite inlined — position:absolute/size:0 keeps it accessible to <use> */}
-        <div aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }} dangerouslySetInnerHTML={{ __html: svgSprite }} />
         <Providers>{children}</Providers>
       </body>
     </html>
