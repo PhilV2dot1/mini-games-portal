@@ -1,10 +1,17 @@
 "use client";
 
 /**
- * PlayingCard — HTML/CSS playing card renderer.
- * Renders all 52 cards with proper pip layout, face cards, and ace.
- * No external dependencies. Works everywhere.
+ * PlayingCard — renders a French-style SVG card using htdebeer/svg-cards sprite.
+ *
+ * The sprite is inlined in the root layout (position:absolute, size 0) so
+ * <use href="#id"> resolves against the DOM. Each card has a per-card viewBox
+ * that compensates the translate() offset stored in the sprite.
+ *
+ * viewBox = "-tx -ty 169.075 244.640"  where (tx,ty) is the card's translate.
  */
+
+const CARD_W = 169.075;
+const CARD_H = 244.640;
 
 const SUIT_MAP: Record<string, string> = {
   "♠": "spade",
@@ -13,33 +20,85 @@ const SUIT_MAP: Record<string, string> = {
   "♣": "club",
 };
 
-// Pip grid positions [col, row] in a 2-col × N-row grid
-// col: 0 = left, 0.5 = center, 1 = right
-// row: 0..N-1 top to bottom
-const PIP_LAYOUTS: Record<number, [number, number][]> = {
-  1:  [],  // Ace — big center symbol
-  2:  [[0.5,0],[0.5,3]],
-  3:  [[0.5,0],[0.5,1.5],[0.5,3]],
-  4:  [[0,0],[1,0],[0,3],[1,3]],
-  5:  [[0,0],[1,0],[0.5,1.5],[0,3],[1,3]],
-  6:  [[0,0],[1,0],[0,1.5],[1,1.5],[0,3],[1,3]],
-  7:  [[0,0],[1,0],[0,1.5],[1,1.5],[0.5,0.75],[0,3],[1,3]],
-  8:  [[0,0],[1,0],[0,1.5],[1,1.5],[0.5,0.75],[0.5,2.25],[0,3],[1,3]],
-  9:  [[0,0],[1,0],[0,1],[1,1],[0.5,1.5],[0,2],[1,2],[0,3],[1,3]],
-  10: [[0,0],[1,0],[0,1],[1,1],[0.5,0.5],[0.5,2.5],[0,2],[1,2],[0,3],[1,3]],
-};
+function toCardId(suit: string, value: number | string): string {
+  const suitName = SUIT_MAP[suit] ?? suit;
+  const v = typeof value === "string" ? parseInt(value, 10) : value;
+  let valueName: string;
+  if (v === 11) valueName = "jack";
+  else if (v === 12) valueName = "queen";
+  else if (v === 13) valueName = "king";
+  else valueName = String(v);
+  return `${suitName}_${valueName}`;
+}
 
-const FACE_LABELS: Record<number, string> = { 11: "J", 12: "Q", 13: "K" };
-const FACE_COLORS: Record<number, string> = {
-  11: "#3b82f6",  // Jack — blue
-  12: "#ec4899",  // Queen — pink
-  13: "#f59e0b",  // King — amber
+// viewBox origin [ox, oy] = [-tx, -ty] from the sprite's transform="translate(tx,ty)"
+const CARD_VIEWBOX: Record<string, [number, number]> = {
+  club_1:       [-1.25,    -236.52],
+  club_2:       [166.325,  -236.52],
+  club_3:       [333.9,    -236.52],
+  club_4:       [501.475,  -236.52],
+  club_5:       [669.05,   -236.52],
+  club_6:       [836.625,  -236.52],
+  club_7:       [1004.2,   -236.52],
+  club_8:       [1171.77,  -236.52],
+  club_9:       [1339.35,  -236.52],
+  club_10:      [1506.92,  -236.52],
+  club_jack:    [1674.5,   -236.52],
+  club_queen:   [1842.07,  -236.52],
+  club_king:    [2009.65,  -236.52],
+
+  diamond_1:    [-1.25,    6.617],
+  diamond_2:    [166.325,  6.617],
+  diamond_3:    [333.9,    6.617],
+  diamond_4:    [501.475,  6.617],
+  diamond_5:    [669.05,   6.617],
+  diamond_6:    [836.625,  6.617],
+  diamond_7:    [1004.2,   6.617],
+  diamond_8:    [1171.77,  6.617],
+  diamond_9:    [1339.35,  6.617],
+  diamond_10:   [1506.92,  6.617],
+  diamond_jack: [1674.5,   6.617],
+  diamond_queen:[1842.07,  6.617],
+  diamond_king: [2009.65,  6.617],
+
+  heart_1:      [-1.25,    249.755],
+  heart_2:      [166.325,  249.755],
+  heart_3:      [333.9,    249.755],
+  heart_4:      [501.475,  249.755],
+  heart_5:      [669.05,   249.755],
+  heart_6:      [836.625,  249.755],
+  heart_7:      [1004.2,   249.755],
+  heart_8:      [1171.77,  249.755],
+  heart_9:      [1339.35,  249.755],
+  heart_10:     [1506.92,  249.755],
+  heart_jack:   [1674.5,   249.755],
+  heart_queen:  [1842.07,  249.755],
+  heart_king:   [2009.65,  249.755],
+
+  spade_1:      [-1.25,    492.892],
+  spade_2:      [166.325,  492.892],
+  spade_3:      [333.9,    492.892],
+  spade_4:      [501.475,  492.892],
+  spade_5:      [669.05,   492.892],
+  spade_6:      [836.625,  492.892],
+  spade_7:      [1004.2,   492.892],
+  spade_8:      [1171.77,  492.892],
+  spade_9:      [1339.35,  492.892],
+  spade_10:     [1506.92,  492.892],
+  spade_jack:   [1674.5,   492.892],
+  spade_queen:  [1842.07,  492.892],
+  spade_king:   [2009.65,  492.892],
+
+  joker_black:  [-1.25,    736.03],
+  joker_red:    [166.325,  736.03],
+  back:         [333.9,    736.03],
 };
 
 interface PlayingCardProps {
   suit?: string;
   value?: number | string;
   faceDown?: boolean;
+  /** "sm" = history strip, "md" = medium, "lg" = main card (default) */
   size?: "sm" | "md" | "lg";
   glow?: "green" | "red" | "yellow";
   className?: string;
@@ -53,153 +112,33 @@ export function PlayingCard({
   glow,
   className = "",
 }: PlayingCardProps) {
-  const v = typeof value === "string" ? parseInt(value, 10) : value;
-  const isRed = suit === "♥" || suit === "♦";
-  const suitColor = isRed ? "#dc2626" : "#1a1a2e";
+  const cardId = faceDown ? "back" : toCardId(suit, value);
+  const [ox, oy] = CARD_VIEWBOX[cardId] ?? [0, 0];
+  const viewBox = `${ox} ${oy} ${CARD_W} ${CARD_H}`;
 
-  const dims = {
-    sm: { w: 52, h: 75,  rank: 11, pip: 10, cornerPad: 4,  acePip: 28, faceFont: 22 },
-    md: { w: 72, h: 104, rank: 13, pip: 12, cornerPad: 5,  acePip: 38, faceFont: 30 },
-    lg: { w: 104,h: 150, rank: 16, pip: 14, cornerPad: 7,  acePip: 54, faceFont: 44 },
-  }[size];
+  const glowClass = glow === "green"
+    ? "drop-shadow-[0_0_12px_rgba(74,222,128,0.8)]"
+    : glow === "red"
+    ? "drop-shadow-[0_0_12px_rgba(248,113,113,0.8)]"
+    : glow === "yellow"
+    ? "drop-shadow-[0_0_12px_rgba(250,204,21,0.8)]"
+    : "drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]";
 
-  const glowStyle: React.CSSProperties =
-    glow === "green" ? { boxShadow: "0 0 0 2px #4ade80, 0 0 18px 4px rgba(74,222,128,0.7)" }
-    : glow === "red"   ? { boxShadow: "0 0 0 2px #f87171, 0 0 18px 4px rgba(248,113,113,0.7)" }
-    : glow === "yellow"? { boxShadow: "0 0 0 2px #facc15, 0 0 18px 4px rgba(250,204,21,0.7)" }
-    : { boxShadow: "0 3px 12px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2)" };
-
-  const cardStyle: React.CSSProperties = {
-    width: dims.w,
-    height: dims.h,
-    borderRadius: size === "sm" ? 6 : 8,
-    border: "1px solid rgba(0,0,0,0.15)",
-    position: "relative",
-    overflow: "hidden",
-    flexShrink: 0,
-    userSelect: "none",
-    ...glowStyle,
-  };
-
-  // ── Face-down card ──────────────────────────────────────────────────────────
-  if (faceDown) {
-    return (
-      <div style={{ ...cardStyle, background: "linear-gradient(145deg,#1e3a8a,#1d4ed8,#1e3a8a)" }} className={className}>
-        <div style={{
-          position: "absolute", inset: 4, borderRadius: size === "sm" ? 4 : 6,
-          border: "1px solid rgba(255,255,255,0.25)",
-          backgroundImage: "repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(255,255,255,0.07) 4px,rgba(255,255,255,0.07) 8px)",
-        }}/>
-        <div style={{
-          position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: size === "sm" ? 18 : size === "md" ? 24 : 32,
-          opacity: 0.4, color: "white",
-        }}>♦</div>
-      </div>
-    );
-  }
-
-  const rankLabel = v <= 10 ? (v === 1 ? "A" : String(v)) : FACE_LABELS[v];
-
-  // Corner label (top-left + bottom-right rotated)
-  const Corner = ({ rotate }: { rotate?: boolean }) => (
-    <div style={{
-      position: "absolute",
-      ...(rotate ? { bottom: dims.cornerPad, right: dims.cornerPad, transform: "rotate(180deg)" } : { top: dims.cornerPad, left: dims.cornerPad }),
-      display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1,
-    }}>
-      <span style={{ fontSize: dims.rank, fontWeight: 900, color: suitColor, fontFamily: "Georgia,serif", lineHeight: 1 }}>
-        {rankLabel}
-      </span>
-      <span style={{ fontSize: dims.rank - 2, color: suitColor, lineHeight: 1 }}>
-        {suit}
-      </span>
-    </div>
-  );
-
-  // ── Center area ─────────────────────────────────────────────────────────────
-  const centerPadH = dims.cornerPad + dims.rank * 2 + 4;
-  const centerH = dims.h - centerPadH * 2;
-  const centerW = dims.w - dims.cornerPad * 2 - 6;
-
-  let center: React.ReactNode;
-
-  if (v === 1) {
-    // Ace — large suit symbol
-    center = (
-      <span style={{ fontSize: dims.acePip, color: suitColor, lineHeight: 1, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))" }}>
-        {suit}
-      </span>
-    );
-  } else if (v >= 11) {
-    // Face card — colored initial in styled box
-    const bg = `${FACE_COLORS[v]}18`;
-    const border = `${FACE_COLORS[v]}40`;
-    center = (
-      <div style={{
-        width: centerW - 4, height: centerH - 4,
-        borderRadius: size === "sm" ? 3 : 5,
-        background: `linear-gradient(135deg, ${bg}, ${FACE_COLORS[v]}28)`,
-        border: `1px solid ${border}`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        <span style={{
-          fontSize: dims.faceFont, fontWeight: 900,
-          color: FACE_COLORS[v], fontFamily: "Georgia,serif",
-          textShadow: `0 1px 4px ${FACE_COLORS[v]}80`,
-        }}>
-          {FACE_LABELS[v]}
-        </span>
-      </div>
-    );
-  } else {
-    // Number card — pip grid
-    const pips = PIP_LAYOUTS[v] ?? [];
-    const cols = 2;
-    const rows = 3;
-    const colStep = centerW / cols;
-    const rowStep = centerH / rows;
-
-    center = (
-      <div style={{ position: "relative", width: centerW, height: centerH }}>
-        {pips.map(([col, row], i) => {
-          const x = col * colStep - dims.pip / 2 + (col === 0.5 ? colStep / 2 : col === 0 ? dims.pip * 0.3 : colStep - dims.pip * 1.3);
-          const y = (row / 3) * centerH - dims.pip / 2;
-          // Flip pips in bottom half
-          const flipY = row > 1.5;
-          return (
-            <span key={i} style={{
-              position: "absolute",
-              left: col === 0.5 ? "50%" : col === 0 ? dims.pip * 0.1 : undefined,
-              right: col === 1 ? dims.pip * 0.1 : undefined,
-              top: `${(row / 3) * 100}%`,
-              transform: `translate(${col === 0.5 ? "-50%" : "0"}, -50%) ${flipY ? "rotate(180deg)" : ""}`,
-              fontSize: dims.pip,
-              color: suitColor,
-              lineHeight: 1,
-            }}>
-              {suit}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
+  // Pixel dimensions preserving aspect ratio 169.075 × 244.640 ≈ 0.691
+  const { w, h } = { sm: { w: 56, h: 81 }, md: { w: 80, h: 116 }, lg: { w: 112, h: 162 } }[size];
 
   return (
-    <div style={{ ...cardStyle, background: "linear-gradient(150deg,#ffffff,#f8f8f8,#f0f0f0)" }} className={className}>
-      {/* Subtle inner shine */}
-      <div style={{ position:"absolute",inset:0,background:"linear-gradient(135deg,rgba(255,255,255,0.6) 0%,transparent 50%)", pointerEvents:"none" }}/>
-      <Corner />
-      <div style={{
-        position: "absolute",
-        top: centerPadH, left: dims.cornerPad + 3,
-        width: centerW, height: centerH,
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        {center}
-      </div>
-      <Corner rotate />
+    <div className={`${glowClass} ${className} select-none shrink-0`} style={{ width: w, height: h }}>
+      <svg
+        viewBox={viewBox}
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        width={w}
+        height={h}
+        style={{ display: "block" }}
+      >
+        <use href={`#${cardId}`} />
+      </svg>
     </div>
   );
 }
