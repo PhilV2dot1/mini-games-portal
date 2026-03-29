@@ -1,6 +1,6 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -23,7 +23,7 @@ const ARROWESCAPE_ABI = [
 // ========================================
 
 export type Direction = "up" | "down" | "left" | "right";
-export type GameStatus = "playing" | "won" | "lost";
+export type GameStatus = "playing" | "won" | "lost" | "completed" | "waiting_end";
 export type GameMode = "free" | "onchain";
 
 export interface Arrow {
@@ -67,7 +67,11 @@ export interface UseArrowEscapeReturn extends GameState {
   showHint: () => void;
   restartLevel: () => void;
   nextLevel: () => void;
+  playAgain: () => void;
   setGameMode: (mode: GameMode) => void;
+  totalScore: number;
+  endTxConfirmed: boolean;
+  endTxFailed: boolean;
 }
 
 // ========================================
@@ -840,7 +844,7 @@ function calcStars(moves: number, optimalMoves: number): number {
 
 export function useArrowEscape(): UseArrowEscapeReturn {
   const { chainId } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { writeContract, writeContractAsync } = useWriteContract();
 
   const [level, setLevel] = useState(1);
   const [arrows, setArrows] = useState<Arrow[]>(() => initArrows(LEVELS[0]));
@@ -856,11 +860,17 @@ export function useArrowEscape(): UseArrowEscapeReturn {
   const [history, setHistory] = useState<Arrow[][]>([]);
   const [stars, setStars] = useState(0);
 
+  const [totalScore, setTotalScore] = useState(0);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  const { isSuccess: endTxConfirmed, isError: endTxFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
+
   const hintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const animating = useRef(false);
   const hintsUsedRef = useRef(0);
   const levelRef = useRef(level);
   levelRef.current = level;
+  const totalScoreRef = useRef(0);
 
   // On-chain session tracking refs
   const modeRef = useRef<GameMode>("free");
@@ -878,6 +888,21 @@ export function useArrowEscape(): UseArrowEscapeReturn {
   gridSizeRef.current = gridSize;
   const optimalMovesRef = useRef(optimalMoves);
   optimalMovesRef.current = optimalMoves;
+
+  // ── endSession tx confirmed → status "completed" ──────────────────────
+  useEffect(() => {
+    if (endTxConfirmed && status === "waiting_end") {
+      setStatus("completed");
+      setEndTxHash(undefined);
+    }
+  }, [endTxConfirmed, status]);
+
+  useEffect(() => {
+    if (endTxFailed && status === "waiting_end") {
+      setStatus("completed");
+      setEndTxHash(undefined);
+    }
+  }, [endTxFailed, status]);
 
   // ── Move an arrow N steps (or to exit) ────────────────────────────────
   const doMove = useCallback((arrowId: string, steps: number) => {
@@ -925,6 +950,8 @@ export function useArrowEscape(): UseArrowEscapeReturn {
                 setScore(s);
                 setStars(calcStars(m, opt));
                 setStatus("won");
+                totalScoreRef.current += s;
+                setTotalScore(totalScoreRef.current);
                 const stats = loadStats();
                 stats.levelsCleared += 1;
                 if (s > stats.bestScore) stats.bestScore = s;
@@ -1034,29 +1061,40 @@ export function useArrowEscape(): UseArrowEscapeReturn {
   const nextLevel = useCallback(() => {
     if (hintTimer.current) clearTimeout(hintTimer.current);
     animating.current = false;
-    const nextLvl = level < LEVELS.length ? level + 1 : 1;
 
-    // On-chain: end session when completing the full cycle (back to level 1)
-    if (nextLvl === 1 && modeRef.current === "onchain" && sessionActiveRef.current) {
-      const addr = getContractAddress("arrowescape", chainIdRef.current);
-      if (addr && sessionLevelsPlayedRef.current > 0) {
-        writeContract({
-          address: addr, abi: ARROWESCAPE_ABI, functionName: "endSession",
-          args: [
-            BigInt(sessionLevelsPlayedRef.current),
-            BigInt(sessionLevelsClearedRef.current),
-            BigInt(sessionBestScoreRef.current),
-            BigInt(sessionBestLevelRef.current),
-          ],
-        });
+    // Last level completed → end session on-chain, show "completed" screen
+    if (level >= LEVELS.length) {
+      if (modeRef.current === "onchain" && sessionActiveRef.current) {
+        const addr = getContractAddress("arrowescape", chainIdRef.current);
+        if (addr && sessionLevelsPlayedRef.current > 0) {
+          setStatus("waiting_end");
+          writeContractAsync({
+            address: addr, abi: ARROWESCAPE_ABI, functionName: "endSession",
+            args: [
+              BigInt(sessionLevelsPlayedRef.current),
+              BigInt(sessionLevelsClearedRef.current),
+              BigInt(sessionBestScoreRef.current),
+              BigInt(sessionBestLevelRef.current),
+            ],
+          }).then(hash => setEndTxHash(hash)).catch(() => setStatus("completed"));
+        } else {
+          setStatus("completed");
+        }
+        sessionActiveRef.current = false;
+        sessionLevelsPlayedRef.current = 0;
+        sessionLevelsClearedRef.current = 0;
+        sessionBestScoreRef.current = 0;
+        sessionBestLevelRef.current = 0;
+      } else {
+        setStatus("completed");
       }
-      sessionActiveRef.current = false;
-      sessionLevelsPlayedRef.current = 0;
-      sessionLevelsClearedRef.current = 0;
-      sessionBestScoreRef.current = 0;
-      sessionBestLevelRef.current = 0;
+      const stats = loadStats();
+      stats.gamesPlayed += 1;
+      saveStats(stats);
+      return;
     }
 
+    const nextLvl = level + 1;
     setLevel(nextLvl);
     setArrows(initArrows(LEVELS[nextLvl - 1]));
     setMoves(0);
@@ -1070,12 +1108,40 @@ export function useArrowEscape(): UseArrowEscapeReturn {
     setHistory([]);
     setStars(0);
     hintsUsedRef.current = 0;
-    if (nextLvl === 1) {
-      const stats = loadStats();
-      stats.gamesPlayed += 1;
-      saveStats(stats);
+  }, [level, writeContract, writeContractAsync]);
+
+  // ── Play Again (from completed screen) ──────────────────────────────
+  const playAgain = useCallback(() => {
+    if (hintTimer.current) clearTimeout(hintTimer.current);
+    animating.current = false;
+    totalScoreRef.current = 0;
+    setTotalScore(0);
+    setLevel(1);
+    setArrows(initArrows(LEVELS[0]));
+    setMoves(0);
+    setScore(0);
+    setStatus("playing");
+    setHintsLeft(3);
+    setHintId(null);
+    setBlockedId(null);
+    setExitingId(null);
+    setSelectedId(null);
+    setHistory([]);
+    setStars(0);
+    hintsUsedRef.current = 0;
+    // Start new on-chain session
+    if (modeRef.current === "onchain") {
+      const addr = getContractAddress("arrowescape", chainIdRef.current);
+      if (addr) {
+        writeContract({ address: addr, abi: ARROWESCAPE_ABI, functionName: "startSession" });
+        sessionActiveRef.current = true;
+        sessionLevelsPlayedRef.current = 0;
+        sessionLevelsClearedRef.current = 0;
+        sessionBestScoreRef.current = 0;
+        sessionBestLevelRef.current = 0;
+      }
     }
-  }, [level, writeContract]);
+  }, [writeContract]);
 
   const setGameMode = useCallback((m: GameMode) => {
     const prev = modeRef.current;
@@ -1125,6 +1191,10 @@ export function useArrowEscape(): UseArrowEscapeReturn {
     showHint,
     restartLevel,
     nextLevel,
+    playAgain,
     setGameMode,
+    totalScore,
+    endTxConfirmed,
+    endTxFailed,
   };
 }

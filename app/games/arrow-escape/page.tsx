@@ -420,9 +420,80 @@ export default function ArrowEscapePage() {
                 >
                   {game.level < 15
                     ? (t("games.arrowescape.nextLevel") || "Next Level →")
-                    : (t("games.arrowescape.playAgain") || "Play Again")}
+                    : (t("games.arrowescape.finish") || "Finish ✓")}
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* WAITING END SESSION OVERLAY */}
+      <AnimatePresence>
+        {game.status === "waiting_end" && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8 }} animate={{ scale: 1 }} exit={{ scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-gray-900 border border-[#FCFF52]/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="text-5xl mb-4 animate-spin">⏳</div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                {t("games.arrowescape.recordingSession") || "Recording session on-chain..."}
+              </h2>
+              <p className="text-gray-400 text-sm">
+                {t("games.arrowescape.waitingConfirmation") || "Waiting for blockchain confirmation"}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* COMPLETED ALL LEVELS OVERLAY */}
+      <AnimatePresence>
+        {game.status === "completed" && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.8, y: 30 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-gray-900 border border-[#FCFF52]/40 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+            >
+              <div className="text-6xl mb-3">🏆</div>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                {t("games.arrowescape.allLevelsComplete") || "All 15 Levels Complete!"}
+              </h2>
+              <p className="text-gray-400 text-sm mb-5">
+                {t("games.arrowescape.congratulations") || "You've escaped every grid!"}
+              </p>
+              {game.mode === "onchain" && (
+                <div className="bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-2 mb-5">
+                  <p className="text-green-400 text-xs font-medium">
+                    ✅ {t("games.arrowescape.sessionRecorded") || "Session recorded on blockchain"}
+                  </p>
+                </div>
+              )}
+              <div className="flex gap-6 justify-center mb-6">
+                <div>
+                  <div className="text-3xl font-bold text-[#FCFF52]">{game.totalScore}</div>
+                  <div className="text-xs text-gray-400 uppercase mt-1">Total Score</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-white">15</div>
+                  <div className="text-xs text-gray-400 uppercase mt-1">Levels</div>
+                </div>
+              </div>
+              <button
+                onClick={game.playAgain}
+                className="w-full px-5 py-3 rounded-xl bg-[#FCFF52] text-gray-900 font-bold hover:bg-yellow-300 transition-all text-sm"
+              >
+                🔄 {t("games.arrowescape.playAgain") || "Play Again from Level 1"}
+              </button>
             </motion.div>
           </motion.div>
         )}
