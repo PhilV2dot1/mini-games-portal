@@ -33,7 +33,6 @@ export default function SudokuPage() {
     stats,
     message,
     isConnected,
-    isProcessing,
     startGame,
     handleCellSelect,
     handleNumberInput,
@@ -49,6 +48,7 @@ export default function SudokuPage() {
   const { t } = useLanguage();
   const { chain } = useAccount();
   const contractAddress = getContractAddress('sudoku', chain?.id);
+  const isProcessing = status === "waiting_start" || status === "waiting_end";
   const { play } = useGameAudio('sudoku');
   const prevConflicts = useRef(conflictCells.size);
 

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -9,7 +9,7 @@ import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addr
 export type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 export type Position = { x: number; y: number };
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "countdown" | "gameover";
+export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "waiting_end" | "gameover";
 
 export interface PlayerStats {
   games: number;
@@ -153,10 +153,19 @@ export function useSnake() {
 
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ score: number; foodEaten: number } | null>(null);
+  const startCountdownAndGameRef = useRef<(() => void) | null>(null);
+
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('snake', chain?.id);
   const gameAvailable = isGameAvailableOnChain('snake', chain?.id);
   const { writeContractAsync } = useWriteContract();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -194,6 +203,48 @@ export function useSnake() {
       });
     }
   }, [onChainStats, mode]);
+
+  // startGame tx confirmed → start countdown
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current?.();
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current = null;
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final score
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { score: finalScore } = pendingEndRef.current;
+      refetchStats();
+      setMessage(`✅ Score recorded on blockchain: ${finalScore}`);
+      setGameStartedOnChain(false);
+      setStatus("gameover");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { score: finalScore } = pendingEndRef.current;
+      setMessage(`Game Over! Score: ${finalScore} (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      setStatus("gameover");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Game loop
   const moveSnake = useCallback(() => {
@@ -251,50 +302,48 @@ export function useSnake() {
     const handleGameOver = async () => {
       const foodEaten = score / 10;
 
-      if (mode === "free") {
-        // Free play: update local stats
-        const newStats = {
-          ...stats,
-          games: stats.games + 1,
-          highScore: Math.max(stats.highScore, score),
-          totalScore: stats.totalScore + score,
-          totalFood: stats.totalFood + foodEaten,
-        };
-        setStats(newStats);
-        localStorage.setItem("snake_celo_stats", JSON.stringify(newStats));
+      const newStats = {
+        ...stats,
+        games: stats.games + 1,
+        highScore: Math.max(stats.highScore, score),
+        totalScore: stats.totalScore + score,
+        totalFood: stats.totalFood + foodEaten,
+      };
+      setStats(newStats);
+      localStorage.setItem("snake_celo_stats", JSON.stringify(newStats));
 
+      if (mode === "free") {
         if (score > stats.highScore) {
           setMessage(`🎉 New High Score: ${score}!`);
-        }
-      } else {
-        // On-chain: record result
-        if (!gameStartedOnChain) {
+        } else {
           setMessage(`Game Over! Score: ${score}`);
-          return;
         }
+        return;
+      }
 
-        try {
-          setStatus("processing");
-          setMessage("Recording score on blockchain...");
+      // On-chain: record result
+      if (!gameStartedOnChain) {
+        setMessage(`Game Over! Score: ${score}`);
+        return;
+      }
 
-          await writeContractAsync({
-            address: contractAddress!,
-            abi: SNAKE_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [BigInt(score), BigInt(foodEaten)],
-          });
+      setStatus("waiting_end");
+      setMessage("Recording score on blockchain...");
+      pendingEndRef.current = { score, foodEaten };
 
-          setGameStartedOnChain(false);
-          await refetchStats();
-
-          setMessage(`✅ Score recorded on blockchain: ${score}`);
-          setStatus("gameover");
-        } catch (error) {
-          console.error("Failed to record score:", error);
-          setMessage("⚠️ Game finished but not recorded on-chain");
-          setGameStartedOnChain(false);
-          setStatus("gameover");
-        }
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress!,
+          abi: SNAKE_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [BigInt(score), BigInt(foodEaten)],
+        });
+        setEndTxHash(hash);
+      } catch {
+        setMessage(`⚠️ Game finished but not recorded on-chain. Score: ${score}`);
+        setGameStartedOnChain(false);
+        setStatus("gameover");
+        pendingEndRef.current = null;
       }
     };
 
@@ -373,43 +422,48 @@ export function useSnake() {
 
   // Start game
   const startGame = useCallback(async () => {
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+
     const initialSnake = createInitialSnake();
-    setSnake(initialSnake);
-    setFood(generateFood(initialSnake));
-    setFoodSymbol(randomCrypto());
-    setDirection("RIGHT");
-    setNextDirection("RIGHT");
-    setScore(0);
-    setSpeed(INITIAL_SPEED);
-    setMessage("Use arrow keys or WASD to move!");
+
+    const startCountdownAndGame = () => {
+      setSnake(initialSnake);
+      setFood(generateFood(initialSnake));
+      setFoodSymbol(randomCrypto());
+      setDirection("RIGHT");
+      setNextDirection("RIGHT");
+      setScore(0);
+      setSpeed(INITIAL_SPEED);
+      startCountdown();
+    };
 
     if (mode === "onchain") {
       if (!isConnected || !address) {
         setMessage("⚠️ Please connect wallet first");
         return;
       }
-
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      startCountdownAndGameRef.current = startCountdownAndGame;
       try {
-        setStatus("processing");
-        setMessage("Starting game on blockchain...");
-
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: SNAKE_CONTRACT_ABI,
           functionName: "startGame",
         });
-
-        setGameStartedOnChain(true);
-        startCountdown();
-      } catch (error) {
-        console.error("Failed to start on-chain game:", error);
-        setMessage("⚠️ Failed to start on-chain game");
+        setStartTxHash(hash);
+      } catch {
+        setMessage("⚠️ Transaction rejected");
         setStatus("idle");
+        startCountdownAndGameRef.current = null;
       }
-    } else {
-      startCountdown();
+      return;
     }
-  }, [mode, isConnected, address, writeContractAsync, startCountdown]);
+
+    startCountdownAndGame();
+  }, [mode, isConnected, address, writeContractAsync, contractAddress, startCountdown]);
 
   // Reset game
   const resetGame = useCallback(() => {

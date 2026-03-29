@@ -140,7 +140,7 @@ export default function ConnectFivePage() {
 
   // Solo game state
   const canPlaySolo = soloGame.status === "playing";
-  const isProcessingSolo = soloGame.status === "processing" || soloGame.status === "waiting_start" || soloGame.status === "waiting_end";
+  const isProcessingSolo = soloGame.status === "waiting_start" || soloGame.status === "waiting_end";
   const isFinishedSolo = soloGame.status === "finished";
 
   // Multiplayer game state

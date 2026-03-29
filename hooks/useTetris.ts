@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 import { TETRIS_CONTRACT_ABI } from "@/lib/contracts/tetris-abi";
 import {
@@ -27,7 +27,7 @@ import {
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished" | "countdown";
+export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "waiting_end" | "finished";
 export type GameResult = "win" | "lose" | null;
 
 export interface PlayerStats {
@@ -101,11 +101,17 @@ export function useTetris() {
   const modeRef = useRef(mode);
   const gameStartedOnChainRef = useRef(gameStartedOnChain);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ finalScore: number; finalLines: number; finalLevel: number; won: boolean } | null>(null);
+  const startCountdownAndGameRef = useRef<(() => void) | null>(null);
+
   // Wagmi hooks
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress("tetris", chain?.id);
 
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
   const { refetch: refetchStats } = useReadContract({
     address: contractAddress as `0x${string}`,
     abi: TETRIS_CONTRACT_ABI,
@@ -113,6 +119,9 @@ export function useTetris() {
     args: address ? [address] : undefined,
     query: { enabled: !!address && !!contractAddress },
   });
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Load stats from localStorage
   useEffect(() => {
@@ -133,6 +142,54 @@ export function useTetris() {
       localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
     } catch { /* ignore */ }
   }, []);
+
+  // startGame tx confirmed → start countdown
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      gameStartedOnChainRef.current = true;
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current?.();
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      stateRef.current.status = "idle";
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current = null;
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { finalScore, won } = pendingEndRef.current;
+      refetchStats();
+      setMessage(won ? `Congratulations! Score: ${finalScore} - recorded on blockchain!` : `Game Over! Score: ${finalScore} - recorded on blockchain!`);
+      setGameStartedOnChain(false);
+      gameStartedOnChainRef.current = false;
+      setStatus("finished");
+      stateRef.current.status = "finished";
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { finalScore, won } = pendingEndRef.current;
+      setMessage(won ? `Congratulations! Score: ${finalScore} (not recorded on-chain)` : `Game Over! Score: ${finalScore} (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      gameStartedOnChainRef.current = false;
+      setStatus("finished");
+      stateRef.current.status = "finished";
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Format time
   const formatTime = useCallback((seconds: number): string => {
@@ -181,44 +238,46 @@ export function useTetris() {
   // ========================================
 
   const finishGame = useCallback(async (finalScore: number, finalLines: number, finalLevel: number, won: boolean) => {
+    const newStats = { ...statsRef.current };
+    newStats.games += 1;
+    if (won) newStats.wins += 1;
+    if (finalScore > newStats.bestScore) newStats.bestScore = finalScore;
+    newStats.totalLines += finalLines;
+    if (finalLevel > newStats.highestLevel) newStats.highestLevel = finalLevel;
+    saveStats(newStats);
+
     if (modeRef.current === "free") {
-      const newStats = { ...statsRef.current };
-      newStats.games += 1;
-      if (won) newStats.wins += 1;
-      if (finalScore > newStats.bestScore) newStats.bestScore = finalScore;
-      newStats.totalLines += finalLines;
-      if (finalLevel > newStats.highestLevel) newStats.highestLevel = finalLevel;
-      saveStats(newStats);
       setMessage(won ? `Congratulations! Score: ${finalScore}` : `Game Over! Score: ${finalScore}`);
-    } else {
-      if (!gameStartedOnChainRef.current) {
-        setMessage(won ? `Congratulations! Score: ${finalScore}` : `Game Over! Score: ${finalScore}`);
-        return;
-      }
-      try {
-        setStatus("processing");
-        stateRef.current.status = "processing";
-        setMessage("Recording score on blockchain...");
-        await writeContractAsync({
-          address: contractAddress!,
-          abi: TETRIS_CONTRACT_ABI,
-          functionName: "endGame",
-          args: [BigInt(finalScore), BigInt(finalLines), BigInt(finalLevel)],
-        });
-        setGameStartedOnChain(false);
-        await refetchStats();
-        setMessage(`Score: ${finalScore} - recorded on blockchain!`);
-        setStatus("finished");
-        stateRef.current.status = "finished";
-      } catch (error) {
-        console.error("Failed to record result:", error);
-        setMessage("Game finished but not recorded on-chain");
-        setGameStartedOnChain(false);
-        setStatus("finished");
-        stateRef.current.status = "finished";
-      }
+      return;
     }
-  }, [saveStats, writeContractAsync, contractAddress, refetchStats]);
+
+    if (!gameStartedOnChainRef.current) {
+      setMessage(won ? `Congratulations! Score: ${finalScore}` : `Game Over! Score: ${finalScore}`);
+      return;
+    }
+
+    setStatus("waiting_end");
+    stateRef.current.status = "waiting_end";
+    setMessage("Recording score on blockchain...");
+    pendingEndRef.current = { finalScore, finalLines, finalLevel, won };
+
+    try {
+      const hash = await writeContractAsync({
+        address: contractAddress!,
+        abi: TETRIS_CONTRACT_ABI,
+        functionName: "endGame",
+        args: [BigInt(finalScore), BigInt(finalLines), BigInt(finalLevel)],
+      });
+      setEndTxHash(hash);
+    } catch {
+      setMessage(won ? `Congratulations! Score: ${finalScore} (not recorded on-chain)` : `Game Over! Score: ${finalScore} (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      gameStartedOnChainRef.current = false;
+      setStatus("finished");
+      stateRef.current.status = "finished";
+      pendingEndRef.current = null;
+    }
+  }, [saveStats, writeContractAsync, contractAddress]);
 
   // The actual tick function — called by setInterval
   // It reads exclusively from stateRef to avoid stale closures
@@ -332,62 +391,70 @@ export function useTetris() {
 
   // Start game
   const startGame = useCallback(async () => {
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+
     resetBag();
     const newGrid = createEmptyGrid();
     const first = getRandomPiece();
     const next = getRandomPiece();
+
+    const startCountdownAndGame = () => {
+      stateRef.current = {
+        grid: newGrid,
+        currentPiece: first,
+        nextPiece: next,
+        score: 0,
+        lines: 0,
+        level: 1,
+        status: "countdown",
+      };
+      setGrid(newGrid);
+      setCurrentPiece(first);
+      setNextPiece(next);
+      setHoldPiece(null);
+      setCanHold(true);
+      setScore(0);
+      setLines(0);
+      setLevel(1);
+      setResult(null);
+      setMessage("");
+      setTimer(0);
+      startCountdown(() => {
+        stateRef.current.status = "playing";
+        setStatus("playing");
+        startTimer();
+        startGameLoop(getSpeed(1));
+      });
+    };
 
     if (mode === "onchain") {
       if (!isConnected || !address) {
         setMessage("Please connect wallet first");
         return;
       }
+      setStatus("waiting_start");
+      stateRef.current.status = "waiting_start";
+      setMessage("Sign transaction to start...");
+      startCountdownAndGameRef.current = startCountdownAndGame;
       try {
-        setStatus("processing");
-        setMessage("Starting game on blockchain...");
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: TETRIS_CONTRACT_ABI,
           functionName: "startGame",
         });
-        setGameStartedOnChain(true);
-      } catch (error) {
-        console.error("Failed to start on-chain game:", error);
-        setMessage("Failed to start on-chain game");
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
         setStatus("idle");
-        return;
+        stateRef.current.status = "idle";
+        startCountdownAndGameRef.current = null;
       }
+      return;
     }
 
-    // Reset state ref (status will become "playing" after countdown)
-    stateRef.current = {
-      grid: newGrid,
-      currentPiece: first,
-      nextPiece: next,
-      score: 0,
-      lines: 0,
-      level: 1,
-      status: "countdown",
-    };
-
-    setGrid(newGrid);
-    setCurrentPiece(first);
-    setNextPiece(next);
-    setHoldPiece(null);
-    setCanHold(true);
-    setScore(0);
-    setLines(0);
-    setLevel(1);
-    setResult(null);
-    setMessage("");
-    setTimer(0);
-
-    startCountdown(() => {
-      stateRef.current.status = "playing";
-      setStatus("playing");
-      startTimer();
-      startGameLoop(getSpeed(1));
-    });
+    startCountdownAndGame();
   }, [mode, isConnected, address, writeContractAsync, contractAddress, startCountdown, startTimer, startGameLoop]);
 
   // Player actions — read from stateRef for instant responsiveness
@@ -607,7 +674,6 @@ export function useTetris() {
     timer,
     stats,
     isConnected,
-    isProcessing: isPending,
 
     // Actions
     startGame,

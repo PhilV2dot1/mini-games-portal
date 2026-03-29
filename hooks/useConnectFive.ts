@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContract, usePublicClient } from "wagmi";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -10,7 +10,7 @@ export type Player = 1 | 2; // 1 = Human (Red), 2 = AI (Yellow)
 export type Cell = Player | null;
 export type Board = Cell[][];
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "playing" | "waiting_end" | "finished";
 export type GameResult = "win" | "lose" | "draw" | null;
 export type AIDifficulty = "easy" | "medium" | "hard";
 
@@ -336,11 +336,18 @@ export function useConnectFive() {
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
   const [message, setMessage] = useState("Click Start to begin!");
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ gameResult: "win" | "lose" | "draw"; statsUpdate: PlayerStats } | null>(null);
+
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('connectfive', chain?.id);
   const gameAvailable = isGameAvailableOnChain('connectfive', chain?.id);
   const { writeContractAsync } = useWriteContract();
-  const publicClient = usePublicClient();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -379,77 +386,121 @@ export function useConnectFive() {
     }
   }, [onChainStats, mode]);
 
+  // startGame tx confirmed → start playing
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setBoard(createEmptyBoard());
+      setResult(null);
+      setStatus("playing");
+      setMessage("Game started! Your turn");
+      setStartTxHash(undefined);
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { gameResult, statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("connectfive_celo_stats", JSON.stringify(statsUpdate));
+      refetchStats();
+      if (gameResult === "win") setMessage("🎉 Victory recorded on blockchain!");
+      else if (gameResult === "lose") setMessage("😢 AI Wins - recorded on blockchain");
+      else setMessage("🤝 Draw - recorded on blockchain");
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { gameResult, statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("connectfive_celo_stats", JSON.stringify(statsUpdate));
+      if (gameResult === "win") setMessage("🎉 You Win! (not recorded on-chain)");
+      else if (gameResult === "lose") setMessage("😢 AI Wins! (not recorded on-chain)");
+      else setMessage("🤝 Draw! (not recorded on-chain)");
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // End game and record result
   const endGame = useCallback(
     async (gameResult: "win" | "lose" | "draw") => {
-      setStatus("finished");
       setResult(gameResult);
 
-      if (mode === "free") {
-        // Free play: update local stats
-        const newStats = {
-          ...stats,
-          games: stats.games + 1,
-          wins: stats.wins + (gameResult === "win" ? 1 : 0),
-          losses: stats.losses + (gameResult === "lose" ? 1 : 0),
-          draws: stats.draws + (gameResult === "draw" ? 1 : 0),
-        };
-        setStats(newStats);
-        localStorage.setItem("connectfive_celo_stats", JSON.stringify(newStats));
+      const statsUpdate = {
+        ...stats,
+        games: stats.games + 1,
+        wins: stats.wins + (gameResult === "win" ? 1 : 0),
+        losses: stats.losses + (gameResult === "lose" ? 1 : 0),
+        draws: stats.draws + (gameResult === "draw" ? 1 : 0),
+      };
 
+      if (mode === "free") {
+        setStats(statsUpdate);
+        localStorage.setItem("connectfive_celo_stats", JSON.stringify(statsUpdate));
         if (gameResult === "win") setMessage("🎉 Victory! You connected 4!");
         else if (gameResult === "lose") setMessage("😢 AI Wins!");
         else setMessage("🤝 Draw! Board is full");
-      } else {
-        // On-chain: record result
-        if (!gameStartedOnChain) {
-          if (gameResult === "win") setMessage("🎉 You Win!");
-          else if (gameResult === "lose") setMessage("😢 AI Wins!");
-          else setMessage("🤝 Draw!");
-          return;
-        }
+        setStatus("finished");
+        return;
+      }
 
-        try {
-          setStatus("processing");
-          const resultCode =
-            gameResult === "win"
-              ? GAME_RESULT.WIN
-              : gameResult === "lose"
-              ? GAME_RESULT.LOSE
-              : GAME_RESULT.DRAW;
+      if (!gameStartedOnChain) {
+        if (gameResult === "win") setMessage("🎉 You Win!");
+        else if (gameResult === "lose") setMessage("😢 AI Wins!");
+        else setMessage("🤝 Draw!");
+        setStatus("finished");
+        return;
+      }
 
-          if (gameResult === "win")
-            setMessage("🎉 You Win! Recording on blockchain...");
-          else if (gameResult === "lose")
-            setMessage("😢 AI Wins! Recording on blockchain...");
-          else setMessage("🤝 Draw! Recording on blockchain...");
+      const resultCode =
+        gameResult === "win" ? GAME_RESULT.WIN
+        : gameResult === "lose" ? GAME_RESULT.LOSE
+        : GAME_RESULT.DRAW;
 
-          await writeContractAsync({
-            address: contractAddress!,
-            abi: CONNECTFIVE_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [resultCode],
-          });
+      if (gameResult === "win") setMessage("🎉 You Win! Signing transaction...");
+      else if (gameResult === "lose") setMessage("😢 AI Wins! Signing transaction...");
+      else setMessage("🤝 Draw! Signing transaction...");
 
-          setGameStartedOnChain(false);
-          await refetchStats();
+      setStatus("waiting_end");
+      pendingEndRef.current = { gameResult, statsUpdate };
 
-          if (gameResult === "win")
-            setMessage("🎉 Victory recorded on blockchain!");
-          else if (gameResult === "lose")
-            setMessage("😢 AI Wins - recorded on blockchain");
-          else setMessage("🤝 Draw - recorded on blockchain");
-
-          setStatus("finished");
-        } catch (error) {
-          console.error("Failed to record result:", error);
-          setMessage("⚠️ Game finished but not recorded on-chain");
-          setGameStartedOnChain(false);
-          setStatus("finished");
-        }
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress!,
+          abi: CONNECTFIVE_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [resultCode],
+        });
+        setEndTxHash(hash);
+      } catch {
+        setStats(statsUpdate);
+        localStorage.setItem("connectfive_celo_stats", JSON.stringify(statsUpdate));
+        if (gameResult === "win") setMessage("🎉 You Win!");
+        else if (gameResult === "lose") setMessage("😢 AI Wins!");
+        else setMessage("🤝 Draw!");
+        setGameStartedOnChain(false);
+        setStatus("finished");
+        pendingEndRef.current = null;
       }
     },
-    [mode, stats, gameStartedOnChain, writeContractAsync, refetchStats]
+    [mode, stats, gameStartedOnChain, writeContractAsync]
   );
 
   // Handle player move
@@ -512,93 +563,38 @@ export function useConnectFive() {
   const startGame = useCallback(async () => {
     setBoard(createEmptyBoard());
     setResult(null);
-    setMessage("Your turn - drop a piece!");
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
     if (mode === "onchain") {
       if (!isConnected || !address) {
         setMessage("⚠️ Please connect wallet first");
         return;
       }
-
-      if (!publicClient || !contractAddress) {
+      if (!contractAddress) {
         setMessage("⚠️ Unable to connect to blockchain");
         return;
       }
-
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
       try {
-        setStatus("processing");
-        setMessage("Starting new game on blockchain...");
-
-        // Try to start the game directly first
-        try {
-          await writeContractAsync({
-            address: contractAddress,
-            abi: CONNECTFIVE_CONTRACT_ABI,
-            functionName: "startGame",
-          });
-
-          setGameStartedOnChain(true);
-          setStatus("playing");
-          setMessage("Game started! Your turn");
-          return;
-        } catch (startError) {
-          // If startGame fails, it might be because there's an active game
-          console.log("startGame failed, checking if there's an active game to end...", startError);
-
-          const errorStr = String(startError);
-          // Check if the error is about an active game
-          if (errorStr.includes("already in progress") || errorStr.includes("Game already") || errorStr.includes("revert")) {
-            setMessage("Ending previous unfinished game...");
-
-            try {
-              // Try to end the previous game
-              await writeContractAsync({
-                address: contractAddress,
-                abi: CONNECTFIVE_CONTRACT_ABI,
-                functionName: "endGame",
-                args: [GAME_RESULT.LOSE], // Forfeit the previous game
-              });
-              console.log("Previous game ended successfully");
-
-              // Wait a bit for the transaction to be processed
-              await new Promise(resolve => setTimeout(resolve, 2000));
-
-              // Now try to start the new game again
-              setMessage("Starting new game on blockchain...");
-              await writeContractAsync({
-                address: contractAddress,
-                abi: CONNECTFIVE_CONTRACT_ABI,
-                functionName: "startGame",
-              });
-
-              setGameStartedOnChain(true);
-              setStatus("playing");
-              setMessage("Game started! Your turn");
-              return;
-            } catch (endError) {
-              console.error("Error ending/restarting game:", endError);
-              throw endError;
-            }
-          } else {
-            // Some other error, rethrow
-            throw startError;
-          }
-        }
-      } catch (error) {
-        console.error("Failed to start on-chain game:", error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        // Check for user rejection
-        if (errorMessage.includes("User rejected") || errorMessage.includes("user rejected")) {
-          setMessage("Transaction cancelled");
-        } else {
-          setMessage(`⚠️ Failed: ${errorMessage.slice(0, 60)}`);
-        }
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: CONNECTFIVE_CONTRACT_ABI,
+          functionName: "startGame",
+        });
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
         setStatus("idle");
       }
-    } else {
-      setStatus("playing");
+      return;
     }
-  }, [mode, isConnected, address, writeContractAsync, contractAddress, publicClient]);
+
+    setStatus("playing");
+    setMessage("Your turn - drop a piece!");
+  }, [mode, isConnected, address, writeContractAsync, contractAddress]);
 
   // Reset game
   const resetGame = useCallback(() => {
@@ -607,6 +603,9 @@ export function useConnectFive() {
     setResult(null);
     setMessage("Click Start to begin!");
     setGameStartedOnChain(false);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
   }, []);
 
   // Switch mode

@@ -1,12 +1,12 @@
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { TICTACTOE_CONTRACT_ABI, GAME_RESULT } from "@/lib/contracts/tictactoe-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 type CellValue = 0 | 1 | 2; // 0 = empty, 1 = X (player), 2 = O (AI)
 type Board = CellValue[];
 type GameMode = "free" | "onchain";
-type GameStatus = "idle" | "playing" | "processing" | "finished";
+type GameStatus = "idle" | "waiting_start" | "playing" | "waiting_end" | "finished";
 type GameResult = "win" | "lose" | "draw" | null;
 
 export interface PlayerStats {
@@ -30,10 +30,18 @@ export function useTicTacToe() {
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
   const [message, setMessage] = useState("Click Start to begin!");
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ gameResult: "win" | "lose" | "draw"; statsUpdate: PlayerStats } | null>(null);
+
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('tictactoe', chain?.id);
   const gameAvailable = isGameAvailableOnChain('tictactoe', chain?.id);
   const { writeContractAsync } = useWriteContract();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Load stats from localStorage on mount
   useEffect(() => {
@@ -70,6 +78,58 @@ export function useTicTacToe() {
       });
     }
   }, [onChainStats, mode]);
+
+  // startGame tx confirmed → start playing
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      setResult(null);
+      setStatus("playing");
+      setMessage("Your turn! Tap a cell");
+      setStartTxHash(undefined);
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { gameResult, statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("tictactoe_celo_stats", JSON.stringify(statsUpdate));
+      refetchStats();
+      if (gameResult === "win") setMessage("🎉 Victory recorded on blockchain!");
+      else if (gameResult === "lose") setMessage("😢 AI Wins - recorded on blockchain");
+      else setMessage("🤝 Draw - recorded on blockchain");
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { gameResult, statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("tictactoe_celo_stats", JSON.stringify(statsUpdate));
+      if (gameResult === "win") setMessage("🎉 You Win! (not recorded on-chain)");
+      else if (gameResult === "lose") setMessage("😢 AI Wins (not recorded on-chain)");
+      else setMessage("🤝 Draw (not recorded on-chain)");
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check if player has won
   const checkWin = useCallback((player: 1 | 2, currentBoard: Board): boolean => {
@@ -133,80 +193,67 @@ export function useTicTacToe() {
   // End game and record result
   const endGame = useCallback(
     async (gameResult: "win" | "lose" | "draw") => {
-      setStatus("finished");
       setResult(gameResult);
 
-      if (mode === "free") {
-        // Free play: update local stats
-        const newStats = {
-          ...stats,
-          games: stats.games + 1,
-          wins: stats.wins + (gameResult === "win" ? 1 : 0),
-          losses: stats.losses + (gameResult === "lose" ? 1 : 0),
-          draws: stats.draws + (gameResult === "draw" ? 1 : 0),
-        };
-        setStats(newStats);
-        localStorage.setItem("tictactoe_celo_stats", JSON.stringify(newStats));
+      const statsUpdate = {
+        ...stats,
+        games: stats.games + 1,
+        wins: stats.wins + (gameResult === "win" ? 1 : 0),
+        losses: stats.losses + (gameResult === "lose" ? 1 : 0),
+        draws: stats.draws + (gameResult === "draw" ? 1 : 0),
+      };
 
+      if (mode === "free") {
+        setStats(statsUpdate);
+        localStorage.setItem("tictactoe_celo_stats", JSON.stringify(statsUpdate));
         if (gameResult === "win") setMessage("🎉 Victory!");
         else if (gameResult === "lose") setMessage("😢 AI Wins");
         else setMessage("🤝 Draw!");
-      } else {
-        // On-chain: record result
-        if (!gameStartedOnChain) {
-          if (gameResult === "win") setMessage("🎉 You Win!");
-          else if (gameResult === "lose") setMessage("😢 AI Wins");
-          else setMessage("🤝 Draw!");
-          return;
-        }
+        setStatus("finished");
+        return;
+      }
 
-        try {
-          setStatus("processing");
-          const resultCode =
-            gameResult === "win"
-              ? GAME_RESULT.WIN
-              : gameResult === "lose"
-              ? GAME_RESULT.LOSE
-              : GAME_RESULT.DRAW;
+      // On-chain mode
+      if (!gameStartedOnChain) {
+        if (gameResult === "win") setMessage("🎉 You Win!");
+        else if (gameResult === "lose") setMessage("😢 AI Wins");
+        else setMessage("🤝 Draw!");
+        setStatus("finished");
+        return;
+      }
 
-          if (gameResult === "win")
-            setMessage("🎉 You Win! Recording on blockchain...");
-          else if (gameResult === "lose")
-            setMessage("😢 AI Wins! Recording on blockchain...");
-          else setMessage("🤝 Draw! Recording on blockchain...");
+      const resultCode =
+        gameResult === "win" ? GAME_RESULT.WIN
+        : gameResult === "lose" ? GAME_RESULT.LOSE
+        : GAME_RESULT.DRAW;
 
-          await writeContractAsync({
-            address: contractAddress!,
-            abi: TICTACTOE_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [resultCode],
-          });
+      if (gameResult === "win") setMessage("🎉 You Win! Signing transaction...");
+      else if (gameResult === "lose") setMessage("😢 AI Wins! Signing transaction...");
+      else setMessage("🤝 Draw! Signing transaction...");
 
-          setGameStartedOnChain(false);
-          await refetchStats();
+      setStatus("waiting_end");
+      pendingEndRef.current = { gameResult, statsUpdate };
 
-          if (gameResult === "win")
-            setMessage("🎉 Victory recorded on blockchain!");
-          else if (gameResult === "lose")
-            setMessage("😢 AI Wins - recorded on blockchain");
-          else setMessage("🤝 Draw - recorded on blockchain");
-
-          setStatus("finished");
-        } catch (error) {
-          console.error("Failed to record result:", error);
-          setMessage("⚠️ Game finished but not recorded on-chain");
-          setGameStartedOnChain(false);
-          setStatus("finished");
-        }
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress!,
+          abi: TICTACTOE_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [resultCode],
+        });
+        setEndTxHash(hash);
+      } catch {
+        setStats(statsUpdate);
+        localStorage.setItem("tictactoe_celo_stats", JSON.stringify(statsUpdate));
+        if (gameResult === "win") setMessage("🎉 You Win!");
+        else if (gameResult === "lose") setMessage("😢 AI Wins");
+        else setMessage("🤝 Draw!");
+        setGameStartedOnChain(false);
+        setStatus("finished");
+        pendingEndRef.current = null;
       }
     },
-    [
-      mode,
-      stats,
-      gameStartedOnChain,
-      writeContractAsync,
-      refetchStats,
-    ]
+    [mode, stats, gameStartedOnChain, writeContractAsync]
   );
 
   // Handle player move
@@ -215,8 +262,6 @@ export function useTicTacToe() {
       if (status !== "playing" || board[position] !== 0) {
         return;
       }
-
-      setStatus("processing");
 
       // Player move
       const newBoard = [...board];
@@ -258,59 +303,52 @@ export function useTicTacToe() {
 
   // Start game
   const startGame = useCallback(async () => {
-    if (status === "processing" || status === "playing") return;
+    if (status === "waiting_start" || status === "playing") return;
 
-    if (mode === "onchain" && !isConnected) {
-      setMessage("Please connect wallet first!");
-      return;
-    }
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
-    setStatus("processing");
-
-    try {
-      if (mode === "onchain") {
-        setMessage("Recording game start on blockchain...");
-
-        await writeContractAsync({
+    if (mode === "onchain") {
+      if (!isConnected) {
+        setMessage("Please connect wallet first!");
+        return;
+      }
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      try {
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: TICTACTOE_CONTRACT_ABI,
           functionName: "startGame",
           args: [],
         });
-
-        setGameStartedOnChain(true);
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
+        setStatus("idle");
       }
-
-      // Reset board and start
-      setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      setResult(null);
-      setStatus("playing");
-      setMessage("Your turn! Tap a cell");
-    } catch (error: any) {
-      console.error("Start error:", error);
-
-      let errorMsg = "Failed to start game";
-      if (error.message?.includes("rejected")) {
-        errorMsg = "Transaction rejected";
-      } else if (error.message?.includes("insufficient funds")) {
-        errorMsg = "Insufficient CELO for gas";
-      }
-
-      setMessage(errorMsg);
-      setStatus("idle");
+      return;
     }
+
+    // Free mode
+    setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    setResult(null);
+    setStatus("playing");
+    setMessage("Your turn! Tap a cell");
   }, [status, mode, isConnected, writeContractAsync]);
 
   // Reset game
   const resetGame = useCallback(() => {
-    if (status === "processing") return;
-
     setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
     setStatus("idle");
     setResult(null);
     setGameStartedOnChain(false);
     setMessage("Click Start to begin!");
-  }, [status]);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+  }, []);
 
   // Switch mode
   const switchMode = useCallback(

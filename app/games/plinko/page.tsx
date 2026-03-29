@@ -26,7 +26,7 @@ export default function PlinkoPage() {
   const isPlaying = game.status === "playing";
   const isCountdown = game.status === "countdown";
   const isFinished = game.status === "finished";
-  const isProcessing = game.status === "processing" || game.status === "waiting_start" || game.status === "waiting_end";
+  const isProcessing = game.status === "waiting_start" || game.status === "waiting_end";
 
   // Keyboard: Space to drop ball
   useEffect(() => {

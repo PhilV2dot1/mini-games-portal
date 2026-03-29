@@ -45,6 +45,7 @@ export default function YahtzeePage() {
   const { chain } = useAccount();
   const contractAddress = getContractAddress('yahtzee', chain?.id);
   const prevTurn = useRef(soloGame.currentTurn);
+  const soloIsProcessing = soloGame.status === "waiting_start" || soloGame.status === "waiting_end";
 
   // Wrapper functions with sound effects (solo)
   const handleRollDice = useCallback(() => {
@@ -394,7 +395,7 @@ export default function YahtzeePage() {
                   dice={soloGame.dice}
                   heldDice={soloGame.heldDice}
                   onToggleHold={handleToggleHold}
-                  disabled={soloGame.rollsRemaining === 0 || soloGame.isProcessing || (soloGame.vsAI && soloGame.currentPlayer === "ai")}
+                  disabled={soloGame.rollsRemaining === 0 || soloIsProcessing || (soloGame.vsAI && soloGame.currentPlayer === "ai")}
                 />
 
                 {/* Game Controls */}
@@ -403,7 +404,7 @@ export default function YahtzeePage() {
                   rollsRemaining={soloGame.rollsRemaining}
                   currentTurn={soloGame.currentTurn}
                   disabled={soloGame.rollsRemaining === 0 || (soloGame.vsAI && soloGame.currentPlayer === "ai")}
-                  isProcessing={soloGame.isProcessing}
+                  isProcessing={soloIsProcessing}
                 />
 
                 {/* Score Card(s) */}
@@ -416,7 +417,7 @@ export default function YahtzeePage() {
                       upperSectionTotal={soloGame.playerUpperTotal}
                       hasBonus={soloGame.playerHasBonus}
                       finalScore={soloGame.playerFinalScore}
-                      disabled={soloGame.isProcessing || soloGame.currentPlayer === "ai"}
+                      disabled={soloIsProcessing || soloGame.currentPlayer === "ai"}
                       player="human"
                       isActive={soloGame.currentPlayer === "human"}
                     />
@@ -440,7 +441,7 @@ export default function YahtzeePage() {
                     upperSectionTotal={soloGame.upperSectionTotal}
                     hasBonus={soloGame.hasBonus}
                     finalScore={soloGame.finalScore}
-                    disabled={soloGame.isProcessing}
+                    disabled={soloIsProcessing}
                   />
                 )}
               </motion.div>

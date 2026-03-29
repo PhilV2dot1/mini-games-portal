@@ -95,7 +95,7 @@ export default function TetrisPage() {
 
   const isPlaying = game.status === "playing";
   const isCountdown = game.status === "countdown";
-  const isProcessing = game.status === "processing" || game.status === "waiting_start" || game.status === "waiting_end";
+  const isProcessing = game.status === "waiting_start" || game.status === "waiting_end";
   const isFinished = game.status === "finished";
 
   // Swipe controls for mobile: left/right to move, up to rotate, down to hard drop

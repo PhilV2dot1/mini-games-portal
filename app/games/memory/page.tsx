@@ -76,7 +76,7 @@ export default function MemoryPage() {
   );
 
   const canStart = game.status === "idle" || game.status === "finished";
-  const isProcessing = game.status === "processing" || game.status === "waiting_start" || game.status === "waiting_end";
+  const isProcessing = game.status === "waiting_start" || game.status === "waiting_end";
   const isCountdown = game.status === "countdown";
 
   return (

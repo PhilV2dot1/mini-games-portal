@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { MAZE_CONTRACT_ABI } from "@/lib/contracts/maze-abi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 import {
@@ -23,7 +23,7 @@ import {
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished" | "countdown";
+export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "waiting_end" | "finished";
 export type GameResult = "win" | "timeout" | null;
 
 export interface PlayerStats {
@@ -110,11 +110,20 @@ export function useMaze() {
   useEffect(() => { playerPosRef.current = playerPos; }, [playerPos]);
   useEffect(() => { statusRef.current = status; }, [status]);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ finalTime: number; finalMoves: number; score: number } | null>(null);
+  const startCountdownAndGameRef = useRef<(() => void) | null>(null);
+
   // Wagmi hooks
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('maze', chain?.id);
   const gameAvailable = isGameAvailableOnChain('maze', chain?.id);
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Read on-chain stats
   const { data: onChainStats, refetch: refetchStats } = useReadContract({
@@ -159,6 +168,48 @@ export function useMaze() {
       });
     }
   }, [onChainStats, mode]);
+
+  // startGame tx confirmed → start countdown
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current?.();
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current = null;
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { score } = pendingEndRef.current;
+      refetchStats();
+      setMessage(`Victory! Score: ${score} - recorded on blockchain!`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { score } = pendingEndRef.current;
+      setMessage(`Victory! Score: ${score} (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Save stats to localStorage
   const saveStats = useCallback((newStats: PlayerStats) => {
@@ -242,49 +293,47 @@ export function useMaze() {
 
   // End game (handles both free and on-chain)
   const endGame = useCallback(async (finalTime: number, finalMoves: number, score: number) => {
+    const newStats = { ...stats };
+    newStats.games += 1;
+    newStats.wins += 1;
+    if (!newStats.bestTimes[difficulty] || finalTime < newStats.bestTimes[difficulty]!) {
+      newStats.bestTimes[difficulty] = finalTime;
+    }
+    if (!newStats.bestMoves[difficulty] || finalMoves < newStats.bestMoves[difficulty]!) {
+      newStats.bestMoves[difficulty] = finalMoves;
+    }
+
     if (mode === "free") {
-      // Update local stats
-      const newStats = { ...stats };
-      newStats.games += 1;
-      newStats.wins += 1;
-      if (!newStats.bestTimes[difficulty] || finalTime < newStats.bestTimes[difficulty]!) {
-        newStats.bestTimes[difficulty] = finalTime;
-      }
-      if (!newStats.bestMoves[difficulty] || finalMoves < newStats.bestMoves[difficulty]!) {
-        newStats.bestMoves[difficulty] = finalMoves;
-      }
       saveStats(newStats);
       setMessage(`Congratulations! Score: ${score}`);
-    } else {
-      // On-chain: record result
-      if (!gameStartedOnChain) {
-        setMessage(`Congratulations! Score: ${score}`);
-        return;
-      }
-
-      try {
-        setStatus("processing");
-        setMessage("Recording victory on blockchain...");
-
-        await writeContractAsync({
-          address: contractAddress!,
-          abi: MAZE_CONTRACT_ABI,
-          functionName: "endGame",
-          args: [getDifficultyEnum(difficulty), BigInt(finalTime), BigInt(finalMoves), BigInt(score)],
-        });
-
-        setGameStartedOnChain(false);
-        await refetchStats();
-        setMessage(`Victory! Score: ${score} - recorded on blockchain!`);
-        setStatus("finished");
-      } catch (error) {
-        console.error("Failed to record result:", error);
-        setMessage("Game finished but not recorded on-chain");
-        setGameStartedOnChain(false);
-        setStatus("finished");
-      }
+      return;
     }
-  }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, refetchStats, saveStats]);
+
+    if (!gameStartedOnChain) {
+      setMessage(`Congratulations! Score: ${score}`);
+      return;
+    }
+
+    setStatus("waiting_end");
+    setMessage("Recording victory on blockchain...");
+    pendingEndRef.current = { finalTime, finalMoves, score };
+    saveStats(newStats);
+
+    try {
+      const hash = await writeContractAsync({
+        address: contractAddress!,
+        abi: MAZE_CONTRACT_ABI,
+        functionName: "endGame",
+        args: [getDifficultyEnum(difficulty), BigInt(finalTime), BigInt(finalMoves), BigInt(score)],
+      });
+      setEndTxHash(hash);
+    } catch {
+      setMessage(`Game finished but not recorded on-chain. Score: ${score}`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      pendingEndRef.current = null;
+    }
+  }, [mode, stats, difficulty, gameStartedOnChain, writeContractAsync, contractAddress, saveStats]);
 
   // Countdown helper — calls onComplete after 3-2-1-GO
   const startCountdown = useCallback((onComplete: () => void) => {
@@ -307,65 +356,53 @@ export function useMaze() {
 
   // Start a new game
   const startGame = useCallback(async () => {
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+
     const newGrid = generateMaze(config.gridSize);
-    // Place player at start
     newGrid[1][1] = PLAYER;
+    const fog = getVisibleCells({ row: 1, col: 1 }, newGrid, config.fogRadius);
+
+    const startCountdownAndGame = () => {
+      setGrid(newGrid);
+      setPlayerPos({ row: 1, col: 1 });
+      setResult(null);
+      setMoves(0);
+      setMessage("");
+      setVisibleCells(fog);
+      startCountdown(() => {
+        setStatus("playing");
+        startTimer();
+        startWallShift();
+      });
+    };
 
     if (mode === "onchain") {
       if (!isConnected || !address) {
         setMessage("Please connect wallet first");
         return;
       }
-
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      startCountdownAndGameRef.current = startCountdownAndGame;
       try {
-        setStatus("processing");
-        setMessage("Starting game on blockchain...");
-
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: MAZE_CONTRACT_ABI,
           functionName: "startGame",
           args: [getDifficultyEnum(difficulty)],
         });
-
-        setGameStartedOnChain(true);
-        setGrid(newGrid);
-        setPlayerPos({ row: 1, col: 1 });
-        setResult(null);
-        setMoves(0);
-        setMessage("");
-
-        // Initialize fog of war
-        const fog = getVisibleCells({ row: 1, col: 1 }, newGrid, config.fogRadius);
-        setVisibleCells(fog);
-
-        startCountdown(() => {
-          setStatus("playing");
-          startTimer();
-          startWallShift();
-        });
-      } catch (error) {
-        console.error("Failed to start on-chain game:", error);
-        setMessage("Failed to start on-chain game");
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
         setStatus("idle");
+        startCountdownAndGameRef.current = null;
       }
-    } else {
-      setGrid(newGrid);
-      setPlayerPos({ row: 1, col: 1 });
-      setResult(null);
-      setMoves(0);
-      setMessage("");
-
-      // Initialize fog of war
-      const fog = getVisibleCells({ row: 1, col: 1 }, newGrid, config.fogRadius);
-      setVisibleCells(fog);
-
-      startCountdown(() => {
-        setStatus("playing");
-        startTimer();
-        startWallShift();
-      });
+      return;
     }
+
+    startCountdownAndGame();
   }, [difficulty, config, mode, isConnected, address, writeContractAsync, contractAddress, startCountdown, startTimer, startWallShift]);
 
   // Handle player movement
@@ -503,7 +540,6 @@ export function useMaze() {
     timer,
     stats,
     isConnected,
-    isProcessing: isPending,
     gridSize: config.gridSize,
     visibleCells,
     timeLimit: config.timeLimit,

@@ -29,7 +29,6 @@ export default function MinesweeperPage() {
     stats,
     message,
     isConnected,
-    isProcessing,
     focusedCell,
     startGame,
     handleCellClick,
@@ -44,6 +43,7 @@ export default function MinesweeperPage() {
   const { recordGame } = useLocalStats();
   const { t } = useLanguage();
   const { play } = useGameAudio('minesweeper');
+  const isProcessing = status === "waiting_start" || status === "waiting_end";
 
   // Translate hook messages
   const translateMessage = useCallback((msg: string): string => {

@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import {
   MINESWEEPER_CONTRACT_ABI,
 } from "@/lib/contracts/minesweeper-abi";
@@ -11,7 +11,7 @@ import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addr
 
 export type Player = 1 | 2;
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "playing" | "waiting_end" | "finished";
 export type GameResult = "win" | "lose" | null;
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -294,10 +294,18 @@ export function useMinesweeper() {
   const [message, setMessage] = useState("Click Start to begin!");
   const [focusedCell, setFocusedCell] = useState<[number, number]>([0, 0]);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ gameResult: "win" | "lose"; statsUpdate: PlayerStats } | null>(null);
+
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('minesweeper', chain?.id);
   const gameAvailable = isGameAvailableOnChain('minesweeper', chain?.id);
   const { writeContractAsync, isPending } = useWriteContract();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Read on-chain stats
   const { data: onChainStats, refetch: refetchStats } = useReadContract({
@@ -405,6 +413,50 @@ export function useMinesweeper() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [handleKeyPress]);
 
+  // startGame tx confirmed → start playing
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStatus("playing");
+      setMessage("Game started! Click a cell");
+      setStartTxHash(undefined);
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      const { statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("minesweeper_celo_stats", JSON.stringify(statsUpdate));
+      refetchStats();
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { statsUpdate } = pendingEndRef.current;
+      setStats(statsUpdate);
+      localStorage.setItem("minesweeper_celo_stats", JSON.stringify(statsUpdate));
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Start game
   const startGame = useCallback(async () => {
     const config = DIFFICULTY_CONFIG[difficulty];
@@ -415,35 +467,33 @@ export function useMinesweeper() {
     setResult(null);
     setMessage("Click a cell to start!");
     setFocusedCell([0, 0]);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
     if (mode === "onchain") {
       if (!isConnected || !address) {
         setMessage("⚠️ Please connect wallet first");
         return;
       }
-
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
       try {
-        setStatus("processing");
-        setMessage("Starting game on blockchain...");
-
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: MINESWEEPER_CONTRACT_ABI,
           functionName: "startGame",
           args: [getDifficultyEnum(difficulty)],
         });
-
-        setGameStartedOnChain(true);
-        setStatus("playing");
-        setMessage("Game started! Click a cell");
-      } catch (error) {
-        console.error("Failed to start on-chain game:", error);
-        setMessage("⚠️ Failed to start on-chain game");
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
         setStatus("idle");
       }
-    } else {
-      setStatus("playing");
+      return;
     }
+
+    setStatus("playing");
   }, [mode, difficulty, isConnected, address, writeContractAsync]);
 
   // Handle cell click (reveal)
@@ -525,97 +575,69 @@ export function useMinesweeper() {
   // End game
   const endGame = useCallback(
     async (gameResult: "win" | "lose") => {
-      setStatus("finished");
       setResult(gameResult);
 
       const config = DIFFICULTY_CONFIG[difficulty];
       const flagsUsed = config.mines - flagsRemaining;
+      const isPerfectGame = gameResult === "win" && checkIfPerfectGame(board);
 
-      if (mode === "free") {
-        // Update local stats
-        const isPerfectGame =
-          gameResult === "win" && checkIfPerfectGame(board);
-
-        const newBestTimes = { ...stats.bestTimes };
-        if (gameResult === "win") {
-          const currentBest = stats.bestTimes[difficulty];
-          if (currentBest === null || timer < currentBest) {
-            newBestTimes[difficulty] = timer;
-          }
-        }
-
-        const newStats: PlayerStats = {
-          games: stats.games + 1,
-          wins: stats.wins + (gameResult === "win" ? 1 : 0),
-          losses: stats.losses + (gameResult === "lose" ? 1 : 0),
-          bestTimes: newBestTimes,
-          totalFlagsUsed: stats.totalFlagsUsed + flagsUsed,
-          perfectGames: stats.perfectGames + (isPerfectGame ? 1 : 0),
-        };
-
-        setStats(newStats);
-        localStorage.setItem("minesweeper_celo_stats", JSON.stringify(newStats));
-
-        if (gameResult === "win") {
-          setMessage(`🎉 Victory in ${timer}s!`);
-        } else {
-          setMessage("💣 Boom! Game Over");
-        }
-      } else {
-        // On-chain: record result
-        if (!gameStartedOnChain) {
-          if (gameResult === "win") setMessage(`🎉 Victory in ${timer}s!`);
-          else setMessage("💣 Boom! Game Over");
-          return;
-        }
-
-        try {
-          setStatus("processing");
-          const resultCode =
-            gameResult === "win" ? GAME_RESULT.WIN : GAME_RESULT.LOSE;
-
-          setMessage(
-            gameResult === "win"
-              ? "🎉 Recording victory on blockchain..."
-              : "💣 Recording result on blockchain..."
-          );
-
-          await writeContractAsync({
-            address: contractAddress!,
-            abi: MINESWEEPER_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [resultCode, getDifficultyEnum(difficulty), BigInt(timer)],
-          });
-
-          setGameStartedOnChain(false);
-          await refetchStats();
-
-          setMessage(
-            gameResult === "win"
-              ? `🎉 Victory in ${timer}s - recorded on blockchain!`
-              : "💣 Game Over - recorded on blockchain"
-          );
-
-          setStatus("finished");
-        } catch (error) {
-          console.error("Failed to record result:", error);
-          setMessage("⚠️ Game finished but not recorded on-chain");
-          setGameStartedOnChain(false);
-          setStatus("finished");
+      const newBestTimes = { ...stats.bestTimes };
+      if (gameResult === "win") {
+        const currentBest = stats.bestTimes[difficulty];
+        if (currentBest === null || timer < currentBest) {
+          newBestTimes[difficulty] = timer;
         }
       }
+
+      const statsUpdate: PlayerStats = {
+        games: stats.games + 1,
+        wins: stats.wins + (gameResult === "win" ? 1 : 0),
+        losses: stats.losses + (gameResult === "lose" ? 1 : 0),
+        bestTimes: newBestTimes,
+        totalFlagsUsed: stats.totalFlagsUsed + flagsUsed,
+        perfectGames: stats.perfectGames + (isPerfectGame ? 1 : 0),
+      };
+
+      if (mode === "free") {
+        setStats(statsUpdate);
+        localStorage.setItem("minesweeper_celo_stats", JSON.stringify(statsUpdate));
+        if (gameResult === "win") setMessage(`🎉 Victory in ${timer}s!`);
+        else setMessage("💣 Boom! Game Over");
+        setStatus("finished");
+        return;
+      }
+
+      if (!gameStartedOnChain) {
+        if (gameResult === "win") setMessage(`🎉 Victory in ${timer}s!`);
+        else setMessage("💣 Boom! Game Over");
+        setStatus("finished");
+        return;
+      }
+
+      const resultCode = gameResult === "win" ? GAME_RESULT.WIN : GAME_RESULT.LOSE;
+      setMessage(gameResult === "win" ? "🎉 Victory! Signing transaction..." : "💣 Game Over! Signing transaction...");
+      setStatus("waiting_end");
+      pendingEndRef.current = { gameResult, statsUpdate };
+
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress!,
+          abi: MINESWEEPER_CONTRACT_ABI,
+          functionName: "endGame",
+          args: [resultCode, getDifficultyEnum(difficulty), BigInt(timer)],
+        });
+        setEndTxHash(hash);
+      } catch {
+        setStats(statsUpdate);
+        localStorage.setItem("minesweeper_celo_stats", JSON.stringify(statsUpdate));
+        if (gameResult === "win") setMessage(`🎉 Victory in ${timer}s!`);
+        else setMessage("💣 Boom! Game Over");
+        setGameStartedOnChain(false);
+        setStatus("finished");
+        pendingEndRef.current = null;
+      }
     },
-    [
-      mode,
-      stats,
-      difficulty,
-      timer,
-      flagsRemaining,
-      board,
-      gameStartedOnChain,
-      writeContractAsync,
-      refetchStats,
-    ]
+    [mode, stats, difficulty, timer, flagsRemaining, board, gameStartedOnChain, writeContractAsync]
   );
 
   // Reset game

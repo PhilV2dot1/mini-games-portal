@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { useAccount, useWriteContract, useReadContract } from "wagmi";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import {
   SUDOKU_CONTRACT_ABI,
 } from "@/lib/contracts/sudoku-abi";
@@ -10,7 +10,7 @@ import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addr
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "playing" | "waiting_end" | "finished";
 export type GameResult = "win" | null;
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -240,11 +240,19 @@ export function useSudoku() {
     };
   });
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ finalTime: number; finalMoves: number; statsUpdate: PlayerStats } | null>(null);
+
   // Wallet connection
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('sudoku', chain?.id);
   const gameAvailable = isGameAvailableOnChain('sudoku', chain?.id);
-  const { writeContractAsync, isPending: isProcessing } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   // Read contract stats (on-chain mode)
   const { data: contractStats, refetch: refetchStats } = useReadContract({
@@ -263,6 +271,55 @@ export function useSudoku() {
       localStorage.setItem("sudoku_celo_stats", JSON.stringify(stats));
     }
   }, [stats, mode]);
+
+  // Pending puzzle fetch ref — stored so startConfirmed effect can kick off play
+  const pendingPuzzleFetchRef = useRef<(() => Promise<void>) | null>(null);
+
+  // startGame tx confirmed → fetch puzzle and start playing
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      setStatus("playing");
+      // Execute the stored puzzle-fetch-and-start fn
+      if (pendingPuzzleFetchRef.current) {
+        pendingPuzzleFetchRef.current();
+        pendingPuzzleFetchRef.current = null;
+      }
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+      pendingPuzzleFetchRef.current = null;
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      refetchStats();
+      setMessage(`🎉 Solved in ${formatTime(pendingEndRef.current.finalTime)}! Recorded on blockchain.`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      const { finalTime } = pendingEndRef.current;
+      setMessage(`🎉 Solved in ${formatTime(finalTime)}! (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Timer logic
   useEffect(() => {
@@ -382,56 +439,59 @@ export function useSudoku() {
 
   // Start game
   const startGame = useCallback(async () => {
-    try {
-      setMessage("Loading puzzle...");
-      setStatus("idle");
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
-      // Check wallet for on-chain mode
-      if (mode === "onchain") {
-        if (!isConnected || !address) {
-          setMessage("Please connect your wallet first!");
-          return;
-        }
+    const launchGame = async () => {
+      try {
+        setMessage("Loading puzzle...");
+        let { puzzle, solution } = await fetchPuzzle();
+        puzzle = adjustDifficulty(puzzle, solution, difficulty);
+        const newBoard = parsePuzzle(puzzle, solution);
+        setBoard(newBoard);
+        setSolution(solution);
+        setTimer(0);
+        setHintsRemaining(MAX_HINTS);
+        setHintsUsed(0);
+        setSelectedCell(null);
+        setConflictCells(new Set());
+        setResult(null);
+        setStatus("playing");
+        setMessage("Solve the puzzle!");
+      } catch {
+        setMessage("Failed to load puzzle. Please try again.");
+        setStatus("idle");
+      }
+    };
 
-        // Start game on contract
-        setStatus("processing");
-        setMessage("Starting game on blockchain...");
-
-        await writeContractAsync({
+    if (mode === "onchain") {
+      if (!isConnected || !address) {
+        setMessage("Please connect your wallet first!");
+        return;
+      }
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      pendingPuzzleFetchRef.current = launchGame;
+      try {
+        const hash = await writeContractAsync({
           address: contractAddress!,
           abi: SUDOKU_CONTRACT_ABI,
           functionName: "startGame",
           args: [DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM]],
         });
-
-        setGameStartedOnChain(true);
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
+        setStatus("idle");
+        pendingPuzzleFetchRef.current = null;
       }
-
-      // Fetch puzzle from API
-      let { puzzle, solution } = await fetchPuzzle();
-
-      // Adjust difficulty to match target (adds more clues for easier modes)
-      puzzle = adjustDifficulty(puzzle, solution, difficulty);
-
-      // Parse puzzle
-      const newBoard = parsePuzzle(puzzle, solution);
-
-      setBoard(newBoard);
-      setSolution(solution);
-      setStatus("playing");
-      setTimer(0);
-      setHintsRemaining(MAX_HINTS);
-      setHintsUsed(0);
-      setSelectedCell(null);
-      setConflictCells(new Set());
-      setResult(null);
-      setMessage("Solve the puzzle!");
-    } catch (error) {
-      console.error("Failed to start game:", error);
-      setMessage("Failed to load puzzle. Please try again.");
-      setStatus("idle");
+      return;
     }
-  }, [mode, difficulty, isConnected, address, writeContractAsync, fetchPuzzle, adjustDifficulty]);
+
+    // Free mode — launch immediately
+    await launchGame();
+  }, [mode, difficulty, isConnected, address, writeContractAsync, contractAddress, fetchPuzzle, adjustDifficulty]);
 
   // Handle cell selection
   const handleCellSelect = useCallback((row: number, col: number) => {
@@ -494,62 +554,70 @@ export function useSudoku() {
 
   // End game
   const endGame = useCallback(async (gameResult: GameResult) => {
-    if (status === "finished") return;
+    if (status === "finished" || status === "waiting_end") return;
 
-    setStatus("finished");
     setResult(gameResult);
     setSelectedCell(null);
 
-    if (gameResult === "win") {
-      setMessage(`🎉 Solved in ${formatTime(timer)}!`);
-
-      // Update stats
-      if (mode === "free") {
-        const isPerfect = hintsUsed === 0;
-        const newBestTimes = { ...stats.bestTimes };
-        const currentBest = stats.bestTimes[difficulty];
-
-        if (currentBest === null || timer < currentBest) {
-          newBestTimes[difficulty] = timer;
-        }
-
-        setStats({
-          games: stats.games + 1,
-          wins: stats.wins + 1,
-          bestTimes: newBestTimes,
-          perfectGames: stats.perfectGames + (isPerfect ? 1 : 0),
-          totalHintsUsed: stats.totalHintsUsed + hintsUsed,
-        });
-      } else if (mode === "onchain" && isConnected && address) {
-        // End game on contract
-        try {
-          setStatus("processing");
-          setMessage("Recording result on blockchain...");
-
-          await writeContractAsync({
-            address: contractAddress!,
-            abi: SUDOKU_CONTRACT_ABI,
-            functionName: "endGame",
-            args: [
-              GAME_RESULT.WIN,
-              DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM],
-              BigInt(timer),
-              hintsUsed,
-            ],
-          });
-
-          setGameStartedOnChain(false);
-          refetchStats();
-          setStatus("finished");
-          setMessage(`🎉 Solved in ${formatTime(timer)}!`);
-        } catch (error) {
-          console.error("Failed to end game on contract:", error);
-          setStatus("finished");
-          setMessage("Failed to record result on blockchain.");
-        }
-      }
+    if (gameResult !== "win") {
+      setStatus("finished");
+      return;
     }
-  }, [status, timer, mode, stats, difficulty, hintsUsed, isConnected, address, writeContractAsync, refetchStats]);
+
+    const isPerfect = hintsUsed === 0;
+    const newBestTimes = { ...stats.bestTimes };
+    const currentBest = stats.bestTimes[difficulty];
+    if (currentBest === null || timer < currentBest) {
+      newBestTimes[difficulty] = timer;
+    }
+    const statsUpdate = {
+      games: stats.games + 1,
+      wins: stats.wins + 1,
+      bestTimes: newBestTimes,
+      perfectGames: stats.perfectGames + (isPerfect ? 1 : 0),
+      totalHintsUsed: stats.totalHintsUsed + hintsUsed,
+    };
+
+    if (mode === "free") {
+      setStats(statsUpdate);
+      localStorage.setItem("sudoku_celo_stats", JSON.stringify(statsUpdate));
+      setMessage(`🎉 Solved in ${formatTime(timer)}!`);
+      setStatus("finished");
+      return;
+    }
+
+    if (!gameStartedOnChain) {
+      setMessage(`🎉 Solved in ${formatTime(timer)}!`);
+      setStatus("finished");
+      return;
+    }
+
+    setStatus("waiting_end");
+    setMessage("🎉 Solved! Signing transaction...");
+    pendingEndRef.current = { finalTime: timer, finalMoves: hintsUsed, statsUpdate };
+    setStats(statsUpdate);
+    localStorage.setItem("sudoku_celo_stats", JSON.stringify(statsUpdate));
+
+    try {
+      const hash = await writeContractAsync({
+        address: contractAddress!,
+        abi: SUDOKU_CONTRACT_ABI,
+        functionName: "endGame",
+        args: [
+          GAME_RESULT.WIN,
+          DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM],
+          BigInt(timer),
+          hintsUsed,
+        ],
+      });
+      setEndTxHash(hash);
+    } catch {
+      setMessage(`🎉 Solved in ${formatTime(timer)}! (not recorded on-chain)`);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      pendingEndRef.current = null;
+    }
+  }, [status, timer, mode, stats, difficulty, hintsUsed, gameStartedOnChain, writeContractAsync, contractAddress]);
 
   // Reset game
   const resetGame = useCallback(() => {
@@ -568,7 +636,7 @@ export function useSudoku() {
 
   // Switch mode
   const switchMode = useCallback((newMode: GameMode) => {
-    if (status === "playing" || status === "processing") {
+    if (status === "playing" || status === "waiting_start" || status === "waiting_end") {
       setMessage("Finish current game first!");
       return;
     }
@@ -614,7 +682,6 @@ export function useSudoku() {
     stats: currentStats,
     message,
     isConnected,
-    isProcessing,
     hintsUsed,
 
     // Actions

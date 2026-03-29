@@ -93,7 +93,7 @@ export default function SnakePage() {
   }, [status, score, mode, recordGame]);
 
   const isPlaying = status === "playing";
-  const isProcessing = status === "processing" || status === "waiting_start" || status === "waiting_end";
+  const isProcessing = status === "waiting_start" || status === "waiting_end";
   const isCountdown = status === "countdown";
   const isGameOver = status === "gameover";
 

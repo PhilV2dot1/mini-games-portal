@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract, useReadContract, usePublicClient } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, usePublicClient, useWaitForTransactionReceipt } from "wagmi";
 import type { GameMode, GameResult } from "@/lib/types";
 import {
   YAHTZEE_CONTRACT_ABI,
@@ -34,7 +34,7 @@ export type ScoreCard = {
   [K in CategoryName]: number | null;
 };
 
-export type GameStatus = "idle" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "playing" | "waiting_end" | "finished";
 
 export interface PlayerStats {
   gamesPlayed: number;
@@ -485,12 +485,20 @@ export function useYahtzee() {
   // Ref to avoid circular dependency between selectCategory and playAITurn
   const playAITurnRef = useRef<(() => Promise<void>) | null>(null);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const pendingEndRef = useRef<{ finalScore: number } | null>(null);
+
   // Wagmi hooks
   const { address, isConnected, chain } = useAccount();
   const contractAddress = getContractAddress('yahtzee', chain?.id);
   const gameAvailable = isGameAvailableOnChain('yahtzee', chain?.id);
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient();
+
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   const { data: onChainStats, refetch: refetchStats } = useReadContract({
     address: contractAddress!,
@@ -531,6 +539,44 @@ export function useYahtzee() {
     },
     [mode]
   );
+
+  // startGame tx confirmed → start playing
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      setStatus("playing");
+      setMessage("Turn 1/13 - Roll the dice!");
+    }
+  }, [startConfirmed, status]);
+
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed. Switching to free mode.");
+      setMode("free");
+      setStatus("playing");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
+      refetchStats();
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingEndRef.current) {
+      setMessage("Blockchain error! Game saved locally.");
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Roll all non-held dice
@@ -667,25 +713,24 @@ export function useYahtzee() {
             totalScore: stats.totalScore + playerFinalScore,
             highScore: Math.max(stats.highScore, playerFinalScore),
           };
+          saveStats(newStats);
 
-          if (mode === "free") {
-            saveStats(newStats);
-          } else if (mode === "onchain" && address && gameStartedOnChain) {
+          if (mode === "onchain" && address && gameStartedOnChain) {
             // End game on-chain (player score only)
-            setStatus("processing");
+            setStatus("waiting_end");
+            pendingEndRef.current = { finalScore: playerFinalScore };
             try {
-              await writeContractAsync({
+              const hash = await writeContractAsync({
                 address: contractAddress!,
                 abi: YAHTZEE_CONTRACT_ABI,
                 functionName: "endGame",
                 args: [BigInt(playerFinalScore)],
               });
-              setStatus("finished");
-              refetchStats();
-            } catch (error) {
-              console.error("Failed to end game on-chain:", error);
+              setEndTxHash(hash);
+            } catch {
               setMessage("Blockchain error! Game saved locally.");
               setStatus("finished");
+              pendingEndRef.current = null;
             }
           }
         } else {
@@ -697,25 +742,24 @@ export function useYahtzee() {
             totalScore: stats.totalScore + finalScore,
             highScore: Math.max(stats.highScore, finalScore),
           };
+          saveStats(newStats);
 
-          if (mode === "free") {
-            saveStats(newStats);
-          } else if (mode === "onchain" && address && gameStartedOnChain) {
+          if (mode === "onchain" && address && gameStartedOnChain) {
             // End game on-chain
-            setStatus("processing");
+            setStatus("waiting_end");
+            pendingEndRef.current = { finalScore: finalScore };
             try {
-              await writeContractAsync({
+              const hash = await writeContractAsync({
                 address: contractAddress!,
                 abi: YAHTZEE_CONTRACT_ABI,
                 functionName: "endGame",
                 args: [BigInt(finalScore)],
               });
-              setStatus("finished");
-              refetchStats();
-            } catch (error) {
-              console.error("Failed to end game on-chain:", error);
+              setEndTxHash(hash);
+            } catch {
               setMessage("Blockchain error! Game saved locally.");
               setStatus("finished");
+              pendingEndRef.current = null;
             }
           }
         }
@@ -850,7 +894,11 @@ export function useYahtzee() {
    * Start a new game
    */
   const startGame = useCallback(async () => {
-    if (status === "playing") return;
+    if (status === "playing" || status === "waiting_start") return;
+
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
     // Reset game state
     setDice([1, 1, 1, 1, 1]);
@@ -859,7 +907,6 @@ export function useYahtzee() {
     setCurrentTurn(1);
     setScoreCard(EMPTY_SCORECARD);
     setGameStartTime(Date.now());
-    setStatus("playing");
 
     // Reset AI state
     setPlayerScoreCard(EMPTY_SCORECARD);
@@ -867,20 +914,17 @@ export function useYahtzee() {
     setCurrentPlayer("human");
     setWinner(null);
 
-    setMessage("Turn 1/13 - Roll the dice!");
-
-    // Start game on-chain if in on-chain mode (works with AI mode too - only player score is recorded)
+    // Start game on-chain if in on-chain mode
     if (mode === "onchain" && address && isConnected) {
       if (!publicClient || !contractAddress) {
         setMessage("⚠️ Unable to connect to blockchain");
         return;
       }
 
-      setStatus("processing");
+      setStatus("waiting_start");
       try {
         setMessage("Checking for previous game...");
 
-        // Use publicClient.readContract to directly check if there's an active game
         const isActive = await publicClient.readContract({
           address: contractAddress,
           abi: YAHTZEE_CONTRACT_ABI,
@@ -888,40 +932,35 @@ export function useYahtzee() {
           args: [address],
         });
 
-        console.log("isGameActive result:", isActive);
-
         if (isActive === true) {
-          console.log("Active game detected, abandoning previous game...");
-          setMessage("Abandoning previous unfinished game...");
-
+          setMessage("Abandoning previous game...");
           await writeContractAsync({
             address: contractAddress,
             abi: YAHTZEE_CONTRACT_ABI,
             functionName: "abandonGame",
           });
-
-          // Wait a bit for the transaction to be processed
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
-        // Now start the new game
-        setMessage("Starting new game on blockchain...");
-        await writeContractAsync({
+        setMessage("Sign transaction to start...");
+        const hash = await writeContractAsync({
           address: contractAddress,
           abi: YAHTZEE_CONTRACT_ABI,
           functionName: "startGame",
         });
-        setGameStartedOnChain(true);
-        setStatus("playing");
-        setMessage("Turn 1/13 - Roll the dice!");
-      } catch (error) {
-        console.error("Failed to start game on-chain:", error);
+        setStartTxHash(hash);
+      } catch {
         setMessage("Blockchain error! Switching to free mode.");
         setMode("free");
         setStatus("playing");
+        setMessage("Turn 1/13 - Roll the dice!");
       }
+      return;
     }
-  }, [status, mode, address, isConnected, vsAI, writeContractAsync, contractAddress, publicClient]);
+
+    setStatus("playing");
+    setMessage("Turn 1/13 - Roll the dice!");
+  }, [status, mode, address, isConnected, writeContractAsync, contractAddress, publicClient]);
 
   /**
    * Reset game to idle state
