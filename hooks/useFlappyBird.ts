@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -9,7 +9,7 @@ import { getContractAddress } from "@/lib/contracts/addresses";
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "countdown" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "processing" | "waiting_end" | "finished";
 export type GameResult = "win" | "lose" | null;
 
 export interface PlayerStats {
@@ -149,6 +149,17 @@ export function useFlappyBird() {
   const [localStats, setLocalStats] = useState<PlayerStats>(DEFAULT_STATS);
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  // Pending finalize args stored while waiting for endGame receipt
+  const pendingFinalizeRef = useRef<{
+    finalScore: number;
+    finalLevel: number;
+    next: PlayerStats;
+  } | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const stateRef = useRef({
@@ -170,6 +181,16 @@ export function useFlappyBird() {
   const contractAddress = getContractAddress("flappybird", chainId);
   const { writeContractAsync } = useWriteContract();
 
+  // Wait for startGame confirmation
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({
+    hash: startTxHash,
+  });
+
+  // Wait for endGame confirmation
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({
+    hash: endTxHash,
+  });
+
   const { data: onChainStats } = useReadContract({
     address: contractAddress ?? undefined,
     abi: FLAPPYBIRD_ABI,
@@ -190,6 +211,10 @@ export function useFlappyBird() {
   useEffect(() => {
     CRYPTO_LOGOS.forEach((t) => { getLogoImg(t); });
   }, []);
+
+  // ── tx receipt effects (defined early; startCountdownAndGame defined after draw/gameLoop) ──
+  // These will be populated after startCountdownAndGame is defined via ref
+  const startCountdownAndGameRef = useRef<(() => void) | null>(null);
 
   // ======================================
   // DRAW
@@ -425,7 +450,7 @@ export function useFlappyBird() {
       if (inPipeX && (birdTop < topH || birdBot > botY)) {
         s.status = "finished";
         setScore(s.score);
-        setStatus("processing");
+        setStatus("processing" as GameStatus);
         return;
       }
     }
@@ -466,23 +491,31 @@ export function useFlappyBird() {
       highScore: Math.max(prev.highScore, finalScore),
       totalScore: prev.totalScore + finalScore,
     };
-    localStorage.setItem(STATS_KEY, JSON.stringify(next));
-    setLocalStats(next);
 
     if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
+      setStatus("waiting_end");
+      pendingFinalizeRef.current = { finalScore, finalLevel, next };
       try {
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress,
           abi: FLAPPYBIRD_ABI,
           functionName: "endGame",
           args: [BigInt(finalScore), BigInt(0)],
         });
+        setEndTxHash(hash);
+      } catch {
+        // User rejected or error — still show result
+        localStorage.setItem(STATS_KEY, JSON.stringify(next));
+        setLocalStats(next);
         setGameStartedOnChain(false);
-      } catch (err) {
-        console.error("endGame tx failed:", err);
+        setStatus("finished");
+        pendingFinalizeRef.current = null;
       }
+      return;
     }
 
+    localStorage.setItem(STATS_KEY, JSON.stringify(next));
+    setLocalStats(next);
     setStatus("finished");
   }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync]);
 
@@ -495,6 +528,50 @@ export function useFlappyBird() {
     if (s.status !== "playing") return;
     s.bird.vy = JUMP_VELOCITY;
   }, []);
+
+  // startGame tx confirmed → start countdown
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current?.();
+    }
+  }, [startConfirmed, status]);
+
+  // startGame tx failed → back to idle
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → finalize
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingFinalizeRef.current) {
+      const { next } = pendingFinalizeRef.current;
+      localStorage.setItem(STATS_KEY, JSON.stringify(next));
+      setLocalStats(next);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingFinalizeRef.current = null;
+    }
+  }, [endConfirmed, status]);
+
+  // endGame tx failed → finalize anyway
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingFinalizeRef.current) {
+      const { next } = pendingFinalizeRef.current;
+      localStorage.setItem(STATS_KEY, JSON.stringify(next));
+      setLocalStats(next);
+      setGameStartedOnChain(false);
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingFinalizeRef.current = null;
+    }
+  }, [endFailed, status]);
 
   // ======================================
   // START / STOP
@@ -513,7 +590,7 @@ export function useFlappyBird() {
     s.animId = requestAnimationFrame(gameLoop);
   }, [gameLoop]);
 
-  const startGame = useCallback(async () => {
+  const startCountdownAndGame = useCallback(() => {
     const s = stateRef.current;
     if (s.animId) cancelAnimationFrame(s.animId);
 
@@ -534,20 +611,6 @@ export function useFlappyBird() {
     setStatus("countdown");
     setCountdown(3);
 
-    if (mode === "onchain" && address && contractAddress) {
-      try {
-        await writeContractAsync({
-          address: contractAddress,
-          abi: FLAPPYBIRD_ABI,
-          functionName: "startGame",
-          args: [],
-        });
-        setGameStartedOnChain(true);
-      } catch (err) {
-        console.error("startGame tx failed:", err);
-      }
-    }
-
     s.lastTime = performance.now();
     s.animId = requestAnimationFrame(gameLoop);
 
@@ -564,7 +627,39 @@ export function useFlappyBird() {
         launchGame();
       }
     }, 1000);
-  }, [mode, address, contractAddress, writeContractAsync, gameLoop, launchGame]);
+  }, [gameLoop, launchGame]);
+
+  // Keep ref up-to-date so useEffect can call it
+  useEffect(() => {
+    startCountdownAndGameRef.current = startCountdownAndGame;
+  }, [startCountdownAndGame]);
+
+  const startGame = useCallback(async () => {
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingFinalizeRef.current = null;
+
+    if (mode === "onchain" && address && contractAddress) {
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress,
+          abi: FLAPPYBIRD_ABI,
+          functionName: "startGame",
+          args: [],
+        });
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
+        setStatus("idle");
+      }
+      return;
+    }
+
+    // Free mode: start immediately
+    startCountdownAndGame();
+  }, [mode, address, contractAddress, writeContractAsync, startCountdownAndGame]);
 
   const stopGame = useCallback(() => {
     const s = stateRef.current;

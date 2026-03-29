@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useAccount, useWriteContract, useReadContract } from 'wagmi';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from 'wagmi';
 import { getRandomWord, isValidWord } from '@/lib/games/wordle-words';
 
 export type GameMode = 'free' | 'onchain';
-export type GameStatus = 'idle' | 'playing' | 'processing' | 'won' | 'lost';
+export type GameStatus = 'idle' | 'waiting_start' | 'playing' | 'waiting_end' | 'won' | 'lost';
 export type LetterStatus = 'correct' | 'present' | 'absent' | 'empty' | 'active';
 
 export interface LetterCell {
@@ -130,7 +130,28 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
   const [usedLetters, setUsedLetters] = useState<Record<string, LetterStatus>>({});
   const [revealRow, setRevealRow] = useState<number | null>(null); // which row is currently being revealed
 
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  // Pending end args stored while waiting for endGame confirmation
+  const pendingEndRef = useRef<{
+    statsUpdate: WordleStats;
+    finalStatus: 'won' | 'lost';
+    finalMessage: string;
+  } | null>(null);
+
   const { writeContractAsync } = useWriteContract();
+
+  // Wait for startGame confirmation
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({
+    hash: startTxHash,
+  });
+
+  // Wait for endGame confirmation
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({
+    hash: endTxHash,
+  });
 
   // Read on-chain stats
   const { data: chainStats, refetch: refetchChainStats } = useReadContract({
@@ -154,6 +175,48 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
     try { localStorage.setItem(STATS_KEY, JSON.stringify(updated)); } catch {}
   }
 
+  // startGame confirmed → start playing
+  useEffect(() => {
+    if (startConfirmed && status === 'waiting_start') {
+      setStatus('playing');
+      setStartTxHash(undefined);
+    }
+  }, [startConfirmed, status]);
+
+  // startGame failed → back to idle
+  useEffect(() => {
+    if (startFailed && status === 'waiting_start') {
+      setMessage('Transaction failed');
+      setStatus('idle');
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame confirmed → show final result
+  useEffect(() => {
+    if (endConfirmed && status === 'waiting_end' && pendingEndRef.current) {
+      const { statsUpdate, finalStatus, finalMessage } = pendingEndRef.current;
+      saveStats(statsUpdate);
+      setMessage(finalMessage);
+      setStatus(finalStatus);
+      refetchChainStats();
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endConfirmed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // endGame failed → still show result
+  useEffect(() => {
+    if (endFailed && status === 'waiting_end' && pendingEndRef.current) {
+      const { statsUpdate, finalStatus, finalMessage } = pendingEndRef.current;
+      saveStats(statsUpdate);
+      setMessage(finalMessage);
+      setStatus(finalStatus);
+      setEndTxHash(undefined);
+      pendingEndRef.current = null;
+    }
+  }, [endFailed, status]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const startGame = useCallback(async () => {
     const word = getRandomWord();
     setTarget(word);
@@ -164,23 +227,38 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
     setUsedLetters({});
     setRevealRow(null);
     setInvalidWord(false);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
 
     if (mode === 'onchain' && contractAddress && isConnected) {
-      setStatus('processing');
+      setStatus('waiting_start');
       try {
-        await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress,
           abi: WORDLE_ABI,
           functionName: 'startGame',
         });
+        setStartTxHash(hash);
       } catch {
-        setMessage('⚠️ Failed to start on-chain game');
+        setMessage('Transaction rejected');
+        setStatus('idle');
       }
+      return;
     }
+
     setStatus('playing');
   }, [mode, contractAddress, isConnected, writeContractAsync]);
 
   const resetGame = useCallback(() => {
+    // Fire-and-forget abandonGame if mid-game on-chain
+    if (status === 'playing' && mode === 'onchain' && contractAddress && isConnected) {
+      writeContractAsync({
+        address: contractAddress,
+        abi: WORDLE_ABI,
+        functionName: 'abandonGame',
+      }).catch(() => {});
+    }
     setStatus('idle');
     setGrid(buildEmptyGrid());
     setCurrentRow(0);
@@ -189,7 +267,10 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
     setUsedLetters({});
     setRevealRow(null);
     setInvalidWord(false);
-  }, []);
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingEndRef.current = null;
+  }, [status, mode, contractAddress, isConnected, writeContractAsync]);
 
   const switchMode = useCallback((newMode: GameMode) => {
     setMode(newMode);
@@ -248,11 +329,9 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
 
       if (won) {
         const messages = ['Genius!', 'Magnificent!', 'Impressive!', 'Splendid!', 'Great!', 'Phew!'];
-        setMessage(messages[currentRow] ?? 'Well done!');
+        const finalMessage = messages[currentRow] ?? 'Well done!';
         setCurrentRow(nextRow);
-        setStatus('processing');
 
-        // Update local stats
         const updated: WordleStats = {
           ...stats,
           games: stats.games + 1,
@@ -265,52 +344,69 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
               (stats.distribution[nextRow as 1] ?? 0) + 1,
           },
         };
-        saveStats(updated);
 
         if (mode === 'onchain' && contractAddress && isConnected) {
+          setMessage(finalMessage);
+          setStatus('waiting_end');
+          pendingEndRef.current = { statsUpdate: updated, finalStatus: 'won', finalMessage };
           try {
-            await writeContractAsync({
+            const hash = await writeContractAsync({
               address: contractAddress,
               abi: WORDLE_ABI,
               functionName: 'endGame',
               args: [true, nextRow],
             });
-            refetchChainStats();
-          } catch {}
+            setEndTxHash(hash);
+          } catch {
+            saveStats(updated);
+            setStatus('won');
+            pendingEndRef.current = null;
+          }
+        } else {
+          saveStats(updated);
+          setMessage(finalMessage);
+          setStatus('won');
         }
-        setStatus('won');
 
       } else if (nextRow >= MAX_ATTEMPTS) {
-        setMessage(`The word was ${target}`);
+        const finalMessage = `The word was ${target}`;
         setCurrentRow(nextRow);
-        setStatus('processing');
 
         const updated: WordleStats = {
           ...stats,
           games: stats.games + 1,
           streak: 0,
         };
-        saveStats(updated);
 
         if (mode === 'onchain' && contractAddress && isConnected) {
+          setMessage(finalMessage);
+          setStatus('waiting_end');
+          pendingEndRef.current = { statsUpdate: updated, finalStatus: 'lost', finalMessage };
           try {
-            await writeContractAsync({
+            const hash = await writeContractAsync({
               address: contractAddress,
               abi: WORDLE_ABI,
               functionName: 'endGame',
               args: [false, MAX_ATTEMPTS],
             });
-            refetchChainStats();
-          } catch {}
+            setEndTxHash(hash);
+          } catch {
+            saveStats(updated);
+            setStatus('lost');
+            pendingEndRef.current = null;
+          }
+        } else {
+          saveStats(updated);
+          setMessage(finalMessage);
+          setStatus('lost');
         }
-        setStatus('lost');
 
       } else {
         setCurrentRow(nextRow);
         setMessage('');
       }
     }, WORD_LENGTH * 350 + 200); // wait for flip animation
-  }, [status, currentInput, target, grid, currentRow, stats, mode, contractAddress, isConnected, writeContractAsync, refetchChainStats]);
+  }, [status, currentInput, target, grid, currentRow, stats, mode, contractAddress, isConnected, writeContractAsync]);
 
   const addLetter = useCallback((letter: string) => {
     if (status !== 'playing') return;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 import { useLocalStats } from "@/hooks/useLocalStats";
 
@@ -10,7 +10,7 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "countdown" | "playing" | "processing" | "finished";
+export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "processing" | "waiting_end" | "finished";
 export type GameResult = "win" | "lose" | null;
 
 export interface PlayerStats {
@@ -205,6 +205,27 @@ export function usePlinko() {
   const recordGameRef = useRef(recordGame);
   useEffect(() => { recordGameRef.current = recordGame; }, [recordGame]);
   const manualEndRef = useRef(false);
+
+  // On-chain tx tracking
+  const [startTxHash, setStartTxHash] = useState<`0x${string}` | undefined>(undefined);
+  const [endTxHash, setEndTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  // Pending finalize args stored while waiting for endGame receipt
+  const pendingFinalizeRef = useRef<{
+    won: boolean;
+    finalScore: number;
+    next: PlayerStats;
+    manual: boolean;
+  } | null>(null);
+
+  // Ref to startCountdownAndGame for useEffect access
+  const startCountdownAndGameRef = useRef<(() => void) | null>(null);
+
+  // Wait for startGame confirmation
+  const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({ hash: startTxHash });
+
+  // Wait for endGame confirmation
+  const { isSuccess: endConfirmed, isError: endFailed } = useWaitForTransactionReceipt({ hash: endTxHash });
 
   const { data: onChainStats } = useReadContract({
     address: contractAddress ?? undefined,
@@ -522,6 +543,54 @@ export function usePlinko() {
   // FINALIZE
   // ======================================
 
+  // startGame tx confirmed → start countdown
+  useEffect(() => {
+    if (startConfirmed && status === "waiting_start") {
+      setGameStartedOnChain(true);
+      setStartTxHash(undefined);
+      startCountdownAndGameRef.current?.();
+    }
+  }, [startConfirmed, status]);
+
+  // startGame tx failed → back to idle
+  useEffect(() => {
+    if (startFailed && status === "waiting_start") {
+      setMessage("Transaction failed");
+      setStatus("idle");
+      setStartTxHash(undefined);
+    }
+  }, [startFailed, status]);
+
+  // endGame tx confirmed → finalize
+  useEffect(() => {
+    if (endConfirmed && status === "waiting_end" && pendingFinalizeRef.current) {
+      const { won, finalScore, next, manual } = pendingFinalizeRef.current;
+      localStorage.setItem(STATS_KEY, JSON.stringify(next));
+      setLocalStats(next);
+      setGameStartedOnChain(false);
+      recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
+      setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingFinalizeRef.current = null;
+    }
+  }, [endConfirmed, status, mode]);
+
+  // endGame tx failed → finalize anyway
+  useEffect(() => {
+    if (endFailed && status === "waiting_end" && pendingFinalizeRef.current) {
+      const { won, finalScore, next, manual } = pendingFinalizeRef.current;
+      localStorage.setItem(STATS_KEY, JSON.stringify(next));
+      setLocalStats(next);
+      setGameStartedOnChain(false);
+      recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
+      setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
+      setStatus("finished");
+      setEndTxHash(undefined);
+      pendingFinalizeRef.current = null;
+    }
+  }, [endFailed, status, mode]);
+
   useEffect(() => {
     if (status !== "processing") return;
     const s = stateRef.current;
@@ -533,7 +602,6 @@ export function usePlinko() {
 
   const finalizeGame = useCallback(async (won: boolean, finalScore: number, manual = false) => {
     setResult(won ? "win" : "lose");
-    setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
 
     const raw = localStorage.getItem(STATS_KEY);
     const prev: PlayerStats = raw ? JSON.parse(raw) : DEFAULT_STATS;
@@ -543,26 +611,36 @@ export function usePlinko() {
       highScore: Math.max(prev.highScore, finalScore),
       totalScore: prev.totalScore + finalScore,
     };
-    localStorage.setItem(STATS_KEY, JSON.stringify(next));
-    setLocalStats(next);
-
-    let txHash: string | undefined;
 
     if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
+      setStatus("waiting_end");
+      setMessage("Signing transaction...");
+      pendingFinalizeRef.current = { won, finalScore, next, manual };
       try {
-        txHash = await writeContractAsync({
+        const hash = await writeContractAsync({
           address: contractAddress,
           abi: PLINKO_ABI,
           functionName: "endGame",
           args: [BigInt(finalScore), BigInt(won ? 1 : 0)],
         });
+        setEndTxHash(hash);
+      } catch {
+        // User rejected or error — still show result
+        localStorage.setItem(STATS_KEY, JSON.stringify(next));
+        setLocalStats(next);
         setGameStartedOnChain(false);
-      } catch (err) {
-        console.error("endGame tx failed:", err);
+        await recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
+        setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
+        setStatus("finished");
+        pendingFinalizeRef.current = null;
       }
+      return;
     }
 
-    await recordGameRef.current("plinko", mode, won ? "win" : "lose", txHash);
+    localStorage.setItem(STATS_KEY, JSON.stringify(next));
+    setLocalStats(next);
+    await recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
+    setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
     setStatus("finished");
   }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync]);
 
@@ -639,7 +717,7 @@ export function usePlinko() {
     s.animId = requestAnimationFrame(gameLoop);
   }, [gameLoop]);
 
-  const startGame = useCallback(async () => {
+  const startCountdownAndGame = useCallback(() => {
     const s = stateRef.current;
     if (s.animId) cancelAnimationFrame(s.animId);
 
@@ -657,18 +735,6 @@ export function usePlinko() {
     setStatus("countdown");
     setCountdown(3);
 
-    if (mode === "onchain" && address && contractAddress) {
-      try {
-        await writeContractAsync({
-          address: contractAddress, abi: PLINKO_ABI,
-          functionName: "startGame", args: [],
-        });
-        setGameStartedOnChain(true);
-      } catch (err) {
-        console.error("startGame tx failed:", err);
-      }
-    }
-
     s.animId = requestAnimationFrame(gameLoop);
 
     let count = 3;
@@ -684,7 +750,37 @@ export function usePlinko() {
         launchGame();
       }
     }, 1000);
-  }, [mode, address, contractAddress, writeContractAsync, gameLoop, launchGame]);
+  }, [gameLoop, launchGame]);
+
+  // Keep ref up-to-date
+  useEffect(() => {
+    startCountdownAndGameRef.current = startCountdownAndGame;
+  }, [startCountdownAndGame]);
+
+  const startGame = useCallback(async () => {
+    setStartTxHash(undefined);
+    setEndTxHash(undefined);
+    pendingFinalizeRef.current = null;
+
+    if (mode === "onchain" && address && contractAddress) {
+      setStatus("waiting_start");
+      setMessage("Sign transaction to start...");
+      try {
+        const hash = await writeContractAsync({
+          address: contractAddress, abi: PLINKO_ABI,
+          functionName: "startGame", args: [],
+        });
+        setStartTxHash(hash);
+      } catch {
+        setMessage("Transaction rejected");
+        setStatus("idle");
+      }
+      return;
+    }
+
+    // Free mode: start immediately
+    startCountdownAndGame();
+  }, [mode, address, contractAddress, writeContractAsync, startCountdownAndGame]);
 
   const stopGame = useCallback(() => {
     const s = stateRef.current;
