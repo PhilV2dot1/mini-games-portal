@@ -13,7 +13,7 @@ export function GameStatus({ message, status, score }: GameStatusProps) {
   const getStatusColor = () => {
     if (status === "gameover") return "from-red-500 to-red-600";
     if (status === "playing") return "from-green-500 to-green-600";
-    if (status === "processing") return "from-yellow-500 to-yellow-600";
+    if (status === "waiting_start" || status === "waiting_end") return "from-yellow-500 to-yellow-600";
     return "from-blue-500 to-blue-600";
   };
 

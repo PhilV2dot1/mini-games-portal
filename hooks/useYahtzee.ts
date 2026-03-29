@@ -1067,7 +1067,6 @@ export function useYahtzee() {
     // Wallet State
     isConnected,
     address,
-    isProcessing: isPending,
 
     // Actions
     startGame,

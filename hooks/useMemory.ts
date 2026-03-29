@@ -445,7 +445,6 @@ export function useMemory() {
     stats,
     isChecking,
     isConnected,
-    isProcessing: isPending,
     totalPairs: DIFFICULTY_CONFIG[difficulty].pairs,
 
     // Actions

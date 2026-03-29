@@ -17,7 +17,7 @@ export function GameStatus({ status, result, message }: GameStatusProps) {
     if (status === "playing") {
       return "from-blue-500 to-blue-600";
     }
-    if (status === "processing") {
+    if (status === "waiting_start" || status === "waiting_end") {
       return "from-yellow-500 to-orange-600";
     }
     return "from-gray-500 to-gray-600";
@@ -26,7 +26,7 @@ export function GameStatus({ status, result, message }: GameStatusProps) {
   const getIcon = () => {
     if (status === "finished" && result === "win") return "🎉";
     if (status === "playing") return "🧩";
-    if (status === "processing") return "⏳";
+    if (status === "waiting_start" || status === "waiting_end") return "⏳";
     return "ℹ️";
   };
 

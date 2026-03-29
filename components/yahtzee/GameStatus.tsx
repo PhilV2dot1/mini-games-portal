@@ -28,7 +28,8 @@ export function GameStatus({
         return "from-gray-500 to-gray-700";
       case "playing":
         return "from-gray-600 to-gray-800";
-      case "processing":
+      case "waiting_start":
+      case "waiting_end":
         return "from-yellow-500 to-orange-500";
       case "finished":
         return "from-green-500 to-emerald-500";
@@ -55,7 +56,8 @@ export function GameStatus({
         return "🎲";
       case "playing":
         return "🎮";
-      case "processing":
+      case "waiting_start":
+      case "waiting_end":
         return "⏳";
       case "finished":
         return finalScore && finalScore >= 300 ? "🏆" : finalScore && finalScore >= 200 ? "⭐" : "✅";
@@ -83,11 +85,11 @@ export function GameStatus({
           <motion.span
             className="text-4xl sm:text-5xl"
             animate={{
-              rotate: status === "processing" ? [0, 360] : 0,
+              rotate: status === "waiting_start" || status === "waiting_end" ? [0, 360] : 0,
               scale: status === "finished" ? [1, 1.2, 1] : 1,
             }}
             transition={{
-              rotate: { duration: 2, repeat: status === "processing" ? Infinity : 0 },
+              rotate: { duration: 2, repeat: status === "waiting_start" || status === "waiting_end" ? Infinity : 0 },
               scale: { duration: 0.5 },
             }}
           >

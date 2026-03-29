@@ -646,7 +646,7 @@ export function useSudoku() {
 
   // Change difficulty
   const changeDifficulty = useCallback((newDifficulty: Difficulty) => {
-    if (status === "playing" || status === "processing") {
+    if (status === "playing" || status === "waiting_start" || status === "waiting_end") {
       setMessage("Finish current game first!");
       return;
     }
