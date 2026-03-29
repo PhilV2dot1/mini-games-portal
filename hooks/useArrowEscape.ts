@@ -351,285 +351,209 @@ const RAW_LEVELS: { gridSize: number; optimalMoves: number; arrows: Omit<Arrow, 
     ],
   },
 
-  // ── Level 10 — 14×14 — 31 arrows — ~55 moves ────────────────────────────
-  // Mixed perimeter + interior cross-chains. Perimeter arrows block interior;
-  // solve corners first, then follow the chain inward.
+  // ── Level 10 — 14×14 — 21 arrows — ~50 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 0,3,7,10 / LEFT rows 2,5,9,12
+  // DOWN cols 4,8,11 / UP cols 3,6,9,13. Interior on unique rows/cols.
   {
     gridSize: 14,
-    optimalMoves: 55,
+    optimalMoves: 50,
     arrows: [
-      // Perimeter — RIGHT edge
-      { direction: "right", length: 2, headRow: 1,  headCol: 13 },
-      { direction: "right", length: 3, headRow: 4,  headCol: 13 },
+      { direction: "right", length: 2, headRow: 0,  headCol: 13 },
+      { direction: "right", length: 3, headRow: 3,  headCol: 13 },
       { direction: "right", length: 2, headRow: 7,  headCol: 13 },
       { direction: "right", length: 3, headRow: 10, headCol: 13 },
-      // Perimeter — DOWN edge
-      { direction: "down",  length: 2, headRow: 13, headCol: 2  },
-      { direction: "down",  length: 3, headRow: 13, headCol: 5  },
-      { direction: "down",  length: 2, headRow: 13, headCol: 8  },
-      { direction: "down",  length: 3, headRow: 13, headCol: 11 },
-      // Perimeter — LEFT edge
       { direction: "left",  length: 2, headRow: 2,  headCol: 0  },
       { direction: "left",  length: 3, headRow: 5,  headCol: 0  },
-      { direction: "left",  length: 2, headRow: 8,  headCol: 0  },
-      { direction: "left",  length: 3, headRow: 11, headCol: 0  },
-      // Perimeter — UP edge
+      { direction: "left",  length: 2, headRow: 9,  headCol: 0  },
+      { direction: "left",  length: 3, headRow: 12, headCol: 0  },
+      { direction: "down",  length: 3, headRow: 13, headCol: 4  },
+      { direction: "down",  length: 2, headRow: 13, headCol: 8  },
+      { direction: "down",  length: 3, headRow: 13, headCol: 11 },
       { direction: "up",    length: 2, headRow: 0,  headCol: 3  },
       { direction: "up",    length: 3, headRow: 0,  headCol: 6  },
       { direction: "up",    length: 2, headRow: 0,  headCol: 9  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 11 },
-      // Interior cluster A — rows 3-6 left half
-      { direction: "right", length: 3, headRow: 3,  headCol: 6  },
-      { direction: "up",    length: 2, headRow: 5,  headCol: 4  },
-      { direction: "down",  length: 2, headRow: 6,  headCol: 6  },
-      { direction: "left",  length: 2, headRow: 4,  headCol: 3  },
-      // Interior cluster B — rows 3-6 right half
-      { direction: "down",  length: 3, headRow: 6,  headCol: 9  },
-      { direction: "right", length: 2, headRow: 6,  headCol: 8  },
-      { direction: "left",  length: 2, headRow: 3,  headCol: 9  },
-      { direction: "down",  length: 2, headRow: 5,  headCol: 7  },
-      // Interior cluster C — rows 7-10
-      { direction: "up",    length: 2, headRow: 9,  headCol: 4  },
-      { direction: "right", length: 2, headRow: 9,  headCol: 9  },
-      { direction: "left",  length: 2, headRow: 8,  headCol: 5  },
+      { direction: "right", length: 2, headRow: 4,  headCol: 10 },
+      { direction: "left",  length: 2, headRow: 6,  headCol: 5  },
+      { direction: "down",  length: 2, headRow: 9,  headCol: 5  },
+      { direction: "right", length: 2, headRow: 1,  headCol: 11 },
+      { direction: "left",  length: 2, headRow: 8,  headCol: 7  },
       { direction: "down",  length: 2, headRow: 10, headCol: 7  },
-      { direction: "up",    length: 2, headRow: 7,  headCol: 3  },
-      // Deep interior
-      { direction: "down",  length: 2, headRow: 6,  headCol: 10 },
-      { direction: "right", length: 2, headRow: 12, headCol: 4  },
+      { direction: "up",    length: 2, headRow: 6,  headCol: 10 },
     ],
   },
 
-  // ── Level 11 — 15×15 — 28 arrows — ~60 moves ────────────────────────────
-  // Pinwheel: 4 arms of alternating directions rotate inward.
-  // Clear the perimeter arm, then the inner ring locks open, then the centre.
+  // ── Level 11 — 15×15 — 22 arrows — ~60 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 1,5,9,13 / LEFT rows 0,4,8,12
+  // DOWN cols 5,9 / UP cols 4,8. Interior on unique rows/cols.
   {
     gridSize: 15,
     optimalMoves: 60,
     arrows: [
-      // Perimeter — RIGHT edge
-      { direction: "right", length: 3, headRow: 2,  headCol: 14 },
-      { direction: "right", length: 2, headRow: 6,  headCol: 14 },
-      { direction: "right", length: 3, headRow: 10, headCol: 14 },
-      // Perimeter — DOWN edge
-      { direction: "down",  length: 3, headRow: 14, headCol: 2  },
-      { direction: "down",  length: 2, headRow: 14, headCol: 6  },
-      { direction: "down",  length: 3, headRow: 14, headCol: 10 },
-      // Perimeter — LEFT edge
-      { direction: "left",  length: 3, headRow: 2,  headCol: 0  },
-      { direction: "left",  length: 2, headRow: 6,  headCol: 0  },
-      { direction: "left",  length: 3, headRow: 10, headCol: 0  },
-      // Perimeter — UP edge
-      { direction: "up",    length: 3, headRow: 0,  headCol: 4  },
-      { direction: "up",    length: 2, headRow: 0,  headCol: 8  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 11 },
-      // Interior ring
-      { direction: "right", length: 2, headRow: 4,  headCol: 11 },
-      { direction: "down",  length: 2, headRow: 11, headCol: 4  },
-      { direction: "left",  length: 2, headRow: 8,  headCol: 3  },
-      { direction: "up",    length: 2, headRow: 4,  headCol: 8  },
-      // Centre cross
-      { direction: "right", length: 3, headRow: 7,  headCol: 9  },
-      { direction: "down",  length: 2, headRow: 9,  headCol: 7  },
-      { direction: "left",  length: 3, headRow: 5,  headCol: 5  },
-      { direction: "up",    length: 2, headRow: 7,  headCol: 5  },
-      // Corner locks
-      { direction: "right", length: 2, headRow: 3,  headCol: 5  },
-      { direction: "down",  length: 2, headRow: 5,  headCol: 12 },
-      { direction: "left",  length: 2, headRow: 11, headCol: 8  },
-      { direction: "up",    length: 2, headRow: 9,  headCol: 3  },
-      { direction: "right", length: 2, headRow: 12, headCol: 9  },
-      { direction: "down",  length: 2, headRow: 12, headCol: 6  },
-      { direction: "left",  length: 2, headRow: 4,  headCol: 6  },
-      { direction: "up",    length: 2, headRow: 11, headCol: 12 },
+      { direction: "right", length: 3, headRow: 1,  headCol: 14 },
+      { direction: "right", length: 2, headRow: 5,  headCol: 14 },
+      { direction: "right", length: 3, headRow: 9,  headCol: 14 },
+      { direction: "right", length: 2, headRow: 13, headCol: 14 },
+      { direction: "left",  length: 3, headRow: 0,  headCol: 0  },
+      { direction: "left",  length: 2, headRow: 4,  headCol: 0  },
+      { direction: "left",  length: 3, headRow: 8,  headCol: 0  },
+      { direction: "left",  length: 2, headRow: 12, headCol: 0  },
+      { direction: "down",  length: 2, headRow: 14, headCol: 5  },
+      { direction: "down",  length: 3, headRow: 14, headCol: 9  },
+      { direction: "up",    length: 2, headRow: 0,  headCol: 4  },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 8  },
+      { direction: "right", length: 2, headRow: 2,  headCol: 11 },
+      { direction: "right", length: 2, headRow: 6,  headCol: 11 },
+      { direction: "right", length: 2, headRow: 10, headCol: 11 },
+      { direction: "left",  length: 2, headRow: 3,  headCol: 3  },
+      { direction: "left",  length: 2, headRow: 7,  headCol: 3  },
+      { direction: "left",  length: 2, headRow: 11, headCol: 3  },
+      { direction: "down",  length: 2, headRow: 11, headCol: 2  },
+      { direction: "down",  length: 2, headRow: 11, headCol: 6  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 7  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 11 },
     ],
   },
 
-  // ── Level 12 — 16×16 — 30 arrows — ~65 moves ────────────────────────────
-  // Three concentric rings. Outer ring must be cleared before inner rings move.
-  // Mixed directions per ring force non-trivial ordering.
+  // ── Level 12 — 16×16 — 21 arrows — ~65 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 1,5,9,13 / LEFT rows 2,6,10,14
+  // DOWN cols 5,9,13 / UP cols 6,10. Inner wave on rows 3,7,11 / 4,8,12.
   {
     gridSize: 16,
     optimalMoves: 65,
     arrows: [
-      // Outer ring — RIGHT exits
       { direction: "right", length: 3, headRow: 1,  headCol: 15 },
       { direction: "right", length: 2, headRow: 5,  headCol: 15 },
       { direction: "right", length: 3, headRow: 9,  headCol: 15 },
       { direction: "right", length: 2, headRow: 13, headCol: 15 },
-      // Outer ring — DOWN exits
-      { direction: "down",  length: 3, headRow: 15, headCol: 1  },
+      { direction: "left",  length: 3, headRow: 2,  headCol: 0  },
+      { direction: "left",  length: 2, headRow: 6,  headCol: 0  },
+      { direction: "left",  length: 3, headRow: 10, headCol: 0  },
+      { direction: "left",  length: 2, headRow: 14, headCol: 0  },
       { direction: "down",  length: 2, headRow: 15, headCol: 5  },
       { direction: "down",  length: 3, headRow: 15, headCol: 9  },
       { direction: "down",  length: 2, headRow: 15, headCol: 13 },
-      // Outer ring — LEFT exits
-      { direction: "left",  length: 3, headRow: 3,  headCol: 0  },
-      { direction: "left",  length: 2, headRow: 7,  headCol: 0  },
-      { direction: "left",  length: 3, headRow: 11, headCol: 0  },
-      // Outer ring — UP exits
-      { direction: "up",    length: 3, headRow: 0,  headCol: 3  },
-      { direction: "up",    length: 2, headRow: 0,  headCol: 7  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 11 },
-      // Middle ring
-      { direction: "right", length: 3, headRow: 4,  headCol: 12 },
-      { direction: "down",  length: 3, headRow: 12, headCol: 4  },
-      { direction: "left",  length: 3, headRow: 8,  headCol: 3  },
-      { direction: "up",    length: 3, headRow: 3,  headCol: 8  },
-      { direction: "right", length: 2, headRow: 12, headCol: 12 },
-      { direction: "down",  length: 2, headRow: 11, headCol: 12 },
-      { direction: "left",  length: 2, headRow: 4,  headCol: 4  },
-      { direction: "up",    length: 2, headRow: 10, headCol: 5  },
-      // Inner cluster
-      { direction: "right", length: 3, headRow: 8,  headCol: 10 },
-      { direction: "down",  length: 2, headRow: 10, headCol: 8  },
-      { direction: "left",  length: 3, headRow: 6,  headCol: 6  },
-      { direction: "up",    length: 2, headRow: 6,  headCol: 10 },
-      // Cross-ring locks
-      { direction: "down",  length: 2, headRow: 6,  headCol: 13 },
-      { direction: "left",  length: 2, headRow: 10, headCol: 13 },
-      { direction: "up",    length: 2, headRow: 14, headCol: 6  },
-      { direction: "right", length: 2, headRow: 6,  headCol: 3  },
+      { direction: "up",    length: 2, headRow: 0,  headCol: 6  },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 10 },
+      { direction: "right", length: 3, headRow: 3,  headCol: 12 },
+      { direction: "right", length: 2, headRow: 7,  headCol: 12 },
+      { direction: "right", length: 3, headRow: 11, headCol: 12 },
+      { direction: "left",  length: 3, headRow: 4,  headCol: 3  },
+      { direction: "left",  length: 2, headRow: 8,  headCol: 3  },
+      { direction: "left",  length: 3, headRow: 12, headCol: 3  },
+      { direction: "down",  length: 2, headRow: 12, headCol: 7  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 8  },
     ],
   },
 
-  // ── Level 13 — 17×17 — 29 arrows — ~70 moves ────────────────────────────
-  // Maze gates: perpendicular arrows act as keys. Clear edge gates first,
-  // then inner gates open access to the locked centre.
+  // ── Level 13 — 17×17 — 23 arrows — ~70 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 1,5,9,13 / LEFT rows 2,6,10,14
+  // DOWN cols 5,9,13 / UP cols 6,10. Inner gates on rows 3,7,11/4,8,12.
   {
     gridSize: 17,
     optimalMoves: 70,
     arrows: [
-      // Edge — RIGHT
       { direction: "right", length: 3, headRow: 1,  headCol: 16 },
       { direction: "right", length: 2, headRow: 5,  headCol: 16 },
       { direction: "right", length: 3, headRow: 9,  headCol: 16 },
       { direction: "right", length: 2, headRow: 13, headCol: 16 },
-      // Edge — DOWN
-      { direction: "down",  length: 3, headRow: 16, headCol: 1  },
+      { direction: "left",  length: 3, headRow: 2,  headCol: 0  },
+      { direction: "left",  length: 2, headRow: 6,  headCol: 0  },
+      { direction: "left",  length: 3, headRow: 10, headCol: 0  },
+      { direction: "left",  length: 2, headRow: 14, headCol: 0  },
       { direction: "down",  length: 2, headRow: 16, headCol: 5  },
       { direction: "down",  length: 3, headRow: 16, headCol: 9  },
       { direction: "down",  length: 2, headRow: 16, headCol: 13 },
-      // Edge — LEFT
-      { direction: "left",  length: 3, headRow: 3,  headCol: 0  },
-      { direction: "left",  length: 2, headRow: 7,  headCol: 0  },
-      { direction: "left",  length: 3, headRow: 11, headCol: 0  },
-      { direction: "left",  length: 2, headRow: 15, headCol: 2  },
-      // Edge — UP
-      { direction: "up",    length: 3, headRow: 0,  headCol: 3  },
-      { direction: "up",    length: 2, headRow: 0,  headCol: 7  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 11 },
-      { direction: "up",    length: 2, headRow: 0,  headCol: 12 },
-      // Interior gate layer 1
-      { direction: "right", length: 3, headRow: 4,  headCol: 12 },
-      { direction: "down",  length: 3, headRow: 12, headCol: 4  },
-      { direction: "left",  length: 3, headRow: 8,  headCol: 4  },
-      { direction: "up",    length: 3, headRow: 4,  headCol: 8  },
-      // Interior gate layer 2
-      { direction: "right", length: 2, headRow: 6,  headCol: 10 },
-      { direction: "down",  length: 2, headRow: 10, headCol: 6  },
-      { direction: "left",  length: 2, headRow: 10, headCol: 10 },
-      { direction: "up",    length: 2, headRow: 6,  headCol: 6  },
-      // Centre cross-locks
-      { direction: "right", length: 2, headRow: 8,  headCol: 9  },
-      { direction: "down",  length: 2, headRow: 10, headCol: 9  },
-      { direction: "left",  length: 2, headRow: 6,  headCol: 12 },
-      { direction: "up",    length: 2, headRow: 12, headCol: 12 },
-      { direction: "right", length: 2, headRow: 12, headCol: 8  },
+      { direction: "up",    length: 2, headRow: 0,  headCol: 6  },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 10 },
+      { direction: "right", length: 3, headRow: 3,  headCol: 13 },
+      { direction: "right", length: 2, headRow: 7,  headCol: 13 },
+      { direction: "right", length: 3, headRow: 11, headCol: 13 },
+      { direction: "left",  length: 3, headRow: 4,  headCol: 3  },
+      { direction: "left",  length: 2, headRow: 8,  headCol: 3  },
+      { direction: "left",  length: 3, headRow: 12, headCol: 3  },
+      { direction: "down",  length: 2, headRow: 13, headCol: 7  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 8  },
+      { direction: "left",  length: 2, headRow: 16, headCol: 3  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 16 },
     ],
   },
 
-  // ── Level 14 — 18×18 — 32 arrows — ~75 moves ────────────────────────────
-  // Double spiral: outer spiral blocks inner spiral. Solve CCW outer first,
-  // then CW inner. Centre cluster requires both spirals cleared.
+  // ── Level 14 — 18×18 — 28 arrows — ~75 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 0,4,8,12,16 / LEFT rows 2,6,10,14
+  // DOWN cols 0,4,8,12 / UP cols 6,10,14. Inner on rows 1,5,9,13/3,7,11,15.
   {
     gridSize: 18,
     optimalMoves: 75,
     arrows: [
-      // Outer spiral — RIGHT
       { direction: "right", length: 3, headRow: 0,  headCol: 17 },
       { direction: "right", length: 2, headRow: 4,  headCol: 17 },
       { direction: "right", length: 3, headRow: 8,  headCol: 17 },
       { direction: "right", length: 2, headRow: 12, headCol: 17 },
       { direction: "right", length: 3, headRow: 16, headCol: 17 },
-      // Outer spiral — DOWN
-      { direction: "down",  length: 3, headRow: 17, headCol: 1  },
-      { direction: "down",  length: 2, headRow: 17, headCol: 5  },
-      { direction: "down",  length: 3, headRow: 17, headCol: 9  },
-      { direction: "down",  length: 2, headRow: 17, headCol: 13 },
-      // Outer spiral — LEFT
       { direction: "left",  length: 3, headRow: 2,  headCol: 0  },
       { direction: "left",  length: 2, headRow: 6,  headCol: 0  },
       { direction: "left",  length: 3, headRow: 10, headCol: 0  },
       { direction: "left",  length: 2, headRow: 14, headCol: 0  },
-      // Outer spiral — UP
-      { direction: "up",    length: 3, headRow: 0,  headCol: 3  },
-      { direction: "up",    length: 2, headRow: 0,  headCol: 7  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 11 },
+      { direction: "down",  length: 3, headRow: 17, headCol: 0  },
+      { direction: "down",  length: 2, headRow: 17, headCol: 4  },
+      { direction: "down",  length: 3, headRow: 17, headCol: 8  },
+      { direction: "down",  length: 2, headRow: 17, headCol: 12 },
+      { direction: "up",    length: 2, headRow: 0,  headCol: 6  },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 10 },
       { direction: "up",    length: 2, headRow: 0,  headCol: 14 },
-      // Inner spiral — RIGHT
-      { direction: "right", length: 3, headRow: 3,  headCol: 14 },
-      { direction: "right", length: 2, headRow: 7,  headCol: 14 },
-      { direction: "right", length: 3, headRow: 11, headCol: 14 },
-      // Inner spiral — DOWN
-      { direction: "down",  length: 3, headRow: 14, headCol: 3  },
-      { direction: "down",  length: 2, headRow: 14, headCol: 7  },
-      { direction: "down",  length: 3, headRow: 14, headCol: 11 },
-      // Inner spiral — LEFT
-      { direction: "left",  length: 3, headRow: 5,  headCol: 3  },
-      { direction: "left",  length: 2, headRow: 9,  headCol: 3  },
-      { direction: "left",  length: 3, headRow: 13, headCol: 5  },
-      // Inner spiral — UP
-      { direction: "up",    length: 3, headRow: 3,  headCol: 6  },
-      { direction: "up",    length: 2, headRow: 3,  headCol: 9  },
-      // Centre cluster
-      { direction: "right", length: 2, headRow: 9,  headCol: 12 },
-      { direction: "down",  length: 2, headRow: 12, headCol: 9  },
-      { direction: "left",  length: 2, headRow: 9,  headCol: 6  },
-      { direction: "up",    length: 2, headRow: 6,  headCol: 9  },
-      { direction: "right", length: 2, headRow: 6,  headCol: 6  },
+      { direction: "right", length: 2, headRow: 5,  headCol: 14 },
+      { direction: "right", length: 3, headRow: 9,  headCol: 14 },
+      { direction: "right", length: 2, headRow: 13, headCol: 14 },
+      { direction: "left",  length: 3, headRow: 3,  headCol: 3  },
+      { direction: "left",  length: 2, headRow: 7,  headCol: 3  },
+      { direction: "left",  length: 3, headRow: 11, headCol: 3  },
+      { direction: "left",  length: 2, headRow: 15, headCol: 3  },
+      { direction: "down",  length: 2, headRow: 14, headCol: 5  },
+      { direction: "down",  length: 3, headRow: 14, headCol: 9  },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 7  },
+      { direction: "up",    length: 3, headRow: 3,  headCol: 11 },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 15 },
     ],
   },
 
-  // ── Level 15 — 19×19 — 29 arrows — ~80 moves ────────────────────────────
-  // Grand finale: 4-layer onion with long blockers. Each layer uses all 4
-  // directions. Must dismantle outer → middle → inner → core in order.
+  // ── Level 15 — 19×19 — 31 arrows — ~80 moves ────────────────────────────
+  // No face-to-face: RIGHT rows 0,4,8,12,16 / LEFT rows 2,6,10,14,18
+  // DOWN cols 4,8,12 / UP cols 6,10,14. Inner rows 1,5,9,13/3,7,11,15.
   {
     gridSize: 19,
     optimalMoves: 80,
     arrows: [
-      // Layer 0 — outer perimeter
       { direction: "right", length: 4, headRow: 0,  headCol: 18 },
-      { direction: "right", length: 3, headRow: 6,  headCol: 18 },
-      { direction: "right", length: 4, headRow: 12, headCol: 18 },
-      { direction: "right", length: 3, headRow: 18, headCol: 18 },
-      { direction: "down",  length: 4, headRow: 18, headCol: 0  },
-      { direction: "down",  length: 3, headRow: 18, headCol: 6  },
-      { direction: "down",  length: 4, headRow: 18, headCol: 12 },
-      { direction: "left",  length: 4, headRow: 0,  headCol: 0  },
+      { direction: "right", length: 3, headRow: 4,  headCol: 18 },
+      { direction: "right", length: 4, headRow: 8,  headCol: 18 },
+      { direction: "right", length: 3, headRow: 12, headCol: 18 },
+      { direction: "right", length: 4, headRow: 16, headCol: 18 },
+      { direction: "left",  length: 4, headRow: 2,  headCol: 0  },
       { direction: "left",  length: 3, headRow: 6,  headCol: 0  },
-      { direction: "left",  length: 4, headRow: 12, headCol: 0  },
-      { direction: "up",    length: 4, headRow: 0,  headCol: 6  },
-      { direction: "up",    length: 3, headRow: 0,  headCol: 12 },
-      // Layer 1 — inner border
-      { direction: "right", length: 3, headRow: 3,  headCol: 15 },
-      { direction: "right", length: 2, headRow: 9,  headCol: 15 },
-      { direction: "right", length: 3, headRow: 15, headCol: 15 },
-      { direction: "down",  length: 3, headRow: 15, headCol: 3  },
-      { direction: "down",  length: 2, headRow: 15, headCol: 9  },
+      { direction: "left",  length: 4, headRow: 10, headCol: 0  },
+      { direction: "left",  length: 3, headRow: 14, headCol: 0  },
+      { direction: "left",  length: 4, headRow: 18, headCol: 0  },
+      { direction: "down",  length: 3, headRow: 18, headCol: 4  },
+      { direction: "down",  length: 4, headRow: 18, headCol: 8  },
+      { direction: "down",  length: 3, headRow: 18, headCol: 12 },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 6  },
+      { direction: "up",    length: 4, headRow: 0,  headCol: 10 },
+      { direction: "up",    length: 3, headRow: 0,  headCol: 14 },
+      { direction: "right", length: 2, headRow: 5,  headCol: 15 },
+      { direction: "right", length: 3, headRow: 9,  headCol: 15 },
+      { direction: "right", length: 2, headRow: 13, headCol: 15 },
       { direction: "left",  length: 3, headRow: 3,  headCol: 3  },
-      { direction: "left",  length: 2, headRow: 9,  headCol: 3  },
-      { direction: "up",    length: 3, headRow: 3,  headCol: 9  },
-      { direction: "up",    length: 2, headRow: 3,  headCol: 16 },
-      // Layer 2 — mid ring
-      { direction: "right", length: 3, headRow: 6,  headCol: 12 },
-      { direction: "down",  length: 3, headRow: 12, headCol: 6  },
-      { direction: "left",  length: 3, headRow: 12, headCol: 12 },
-      { direction: "up",    length: 3, headRow: 6,  headCol: 6  },
-      // Core — centre
-      { direction: "right", length: 2, headRow: 9,  headCol: 10 },
-      { direction: "down",  length: 2, headRow: 11, headCol: 10 },
-      { direction: "left",  length: 2, headRow: 10, headCol: 8  },
-      { direction: "up",    length: 2, headRow: 8,  headCol: 11 },
+      { direction: "left",  length: 2, headRow: 7,  headCol: 3  },
+      { direction: "left",  length: 3, headRow: 11, headCol: 3  },
+      { direction: "left",  length: 2, headRow: 15, headCol: 3  },
+      { direction: "down",  length: 2, headRow: 15, headCol: 5  },
+      { direction: "down",  length: 3, headRow: 15, headCol: 9  },
+      { direction: "down",  length: 2, headRow: 15, headCol: 13 },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 7  },
+      { direction: "up",    length: 3, headRow: 3,  headCol: 11 },
+      { direction: "up",    length: 2, headRow: 3,  headCol: 15 },
+      { direction: "left",  length: 2, headRow: 17, headCol: 9  },
+      { direction: "up",    length: 2, headRow: 9,  headCol: 17 },
     ],
   },
 ];
