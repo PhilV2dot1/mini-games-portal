@@ -26,7 +26,7 @@ export default function FlappyBirdPage() {
   const isPlaying = game.status === "playing";
   const isCountdown = game.status === "countdown";
   const isFinished = game.status === "finished";
-  const isProcessing = game.status === "processing";
+  const isProcessing = game.status === "processing" || game.status === "waiting_start" || game.status === "waiting_end";
 
   // Keyboard: Space / ArrowUp to jump
   useEffect(() => {
@@ -159,6 +159,14 @@ export default function FlappyBirdPage() {
                   {t("games.flappybird.tapToStart")}
                 </p>
               </div>
+            </div>
+          )}
+
+          {/* Waiting for tx overlay */}
+          {(game.status === "waiting_start" || game.status === "waiting_end") && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-20 gap-3">
+              <div className="w-10 h-10 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
+              <p className="text-white font-semibold text-sm">Confirming transaction...</p>
             </div>
           )}
 

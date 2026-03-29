@@ -90,6 +90,7 @@ export default function BrickBreakerPage() {
   const isCountdown = game.status === "countdown";
   const isFinished = game.status === "finished";
   const isIdle = game.status === "idle";
+  const isWaitingTx = game.status === "waiting_start" || game.status === "waiting_end";
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-200 to-gray-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-8">
@@ -208,6 +209,14 @@ export default function BrickBreakerPage() {
                     GO!
                   </motion.div>
                 )}
+              </div>
+            )}
+
+            {/* Waiting for tx overlay */}
+            {isWaitingTx && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black/60 backdrop-blur-sm gap-3">
+                <div className="w-8 h-8 border-4 border-sky-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-white font-semibold text-sm">Confirming transaction...</p>
               </div>
             )}
 
