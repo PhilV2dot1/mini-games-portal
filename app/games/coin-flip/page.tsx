@@ -35,6 +35,7 @@ export default function CoinFlipPage() {
   const { t } = useLanguage();
   const { vibrate } = useHaptic();
 
+  const isWaitingTx = game.status === "waiting_tx";
   const isFlipping = game.status === "flipping";
   const isResult = game.status === "result";
   const isIdle = game.status === "idle";
@@ -142,9 +143,9 @@ export default function CoinFlipPage() {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => handleFlip("heads")}
-            disabled={isFlipping}
+            disabled={isFlipping || isWaitingTx}
             className={`relative flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border-2 font-bold text-lg transition-all shadow-lg
-              ${isFlipping
+              ${isFlipping || isWaitingTx
                 ? "opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
                 : isResult && game.landedSide === "heads"
                   ? "border-orange-400 bg-orange-500/20 text-orange-600 dark:text-orange-300 shadow-orange-500/30 shadow-xl"
@@ -169,9 +170,9 @@ export default function CoinFlipPage() {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => handleFlip("tails")}
-            disabled={isFlipping}
+            disabled={isFlipping || isWaitingTx}
             className={`relative flex flex-col items-center justify-center gap-2 py-5 rounded-2xl border-2 font-bold text-lg transition-all shadow-lg
-              ${isFlipping
+              ${isFlipping || isWaitingTx
                 ? "opacity-50 cursor-not-allowed border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
                 : isResult && game.landedSide === "tails"
                   ? "border-indigo-400 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 shadow-indigo-500/30 shadow-xl"
@@ -198,6 +199,11 @@ export default function CoinFlipPage() {
           {isIdle && (
             <p className="text-gray-400 dark:text-gray-500 text-sm">
               {t("games.coinflip.tapToFlip")}
+            </p>
+          )}
+          {isWaitingTx && (
+            <p className="text-amber-500 dark:text-amber-400 text-sm animate-pulse">
+              {t("games.onchain.waitingTx") || "⏳ Transaction en cours..."}
             </p>
           )}
           {isFlipping && (

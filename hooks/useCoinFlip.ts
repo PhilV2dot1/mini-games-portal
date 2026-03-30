@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
+import { useLocalStats } from "@/hooks/useLocalStats";
 
 // ========================================
 // TYPES
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "flipping" | "result";
+export type GameStatus = "idle" | "waiting_tx" | "flipping" | "result";
 export type CoinSide = "heads" | "tails";
 export type GameResult = "win" | "lose" | null;
 
@@ -270,6 +271,10 @@ export function useCoinFlip() {
   const labelHeadsRef = useRef<string>("Heads");
   const labelTailsRef = useRef<string>("Tails");
 
+  // Pending choice while waiting for tx confirmation
+  const pendingChoiceRef = useRef<CoinSide | null>(null);
+  const pendingTxHashRef = useRef<`0x${string}` | undefined>(undefined);
+
   const [mode, setMode] = useState<GameMode>("free");
   const [status, setStatus] = useState<GameStatus>("idle");
   const [choice, setChoice] = useState<CoinSide | null>(null);
@@ -278,9 +283,16 @@ export function useCoinFlip() {
   const [stats, setStats] = useState<PlayerStats>(DEFAULT_STATS);
   const [streak, setStreak] = useState(0);
   const [message, setMessage] = useState("");
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
 
   const { address, chain } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+  const { recordGame } = useLocalStats();
+  const recordGameRef = useRef(recordGame);
+  useEffect(() => { recordGameRef.current = recordGame; }, [recordGame]);
+
+  // Wait for on-chain tx confirmation
+  const { isSuccess: txConfirmed, isError: txFailed } = useWaitForTransactionReceipt({ hash: txHash });
 
   // Load stats on mount
   useEffect(() => {
@@ -312,6 +324,37 @@ export function useCoinFlip() {
     labelTailsRef.current = tails;
   }, []);
 
+  // ── Start animation after tx confirmed (or on tx failure — still play) ──────
+  const startAnimation = useCallback((chosen: CoinSide) => {
+    s.current.choice = chosen;
+    s.current.flipping = true;
+    s.current.landed = false;
+    s.current.particles = [];
+    s.current.flipStart = performance.now();
+    s.current.resolvedSide = Math.random() < 0.5 ? "heads" : "tails";
+    s.current.lastWin = null;
+    setStatus("flipping");
+  }, []);
+
+  useEffect(() => {
+    if (txConfirmed && status === "waiting_tx" && pendingChoiceRef.current) {
+      const chosen = pendingChoiceRef.current;
+      pendingChoiceRef.current = null;
+      setTxHash(undefined);
+      startAnimation(chosen);
+    }
+  }, [txConfirmed, status, startAnimation]);
+
+  useEffect(() => {
+    if (txFailed && status === "waiting_tx" && pendingChoiceRef.current) {
+      // Tx failed — still play in free mode so user isn't stuck
+      const chosen = pendingChoiceRef.current;
+      pendingChoiceRef.current = null;
+      setTxHash(undefined);
+      startAnimation(chosen);
+    }
+  }, [txFailed, status, startAnimation]);
+
   // Single persistent RAF loop
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -340,6 +383,9 @@ export function useCoinFlip() {
             bestStreak: Math.max(saved.bestStreak, newStreak),
           };
           saveStats(updated);
+          // Record in global stats (for home page card)
+          recordGameRef.current("coinflip", pendingTxHashRef.current ? "onchain" : "free", win ? "win" : "lose");
+          pendingTxHashRef.current = undefined;
 
           setLandedSide(st.resolvedSide);
           setResult(win ? "win" : "lose");
@@ -371,33 +417,39 @@ export function useCoinFlip() {
     return () => cancelAnimationFrame(s.current.animId);
   }, []);
 
-  const flip = useCallback((chosen: CoinSide) => {
-    if (s.current.flipping) return;
-
-    s.current.choice = chosen;
-    s.current.flipping = true;
-    s.current.landed = false;
-    s.current.particles = [];
-    s.current.flipStart = performance.now();
-    s.current.resolvedSide = Math.random() < 0.5 ? "heads" : "tails";
-    s.current.lastWin = null;
+  const flip = useCallback(async (chosen: CoinSide) => {
+    if (s.current.flipping || status === "waiting_tx") return;
 
     setChoice(chosen);
-    setStatus("flipping");
     setResult(null);
     setMessage("");
 
     if (mode === "onchain" && address && chain) {
       const contractAddress = getContractAddress("coinflip", chain.id);
       if (contractAddress) {
-        writeContract({
-          address: contractAddress as `0x${string}`,
-          abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
-          functionName: "startGame",
-        });
+        setStatus("waiting_tx");
+        pendingChoiceRef.current = chosen;
+        try {
+          const hash = await writeContractAsync({
+            address: contractAddress as `0x${string}`,
+            abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
+            functionName: "startGame",
+          });
+          pendingTxHashRef.current = hash;
+          setTxHash(hash);
+        } catch {
+          // User rejected — cancel
+          pendingChoiceRef.current = null;
+          setStatus("idle");
+          setChoice(null);
+        }
+        return;
       }
     }
-  }, [mode, address, chain, writeContract]);
+
+    // Free mode — start animation immediately
+    startAnimation(chosen);
+  }, [mode, address, chain, writeContractAsync, status, startAnimation]);
 
   const reset = useCallback(() => {
     s.current.flipping = false;
@@ -405,10 +457,13 @@ export function useCoinFlip() {
     s.current.particles = [];
     s.current.choice = null;
     s.current.lastWin = null;
+    pendingChoiceRef.current = null;
+    pendingTxHashRef.current = undefined;
     setChoice(null);
     setStatus("idle");
     setResult(null);
     setMessage("");
+    setTxHash(undefined);
   }, []);
 
   const setGameMode = useCallback((m: GameMode) => {
