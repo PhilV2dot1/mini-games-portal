@@ -78,7 +78,7 @@ export default function HiLoPage() {
 
         {/* Header */}
         <div className="text-center mb-5">
-          <div className="text-5xl mb-2">🃏</div>
+          <img src="/icons/hilo.png" alt="Hi-Lo" className="w-14 h-14 mx-auto object-contain mb-2" />
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
             {t("games.hilo.title") || "Hi-Lo"}
           </h1>
