@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
+import { useLocalStats } from "@/hooks/useLocalStats";
 
 // ========================================
 // TYPES
@@ -173,6 +174,9 @@ export function useHiLo() {
 
   const { address, chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { recordGame } = useLocalStats();
+  const recordGameRef = useRef(recordGame);
+  useEffect(() => { recordGameRef.current = recordGame; }, [recordGame]);
 
   // Wait for startSession confirmation
   const { isSuccess: startConfirmed, isError: startFailed } = useWaitForTransactionReceipt({
@@ -215,21 +219,23 @@ export function useHiLo() {
   // ── endSession confirmed → show final result ────────────────────────────────
   useEffect(() => {
     if (endConfirmed && status === "waiting_end" && pendingEndRef.current) {
-      const { finalStatus, statsUpdate } = pendingEndRef.current;
+      const { finalStatus, statsUpdate, outcome } = pendingEndRef.current;
       saveStats(statsUpdate);
       setStats(statsUpdate);
+      recordGameRef.current("hilo", "onchain", outcome === 0 ? "win" : "lose");
       setStatus(finalStatus);
       setEndTxHash(undefined);
       pendingEndRef.current = null;
     }
   }, [endConfirmed, status]);
 
-  // endSession failed → still show result (game played, just not recorded)
+  // endSession failed → still show result (game played, just not recorded on-chain)
   useEffect(() => {
     if (endFailed && status === "waiting_end" && pendingEndRef.current) {
-      const { finalStatus, statsUpdate } = pendingEndRef.current;
+      const { finalStatus, statsUpdate, outcome } = pendingEndRef.current;
       saveStats(statsUpdate);
       setStats(statsUpdate);
+      recordGameRef.current("hilo", "onchain", outcome === 0 ? "win" : "lose");
       setStatus(finalStatus);
       setEndTxHash(undefined);
       pendingEndRef.current = null;
@@ -302,6 +308,7 @@ export function useHiLo() {
       totalCorrect: saved.totalCorrect + finalStreak,
     };
 
+    const gameResult = outcome === 0 ? "win" : "lose";
     const contractAddress = getContractAddress_();
     if (contractAddress) {
       // On-chain: send endSession, wait for confirmation before showing result
@@ -319,6 +326,7 @@ export function useHiLo() {
         // User rejected or error — still show result
         saveStats(statsUpdate);
         setStats(statsUpdate);
+        recordGameRef.current("hilo", "onchain", gameResult);
         setStatus(finalStatus);
         pendingEndRef.current = null;
       }
@@ -326,6 +334,7 @@ export function useHiLo() {
       // Free mode: update stats and show result immediately
       saveStats(statsUpdate);
       setStats(statsUpdate);
+      recordGameRef.current("hilo", "free", gameResult);
       setStatus(finalStatus);
     }
   }, [getContractAddress_, writeContractAsync]);
