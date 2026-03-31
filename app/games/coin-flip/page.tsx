@@ -203,7 +203,7 @@ export default function CoinFlipPage() {
           )}
           {isWaitingTx && (
             <p className="text-amber-500 dark:text-amber-400 text-sm animate-pulse">
-              {t("games.onchain.waitingTx") || "⏳ Transaction en cours..."}
+              {t("games.coinflip.waitingTx")}
             </p>
           )}
           {isFlipping && (
