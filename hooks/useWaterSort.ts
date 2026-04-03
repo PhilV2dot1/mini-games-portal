@@ -374,6 +374,14 @@ export function useWaterSort() {
     setPourAnim(null);
   }, [writeContractAsync]);
 
+  const startGame = useCallback(() => {
+    if (modeRef.current === "onchain" && contractAddressRef.current) {
+      startOnchain();
+    } else {
+      setStatus("playing");
+    }
+  }, [startOnchain]);
+
   const newGame = useCallback((diff: Difficulty) => {
     if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
       sessionActiveRef.current = false;
@@ -404,6 +412,7 @@ export function useWaterSort() {
     selectTube,
     resetGame,
     newGame,
+    startGame,
     setGameMode,
     stats,
     contractAddress,

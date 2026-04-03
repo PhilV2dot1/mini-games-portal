@@ -520,75 +520,103 @@ export default function WaterSortPage() {
           {game.mode === "onchain" && <WalletConnect />}
         </div>
 
-        {/* Difficulty Selector */}
-        <div className="flex gap-2 justify-center mb-5">
-          {difficulties.map(d => (
+        {/* ── IDLE: difficulty picker + Start button ── */}
+        {game.status === "idle" && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white/80 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 mb-6 text-center"
+          >
+            <p className="text-sm text-gray-500 dark:text-cyan-300/60 uppercase tracking-wider mb-4 font-semibold">
+              {t("games.watersort.chooseDifficulty") || "Choose Difficulty"}
+            </p>
+            <div className="flex gap-3 justify-center mb-6">
+              {difficulties.map(d => (
+                <button
+                  key={d}
+                  onClick={() => game.newGame(d)}
+                  className={[
+                    "px-5 py-2 rounded-full text-sm font-bold text-white transition-all",
+                    `bg-gradient-to-r ${DIFFICULTY_COLORS[d]}`,
+                    game.difficulty === d
+                      ? "ring-2 ring-white scale-110 shadow-lg"
+                      : "opacity-55 hover:opacity-90 hover:scale-105",
+                  ].join(" ")}
+                >
+                  {diffLabel(d)}
+                </button>
+              ))}
+            </div>
+
+            {bestForDiff > 0 && (
+              <p className="text-xs text-yellow-500 dark:text-yellow-400 mb-4">
+                🏆 {t("games.watersort.bestMoves") || "Best"}: {bestForDiff} {t("games.watersort.moves") || "moves"}
+              </p>
+            )}
+
             <button
-              key={d}
-              onClick={() => game.newGame(d)}
-              className={[
-                "px-4 py-1.5 rounded-full text-sm font-semibold text-white transition-all",
-                `bg-gradient-to-r ${DIFFICULTY_COLORS[d]}`,
-                game.difficulty === d
-                  ? "ring-2 ring-white scale-105 shadow-lg"
-                  : "opacity-60 hover:opacity-100",
-              ].join(" ")}
+              onClick={game.startGame}
+              className="px-10 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-lg shadow-lg transition-all active:scale-95"
             >
-              {diffLabel(d)}
+              {t("games.watersort.startGame") || "▶ Start Game"}
             </button>
-          ))}
-        </div>
+          </motion.div>
+        )}
 
-        {/* Stats Row */}
-        <div className="flex gap-6 justify-center mb-6 text-center">
-          <div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{game.moves}</div>
-            <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
-              {t("games.watersort.moves") || "Moves"}
-            </div>
-          </div>
-          {bestForDiff > 0 && (
-            <div>
-              <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">{bestForDiff}</div>
-              <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
-                {t("games.watersort.bestMoves") || "Best"}
+        {/* ── PLAYING / WON: tubes + controls ── */}
+        {game.status !== "idle" && (
+          <>
+            {/* Stats Row */}
+            <div className="flex gap-6 justify-center mb-6 text-center">
+              <div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{game.moves}</div>
+                <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
+                  {t("games.watersort.moves") || "Moves"}
+                </div>
               </div>
+              {bestForDiff > 0 && (
+                <div>
+                  <div className="text-2xl font-bold text-yellow-500 dark:text-yellow-400">{bestForDiff}</div>
+                  <div className="text-xs text-cyan-700 dark:text-cyan-300/60 uppercase tracking-wider">
+                    {t("games.watersort.bestMoves") || "Best"}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Tubes Grid */}
-        <div ref={containerRef} className="relative flex flex-wrap gap-3 justify-center mb-8">
-          {game.tubes.map((tube, idx) => (
-            <TubeDisplay
-              key={idx}
-              tube={tube}
-              index={idx}
-              isSelected={game.selectedTube === idx}
-              onClick={() => game.selectTube(idx)}
-              disabled={game.status === "won"}
-              tubeRef={(el) => { tubeRefs.current[idx] = el; }}
-              // Hide the source tube while it's being animated as an overlay
-              invisible={game.pourAnim !== null && game.pourAnim.fromIdx === idx}
-            />
-          ))}
-        </div>
+            {/* Tubes Grid */}
+            <div ref={containerRef} className="relative flex flex-wrap gap-3 justify-center mb-8">
+              {game.tubes.map((tube, idx) => (
+                <TubeDisplay
+                  key={idx}
+                  tube={tube}
+                  index={idx}
+                  isSelected={game.selectedTube === idx}
+                  onClick={() => game.selectTube(idx)}
+                  disabled={game.status === "won"}
+                  tubeRef={(el) => { tubeRefs.current[idx] = el; }}
+                  invisible={game.pourAnim !== null && game.pourAnim.fromIdx === idx}
+                />
+              ))}
+            </div>
 
-        {/* Reset / New Game buttons */}
-        <div className="flex gap-3 justify-center mb-8">
-          <button
-            onClick={game.resetGame}
-            className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm"
-          >
-            {t("games.watersort.playAgain") || "Play Again"}
-          </button>
-          <button
-            onClick={() => game.newGame(game.difficulty)}
-            className="px-5 py-2 rounded-xl bg-cyan-600 text-white hover:bg-cyan-500 transition-all text-sm font-semibold"
-          >
-            {t("games.watersort.newGame") || "New Game"}
-          </button>
-        </div>
+            {/* Reset / New Game buttons */}
+            <div className="flex gap-3 justify-center mb-8">
+              <button
+                onClick={game.resetGame}
+                className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm"
+              >
+                {t("games.watersort.playAgain") || "Play Again"}
+              </button>
+              <button
+                onClick={() => game.newGame(game.difficulty)}
+                className="px-5 py-2 rounded-xl bg-cyan-600 text-white hover:bg-cyan-500 transition-all text-sm font-semibold"
+              >
+                {t("games.watersort.newGame") || "New Game"}
+              </button>
+            </div>
+          </>
+        )}
 
         {/* How to Play */}
         <div className="bg-white/70 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 mb-6">
