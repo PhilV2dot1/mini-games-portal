@@ -7,6 +7,7 @@ import { useBlackjackMultiplayer } from "@/hooks/useBlackjackMultiplayer";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { BlackjackTable } from "@/components/blackjack/BlackjackTable";
+import { PlayingCard } from "@/components/shared/PlayingCard";
 import { GameControls } from "@/components/blackjack/GameControls";
 import { GameStats } from "@/components/blackjack/GameStats";
 import { GameMessage } from "@/components/blackjack/GameMessage";
@@ -317,14 +318,7 @@ export default function BlackjackPage() {
                   </div>
                   <div className="flex gap-2 justify-center">
                     {mp.myHand.map((card, i) => (
-                      <div key={i} className="w-16 h-24 bg-white dark:bg-gray-100 rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
-                        <span className={`text-lg font-bold ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
-                          {card.display}
-                        </span>
-                        <span className={`text-xl ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
-                          {card.suit}
-                        </span>
-                      </div>
+                      <PlayingCard key={i} suit={card.suit} value={card.value} size="md" />
                     ))}
                   </div>
                 </div>
@@ -348,14 +342,7 @@ export default function BlackjackPage() {
                   </div>
                   <div className="flex gap-2 justify-center">
                     {mp.opponentHand.map((card, i) => (
-                      <div key={i} className="w-16 h-24 bg-white dark:bg-gray-100 rounded-lg border-2 border-gray-300 flex flex-col items-center justify-center shadow">
-                        <span className={`text-lg font-bold ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
-                          {card.display}
-                        </span>
-                        <span className={`text-xl ${card.suit === '♥' || card.suit === '♦' ? 'text-red-500' : 'text-gray-900'}`}>
-                          {card.suit}
-                        </span>
-                      </div>
+                      <PlayingCard key={i} suit={card.suit} value={card.value} size="md" />
                     ))}
                   </div>
                 </div>
