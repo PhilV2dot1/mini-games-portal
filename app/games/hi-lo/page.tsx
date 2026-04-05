@@ -88,10 +88,14 @@ export default function HiLoPage() {
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex flex-col items-center gap-3 mb-5">
+        <div className="flex flex-col items-center gap-3 mb-3">
           <ModeToggle mode={game.mode} onModeChange={game.setGameMode} />
-          {game.mode === "onchain" && <WalletConnect />}
         </div>
+        {game.mode === "onchain" && (
+          <div className="mb-5">
+            <WalletConnect />
+          </div>
+        )}
 
         {/* Multiplier Badge */}
         <AnimatePresence>
