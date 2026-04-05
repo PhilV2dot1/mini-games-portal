@@ -593,11 +593,40 @@ export default function WaterSortPage() {
                   index={idx}
                   isSelected={game.selectedTube === idx}
                   onClick={() => game.selectTube(idx)}
-                  disabled={game.status === "won"}
+                  disabled={game.status === "won" || game.status === "countdown"}
                   tubeRef={(el) => { tubeRefs.current[idx] = el; }}
                   invisible={game.pourAnim !== null && game.pourAnim.fromIdx === idx}
                 />
               ))}
+
+              {/* Countdown overlay */}
+              <AnimatePresence>
+                {game.status === "countdown" && game.countdown !== null && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm z-10">
+                    {game.countdown > 0 ? (
+                      <motion.div
+                        key={game.countdown}
+                        initial={{ scale: 2, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className="text-9xl font-black text-white drop-shadow-[0_0_20px_rgba(6,182,212,0.9)]"
+                      >
+                        {game.countdown}
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="go"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1.2, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-7xl font-black text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.9)]"
+                      >
+                        GO!
+                      </motion.div>
+                    )}
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Reset / New Game buttons */}

@@ -10,7 +10,7 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 // ========================================
 
 export type GameMode = "free" | "onchain";
-export type GameStatus = "idle" | "playing" | "won";
+export type GameStatus = "idle" | "countdown" | "playing" | "won";
 export type Difficulty = "easy" | "medium" | "hard";
 
 export type Segment = string; // crypto id
@@ -194,6 +194,7 @@ export function useWaterSort() {
   const [selectedTube, setSelectedTube] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
   const [status, setStatus] = useState<GameStatus>("idle");
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [mode, setGameMode] = useState<GameMode>("free");
   const [stats, setStats] = useState<WaterSortStats>(() => loadStats());
 
@@ -288,11 +289,8 @@ export function useWaterSort() {
     const currentMoves = movesRef.current;
     const currentDifficulty = difficultyRef.current;
 
-    // Start game on first interaction
-    if (currentStatus === "idle") {
-      setStatus("playing");
-      startOnchain();
-    }
+    // Block during countdown or idle
+    if (currentStatus === "idle" || currentStatus === "countdown") return;
 
     if (currentSelected === null) {
       // Select if tube not empty
@@ -374,13 +372,31 @@ export function useWaterSort() {
     setPourAnim(null);
   }, [writeContractAsync]);
 
+  const runCountdown = useCallback((onComplete: () => void) => {
+    setStatus("countdown");
+    setCountdown(3);
+    let count = 3;
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else if (count === 0) {
+        setCountdown(0); // "GO!"
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        onComplete();
+      }
+    }, 1000);
+  }, []);
+
   const startGame = useCallback(() => {
     if (modeRef.current === "onchain" && contractAddressRef.current) {
-      startOnchain();
+      startOnchain(); // tx first, then status goes to "playing" via startOnchain
     } else {
-      setStatus("playing");
+      runCountdown(() => setStatus("playing"));
     }
-  }, [startOnchain]);
+  }, [startOnchain, runCountdown]);
 
   const newGame = useCallback((diff: Difficulty) => {
     if (modeRef.current === "onchain" && contractAddressRef.current && sessionActiveRef.current) {
@@ -406,6 +422,7 @@ export function useWaterSort() {
     selectedTube,
     moves,
     status,
+    countdown,
     mode,
     difficulty,
     cryptos: CRYPTOS,
