@@ -58,9 +58,9 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
     }
   };
 
-  // Use a local proxy to avoid CORS issues when calling the Ethos auth server
+  // Use a server-side proxy route to avoid CORS issues
   const authServerUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/ethos-proxy`
+    ? `${window.location.origin}/api/ethos-proxy`
     : 'https://ethos.thebbz.xyz';
 
   return (
