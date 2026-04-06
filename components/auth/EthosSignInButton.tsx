@@ -16,7 +16,9 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
   const [authServerUrl, setAuthServerUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setAuthServerUrl(`${window.location.origin}/api/ethos-proxy`);
+    // Pass just the origin — SDK appends /api/auth/nonce, /api/auth/wallet/verify, etc.
+    // Those routes proxy to ethos.thebbz.xyz server-side to avoid CORS
+    setAuthServerUrl(window.location.origin);
   }, []);
 
   // Don't render until client-side URL is ready (avoids using direct Ethos URL which blocks due to CORS)
