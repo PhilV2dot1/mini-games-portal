@@ -13,11 +13,14 @@ interface EthosSignInButtonProps {
 }
 
 export function EthosSignInButton({ label, disabled, onSuccess, onError }: EthosSignInButtonProps) {
-  const [authServerUrl, setAuthServerUrl] = useState('https://ethos.thebbz.xyz');
+  const [authServerUrl, setAuthServerUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setAuthServerUrl(`${window.location.origin}/api/ethos-proxy`);
   }, []);
+
+  // Don't render until client-side URL is ready (avoids using direct Ethos URL which blocks due to CORS)
+  if (!authServerUrl) return null;
 
   const handleSuccess = async (result: AuthResult) => {
     try {
