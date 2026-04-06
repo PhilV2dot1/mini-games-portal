@@ -67,7 +67,13 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
     <SignInWithEthosButton
       authServerUrl={authServerUrl}
       onSuccess={handleSuccess}
-      onError={(err) => onError?.(err?.message || 'Authentication error')}
+      onError={(err) => {
+        const code = (err as { code?: string })?.code;
+        const msg = code === 'unknown_error' || code === 'verify_error'
+          ? 'Ethos authentication failed. Make sure your wallet has an Ethos profile at ethos.network.'
+          : (err?.message || 'Authentication error');
+        onError?.(msg);
+      }}
       disabled={disabled}
       className="w-full"
     >
