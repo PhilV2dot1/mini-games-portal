@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { SignInWithEthosButton } from '@thebbz/siwe-ethos-react';
 import type { AuthResult } from '@thebbz/siwe-ethos-react';
 import { supabase } from '@/lib/supabase/client';
@@ -12,6 +13,12 @@ interface EthosSignInButtonProps {
 }
 
 export function EthosSignInButton({ label, disabled, onSuccess, onError }: EthosSignInButtonProps) {
+  const [authServerUrl, setAuthServerUrl] = useState('https://ethos.thebbz.xyz');
+
+  useEffect(() => {
+    setAuthServerUrl(`${window.location.origin}/api/ethos-proxy`);
+  }, []);
+
   const handleSuccess = async (result: AuthResult) => {
     try {
       const walletAddress = result.user?.walletAddress;
@@ -57,11 +64,6 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
       onError?.('Sign in failed');
     }
   };
-
-  // Use a server-side proxy route to avoid CORS issues
-  const authServerUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/api/ethos-proxy`
-    : 'https://ethos.thebbz.xyz';
 
   return (
     <SignInWithEthosButton
