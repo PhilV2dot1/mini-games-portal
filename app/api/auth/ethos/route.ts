@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Must use Node.js runtime — Supabase Admin (listUsers, generateLink) requires it
+// Must use Node.js runtime — Supabase Admin requires it
 export const runtime = 'nodejs';
 
 /**
  * POST /api/auth/ethos
  *
  * Exchange an Ethos auth result (verified wallet address) for a Supabase session.
- * Creates or finds the Supabase Auth user, then returns a session token.
+ * Creates or finds the Supabase Auth user, then signs in and returns a live session.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
 
     const normalizedAddress = walletAddress.toLowerCase();
     const syntheticEmail = `${normalizedAddress}@ethos.wallet`;
+    // Deterministic password derived from address + secret — never changes for same wallet
+    const password = `ethos_${normalizedAddress}_${process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 16)}`;
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,15 +30,15 @@ export async function POST(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Try to find existing Supabase Auth user by listing with email filter
+    // Find or create Supabase Auth user
     const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
     const existingAuthUser = listData?.users?.find(u => u.email === syntheticEmail);
 
     if (!existingAuthUser) {
-      // Create new Supabase Auth user
       const { data: newAuthUser, error: createError } =
         await supabaseAdmin.auth.admin.createUser({
           email: syntheticEmail,
+          password,
           email_confirm: true,
           user_metadata: {
             wallet_address: normalizedAddress,
@@ -50,6 +52,9 @@ export async function POST(request: NextRequest) {
         console.error('Error creating Supabase auth user:', createError);
         return NextResponse.json({ error: 'Failed to create auth user' }, { status: 500 });
       }
+    } else {
+      // Update password in case secret changed (keeps it in sync)
+      await supabaseAdmin.auth.admin.updateUserById(existingAuthUser.id, { password });
     }
 
     // Ensure users table record exists
@@ -72,27 +77,25 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Find the auth user to get their ID for session creation
-    const { data: listData2 } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-    const authUser = listData2?.users?.find(u => u.email === syntheticEmail);
+    // Sign in server-side to get a live session — no expiry race condition
+    const supabaseClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
 
-    if (!authUser) {
-      return NextResponse.json({ error: 'Auth user not found after creation' }, { status: 500 });
-    }
+    const { data: signInData, error: signInError } =
+      await supabaseClient.auth.signInWithPassword({ email: syntheticEmail, password });
 
-    // Create a session directly — no magic link expiry issues
-    const { data: sessionData, error: sessionError } =
-      await supabaseAdmin.auth.admin.createSession({ userId: authUser.id });
-
-    if (sessionError || !sessionData?.session) {
-      console.error('Error creating session:', sessionError);
+    if (signInError || !signInData?.session) {
+      console.error('Error signing in:', signInError);
       return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
+      access_token: signInData.session.access_token,
+      refresh_token: signInData.session.refresh_token,
     });
   } catch (error) {
     console.error('Ethos auth error:', error);
