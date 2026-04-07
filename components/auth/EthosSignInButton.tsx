@@ -45,21 +45,20 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
 
       const data = await res.json();
 
-      if (!data.success || !data.token) {
+      if (!data.success || !data.access_token) {
         onError?.(data.error || 'Authentication failed');
         return;
       }
 
-      // Use the hashed token to verify OTP and get a real Supabase session
-      const { error: otpError } = await supabase.auth.verifyOtp({
-        email: data.email,
-        token: data.token,
-        type: 'magiclink',
+      // Set the session directly from the tokens returned by the server
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
       });
 
-      if (otpError) {
-        console.error('OTP verify error:', otpError);
-        onError?.(otpError.message);
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        onError?.(sessionError.message);
         return;
       }
 

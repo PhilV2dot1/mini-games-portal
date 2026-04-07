@@ -72,22 +72,27 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate a magic link / OTP to get a real session
-    const { data: linkData, error: linkError } =
-      await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: syntheticEmail,
-      });
+    // Find the auth user to get their ID for session creation
+    const { data: listData2 } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+    const authUser = listData2?.users?.find(u => u.email === syntheticEmail);
 
-    if (linkError || !linkData?.properties?.hashed_token) {
-      console.error('Error generating link:', linkError);
-      return NextResponse.json({ error: 'Failed to generate session link' }, { status: 500 });
+    if (!authUser) {
+      return NextResponse.json({ error: 'Auth user not found after creation' }, { status: 500 });
+    }
+
+    // Create a session directly — no magic link expiry issues
+    const { data: sessionData, error: sessionError } =
+      await supabaseAdmin.auth.admin.createSession({ userId: authUser.id });
+
+    if (sessionError || !sessionData?.session) {
+      console.error('Error creating session:', sessionError);
+      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
     }
 
     return NextResponse.json({
       success: true,
-      email: syntheticEmail,
-      token: linkData.properties.hashed_token,
+      access_token: sessionData.session.access_token,
+      refresh_token: sessionData.session.refresh_token,
     });
   } catch (error) {
     console.error('Ethos auth error:', error);
