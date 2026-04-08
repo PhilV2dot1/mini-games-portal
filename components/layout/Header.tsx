@@ -20,6 +20,7 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import { NotificationCenter } from "@/components/shared/NotificationCenter";
+import { EthosLogo } from "@/components/auth/EthosScoreBadge";
 import Link from "next/link";
 
 export function Header() {
@@ -208,10 +209,7 @@ export function Header() {
                         {/* Ethos score badge */}
                         {user?.user_metadata?.ethos_score && (
                           <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-white border border-gray-300 rounded-full px-1.5 py-0.5 flex items-center gap-0.5 shadow-sm whitespace-nowrap">
-                            <svg className="w-2.5 h-2.5 text-indigo-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                              <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
-                            </svg>
+                            <EthosLogo className="w-2.5 h-2.5 text-indigo-500 flex-shrink-0" />
                             <span className="text-[10px] font-bold text-gray-800 leading-none">{user.user_metadata.ethos_score}</span>
                           </div>
                         )}
