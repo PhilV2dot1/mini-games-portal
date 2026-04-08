@@ -20,6 +20,14 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    remotePatterns: [
+      { protocol: 'https', hostname: 'app.ethos.network' },
+      { protocol: 'https', hostname: '**.ethos.network' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'pbs.twimg.com' },
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+    ],
   },
   webpack: (config, { isServer }) => {
     // Ignore optional pino dependencies that cause build errors
