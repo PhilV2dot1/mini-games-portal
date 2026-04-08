@@ -13,7 +13,7 @@ export const runtime = 'nodejs';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { walletAddress, ethosUsername, ethosScore } = body;
+    const { walletAddress, ethosUsername, ethosScore, ethosPicture } = body;
 
     if (!walletAddress) {
       return NextResponse.json({ error: 'walletAddress required' }, { status: 400 });
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
             wallet_address: normalizedAddress,
             ethos_username: ethosUsername,
             ethos_score: ethosScore,
+            ethos_picture: ethosPicture,
             provider: 'ethos',
           },
         });
@@ -53,8 +54,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to create auth user' }, { status: 500 });
       }
     } else {
-      // Update password in case secret changed (keeps it in sync)
-      await supabaseAdmin.auth.admin.updateUserById(existingAuthUser.id, { password });
+      // Update password and refresh ethos metadata on each login
+      await supabaseAdmin.auth.admin.updateUserById(existingAuthUser.id, {
+        password,
+        user_metadata: {
+          ...existingAuthUser.user_metadata,
+          ethos_username: ethosUsername,
+          ethos_score: ethosScore,
+          ethos_picture: ethosPicture,
+        },
+      });
     }
 
     // Ensure users table record exists

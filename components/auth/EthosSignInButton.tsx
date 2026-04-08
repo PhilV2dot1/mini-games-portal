@@ -40,6 +40,7 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
           walletAddress,
           ethosUsername: result.user?.name,
           ethosScore: result.user?.ethosScore,
+          ethosPicture: result.user?.picture,
         }),
       });
 

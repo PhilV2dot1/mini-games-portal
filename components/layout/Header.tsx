@@ -199,7 +199,7 @@ export function Header() {
                       <div className="relative">
                         <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-600 bg-gray-700">
                           <Image
-                            src={user?.user_metadata?.avatar_url || '/avatars/predefined/default-player.svg'}
+                            src={user?.user_metadata?.ethos_picture || user?.user_metadata?.avatar_url || '/avatars/predefined/default-player.svg'}
                             alt="avatar"
                             width={36}
                             height={36}
