@@ -16,6 +16,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { BadgeGallery } from '@/components/badges/BadgeGallery';
 import { ProfileCompleteness } from '@/components/profile/ProfileCompleteness';
 import { StatsCharts } from '@/components/profile/StatsCharts';
+import { EthosScoreBadge } from '@/components/auth/EthosScoreBadge';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
@@ -230,6 +231,15 @@ export default function MyProfilePage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {user.email || `User ID: ${user.id.substring(0, 8)}`}
                   </p>
+                )}
+                {isAuthenticated && user?.user_metadata?.ethos_score && (
+                  <div className="mt-2">
+                    <EthosScoreBadge
+                      score={user.user_metadata.ethos_score}
+                      username={user.user_metadata.ethos_username}
+                      size="md"
+                    />
+                  </div>
                 )}
               </div>
             </div>
