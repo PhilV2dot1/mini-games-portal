@@ -20,6 +20,7 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { CreateAccountModal } from "@/components/auth/CreateAccountModal";
 import { NotificationCenter } from "@/components/shared/NotificationCenter";
+import Image from "next/image";
 import Link from "next/link";
 
 export function Header() {
@@ -192,10 +193,35 @@ export function Header() {
                 <div className="relative">
                     <button
                       onClick={() => setShowUserMenu(!showUserMenu)}
-                      className="px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
+                      className="flex items-center gap-2 hover:opacity-90 transition-opacity"
                     >
-                      <span>{displayName || user?.email?.split('@')[0] || t('nav.profile')}</span>
-                      <svg className={`w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {/* Avatar with Ethos score badge */}
+                      <div className="relative">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-600 bg-gray-700">
+                          <Image
+                            src={user?.user_metadata?.avatar_url || '/avatars/predefined/default-player.svg'}
+                            alt="avatar"
+                            width={36}
+                            height={36}
+                            className="object-cover w-full h-full"
+                            onError={(e) => { (e.target as HTMLImageElement).src = '/avatars/predefined/default-player.svg'; }}
+                          />
+                        </div>
+                        {/* Ethos score badge */}
+                        {user?.user_metadata?.ethos_score && (
+                          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-white border border-gray-300 rounded-full px-1.5 py-0.5 flex items-center gap-0.5 shadow-sm whitespace-nowrap">
+                            <svg className="w-2.5 h-2.5 text-indigo-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                              <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/>
+                            </svg>
+                            <span className="text-[10px] font-bold text-gray-800 leading-none">{user.user_metadata.ethos_score}</span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-white text-sm font-semibold hidden sm:inline">
+                        {displayName || user?.user_metadata?.ethos_username || user?.email?.split('@')[0] || t('nav.profile')}
+                      </span>
+                      <svg className={`w-4 h-4 text-white transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
