@@ -215,7 +215,16 @@ export function Header() {
                         )}
                       </div>
                       <span className="text-white text-sm font-semibold hidden sm:inline">
-                        {displayName || user?.user_metadata?.ethos_username || user?.email?.split('@')[0] || t('nav.profile')}
+                        {(() => {
+                          const name = displayName || user?.user_metadata?.ethos_username;
+                          if (name) return name;
+                          const emailPart = user?.email?.split('@')[0] || '';
+                          // Truncate wallet addresses (0x...)
+                          if (emailPart.startsWith('0x') && emailPart.length > 10) {
+                            return `${emailPart.slice(0, 6)}...${emailPart.slice(-4)}`;
+                          }
+                          return emailPart || t('nav.profile');
+                        })()}
                       </span>
                       <svg className={`w-4 h-4 text-white transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
