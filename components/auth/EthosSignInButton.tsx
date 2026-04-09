@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SignInWithEthosButton } from '@thebbz/siwe-ethos-react';
+import { EthosAuthModal } from '@thebbz/siwe-ethos-react';
 import type { AuthResult } from '@thebbz/siwe-ethos-react';
 import { supabase } from '@/lib/supabase/client';
+import { EthosLogo } from '@/components/auth/EthosScoreBadge';
 
 interface EthosSignInButtonProps {
   label: string;
@@ -14,17 +15,16 @@ interface EthosSignInButtonProps {
 
 export function EthosSignInButton({ label, disabled, onSuccess, onError }: EthosSignInButtonProps) {
   const [authServerUrl, setAuthServerUrl] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Pass just the origin — SDK appends /api/auth/nonce, /api/auth/wallet/verify, etc.
-    // Those routes proxy to ethos.thebbz.xyz server-side to avoid CORS
     setAuthServerUrl(window.location.origin);
   }, []);
 
-  // Don't render until client-side URL is ready (avoids using direct Ethos URL which blocks due to CORS)
   if (!authServerUrl) return null;
 
   const handleSuccess = async (result: AuthResult) => {
+    setIsOpen(false);
     try {
       const walletAddress = result.user?.walletAddress;
       if (!walletAddress) {
@@ -32,7 +32,6 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
         return;
       }
 
-      // Exchange Ethos auth for a Supabase session
       const res = await fetch('/api/auth/ethos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,14 +50,12 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
         return;
       }
 
-      // Set the session directly from the tokens returned by the server
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
       });
 
       if (sessionError) {
-        console.error('Session error:', sessionError);
         onError?.(sessionError.message);
         return;
       }
@@ -71,20 +68,35 @@ export function EthosSignInButton({ label, disabled, onSuccess, onError }: Ethos
   };
 
   return (
-    <SignInWithEthosButton
-      authServerUrl={authServerUrl}
-      onSuccess={handleSuccess}
-      onError={(err) => {
-        const code = (err as { code?: string })?.code;
-        const msg = code === 'unknown_error' || code === 'verify_error'
-          ? 'Ethos authentication failed. Make sure your wallet has an Ethos profile at ethos.network.'
-          : (err?.message || 'Authentication error');
-        onError?.(msg);
-      }}
-      disabled={disabled}
-      className="w-full"
-    >
-      {label}
-    </SignInWithEthosButton>
+    <>
+      {/* Custom styled button matching Google/Twitter/Discord buttons */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        disabled={disabled}
+        className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg font-semibold text-white transition-all disabled:opacity-50"
+        style={{ backgroundColor: '#6366f1' }}
+        onMouseEnter={e => { if (!disabled) (e.currentTarget.style.backgroundColor = '#4f46e5'); }}
+        onMouseLeave={e => { (e.currentTarget.style.backgroundColor = '#6366f1'); }}
+      >
+        <EthosLogo className="w-5 h-5 text-white flex-shrink-0" />
+        {label}
+      </button>
+
+      {/* SDK modal handles the actual auth flow */}
+      <EthosAuthModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        onSuccess={handleSuccess}
+        onError={(err) => {
+          const code = (err as { code?: string })?.code;
+          const msg = code === 'unknown_error' || code === 'verify_error'
+            ? 'Ethos authentication failed. Make sure your wallet has an Ethos profile at ethos.network.'
+            : (err?.message || 'Authentication error');
+          onError?.(msg);
+        }}
+        authServerUrl={authServerUrl}
+      />
+    </>
   );
 }
