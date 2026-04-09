@@ -42,8 +42,10 @@ export function Header() {
       fetch(`/api/user/profile?id=${user.id}`)
         .then(res => res.json())
         .then(data => {
-          if (data.user?.display_name) {
-            setDisplayName(data.user.display_name);
+          const name = data.user?.display_name || data.user?.username;
+          // Don't use wallet addresses as display name
+          if (name && !name.startsWith('0x')) {
+            setDisplayName(name);
           }
         })
         .catch(err => {
@@ -216,14 +218,14 @@ export function Header() {
                       </div>
                       <span className="text-white text-sm font-semibold hidden sm:inline">
                         {(() => {
-                          const name = displayName || user?.user_metadata?.ethos_username;
-                          if (name) return name;
+                          const truncate = (s: string) => s.startsWith('0x') && s.length > 10
+                            ? `${s.slice(0, 6)}...${s.slice(-4)}` : s;
+                          if (displayName) return displayName;
+                          const ethosName = user?.user_metadata?.ethos_username;
+                          if (ethosName && !ethosName.startsWith('0x')) return ethosName;
                           const emailPart = user?.email?.split('@')[0] || '';
-                          // Truncate wallet addresses (0x...)
-                          if (emailPart.startsWith('0x') && emailPart.length > 10) {
-                            return `${emailPart.slice(0, 6)}...${emailPart.slice(-4)}`;
-                          }
-                          return emailPart || t('nav.profile');
+                          if (emailPart) return truncate(emailPart);
+                          return t('nav.profile');
                         })()}
                       </span>
                       <svg className={`w-4 h-4 text-white transition-transform ${showUserMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
