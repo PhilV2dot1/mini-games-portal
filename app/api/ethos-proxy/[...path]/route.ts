@@ -37,6 +37,7 @@ async function proxy(request: NextRequest, params: { path: string[] }) {
   });
 
   const data = await upstream.text();
+  console.log(`[ethos-proxy] ${request.method} ${url.toString()} → ${upstream.status}: ${data.substring(0, 500)}`);
   return new NextResponse(data, {
     status: upstream.status,
     headers: {
