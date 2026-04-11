@@ -50,6 +50,7 @@ const DEFAULT_PROFILE: UserProfile = {
     arrowescape: { ...DEFAULT_GAME_STATS },
     spaceinvaders: { ...DEFAULT_GAME_STATS },
     hilo: { ...DEFAULT_GAME_STATS },
+    cryptohigherlower: { ...DEFAULT_GAME_STATS },
   },
 };
 

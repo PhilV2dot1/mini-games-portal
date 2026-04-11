@@ -1,5 +1,5 @@
 export type GameMode = "free" | "onchain";
-export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape" | "spaceinvaders" | "hilo";
+export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape" | "spaceinvaders" | "hilo" | "cryptohigherlower";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
 export type GameDuration = "quick" | "medium" | "long";
 
@@ -312,6 +312,17 @@ export const GAMES: Record<GameId, GameMetadata> = {
     icon: "/icons/hilo.png",
     route: "/games/hi-lo",
     color: "from-emerald-500 to-green-700",
+    hasFee: false,
+    category: "casino",
+    duration: "quick",
+  },
+  cryptohigherlower: {
+    id: "cryptohigherlower",
+    name: "Crypto Higher / Lower",
+    description: "Guess which crypto has the higher price — build your streak!",
+    icon: "/icons/cryptohigherlower.png",
+    route: "/games/crypto-higher-lower",
+    color: "from-yellow-400 to-yellow-600",
     hasFee: false,
     category: "casino",
     duration: "quick",
