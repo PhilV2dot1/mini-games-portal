@@ -319,7 +319,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
   cryptohigherlower: {
     id: "cryptohigherlower",
     name: "Crypto Higher / Lower",
-    description: "Guess which crypto has the higher price — build your streak!",
+    description: "Guess if Token B's price is Higher or Lower than Token A!",
     icon: "/icons/cryptohigherlower.png",
     route: "/games/crypto-higher-lower",
     color: "from-yellow-400 to-yellow-600",

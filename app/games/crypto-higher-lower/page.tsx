@@ -532,7 +532,7 @@ export default function CryptoHigherLowerPage() {
             CRYPTO HIGHER / LOWER
           </h1>
           <p className="text-gray-400 text-sm">
-            Guess which crypto has a higher price — build your streak!
+            Guess if Token B&apos;s price is Higher or Lower than Token A!
           </p>
         </div>
 

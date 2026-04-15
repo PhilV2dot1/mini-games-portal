@@ -841,7 +841,7 @@ export const translations = {
       },
       cryptohigherlower: {
         title: 'Crypto Higher / Lower',
-        subtitle: 'Guess which crypto has the higher price — build your streak!',
+        subtitle: "Guess if Token B's price is Higher or Lower than Token A!",
         howToPlay: 'How to Play',
         rule1: 'Token A is revealed with its live price. Token B is hidden.',
         rule2: 'Guess: is Token B\'s price Higher ▲ or Lower ▼ than Token A?',
