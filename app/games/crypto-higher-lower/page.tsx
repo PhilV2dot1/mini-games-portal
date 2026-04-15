@@ -121,11 +121,15 @@ function TokenLogo({ token, size = 56 }: { token: TokenMeta; size?: number }) {
   );
 }
 
-function DifficultyPicker({ value, onChange }: { value: Difficulty; onChange: (d: Difficulty) => void }) {
+function DifficultyPicker({ value, onChange, labels }: {
+  value: Difficulty;
+  onChange: (d: Difficulty) => void;
+  labels: { easy: string; medium: string; hard: string; easyHint: string; mediumHint: string; hardHint: string };
+}) {
   const opts: { id: Difficulty; label: string; hint: string; color: string }[] = [
-    { id: "easy",   label: "Easy",   hint: "Top 10 + hints",    color: "#35D07F" },
-    { id: "medium", label: "Medium", hint: "Top 50 + hints",    color: "#F7931A" },
-    { id: "hard",   label: "Hard",   hint: "All + ×1.5 score",  color: "#E84142" },
+    { id: "easy",   label: labels.easy,   hint: labels.easyHint,   color: "#35D07F" },
+    { id: "medium", label: labels.medium, hint: labels.mediumHint, color: "#F7931A" },
+    { id: "hard",   label: labels.hard,   hint: labels.hardHint,   color: "#E84142" },
   ];
   return (
     <div className="flex gap-2 justify-center">
@@ -194,9 +198,10 @@ function VSDivider() {
 }
 
 function ResultFlash({
-  correct, pts, tokenB, revealedPrice, walletBonus,
+  correct, pts, tokenB, revealedPrice, walletBonus, labelCorrect, labelWrong, labelWalletBonus,
 }: {
   correct: boolean; pts: number; tokenB: TokenMeta; revealedPrice: number; walletBonus: boolean;
+  labelCorrect: string; labelWrong: string; labelWalletBonus: string;
 }) {
   return (
     <motion.div
@@ -207,13 +212,13 @@ function ResultFlash({
         ${correct ? "bg-green-900/90" : "bg-red-900/90"}`}
     >
       <div className="text-4xl mb-2">{correct ? "✅" : "❌"}</div>
-      <p className="text-white font-black text-2xl">{correct ? "Correct!" : "Wrong!"}</p>
+      <p className="text-white font-black text-2xl">{correct ? labelCorrect : labelWrong}</p>
       <p className="text-gray-200 text-sm mt-1">
         {tokenB.name} = <span className="font-bold" style={{ color: "#FCFF52" }}>{formatPrice(revealedPrice)}</span>
       </p>
       {correct && <p className="text-green-300 font-bold text-lg mt-1">+{pts} pts</p>}
       {walletBonus && (
-        <p className="text-yellow-300 text-xs mt-0.5">💼 Holder bonus +{WALLET_BONUS} pts!</p>
+        <p className="text-yellow-300 text-xs mt-0.5">💼 {labelWalletBonus} +{WALLET_BONUS} pts!</p>
       )}
     </motion.div>
   );
@@ -532,7 +537,7 @@ export default function CryptoHigherLowerPage() {
             CRYPTO HIGHER / LOWER
           </h1>
           <p className="text-gray-400 text-sm">
-            Guess if Token B&apos;s price is Higher or Lower than Token A!
+            {t("games.cryptohigherlower.subtitle") || "Guess if Token B's price is Higher or Lower than Token A!"}
           </p>
         </div>
 
@@ -549,24 +554,39 @@ export default function CryptoHigherLowerPage() {
         {/* ── IDLE ── */}
         {gameStatus === "idle" && (
           <div className="rounded-2xl bg-white/5 border border-white/10 p-6 mb-5">
-            <h2 className="text-white font-bold text-center mb-4">Choose Difficulty</h2>
-            <DifficultyPicker value={difficulty} onChange={setDifficulty} />
+            <h2 className="text-white font-bold text-center mb-4">
+              {t("games.cryptohigherlower.difficulty") || "Choose Difficulty"}
+            </h2>
+            <DifficultyPicker
+              value={difficulty}
+              onChange={setDifficulty}
+              labels={{
+                easy:       t("games.cryptohigherlower.easy")       || "Easy",
+                medium:     t("games.cryptohigherlower.medium")     || "Medium",
+                hard:       t("games.cryptohigherlower.hard")       || "Hard",
+                easyHint:   t("games.cryptohigherlower.easyHint")   || "Top 10 + hints",
+                mediumHint: t("games.cryptohigherlower.mediumHint") || "Top 50 + hints",
+                hardHint:   t("games.cryptohigherlower.hardHint")   || "All + ×1.5 score",
+              }}
+            />
             <button
               onClick={startGame}
               className="mt-5 w-full py-4 rounded-xl font-black text-gray-900 text-lg shadow-lg transition-all hover:brightness-110"
               style={{ backgroundColor: "#FCFF52" }}
             >
-              Start Game
+              {t("games.cryptohigherlower.startGame") || "Start Game"}
             </button>
 
             <div className="mt-5 space-y-2">
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">How to play</p>
+              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider">
+                {t("games.cryptohigherlower.howToPlay") || "How to play"}
+              </p>
               {[
-                "You see Token A with its live price and Token B hidden.",
-                "Guess if Token B's price is Higher or Lower than Token A.",
-                "Correct? Token B becomes the new Token A — chain continues!",
-                "Streak ×2 from round 3, ×3 from round 6.",
-                "One wrong answer ends the game. Max 10 rounds.",
+                t("games.cryptohigherlower.rule1") || "You see Token A with its live price and Token B hidden.",
+                t("games.cryptohigherlower.rule2") || "Guess if Token B's price is Higher or Lower than Token A.",
+                t("games.cryptohigherlower.rule3") || "Correct? Token B becomes the new Token A — chain continues!",
+                t("games.cryptohigherlower.rule4") || "Streak ×2 from round 3, ×3 from round 6.",
+                t("games.cryptohigherlower.rule5") || "One wrong answer ends the game. Max 10 rounds.",
               ].map((rule, i) => (
                 <p key={i} className="text-gray-400 text-xs flex gap-2">
                   <span className="font-bold flex-shrink-0" style={{ color: "#FCFF52" }}>{i + 1}.</span>
@@ -582,7 +602,7 @@ export default function CryptoHigherLowerPage() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-10 mb-5 flex flex-col items-center gap-4">
             <Spinner color="#FCFF52" />
             <p className="text-gray-300 text-sm font-semibold text-center">
-              Sign the transaction to start your on-chain session…
+              {t("games.cryptohigherlower.waitingStart") || "Sign the transaction to start your on-chain session…"}
             </p>
           </div>
         )}
@@ -592,7 +612,9 @@ export default function CryptoHigherLowerPage() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-10 mb-5 flex flex-col items-center gap-4">
             <Spinner color="#FCFF52" />
             <p className="text-gray-300 text-sm font-semibold">
-              {fetchError ? "Retrying…" : "Fetching live prices…"}
+              {fetchError
+                ? (t("games.cryptohigherlower.retrying") || "Retrying…")
+                : (t("games.cryptohigherlower.fetchingPrices") || "Fetching live prices…")}
             </p>
           </div>
         )}
@@ -613,7 +635,7 @@ export default function CryptoHigherLowerPage() {
                 {currentMult > 1 && <span className="ml-1" style={{ color: "#FCFF52" }}>×{currentMult}</span>}
               </div>
               <div className="text-gray-400 text-xs font-semibold">
-                Round <span className="text-white font-black">{round}</span> / {MAX_ROUNDS}
+                {t("games.cryptohigherlower.round") || "Round"} <span className="text-white font-black">{round}</span> / {MAX_ROUNDS}
               </div>
               <div
                 className="px-3 py-1.5 rounded-full border border-yellow-500/30 text-xs font-black"
@@ -633,6 +655,9 @@ export default function CryptoHigherLowerPage() {
                     tokenB={tokenB}
                     revealedPrice={priceB}
                     walletBonus={flashResult.walletBonus}
+                    labelCorrect={t("games.cryptohigherlower.correct") || "Correct!"}
+                    labelWrong={t("games.cryptohigherlower.wrong") || "Wrong!"}
+                    labelWalletBonus={t("games.cryptohigherlower.walletBonus") || "Holder bonus"}
                   />
                 )}
               </AnimatePresence>
@@ -674,7 +699,7 @@ export default function CryptoHigherLowerPage() {
                   className="flex-1 py-4 rounded-xl text-white font-black text-xl shadow-lg transition-all disabled:opacity-40"
                   style={{ backgroundColor: "#1D9E75" }}
                 >
-                  ▲ Higher
+                  ▲ {t("games.cryptohigherlower.higher") || "Higher"}
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.96 }}
@@ -683,7 +708,7 @@ export default function CryptoHigherLowerPage() {
                   className="flex-1 py-4 rounded-xl text-white font-black text-xl shadow-lg transition-all disabled:opacity-40"
                   style={{ backgroundColor: "#D85A30" }}
                 >
-                  ▼ Lower
+                  ▼ {t("games.cryptohigherlower.lower") || "Lower"}
                 </motion.button>
               </div>
             )}
@@ -699,7 +724,7 @@ export default function CryptoHigherLowerPage() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-10 mb-5 flex flex-col items-center gap-4">
             <Spinner color="#8B5CF6" />
             <p className="text-gray-300 text-sm font-semibold text-center">
-              Recording result on-chain…
+              {t("games.cryptohigherlower.waitingEnd") || "Recording result on-chain…"}
             </p>
           </div>
         )}
@@ -720,31 +745,35 @@ export default function CryptoHigherLowerPage() {
                 {score} pts
               </p>
               <p className="text-gray-400 text-sm mt-1">
-                {roundsWon === MAX_ROUNDS ? "Perfect game! 🔥" : `${roundsWon} / ${MAX_ROUNDS} correct`}
+                {roundsWon === MAX_ROUNDS
+                  ? (t("games.cryptohigherlower.perfectGame") || "Perfect game! 🔥")
+                  : `${roundsWon} / ${MAX_ROUNDS} ${t("games.cryptohigherlower.correctAnswers") || "correct"}`}
               </p>
             </div>
 
             {/* Breakdown */}
             <div className="rounded-xl bg-white/5 border border-white/10 p-4 mb-5 space-y-2 text-sm">
-              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Score Breakdown</p>
+              <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+                {t("games.cryptohigherlower.scoreBreakdown") || "Score Breakdown"}
+              </p>
               <div className="flex justify-between">
-                <span className="text-gray-300">Correct answers ({roundsWon})</span>
+                <span className="text-gray-300">{t("games.cryptohigherlower.correctAnswers") || "Correct answers"} ({roundsWon})</span>
                 <span className="text-white font-bold">{roundsWon} × {BASE_POINTS}</span>
               </div>
               {difficulty === "hard" && (
                 <div className="flex justify-between">
-                  <span className="text-gray-300">Hard mode</span>
-                  <span className="font-bold" style={{ color: "#E84142" }}>×1.5 applied</span>
+                  <span className="text-gray-300">{t("games.cryptohigherlower.hardMode") || "Hard mode"}</span>
+                  <span className="font-bold" style={{ color: "#E84142" }}>×1.5 {t("games.cryptohigherlower.applied") || "applied"}</span>
                 </div>
               )}
               {walletBonusTotal > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-gray-300">💼 Wallet holder bonus</span>
+                  <span className="text-gray-300">💼 {t("games.cryptohigherlower.walletHolderBonus") || "Wallet holder bonus"}</span>
                   <span className="text-yellow-300 font-bold">+{walletBonusTotal}</span>
                 </div>
               )}
               <div className="flex justify-between border-t border-white/10 pt-2">
-                <span className="text-white font-bold">Total</span>
+                <span className="text-white font-bold">{t("games.cryptohigherlower.total") || "Total"}</span>
                 <span className="font-black" style={{ color: "#FCFF52" }}>{score} pts</span>
               </div>
             </div>
@@ -752,7 +781,9 @@ export default function CryptoHigherLowerPage() {
             {/* Round history dots */}
             {history.length > 0 && (
               <div className="mb-5">
-                <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">Round History</p>
+                <p className="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2">
+                  {t("games.cryptohigherlower.roundHistory") || "Round History"}
+                </p>
                 <div className="flex gap-1.5 flex-wrap">
                   {history.map((h) => (
                     <div
@@ -771,7 +802,7 @@ export default function CryptoHigherLowerPage() {
             {/* On-chain confirmation */}
             {mode === "onchain" && endTxHash && (
               <div className="mb-4 p-3 rounded-xl bg-green-900/20 border border-green-500/30 text-center">
-                <p className="text-green-400 text-xs font-semibold">✅ Result recorded on-chain</p>
+                <p className="text-green-400 text-xs font-semibold">✅ {t("games.cryptohigherlower.resultRecorded") || t("games.cryptohigherlower.onChainRecorded") || "Result recorded on-chain"}</p>
                 {explorerUrl && (
                   <a
                     href={`${explorerUrl}`}
@@ -796,13 +827,13 @@ export default function CryptoHigherLowerPage() {
                 className="w-full py-3 rounded-xl font-black text-gray-900 text-base transition-all hover:brightness-110"
                 style={{ backgroundColor: "#FCFF52" }}
               >
-                Play Again
+                {t("games.cryptohigherlower.playAgain") || "Play Again"}
               </button>
               <Link
                 href="/"
                 className="block text-center text-gray-500 hover:text-gray-300 text-sm transition-colors"
               >
-                ← Back to portal
+                ← {t("games.backToPortal") || "Back to portal"}
               </Link>
             </div>
           </motion.div>
@@ -813,15 +844,15 @@ export default function CryptoHigherLowerPage() {
           <div className="rounded-2xl bg-white/5 border border-white/10 p-4 mb-5">
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Score</p>
+                <p className="text-gray-400 text-xs uppercase mb-1">{t("games.cryptohigherlower.score") || "Score"}</p>
                 <p className="text-white font-black text-lg">{score}</p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Streak</p>
+                <p className="text-gray-400 text-xs uppercase mb-1">{t("games.cryptohigherlower.streak") || "Streak"}</p>
                 <p className="text-green-400 font-black text-lg">{streak}</p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase mb-1">Mult</p>
+                <p className="text-gray-400 text-xs uppercase mb-1">{t("games.cryptohigherlower.mult") || t("games.cryptohigherlower.multiplier") || "Mult"}</p>
                 <p className="font-black text-lg" style={{ color: "#FCFF52" }}>×{currentMult}</p>
               </div>
             </div>
@@ -830,17 +861,17 @@ export default function CryptoHigherLowerPage() {
 
         {/* Footer */}
         <div className="text-center text-xs text-gray-600 mb-6">
-          <p>Prices via CoinGecko · refreshed every 60s</p>
+          <p>{t("games.cryptohigherlower.pricesVia") || t("games.cryptohigherlower.footer") || "Prices via CoinGecko · refreshed every 60s"}</p>
           {mode === "onchain" && explorerUrl ? (
             <a
               href={explorerUrl}
               target="_blank" rel="noopener noreferrer"
               className="text-emerald-600 hover:text-emerald-400 underline"
             >
-              View contract on {explorerName} →
+              {t("games.cryptohigherlower.viewContract") || "View contract on"} {explorerName} →
             </a>
           ) : (
-            <span>On-chain mode available · sign in with wallet</span>
+            <span>{t("games.cryptohigherlower.onchainAvailable") || "On-chain mode available · sign in with wallet"}</span>
           )}
         </div>
 
