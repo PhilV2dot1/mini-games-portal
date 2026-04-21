@@ -69,8 +69,8 @@ export function Header() {
         <div className="flex items-center justify-between px-4 py-3">
           {/* Brand */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity shrink-0">
-            <img src="/icons/MiniGamesportal_icon.png" alt="Mini Games Portal" className="w-10 h-10 rounded-xl object-contain shadow-lg" />
-            <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
+            <img src="/icons/MiniGamesportal_icon.png" alt="Mini Games Portal" className="w-14 h-14 rounded-xl object-contain shadow-lg" />
+            <h1 className="text-4xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight whitespace-nowrap">
               Mini Games Portal
             </h1>
           </Link>
