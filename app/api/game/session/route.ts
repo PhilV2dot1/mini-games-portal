@@ -175,6 +175,9 @@ export async function POST(request: NextRequest) {
       p_won: result === 'win',
     } as never) as unknown as Promise<unknown>).catch(() => {});
 
+    // Refresh materialized leaderboard view so rankings stay current (fire-and-forget)
+    void (supabase.rpc('refresh_leaderboard' as never) as unknown as Promise<unknown>).catch(() => {});
+
     console.log('[Session API] Session created successfully:', { sessionId: session.id, userId, pointsEarned });
 
     return NextResponse.json({
