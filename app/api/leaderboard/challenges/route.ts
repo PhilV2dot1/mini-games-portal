@@ -17,47 +17,48 @@ export async function GET(request: NextRequest) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Count completed challenges per user, join with users table
-    const { data, error } = await supabaseAdmin
-      .from('user_daily_progress')
-      .select(`
-        user_id,
-        users!inner(username, display_name, avatar_type, avatar_url)
-      `)
-      .eq('completed', true)
-      .limit(500); // fetch a lot, we'll aggregate in JS
+    // Aggregate in SQL: count completed challenges per user, join users, return top N
+    const { data, error } = await supabaseAdmin.rpc('get_challenge_leaderboard', {
+      p_limit: limit,
+    } as never);
 
     if (error) {
-      console.error('[ChallengeLeaderboard] Error:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+      // Fallback: manual query if RPC not yet deployed
+      const { data: rows, error: fallbackError } = await supabaseAdmin
+        .from('user_daily_progress')
+        .select('user_id, users!inner(username, display_name, avatar_type, avatar_url)')
+        .eq('completed', true)
+        .limit(limit * 20);
 
-    // Aggregate: count completed challenges per user
-    const counts: Record<string, { userId: string; username: string; displayName?: string; avatar_type?: string; avatar_url?: string; completed: number }> = {};
-
-    for (const row of data ?? []) {
-      const userId = row.user_id;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const user = (row as any).users;
-      if (!counts[userId]) {
-        counts[userId] = {
-          userId,
-          username: user?.username ?? userId.slice(0, 8),
-          displayName: user?.display_name ?? undefined,
-          avatar_type: user?.avatar_type ?? 'default',
-          avatar_url: user?.avatar_url ?? undefined,
-          completed: 0,
-        };
+      if (fallbackError) {
+        console.error('[ChallengeLeaderboard] Error:', fallbackError);
+        return NextResponse.json({ error: fallbackError.message }, { status: 500 });
       }
-      counts[userId].completed++;
+
+      const counts: Record<string, { userId: string; username: string; displayName?: string; avatar_type?: string; avatar_url?: string; completed: number }> = {};
+      for (const row of rows ?? []) {
+        const u = (row as never as { users: { username: string; display_name?: string; avatar_type?: string; avatar_url?: string } }).users;
+        if (!counts[row.user_id]) {
+          counts[row.user_id] = { userId: row.user_id, username: u?.username ?? row.user_id.slice(0, 8), displayName: u?.display_name, avatar_type: u?.avatar_type ?? 'default', avatar_url: u?.avatar_url, completed: 0 };
+        }
+        counts[row.user_id].completed++;
+      }
+      const sorted = Object.values(counts).sort((a, b) => b.completed - a.completed).slice(0, limit).map((e, i) => ({ ...e, rank: i + 1 }));
+      return NextResponse.json({ leaderboard: sorted });
     }
 
-    const sorted = Object.values(counts)
-      .sort((a, b) => b.completed - a.completed)
-      .slice(0, limit)
-      .map((entry, i) => ({ ...entry, rank: i + 1 }));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const leaderboard = (data as any[]).map((row: any, i: number) => ({
+      rank: i + 1,
+      userId: row.user_id,
+      username: row.username ?? row.user_id.slice(0, 8),
+      displayName: row.display_name,
+      avatar_type: row.avatar_type ?? 'default',
+      avatar_url: row.avatar_url,
+      completed: row.completed,
+    }));
 
-    return NextResponse.json({ leaderboard: sorted });
+    return NextResponse.json({ leaderboard });
   } catch (err) {
     console.error('[ChallengeLeaderboard] Error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

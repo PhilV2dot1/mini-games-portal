@@ -23,10 +23,9 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      // Optimize for blockchain reads
       networkMode: 'online',
-      gcTime: 0, // Don't cache blockchain reads globally
-      staleTime: 0, // Always consider blockchain data stale
+      gcTime: 1000 * 60 * 5,  // keep cache 5 min
+      staleTime: 1000 * 30,   // data fresh for 30s
     },
   },
 });
@@ -45,51 +44,25 @@ const FarcasterContext = createContext<FarcasterContextType>({
 export const useFarcaster = () => useContext(FarcasterContext);
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [isInFarcaster, setIsInFarcaster] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
-    const load = async () => {
-      // Check if in Farcaster context
-      const inFC =
-        typeof window !== "undefined" &&
-        ((window as Window & { fc?: unknown; farcaster?: unknown }).fc !== undefined ||
-          (window as Window & { fc?: unknown; farcaster?: unknown }).farcaster !== undefined ||
-          document.referrer.includes("warpcast.com"));
+    // Fire-and-forget — never blocks render
+    const inFC =
+      typeof window !== "undefined" &&
+      ((window as Window & { fc?: unknown; farcaster?: unknown }).fc !== undefined ||
+        (window as Window & { fc?: unknown; farcaster?: unknown }).farcaster !== undefined ||
+        document.referrer.includes("warpcast.com"));
 
-      setIsInFarcaster(inFC);
+    setIsInFarcaster(inFC);
 
-      // ALWAYS initialize Farcaster SDK (it calls ready() to dismiss splash)
-      try {
-        const success = await initializeFarcaster();
-        if (!success && inFC) {
-          console.warn("Farcaster SDK initialization returned false");
-          setInitError("SDK initialization failed");
-        }
-      } catch (error) {
-        console.error("SDK initialization error:", error);
-        if (inFC) {
-          setInitError(error instanceof Error ? error.message : "Unknown error");
-        }
-      }
-
-      // Always set as loaded to allow app to function
-      setIsSDKLoaded(true);
-    };
-    load();
+    initializeFarcaster().then((success) => {
+      if (!success && inFC) setInitError("SDK initialization failed");
+    }).catch((error) => {
+      if (inFC) setInitError(error instanceof Error ? error.message : "Unknown error");
+    });
   }, []);
-
-  if (!isSDKLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800">
-        <div className="text-center">
-          <div className="text-yellow-400 text-xl font-semibold mb-2">Loading...</div>
-          <div className="text-sm text-gray-300">Initializing Mini Games Portal</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <ThemeProvider>
