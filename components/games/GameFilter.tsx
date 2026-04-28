@@ -29,9 +29,11 @@ const CATEGORY_LABELS: Record<GameCategory | "all", string> = {
 
 const DURATION_LABELS: Record<GameDuration | "all", string> = {
   all: "⏱ Durée",
-  quick: "⚡ Rapide",
-  medium: "⏳ Moyen",
-  long: "🕐 Long",
+  instant: "⚡ < 1 min",
+  short: "🕐 1-2 min",
+  medium: "⏳ 2-5 min",
+  long: "🎯 5-15 min",
+  extended: "🏆 15+ min",
 };
 
 const SORT_LABELS: Record<SortOption, string> = {
@@ -55,9 +57,11 @@ export function GameFilter({ filters, onChange, totalCount, filteredCount }: Gam
 
   const durationLabels = language === "fr" ? DURATION_LABELS : {
     all: "⏱ Duration",
-    quick: "⚡ Quick",
-    medium: "⏳ Medium",
-    long: "🕐 Long",
+    instant: "⚡ < 1 min",
+    short: "🕐 1-2 min",
+    medium: "⏳ 2-5 min",
+    long: "🎯 5-15 min",
+    extended: "🏆 15+ min",
   };
 
   const sortLabels = language === "fr" ? SORT_LABELS : {
@@ -94,7 +98,7 @@ export function GameFilter({ filters, onChange, totalCount, filteredCount }: Gam
       {/* Duration + Sort row */}
       <div className="flex flex-wrap gap-2 items-center justify-between">
         <div className="flex flex-wrap gap-2">
-          {(["all", "quick", "medium", "long"] as (GameDuration | "all")[]).map((dur) => (
+          {(["all", "instant", "short", "medium", "long", "extended"] as (GameDuration | "all")[]).map((dur) => (
             <button
               key={dur}
               onClick={() => onChange({ ...filters, duration: dur })}

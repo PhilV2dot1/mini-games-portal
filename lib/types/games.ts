@@ -1,7 +1,7 @@
 export type GameMode = "free" | "onchain";
 export type GameId = "blackjack" | "rps" | "tictactoe" | "jackpot" | "2048" | "mastermind" | "connectfive" | "snake" | "solitaire" | "minesweeper" | "yahtzee" | "sudoku" | "memory" | "maze" | "tetris" | "poker" | "wordle" | "brickbreaker" | "flappybird" | "plinko" | "coinflip" | "roulette" | "watersort" | "arrowescape" | "spaceinvaders" | "hilo" | "cryptohigherlower";
 export type GameCategory = "cards" | "arcade" | "puzzle" | "strategy" | "casino";
-export type GameDuration = "quick" | "medium" | "long";
+export type GameDuration = "instant" | "short" | "medium" | "long" | "extended";
 
 export interface GameMetadata {
   id: GameId;
@@ -11,9 +11,10 @@ export interface GameMetadata {
   route: string;
   contractAddress?: `0x${string}`;
   color: string;
-  hasFee: boolean; // Indicates if game requires 0.01 CELO to play on-chain
+  hasFee: boolean;
   category: GameCategory;
-  duration: GameDuration; // quick < 2min, medium 2-5min, long 5min+
+  duration: GameDuration; // instant < 1min, short 1-2min, medium 2-5min, long 5-15min, extended 15min+
+  durationLabel: string;  // human-readable: "< 1 min", "1-2 min", etc.
 }
 
 export const GAMES: Record<GameId, GameMetadata> = {
@@ -27,7 +28,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-red-500 to-orange-600",
     hasFee: false,
     category: "cards",
-    duration: "quick",
+    duration: "short",
+    durationLabel: "1-2 min",
   },
   rps: {
     id: "rps",
@@ -39,7 +41,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-gray-400 to-gray-600",
     hasFee: false,
     category: "strategy",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   tictactoe: {
     id: "tictactoe",
@@ -51,7 +54,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-green-500 to-teal-600",
     hasFee: false,
     category: "strategy",
-    duration: "quick",
+    duration: "short",
+    durationLabel: "1-2 min",
   },
   jackpot: {
     id: "jackpot",
@@ -63,7 +67,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-yellow-500 to-orange-600",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   "2048": {
     id: "2048",
@@ -76,6 +81,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: true,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   mastermind: {
     id: "mastermind",
@@ -88,6 +94,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: true,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   connectfive: {
     id: "connectfive",
@@ -100,6 +107,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "strategy",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   snake: {
     id: "snake",
@@ -112,6 +120,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   solitaire: {
     id: "solitaire",
@@ -124,6 +133,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "cards",
     duration: "long",
+    durationLabel: "5-15 min",
   },
   minesweeper: {
     id: "minesweeper",
@@ -136,6 +146,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   yahtzee: {
     id: "yahtzee",
@@ -148,6 +159,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "cards",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   sudoku: {
     id: "sudoku",
@@ -160,6 +172,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "long",
+    durationLabel: "5-15 min",
   },
   memory: {
     id: "memory",
@@ -171,6 +184,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   maze: {
     id: "maze",
@@ -182,6 +196,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   tetris: {
     id: "tetris",
@@ -193,6 +208,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   poker: {
     id: "poker",
@@ -205,6 +221,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "cards",
     duration: "long",
+    durationLabel: "5-15 min",
   },
   wordle: {
     id: "wordle",
@@ -216,6 +233,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   brickbreaker: {
     id: "brickbreaker",
@@ -227,6 +245,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   flappybird: {
     id: "flappybird",
@@ -237,7 +256,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-orange-400 to-yellow-500",
     hasFee: false,
     category: "arcade",
-    duration: "medium",
+    duration: "short",
+    durationLabel: "1-2 min",
   },
   plinko: {
     id: "plinko",
@@ -248,7 +268,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-yellow-400 to-orange-500",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   coinflip: {
     id: "coinflip",
@@ -259,7 +280,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-orange-400 to-indigo-500",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   roulette: {
     id: "roulette",
@@ -270,7 +292,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-indigo-500 to-purple-600",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   watersort: {
     id: "watersort",
@@ -282,6 +305,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "puzzle",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   arrowescape: {
     id: "arrowescape",
@@ -292,7 +316,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-orange-500 to-red-600",
     hasFee: false,
     category: "puzzle",
-    duration: "quick",
+    duration: "short",
+    durationLabel: "1-2 min",
   },
   spaceinvaders: {
     id: "spaceinvaders",
@@ -304,6 +329,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     hasFee: false,
     category: "arcade",
     duration: "medium",
+    durationLabel: "2-5 min",
   },
   hilo: {
     id: "hilo",
@@ -314,7 +340,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-emerald-500 to-green-700",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
   cryptohigherlower: {
     id: "cryptohigherlower",
@@ -325,6 +352,7 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-yellow-400 to-yellow-600",
     hasFee: false,
     category: "casino",
-    duration: "quick",
+    duration: "instant",
+    durationLabel: "< 1 min",
   },
 };
