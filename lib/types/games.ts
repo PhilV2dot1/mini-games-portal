@@ -158,8 +158,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-gray-600 to-gray-800",
     hasFee: false,
     category: "cards",
-    duration: "medium",
-    durationLabel: "2-5 min",
+    duration: "long",
+    durationLabel: "5-15 min",
   },
   sudoku: {
     id: "sudoku",
@@ -207,8 +207,8 @@ export const GAMES: Record<GameId, GameMetadata> = {
     color: "from-cyan-500 to-blue-600",
     hasFee: false,
     category: "arcade",
-    duration: "medium",
-    durationLabel: "2-5 min",
+    duration: "long",
+    durationLabel: "5-15 min",
   },
   poker: {
     id: "poker",
