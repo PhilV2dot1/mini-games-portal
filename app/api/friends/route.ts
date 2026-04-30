@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
         addressee_id: addressee.id,
         status: 'pending',
       })
-      .select()
+      .select('id, status')
       .single();
 
     if (error) {

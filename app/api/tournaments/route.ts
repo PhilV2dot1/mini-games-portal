@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
         starts_at: startsAt || null,
         prize_points: prizePoints,
       })
-      .select()
+      .select('id, name, game_id, status, max_players, current_players, prize_points, created_at')
       .single();
 
     if (tError || !tournament) {

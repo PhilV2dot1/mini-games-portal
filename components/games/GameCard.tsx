@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const motion = {
+  div: dynamic(() => import("framer-motion").then((m) => m.motion.div), { ssr: false }),
+};
 import { GameMetadata } from "@/lib/types";
 import { useLocalStats } from "@/hooks/useLocalStats";
 import { useLanguage } from "@/lib/i18n/LanguageContext";

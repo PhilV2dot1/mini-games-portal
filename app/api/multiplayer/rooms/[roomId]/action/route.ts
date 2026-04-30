@@ -181,7 +181,7 @@ export async function POST(
         action_type: actionType,
         action_data: actionData || {},
       })
-      .select()
+      .select('id')
       .single();
 
     if (actionError) {

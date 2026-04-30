@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
           claimed_at: new Date().toISOString(),
         })
         .eq('id', existingUser.id)
-        .select()
+        .select('id, total_points')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .single()) as { data: any; error: any };
 
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
           claimed_at: new Date().toISOString(),
           username: email ? email.split('@')[0] : `Player_${Date.now()}`,
         })
-        .select()
+        .select('id')
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .single()) as { data: any; error: any };
 

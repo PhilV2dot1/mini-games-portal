@@ -1,18 +1,24 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { GameMetadata, GameDuration } from "@/lib/types";
 import { GameCard } from "./GameCard";
 import { GameFilter, FilterState } from "./GameFilter";
-import { motion } from "framer-motion";
 import { SkeletonCardGrid } from "@/components/ui/SkeletonCard";
+
+// Lazy-load framer-motion — not needed for initial render
+const MotionDiv = dynamic(
+  () => import("framer-motion").then((mod) => mod.motion.div),
+  { ssr: false, loading: () => null }
+);
 
 interface GameGridProps {
   games: GameMetadata[];
   loading?: boolean;
 }
 
-const DURATION_ORDER: Record<GameDuration, number> = { quick: 0, medium: 1, long: 2 };
+const DURATION_ORDER: Record<GameDuration, number> = { instant: 0, short: 1, medium: 2, long: 3, extended: 4 };
 
 const container = {
   hidden: { opacity: 0 },
@@ -78,7 +84,7 @@ export function GameGrid({ games, loading = false }: GameGridProps) {
           <p className="text-lg font-medium">Aucun jeu trouvé</p>
         </div>
       ) : (
-        <motion.div
+        <MotionDiv
           key={`${filters.category}-${filters.duration}-${filters.sort}`}
           variants={container}
           initial="hidden"
@@ -86,11 +92,11 @@ export function GameGrid({ games, loading = false }: GameGridProps) {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
         >
           {filtered.map((game, index) => (
-            <motion.div key={game.id} variants={item} className="h-full">
+            <MotionDiv key={game.id} variants={item} className="h-full">
               <GameCard game={game} index={index} />
-            </motion.div>
+            </MotionDiv>
           ))}
-        </motion.div>
+        </MotionDiv>
       )}
     </>
   );

@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
           avatar_type: 'default',
           avatar_url: '/avatars/predefined/default-player.svg',
         })
-        .select()
+        .select('id')
         .single();
 
       if (createError || !newUser) {

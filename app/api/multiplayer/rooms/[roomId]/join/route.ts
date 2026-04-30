@@ -100,7 +100,7 @@ export async function POST(
           .update({ disconnected: false, disconnected_at: null })
           .eq('room_id', roomId)
           .eq('user_id', internalUserId)
-          .select()
+          .select('id, player_number')
           .single();
 
         return NextResponse.json({
