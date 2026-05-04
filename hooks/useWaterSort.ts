@@ -237,13 +237,15 @@ export function useWaterSort() {
 
   const startOnchain = useCallback(async () => {
     if (modeRef.current !== "onchain" || !contractAddressRef.current) return;
+    const addr = contractAddressRef.current as `0x${string}`;
     try {
-      await writeContractAsync({
-        address: contractAddressRef.current as `0x${string}`,
-        abi: WATERSORT_ABI,
-        functionName: "startSession",
-        args: [],
-      });
+      // Abandon any stale session before starting a new one
+      try {
+        await writeContractAsync({ address: addr, abi: WATERSORT_ABI, functionName: "abandonSession", args: [] });
+      } catch {
+        // No active session — that's fine
+      }
+      await writeContractAsync({ address: addr, abi: WATERSORT_ABI, functionName: "startSession", args: [] });
       sessionActiveRef.current = true;
     } catch {
       // non-blocking
