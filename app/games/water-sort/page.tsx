@@ -629,20 +629,30 @@ export default function WaterSortPage() {
               </AnimatePresence>
             </div>
 
-            {/* Reset / New Game buttons */}
-            <div className="flex gap-3 justify-center mb-8">
+            {/* Reset / New Game / Abandon buttons */}
+            <div className="flex gap-3 justify-center mb-8 flex-wrap">
               <button
                 onClick={game.resetGame}
-                className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm"
+                disabled={game.pourAnim !== null}
+                className="px-5 py-2 rounded-xl bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-white border border-gray-300 dark:border-white/20 hover:bg-gray-300 dark:hover:bg-white/20 transition-all text-sm disabled:opacity-40"
               >
                 {t("games.watersort.playAgain") || "Play Again"}
               </button>
               <button
                 onClick={() => game.newGame(game.difficulty)}
-                className="px-5 py-2 rounded-xl bg-cyan-600 text-white hover:bg-cyan-500 transition-all text-sm font-semibold"
+                disabled={game.pourAnim !== null}
+                className="px-5 py-2 rounded-xl bg-cyan-600 text-white hover:bg-cyan-500 transition-all text-sm font-semibold disabled:opacity-40"
               >
                 {t("games.watersort.newGame") || "New Game"}
               </button>
+              {game.status === "playing" && (
+                <button
+                  onClick={game.abandonGame}
+                  className="px-5 py-2 rounded-xl bg-red-600/80 text-white hover:bg-red-500 transition-all text-sm font-semibold"
+                >
+                  {t("games.watersort.abandon") || "Abandon"}
+                </button>
+              )}
             </div>
           </>
         )}
