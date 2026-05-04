@@ -126,20 +126,14 @@ export function GameCard({ game, index = 0 }: GameCardProps) {
                 size="md"
                 className="group-hover:bg-chain group-hover:text-chain-contrast transition-colors duration-200"
                 rightIcon={
-                  <motion.svg
-                    className="w-4 h-4"
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-150"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    animate={shouldAnimate ? { x: [0, 4, 0] } : {}}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatDelay: 1,
-                    }}
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </motion.svg>
+                  </svg>
                 }
                 ariaLabel={`${t('games.playNow')} ${gameName}`}
               >
