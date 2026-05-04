@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://mini-games-portal.vercel.app';
-const siteTitle = 'Mini Games Portal - Play Mini-Games on Blockchain';
-const siteDescription = 'Play 20 mini-games on Celo, Base, MegaETH & Soneium! Blackjack, RPS, Tic-Tac-Toe, Jackpot, 2048, Mastermind, Snake, Minesweeper, Solitaire, Connect Five, Yahtzee, Sudoku, Memory, Maze, Tetris, Poker, Wordle, Flappy Bird, Plinko & Brick Breaker. Free mode, on-chain or multiplayer!';
+const siteTitle = 'Mini Games Portal — 20 Games, Free & On-Chain';
+const siteDescription = '🎮 Play 20 mini-games on Celo, Base, MegaETH & Soneium — for free or on-chain! Blackjack, Poker, Snake, Tetris, Wordle, Flappy Bird, Minesweeper, Solitaire, Yahtzee, Sudoku, Mastermind, Connect 5, Maze, Memory, 2048, Plinko, RPS, Tic-Tac-Toe, Jackpot & Brick Breaker. Multiplayer & leaderboard included!';
 
 export const viewport: Viewport = {
   themeColor: [
@@ -52,16 +52,18 @@ export const metadata: Metadata = {
     siteName: 'Mini Games Portal',
     type: 'website',
     locale: 'en_US',
+    images: [{ url: `${siteUrl}/api/og`, width: 1200, height: 630, alt: 'Mini Games Portal — 20 mini-games on blockchain' }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: siteTitle,
     description: siteDescription,
+    images: [`${siteUrl}/api/og`],
   },
   other: {
     'fc:frame': JSON.stringify({
       version: 'next',
-      imageUrl: `${siteUrl}/icon-512.png`,
+      imageUrl: `${siteUrl}/api/og`,
       button: {
         title: '🎮 Play Now',
         action: {
