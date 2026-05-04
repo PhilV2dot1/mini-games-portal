@@ -413,7 +413,10 @@ export function useWaterSort() {
 
   const startGame = useCallback(() => {
     if (modeRef.current === "onchain" && contractAddressRef.current) {
-      startOnchain(); // tx first, then status goes to "playing" via startOnchain
+      runCountdown(() => {
+        setStatus("playing");
+        startOnchain(); // fire tx after game starts — non-blocking
+      });
     } else {
       runCountdown(() => setStatus("playing"));
     }
