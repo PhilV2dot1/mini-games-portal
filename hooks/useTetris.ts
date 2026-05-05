@@ -430,27 +430,11 @@ export function useTetris() {
     };
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("Please connect wallet first");
-        return;
-      }
-      setStatus("waiting_start");
-      stateRef.current.status = "waiting_start";
-      setMessage("Sign transaction to start...");
-      startCountdownAndGameRef.current = startCountdownAndGame;
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: TETRIS_CONTRACT_ABI,
-          functionName: "startGame",
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-        stateRef.current.status = "idle";
-        startCountdownAndGameRef.current = null;
-      }
+      if (!isConnected || !address) { setMessage("Please connect wallet first"); return; }
+      setGameStartedOnChain(true);
+      gameStartedOnChainRef.current = true;
+      startCountdownAndGame();
+      writeContractAsync({ address: contractAddress!, abi: TETRIS_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
       return;
     }
 

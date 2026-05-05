@@ -272,20 +272,10 @@ export function useHiLo() {
     const contractAddress = getContractAddress_();
 
     if (contractAddress) {
-      // On-chain: sign startSession first, then play on confirmation
-      setStatus("waiting_start");
+      // On-chain: start immediately, fire tx non-blocking
       prepareDeck();
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress,
-          abi: HILO_ABI,
-          functionName: "startSession",
-        });
-        setStartTxHash(hash);
-      } catch {
-        // User rejected or error — back to idle
-        setStatus("idle");
-      }
+      setStatus("playing");
+      writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "startSession" }).catch(() => {});
     } else {
       // Free mode: start immediately
       prepareDeck();

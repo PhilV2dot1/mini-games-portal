@@ -310,24 +310,13 @@ export function useTicTacToe() {
     pendingEndRef.current = null;
 
     if (mode === "onchain") {
-      if (!isConnected) {
-        setMessage("Please connect wallet first!");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: TICTACTOE_CONTRACT_ABI,
-          functionName: "startGame",
-          args: [],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-      }
+      if (!isConnected) { setMessage("Please connect wallet first!"); return; }
+      setGameStartedOnChain(true);
+      setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
+      setResult(null);
+      setStatus("playing");
+      setMessage("Your turn! Tap a cell");
+      writeContractAsync({ address: contractAddress!, abi: TICTACTOE_CONTRACT_ABI, functionName: "startGame", args: [] }).catch(() => {});
       return;
     }
 

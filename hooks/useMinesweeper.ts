@@ -472,24 +472,10 @@ export function useMinesweeper() {
     pendingEndRef.current = null;
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("⚠️ Please connect wallet first");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: MINESWEEPER_CONTRACT_ABI,
-          functionName: "startGame",
-          args: [getDifficultyEnum(difficulty)],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-      }
+      if (!isConnected || !address) { setMessage("⚠️ Please connect wallet first"); return; }
+      setGameStartedOnChain(true);
+      setStatus("playing");
+      writeContractAsync({ address: contractAddress!, abi: MINESWEEPER_CONTRACT_ABI, functionName: "startGame", args: [getDifficultyEnum(difficulty)] }).catch(() => {});
       return;
     }
 

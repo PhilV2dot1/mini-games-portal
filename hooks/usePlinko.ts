@@ -763,18 +763,9 @@ export function usePlinko() {
     pendingFinalizeRef.current = null;
 
     if (mode === "onchain" && address && contractAddress) {
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress, abi: PLINKO_ABI,
-          functionName: "startGame", args: [],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-      }
+      setGameStartedOnChain(true);
+      startCountdownAndGame();
+      writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "startGame", args: [] }).catch(() => {});
       return;
     }
 

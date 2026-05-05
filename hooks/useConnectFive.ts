@@ -568,27 +568,12 @@ export function useConnectFive() {
     pendingEndRef.current = null;
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("⚠️ Please connect wallet first");
-        return;
-      }
-      if (!contractAddress) {
-        setMessage("⚠️ Unable to connect to blockchain");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress,
-          abi: CONNECTFIVE_CONTRACT_ABI,
-          functionName: "startGame",
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-      }
+      if (!isConnected || !address) { setMessage("⚠️ Please connect wallet first"); return; }
+      if (!contractAddress) { setMessage("⚠️ Unable to connect to blockchain"); return; }
+      setGameStartedOnChain(true);
+      setStatus("playing");
+      setMessage("Your turn - drop a piece!");
+      writeContractAsync({ address: contractAddress, abi: CONNECTFIVE_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
       return;
     }
 

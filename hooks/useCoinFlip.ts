@@ -427,22 +427,9 @@ export function useCoinFlip() {
     if (mode === "onchain" && address && chain) {
       const contractAddress = getContractAddress("coinflip", chain.id);
       if (contractAddress) {
-        setStatus("waiting_tx");
-        pendingChoiceRef.current = chosen;
-        try {
-          const hash = await writeContractAsync({
-            address: contractAddress as `0x${string}`,
-            abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }],
-            functionName: "startGame",
-          });
-          pendingTxHashRef.current = hash;
-          setTxHash(hash);
-        } catch {
-          // User rejected — cancel
-          pendingChoiceRef.current = null;
-          setStatus("idle");
-          setChoice(null);
-        }
+        // Start animation immediately, fire tx non-blocking
+        startAnimation(chosen);
+        writeContractAsync({ address: contractAddress as `0x${string}`, abi: [{ name: "startGame", type: "function", stateMutability: "nonpayable", inputs: [], outputs: [] }], functionName: "startGame" }).catch(() => {});
         return;
       }
     }

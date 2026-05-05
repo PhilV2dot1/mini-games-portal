@@ -310,26 +310,10 @@ export function useMemory() {
     };
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("⚠️ Please connect wallet first");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      startCountdownAndGameRef.current = startCountdownAndGame;
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: MEMORY_CONTRACT_ABI,
-          functionName: "startGame",
-          args: [getDifficultyEnum(difficulty)],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("⚠️ Transaction rejected");
-        setStatus("idle");
-        startCountdownAndGameRef.current = null;
-      }
+      if (!isConnected || !address) { setMessage("⚠️ Please connect wallet first"); return; }
+      setGameStartedOnChain(true);
+      startCountdownAndGame();
+      writeContractAsync({ address: contractAddress!, abi: MEMORY_CONTRACT_ABI, functionName: "startGame", args: [getDifficultyEnum(difficulty)] }).catch(() => {});
       return;
     }
 

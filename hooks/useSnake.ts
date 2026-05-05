@@ -440,25 +440,10 @@ export function useSnake() {
     };
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("⚠️ Please connect wallet first");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      startCountdownAndGameRef.current = startCountdownAndGame;
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: SNAKE_CONTRACT_ABI,
-          functionName: "startGame",
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("⚠️ Transaction rejected");
-        setStatus("idle");
-        startCountdownAndGameRef.current = null;
-      }
+      if (!isConnected || !address) { setMessage("⚠️ Please connect wallet first"); return; }
+      setGameStartedOnChain(true);
+      startCountdownAndGame();
+      writeContractAsync({ address: contractAddress!, abi: SNAKE_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
       return;
     }
 

@@ -914,52 +914,14 @@ export function useYahtzee() {
     setCurrentPlayer("human");
     setWinner(null);
 
-    // Start game on-chain if in on-chain mode
-    if (mode === "onchain" && address && isConnected) {
-      if (!publicClient || !contractAddress) {
-        setMessage("⚠️ Unable to connect to blockchain");
-        return;
-      }
-
-      setStatus("waiting_start");
-      try {
-        setMessage("Checking for previous game...");
-
-        const isActive = await publicClient.readContract({
-          address: contractAddress,
-          abi: YAHTZEE_CONTRACT_ABI,
-          functionName: "isGameActive",
-          args: [address],
-        });
-
-        if (isActive === true) {
-          setMessage("Abandoning previous game...");
-          await writeContractAsync({
-            address: contractAddress,
-            abi: YAHTZEE_CONTRACT_ABI,
-            functionName: "abandonGame",
-          });
-          await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-
-        setMessage("Sign transaction to start...");
-        const hash = await writeContractAsync({
-          address: contractAddress,
-          abi: YAHTZEE_CONTRACT_ABI,
-          functionName: "startGame",
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Blockchain error! Switching to free mode.");
-        setMode("free");
-        setStatus("playing");
-        setMessage("Turn 1/13 - Roll the dice!");
-      }
-      return;
-    }
-
     setStatus("playing");
     setMessage("Turn 1/13 - Roll the dice!");
+
+    // Fire startGame tx non-blocking in onchain mode
+    if (mode === "onchain" && address && isConnected && contractAddress) {
+      setGameStartedOnChain(true);
+      writeContractAsync({ address: contractAddress, abi: YAHTZEE_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
+    }
   }, [status, mode, address, isConnected, writeContractAsync, contractAddress, publicClient]);
 
   /**

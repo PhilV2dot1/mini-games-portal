@@ -232,18 +232,8 @@ export function useWordle(contractAddress?: `0x${string}` | null) {
     pendingEndRef.current = null;
 
     if (mode === 'onchain' && contractAddress && isConnected) {
-      setStatus('waiting_start');
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress,
-          abi: WORDLE_ABI,
-          functionName: 'startGame',
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage('Transaction rejected');
-        setStatus('idle');
-      }
+      setStatus('playing');
+      writeContractAsync({ address: contractAddress, abi: WORDLE_ABI, functionName: 'startGame' }).catch(() => {});
       return;
     }
 

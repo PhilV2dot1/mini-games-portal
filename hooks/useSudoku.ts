@@ -466,26 +466,10 @@ export function useSudoku() {
     };
 
     if (mode === "onchain") {
-      if (!isConnected || !address) {
-        setMessage("Please connect your wallet first!");
-        return;
-      }
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      pendingPuzzleFetchRef.current = launchGame;
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress!,
-          abi: SUDOKU_CONTRACT_ABI,
-          functionName: "startGame",
-          args: [DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM]],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-        pendingPuzzleFetchRef.current = null;
-      }
+      if (!isConnected || !address) { setMessage("Please connect your wallet first!"); return; }
+      setGameStartedOnChain(true);
+      await launchGame();
+      writeContractAsync({ address: contractAddress!, abi: SUDOKU_CONTRACT_ABI, functionName: "startGame", args: [DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM]] }).catch(() => {});
       return;
     }
 
