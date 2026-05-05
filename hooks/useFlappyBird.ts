@@ -492,31 +492,21 @@ export function useFlappyBird() {
       totalScore: prev.totalScore + finalScore,
     };
 
-    if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
-      setStatus("waiting_end");
-      pendingFinalizeRef.current = { finalScore, finalLevel, next };
-      try {
-        const hash = await writeContractAsync({
-          address: contractAddress,
-          abi: FLAPPYBIRD_ABI,
-          functionName: "endGame",
-          args: [BigInt(finalScore), BigInt(0)],
-        });
-        setEndTxHash(hash);
-      } catch {
-        // User rejected or error — still show result
-        localStorage.setItem(STATS_KEY, JSON.stringify(next));
-        setLocalStats(next);
-        setGameStartedOnChain(false);
-        setStatus("finished");
-        pendingFinalizeRef.current = null;
-      }
-      return;
-    }
-
+    // Save locally immediately — don't block UI on tx confirmation
     localStorage.setItem(STATS_KEY, JSON.stringify(next));
     setLocalStats(next);
     setStatus("finished");
+
+    if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
+      setGameStartedOnChain(false);
+      // Fire endGame non-blocking — result already saved locally
+      writeContractAsync({
+        address: contractAddress,
+        abi: FLAPPYBIRD_ABI,
+        functionName: "endGame",
+        args: [BigInt(finalScore), BigInt(0)],
+      }).catch(() => {});
+    }
   }, [mode, address, contractAddress, gameStartedOnChain, writeContractAsync]);
 
   // ======================================
@@ -640,20 +630,23 @@ export function useFlappyBird() {
     pendingFinalizeRef.current = null;
 
     if (mode === "onchain" && address && contractAddress) {
-      setStatus("waiting_start");
-      setMessage("Sign transaction to start...");
-      try {
-        const hash = await writeContractAsync({
+      // Start game immediately — fire tx non-blocking in background
+      setGameStartedOnChain(true);
+      startCountdownAndGame();
+      writeContractAsync({
+        address: contractAddress,
+        abi: FLAPPYBIRD_ABI,
+        functionName: "startGame",
+        args: [],
+      }).catch(() => {
+        // If startGame fails (stale session), retry once
+        writeContractAsync({
           address: contractAddress,
           abi: FLAPPYBIRD_ABI,
           functionName: "startGame",
           args: [],
-        });
-        setStartTxHash(hash);
-      } catch {
-        setMessage("Transaction rejected");
-        setStatus("idle");
-      }
+        }).catch(() => {});
+      });
       return;
     }
 
