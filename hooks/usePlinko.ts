@@ -75,6 +75,7 @@ const DEFAULT_STATS: PlayerStats = { games: 0, wins: 0, highScore: 0, totalScore
 
 const PLINKO_ABI = [
   { type: "function", name: "startGame", inputs: [], outputs: [], stateMutability: "nonpayable" },
+  { type: "function", name: "abandonGame", inputs: [], outputs: [], stateMutability: "nonpayable" },
   {
     type: "function", name: "endGame",
     inputs: [{ name: "score", type: "uint256" }, { name: "won", type: "uint256" }],
@@ -543,14 +544,13 @@ export function usePlinko() {
   // FINALIZE
   // ======================================
 
-  // startGame tx confirmed → start countdown
+  // startGame tx confirmed → mark session as open on-chain
   useEffect(() => {
-    if (startConfirmed && status === "waiting_start") {
+    if (startConfirmed && startTxHash) {
       setGameStartedOnChain(true);
       setStartTxHash(undefined);
-      startCountdownAndGameRef.current?.();
     }
-  }, [startConfirmed, status]);
+  }, [startConfirmed, startTxHash]);
 
   // startGame tx failed → back to idle
   useEffect(() => {
@@ -763,9 +763,17 @@ export function usePlinko() {
     pendingFinalizeRef.current = null;
 
     if (mode === "onchain" && address && contractAddress) {
-      setGameStartedOnChain(true);
+      // Start game UI immediately; gameStartedOnChain is set true only after startGame tx is mined
+      setGameStartedOnChain(false);
       startCountdownAndGame();
-      writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "startGame", args: [] }).catch(() => {});
+      // Abandon any stale session, then open a new one — store hash so receipt watcher fires
+      writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "abandonGame" })
+        .catch(() => {})
+        .finally(() => {
+          writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "startGame", args: [] })
+            .then((hash) => { setStartTxHash(hash); })
+            .catch(() => {});
+        });
       return;
     }
 
