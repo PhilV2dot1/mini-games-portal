@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
 import { getContractAddress } from "@/lib/contracts/addresses";
 import { useLocalStats } from "@/hooks/useLocalStats";
 
@@ -80,6 +80,12 @@ const PLINKO_ABI = [
     type: "function", name: "endGame",
     inputs: [{ name: "score", type: "uint256" }, { name: "won", type: "uint256" }],
     outputs: [], stateMutability: "nonpayable",
+  },
+  {
+    type: "function", name: "isGameActive",
+    inputs: [{ name: "player", type: "address" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
   },
   {
     type: "function", name: "getPlayerStats",
@@ -201,6 +207,7 @@ export function usePlinko() {
   const { address, chainId } = useAccount();
   const contractAddress = getContractAddress("plinko", chainId);
   const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
   const { recordGame } = useLocalStats();
   // Stable ref so finalizeGame doesn't recreate on every recordGame identity change
   const recordGameRef = useRef(recordGame);
@@ -613,28 +620,42 @@ export function usePlinko() {
     };
 
     if (mode === "onchain" && address && contractAddress && gameStartedOnChain) {
-      setStatus("waiting_end");
-      setMessage("Signing transaction...");
-      pendingFinalizeRef.current = { won, finalScore, next, manual };
+      // Verify a session is actually open on-chain before sending endGame
+      let sessionActive = false;
       try {
-        const hash = await writeContractAsync({
+        sessionActive = await publicClient!.readContract({
           address: contractAddress,
           abi: PLINKO_ABI,
-          functionName: "endGame",
-          args: [BigInt(finalScore), BigInt(won ? 1 : 0)],
-        });
-        setEndTxHash(hash);
-      } catch {
-        // User rejected or error — still show result
-        localStorage.setItem(STATS_KEY, JSON.stringify(next));
-        setLocalStats(next);
-        setGameStartedOnChain(false);
-        await recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
-        setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
-        setStatus("finished");
-        pendingFinalizeRef.current = null;
+          functionName: "isGameActive",
+          args: [address],
+        }) as boolean;
+      } catch { /* if read fails, skip on-chain recording */ }
+
+      if (sessionActive) {
+        setStatus("waiting_end");
+        setMessage("Signing transaction...");
+        pendingFinalizeRef.current = { won, finalScore, next, manual };
+        try {
+          const hash = await writeContractAsync({
+            address: contractAddress,
+            abi: PLINKO_ABI,
+            functionName: "endGame",
+            args: [BigInt(finalScore), BigInt(won ? 1 : 0)],
+          });
+          setEndTxHash(hash);
+        } catch {
+          localStorage.setItem(STATS_KEY, JSON.stringify(next));
+          setLocalStats(next);
+          setGameStartedOnChain(false);
+          await recordGameRef.current("plinko", mode, won ? "win" : "lose", undefined);
+          setMessage(won ? "🏆 You reached 1 BTC!" : manual ? "🏁 Session terminée !" : "💸 Broke!");
+          setStatus("finished");
+          pendingFinalizeRef.current = null;
+        }
+        return;
       }
-      return;
+      // Session not active — save locally only
+      setGameStartedOnChain(false);
     }
 
     localStorage.setItem(STATS_KEY, JSON.stringify(next));
