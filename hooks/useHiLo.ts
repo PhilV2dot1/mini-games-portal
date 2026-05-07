@@ -272,10 +272,15 @@ export function useHiLo() {
     const contractAddress = getContractAddress_();
 
     if (contractAddress) {
-      // On-chain: start immediately, fire tx non-blocking
+      // On-chain: start immediately, fire tx non-blocking.
+      // Abandon any stale session first so the contract doesn't reject startSession (#-39000).
       prepareDeck();
       setStatus("playing");
-      writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "startSession" }).catch(() => {});
+      writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "abandonSession" })
+        .catch(() => {})
+        .finally(() => {
+          writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "startSession" }).catch(() => {});
+        });
     } else {
       // Free mode: start immediately
       prepareDeck();
