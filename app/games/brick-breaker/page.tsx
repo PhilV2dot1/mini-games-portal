@@ -55,7 +55,6 @@ export default function BrickBreakerPage() {
     }
   }, [game.status, game.result, game.mode, recordGame]);
 
-  // Mouse / touch paddle control
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (game.status !== "playing") return;
@@ -65,28 +64,46 @@ export default function BrickBreakerPage() {
     [game]
   );
 
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLCanvasElement>) => {
+      if (game.status !== "playing") return;
+      game.handleTouchStart(e.touches[0].clientX);
+    },
+    [game]
+  );
+
   const handleTouchMove = useCallback(
     (e: React.TouchEvent<HTMLCanvasElement>) => {
       if (game.status !== "playing") return;
       e.preventDefault();
       const rect = e.currentTarget.getBoundingClientRect();
-      game.movePaddleTo(e.touches[0].clientX, rect);
+      game.handleTouchDrag(e.touches[0].clientX, rect);
     },
     [game]
   );
 
-  // Keyboard paddle control
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (game.status !== "playing") return;
-      if (e.key === "ArrowLeft") game.movePaddleByDelta(-20);
-      if (e.key === "ArrowRight") game.movePaddleByDelta(20);
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+  const handleTouchEnd = useCallback(() => {
+    game.handleTouchEnd();
   }, [game]);
 
-  const isPlaying = game.status === "playing";
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (game.status !== "playing") return;
+      if (e.key === "ArrowLeft")  { e.preventDefault(); game.setKeyHeld("left",  true); }
+      if (e.key === "ArrowRight") { e.preventDefault(); game.setKeyHeld("right", true); }
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft")  game.setKeyHeld("left",  false);
+      if (e.key === "ArrowRight") game.setKeyHeld("right", false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup",   onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup",   onKeyUp);
+    };
+  }, [game]);
+
   const isCountdown = game.status === "countdown";
   const isFinished = game.status === "finished";
   const isIdle = game.status === "idle";
@@ -182,7 +199,9 @@ export default function BrickBreakerPage() {
               className="rounded-xl border-2 border-sky-500/40 touch-none cursor-none w-full max-w-sm"
               style={{ aspectRatio: `${CANVAS_W}/${CANVAS_H}` }}
               onMouseMove={handleMouseMove}
+              onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             />
 
             {/* Countdown overlay */}
@@ -241,24 +260,20 @@ export default function BrickBreakerPage() {
             )}
           </div>
 
-          {/* Mobile arrow buttons */}
+          {/* Mobile arrow buttons — use key-held acceleration */}
           <div className="flex justify-center gap-6 mt-3 sm:hidden">
             <button
-              onPointerDown={() => {
-                const interval = setInterval(() => game.movePaddleByDelta(-15), 50);
-                const stop = () => clearInterval(interval);
-                window.addEventListener("pointerup", stop, { once: true });
-              }}
+              onPointerDown={() => game.setKeyHeld("left", true)}
+              onPointerUp={() => game.setKeyHeld("left", false)}
+              onPointerLeave={() => game.setKeyHeld("left", false)}
               className="w-14 h-14 bg-sky-500/20 hover:bg-sky-500/40 text-sky-500 rounded-xl font-black text-2xl flex items-center justify-center active:scale-95"
             >
               ◀
             </button>
             <button
-              onPointerDown={() => {
-                const interval = setInterval(() => game.movePaddleByDelta(15), 50);
-                const stop = () => clearInterval(interval);
-                window.addEventListener("pointerup", stop, { once: true });
-              }}
+              onPointerDown={() => game.setKeyHeld("right", true)}
+              onPointerUp={() => game.setKeyHeld("right", false)}
+              onPointerLeave={() => game.setKeyHeld("right", false)}
               className="w-14 h-14 bg-sky-500/20 hover:bg-sky-500/40 text-sky-500 rounded-xl font-black text-2xl flex items-center justify-center active:scale-95"
             >
               ▶
