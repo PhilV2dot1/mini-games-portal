@@ -467,9 +467,12 @@ export function useSudoku() {
 
     if (mode === "onchain") {
       if (!isConnected || !address) { setMessage("Please connect your wallet first!"); return; }
-      setGameStartedOnChain(true);
-      await launchGame();
-      writeContractAsync({ address: contractAddress!, abi: SUDOKU_CONTRACT_ABI, functionName: "startGame", args: [DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM]] }).catch(() => {});
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      pendingPuzzleFetchRef.current = launchGame;
+      writeContractAsync({ address: contractAddress!, abi: SUDOKU_CONTRACT_ABI, functionName: "startGame", args: [DIFFICULTY_ENUM[difficulty.toUpperCase() as keyof typeof DIFFICULTY_ENUM]] })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage(""); pendingPuzzleFetchRef.current = null; });
       return;
     }
 

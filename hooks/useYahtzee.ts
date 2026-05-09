@@ -914,14 +914,18 @@ export function useYahtzee() {
     setCurrentPlayer("human");
     setWinner(null);
 
-    setStatus("playing");
-    setMessage("Turn 1/13 - Roll the dice!");
-
     // Fire startGame tx non-blocking in onchain mode
     if (mode === "onchain" && address && isConnected && contractAddress) {
-      setGameStartedOnChain(true);
-      writeContractAsync({ address: contractAddress, abi: YAHTZEE_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      writeContractAsync({ address: contractAddress, abi: YAHTZEE_CONTRACT_ABI, functionName: "startGame" })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage("Click Start Game to begin!"); });
+      return;
     }
+
+    setStatus("playing");
+    setMessage("Turn 1/13 - Roll the dice!");
   }, [status, mode, address, isConnected, writeContractAsync, contractAddress, publicClient]);
 
   /**

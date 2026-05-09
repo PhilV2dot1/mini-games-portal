@@ -311,12 +311,11 @@ export function useTicTacToe() {
 
     if (mode === "onchain") {
       if (!isConnected) { setMessage("Please connect wallet first!"); return; }
-      setGameStartedOnChain(true);
-      setBoard([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-      setResult(null);
-      setStatus("playing");
-      setMessage("Your turn! Tap a cell");
-      writeContractAsync({ address: contractAddress!, abi: TICTACTOE_CONTRACT_ABI, functionName: "startGame", args: [] }).catch(() => {});
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      writeContractAsync({ address: contractAddress!, abi: TICTACTOE_CONTRACT_ABI, functionName: "startGame", args: [] })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage(""); });
       return;
     }
 

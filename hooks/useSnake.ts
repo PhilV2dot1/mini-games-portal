@@ -441,9 +441,12 @@ export function useSnake() {
 
     if (mode === "onchain") {
       if (!isConnected || !address) { setMessage("⚠️ Please connect wallet first"); return; }
-      setGameStartedOnChain(true);
-      startCountdownAndGame();
-      writeContractAsync({ address: contractAddress!, abi: SNAKE_CONTRACT_ABI, functionName: "startGame" }).catch(() => {});
+      startCountdownAndGameRef.current = startCountdownAndGame;
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      writeContractAsync({ address: contractAddress!, abi: SNAKE_CONTRACT_ABI, functionName: "startGame" })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage(""); });
       return;
     }
 

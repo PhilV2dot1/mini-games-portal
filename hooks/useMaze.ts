@@ -380,9 +380,12 @@ export function useMaze() {
 
     if (mode === "onchain") {
       if (!isConnected || !address) { setMessage("Please connect wallet first"); return; }
-      setGameStartedOnChain(true);
-      startCountdownAndGame();
-      writeContractAsync({ address: contractAddress!, abi: MAZE_CONTRACT_ABI, functionName: "startGame", args: [getDifficultyEnum(difficulty)] }).catch(() => {});
+      startCountdownAndGameRef.current = startCountdownAndGame;
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      writeContractAsync({ address: contractAddress!, abi: MAZE_CONTRACT_ABI, functionName: "startGame", args: [getDifficultyEnum(difficulty)] })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage(""); });
       return;
     }
 

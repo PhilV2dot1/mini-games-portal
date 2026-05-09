@@ -887,9 +887,11 @@ export function useBrickBreaker() {
     pendingFinalizeRef.current = null;
 
     if (mode === "onchain" && address && contractAddress) {
-      setGameStartedOnChain(true);
-      startCountdownAndGame();
-      writeContractAsync({ address: contractAddress, abi: BRICKBREAKER_ABI, functionName: "startGame", args: [] }).catch(() => {});
+      setStatus("waiting_start");
+      setMessage("Sign the transaction to start...");
+      writeContractAsync({ address: contractAddress, abi: BRICKBREAKER_ABI, functionName: "startGame", args: [] })
+        .then((hash) => setStartTxHash(hash))
+        .catch(() => { setStatus("idle"); setMessage("Click Start to begin!"); });
       return;
     }
 
