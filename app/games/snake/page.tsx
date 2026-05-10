@@ -23,6 +23,8 @@ export default function SnakePage() {
     snake,
     food,
     foodSymbol,
+    difficulty,
+    setDifficulty,
     mode,
     status,
     score,
@@ -238,6 +240,29 @@ export default function SnakePage() {
                 →
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Difficulty Selector — shown when idle or game over */}
+        {(status === "idle" || isGameOver) && (
+          <div className="flex justify-center gap-2">
+            {(["easy", "medium", "expert"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDifficulty(d)}
+                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                  difficulty === d
+                    ? d === "easy"
+                      ? "bg-green-500 text-white shadow-lg"
+                      : d === "medium"
+                      ? "bg-yellow-500 text-white shadow-lg"
+                      : "bg-red-500 text-white shadow-lg"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:brightness-110"
+                }`}
+              >
+                {d === "easy" ? "🐢 Easy" : d === "medium" ? "🐍 Medium" : "⚡ Expert"}
+              </button>
+            ))}
           </div>
         )}
 

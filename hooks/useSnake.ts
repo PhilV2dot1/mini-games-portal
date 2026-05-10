@@ -10,6 +10,7 @@ export type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 export type Position = { x: number; y: number };
 export type GameMode = "free" | "onchain";
 export type GameStatus = "idle" | "waiting_start" | "countdown" | "playing" | "waiting_end" | "gameover";
+export type Difficulty = "easy" | "medium" | "expert";
 
 export interface PlayerStats {
   games: number;
@@ -37,6 +38,12 @@ export const INITIAL_SNAKE_LENGTH = 3;
 export const INITIAL_SPEED = 150; // milliseconds
 export const SPEED_INCREMENT = 5; // Speed increases every 5 food eaten
 export const SPEED_DECREASE = 10; // Decrease delay by 10ms
+
+export const DIFFICULTY_SPEEDS: Record<Difficulty, number> = {
+  easy: 220,
+  medium: 150,
+  expert: 100,
+};
 
 // Contract ABI
 const SNAKE_CONTRACT_ABI = [
@@ -147,6 +154,7 @@ export function useSnake() {
     totalScore: 0,
     totalFood: 0,
   });
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [gameStartedOnChain, setGameStartedOnChain] = useState(false);
   const [message, setMessage] = useState("Press Start to begin!");
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -435,7 +443,7 @@ export function useSnake() {
       setDirection("RIGHT");
       setNextDirection("RIGHT");
       setScore(0);
-      setSpeed(INITIAL_SPEED);
+      setSpeed(DIFFICULTY_SPEEDS[difficulty]);
       startCountdown();
     };
 
@@ -451,7 +459,7 @@ export function useSnake() {
     }
 
     startCountdownAndGame();
-  }, [mode, isConnected, address, writeContractAsync, contractAddress, startCountdown]);
+  }, [mode, difficulty, isConnected, address, writeContractAsync, contractAddress, startCountdown]);
 
   // Reset game
   const resetGame = useCallback(() => {
@@ -462,7 +470,7 @@ export function useSnake() {
     setDirection("RIGHT");
     setNextDirection("RIGHT");
     setScore(0);
-    setSpeed(INITIAL_SPEED);
+    setSpeed(DIFFICULTY_SPEEDS[difficulty]);
     setStatus("idle");
     setMessage("Press Start to begin!");
     setGameStartedOnChain(false);
@@ -471,7 +479,7 @@ export function useSnake() {
     if (gameLoopRef.current) {
       clearInterval(gameLoopRef.current);
     }
-  }, []);
+  }, [difficulty]);
 
   // Switch mode
   const switchMode = useCallback(
@@ -487,6 +495,8 @@ export function useSnake() {
     food,
     foodSymbol,
     direction,
+    difficulty,
+    setDifficulty,
     mode,
     status,
     score,
