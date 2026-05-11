@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useAccount, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, usePublicClient, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { getContractAddress, isGameAvailableOnChain } from "@/lib/contracts/addresses";
 
 // ========================================
@@ -168,6 +168,7 @@ export function useSnake() {
   const startCountdownAndGameRef = useRef<(() => void) | null>(null);
 
   const { address, isConnected, chain } = useAccount();
+  const publicClient = usePublicClient();
   const contractAddress = getContractAddress('snake', chain?.id);
   const gameAvailable = isGameAvailableOnChain('snake', chain?.id);
   const { writeContractAsync } = useWriteContract();
@@ -333,6 +334,24 @@ export function useSnake() {
       if (!gameStartedOnChain) {
         setMessage(`Game Over! Score: ${score}`);
         return;
+      }
+
+      // Simulate first to avoid showing a failed Ledger signing prompt
+      if (publicClient && address) {
+        try {
+          await publicClient.simulateContract({
+            address: contractAddress!,
+            abi: SNAKE_CONTRACT_ABI,
+            functionName: "endGame",
+            args: [BigInt(score), BigInt(foodEaten)],
+            account: address,
+          });
+        } catch {
+          setMessage(`Game Over! Score: ${score}`);
+          setGameStartedOnChain(false);
+          setStatus("gameover");
+          return;
+        }
       }
 
       setStatus("waiting_end");
