@@ -67,7 +67,7 @@ export const PADDLE_W = 80;
 export const PADDLE_H = 12;
 export const PADDLE_Y = CANVAS_H - 30;
 export const BALL_RADIUS = 8;
-export const BALL_SPEED = 3;
+export const BALL_SPEED = 2.2;
 export const BRICK_ROWS = 5;
 export const BRICK_COLS = 8;
 export const BRICK_PADDING = 4;
@@ -183,7 +183,7 @@ function buildBricks(level: number): Brick[] {
 }
 
 function initialBall(paddleX: number, level: number = 1): Ball {
-  const speed = BALL_SPEED + (level - 1) * 0.8;
+  const speed = BALL_SPEED + (level - 1) * 0.5;
   return {
     pos: { x: paddleX + PADDLE_W / 2, y: PADDLE_Y - BALL_RADIUS - 2 },
     vel: { x: speed * (Math.random() > 0.5 ? 1 : -1) * 0.6, y: -speed },
