@@ -40,9 +40,9 @@ export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProp
   };
 
   return (
-    <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-4 shadow-2xl border-4 border-chain">
+    <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-2 shadow-2xl border-4 border-chain overflow-hidden">
       <div
-        className="grid gap-0.5 bg-gray-300 p-0.5 rounded-lg"
+        className="grid bg-gray-300 rounded-lg overflow-hidden"
         data-testid="snake-board"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
@@ -54,7 +54,7 @@ export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProp
             <div
               key={`${x}-${y}`}
               className={cn(
-                "aspect-square rounded-sm border transition-all duration-100",
+                "aspect-square border transition-all duration-100",
                 getCellClass(x, y)
               )}
             >
