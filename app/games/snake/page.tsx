@@ -9,6 +9,7 @@ import { useLocalStats } from "@/hooks/useLocalStats";
 import { useGameAudio } from "@/lib/audio/AudioContext";
 import { SnakeBoard } from "@/components/snake/SnakeBoard";
 import { GameStatus } from "@/components/snake/GameStatus";
+import { DifficultySelector } from "@/components/snake/DifficultySelector";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { WalletConnect } from "@/components/shared/WalletConnect";
 import { PlayerStats } from "@/components/snake/PlayerStats";
@@ -139,6 +140,13 @@ export default function SnakePage() {
           <ModeToggle mode={mode} onModeChange={switchMode} />
         </div>
 
+        {/* Difficulty Selector */}
+        <DifficultySelector
+          difficulty={difficulty}
+          onDifficultyChange={setDifficulty}
+          disabled={isPlaying || isCountdown || isProcessing}
+        />
+
         {/* How to Play Section */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -240,29 +248,6 @@ export default function SnakePage() {
                 →
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Difficulty Selector — shown when idle or game over */}
-        {(status === "idle" || isGameOver) && (
-          <div className="flex justify-center gap-2">
-            {(["easy", "medium", "expert"] as const).map((d) => (
-              <button
-                key={d}
-                onClick={() => setDifficulty(d)}
-                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                  difficulty === d
-                    ? d === "easy"
-                      ? "bg-green-500 text-white shadow-lg"
-                      : d === "medium"
-                      ? "bg-yellow-500 text-white shadow-lg"
-                      : "bg-red-500 text-white shadow-lg"
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:brightness-110"
-                }`}
-              >
-                {d === "easy" ? "🐢 Easy" : d === "medium" ? "🐍 Medium" : "⚡ Expert"}
-              </button>
-            ))}
           </div>
         )}
 
