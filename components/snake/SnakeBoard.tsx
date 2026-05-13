@@ -40,15 +40,14 @@ export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProp
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-2 shadow-2xl border-4 border-chain">
+    <div className="w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-2 shadow-2xl border-4 border-chain">
       <div
-        className="grid bg-gray-300 rounded-lg overflow-hidden"
+        className="grid bg-gray-300 rounded-lg overflow-hidden w-full"
         data-testid="snake-board"
         style={{
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
           gridTemplateRows: `repeat(${gridSize}, 1fr)`,
           aspectRatio: "1 / 1",
-          width: "100%",
         }}
       >
         {Array.from({ length: gridSize }).map((_, y) =>
@@ -56,7 +55,7 @@ export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProp
             <div
               key={`${x}-${y}`}
               className={cn(
-                "border transition-colors duration-100",
+                "border border-gray-200 transition-colors duration-100",
                 getCellClass(x, y)
               )}
             >
@@ -66,6 +65,7 @@ export function SnakeBoard({ snake, food, foodSymbol, gridSize }: SnakeBoardProp
                   src={CRYPTO_ICON_URL(foodSymbol)}
                   alt={foodSymbol.toUpperCase()}
                   className="w-full h-full object-contain p-px"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               )}
             </div>
