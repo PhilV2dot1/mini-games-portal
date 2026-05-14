@@ -347,9 +347,9 @@ export function useSnake() {
             account: address,
           });
         } catch {
+          // No active session — status stays "gameover", just update message
           setMessage(`Game Over! Score: ${score}`);
           setGameStartedOnChain(false);
-          setStatus("gameover");
           return;
         }
       }
