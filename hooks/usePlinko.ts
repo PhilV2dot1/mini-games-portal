@@ -787,13 +787,23 @@ export function usePlinko() {
       // Start game UI immediately; gameStartedOnChain is set true only after startGame tx is mined
       setGameStartedOnChain(false);
       startCountdownAndGame();
-      // Abandon stale session (wait for confirmation), then startGame.
-      // .finally() was a race condition — abandonGame must be mined first.
+      // Simulate startGame first. If it fails (session already active),
+      // abandon the stale session (wait for confirmation), then retry.
       (async () => {
-        try {
-          const abandonHash = await writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "abandonGame" });
-          if (publicClient) await publicClient.waitForTransactionReceipt({ hash: abandonHash });
-        } catch { /* no active session to abandon — that's fine */ }
+        let sessionBlocked = false;
+        if (publicClient) {
+          try {
+            await publicClient.simulateContract({ address: contractAddress, abi: PLINKO_ABI, functionName: "startGame", args: [], account: address });
+          } catch {
+            sessionBlocked = true;
+          }
+        }
+        if (sessionBlocked) {
+          try {
+            const abandonHash = await writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "abandonGame" });
+            if (publicClient) await publicClient.waitForTransactionReceipt({ hash: abandonHash });
+          } catch { /* ignore */ }
+        }
         try {
           const hash = await writeContractAsync({ address: contractAddress, abi: PLINKO_ABI, functionName: "startGame", args: [] });
           setStartTxHash(hash);

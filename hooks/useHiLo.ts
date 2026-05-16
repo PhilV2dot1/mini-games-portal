@@ -273,15 +273,26 @@ export function useHiLo() {
     const contractAddress = getContractAddress_();
 
     if (contractAddress) {
-      // On-chain: abandon stale session (wait for confirmation), then startSession.
-      // Using .finally() was a race condition — abandonSession must be mined first.
+      // Simulate startSession first. If it fails (session already active),
+      // abandon the stale session (wait for confirmation), then retry.
       prepareDeck();
       setStatus("waiting_start");
       (async () => {
-        try {
-          const abandonHash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "abandonSession" });
-          if (publicClient) await publicClient.waitForTransactionReceipt({ hash: abandonHash });
-        } catch { /* no active session to abandon — that's fine */ }
+        // Check if a session is already active
+        let sessionBlocked = false;
+        if (publicClient && address) {
+          try {
+            await publicClient.simulateContract({ address: contractAddress, abi: HILO_ABI, functionName: "startSession", account: address });
+          } catch {
+            sessionBlocked = true;
+          }
+        }
+        if (sessionBlocked) {
+          try {
+            const abandonHash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "abandonSession" });
+            if (publicClient) await publicClient.waitForTransactionReceipt({ hash: abandonHash });
+          } catch { /* ignore */ }
+        }
         try {
           const hash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "startSession" });
           setStartTxHash(hash);
