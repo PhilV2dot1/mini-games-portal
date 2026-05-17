@@ -285,21 +285,25 @@ export function useHiLo() {
       (async () => {
         const pc = publicClientRef.current;
         const addr = addressRef.current;
-        // Check if a session is already active — use refs for fresh values
-        let sessionBlocked = false;
+
+        // If a session is already active, abandon it first and wait for confirmation.
+        // If abandon fails or is rejected, abort — don't send startSession into a blocked contract.
         if (pc && addr) {
           try {
             await pc.simulateContract({ address: contractAddress, abi: HILO_ABI, functionName: "startSession", account: addr });
           } catch {
-            sessionBlocked = true;
+            // Session is active — must abandon first
+            try {
+              const abandonHash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "abandonSession" });
+              if (pc) await pc.waitForTransactionReceipt({ hash: abandonHash });
+            } catch {
+              // Abandon failed or rejected — cannot proceed
+              setStatus("idle");
+              return;
+            }
           }
         }
-        if (sessionBlocked) {
-          try {
-            const abandonHash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "abandonSession" });
-            if (pc) await pc.waitForTransactionReceipt({ hash: abandonHash });
-          } catch { /* ignore */ }
-        }
+
         try {
           const hash = await writeContractAsync({ address: contractAddress, abi: HILO_ABI, functionName: "startSession" });
           setStartTxHash(hash);
